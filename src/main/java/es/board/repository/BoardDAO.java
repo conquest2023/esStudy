@@ -16,8 +16,10 @@ public interface BoardDAO {
 
   Board save(Board board);
 
+    List<ReqFeedDTO> getFeedAll();
 
-   List<Board> getFeed(String username);
+   List<ReqFeedDTO> getFeed(String id);
 
+   void deleteFeed(String id);
 
 }

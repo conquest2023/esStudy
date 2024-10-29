@@ -1,5 +1,7 @@
 package es.board.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.model.req.ReqFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.entity.Board;
@@ -19,13 +21,21 @@ public class crudController {
 
     private final crudService crud;
 
-    @GetMapping("/get/feed/{username}")
-    public List<Board> getFeed(@PathVariable("username") String username) {
+    @GetMapping("/get/feed/{keyword}")
+    public List<ReqFeedDTO> getFeedId(@PathVariable("keyword") String id) {
 
 
-       log.info(crud.getFeed(username).toString());
-       return crud.getFeed(username);
+   //    log.info(crud.getFeed(id).toString());
+       return crud.getFeed(id);
     }
+    @GetMapping("/get/feedAll")
+    public List<ReqFeedDTO> getFeedAll() {
+
+        log.info(crud.getFeedAll().toString());
+
+        return crud.getFeedAll();
+    }
+
 
     @PostMapping("/post/feed")
     public void postFeed(@RequestBody Board board) {
@@ -38,5 +48,11 @@ public class crudController {
         log.info(feedSaveDTO.toString());
         crud.saveDTO(feedSaveDTO);
 
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteFeed(@PathVariable("id") String id){
+
+        crud.delete(id);
     }
 }

@@ -15,7 +15,13 @@ public interface crudService {
     void save(Board board);
 
 
-    List<Board> getFeed(String username);
+    List<ReqFeedDTO> getFeedAll();
+
+    List<ReqFeedDTO> getFeed(String id);
 
     void delete(String id);
+
+
+
+
 }

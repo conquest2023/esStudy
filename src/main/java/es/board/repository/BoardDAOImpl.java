@@ -29,7 +29,17 @@ public class BoardDAOImpl implements BoardDAO {
     }
 
     @Override
-    public List<Board> getFeed(String username) {
-        return boardRepository.findByusername(username);
+    public List<ReqFeedDTO> getFeedAll() {
+      return   boardRepository.findAllFeed();
+    }
+
+    @Override
+    public List<ReqFeedDTO> getFeed(String id) {
+        return boardRepository.findAllById(id);
+    }
+
+    @Override
+    public void deleteFeed(String id) {
+        boardRepository.deleteById(id);
     }
 }

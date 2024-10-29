@@ -14,8 +14,6 @@ import java.util.List;
 public class CrudServiceImpl implements crudService {
 
     private final BoardDAO boardDAO;
-
-
     @Override
     public void saveDTO(FeedSaveDTO dto) {
         Board board = new Board();
@@ -27,17 +25,21 @@ public class CrudServiceImpl implements crudService {
         boardDAO.save(board);
     }
 
+    @Override
+    public List<ReqFeedDTO> getFeedAll() {
+        return boardDAO.getFeedAll();
+    }
 
 
     @Override
-    public List<Board> getFeed(String username) {
+    public List<ReqFeedDTO> getFeed(String id) {
 
-      return   boardDAO.getFeed(username);
+      return   boardDAO.getFeed(id);
 
     }
 
     @Override
     public void delete(String id) {
-
+        boardDAO.deleteFeed(id);
     }
 }
