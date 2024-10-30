@@ -22,19 +22,25 @@ public class BoardDAOImpl implements BoardDAO {
         log.info("save dto: {}", dto);
      return   boardRepository.save(dto);
     }
-
     @Override
     public Board save(Board board) {
      return    boardRepository.save(board);
     }
 
     @Override
-    public List<ReqFeedDTO> getFeedAll() {
-      return   boardRepository.findAllFeed();
+    public Board updateDTO(Board updateDTO) {
+        return boardRepository.save(updateDTO);
+    }
+
+
+    @Override
+    public List<Board> getFeedAll() {
+      return   boardRepository.findAllBy();
     }
 
     @Override
-    public List<ReqFeedDTO> getFeed(String id) {
+    public Board getFeed(String id) {
+
         return boardRepository.findAllById(id);
     }
 

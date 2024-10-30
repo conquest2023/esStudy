@@ -1,6 +1,7 @@
 package es.board.service;
 
 import es.board.model.req.ReqFeedDTO;
+import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.entity.Board;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,10 @@ public interface crudService {
 
     List<ReqFeedDTO> getFeedAll();
 
-    List<ReqFeedDTO> getFeed(String id);
+    UpdateFeedDTO update(String id, UpdateFeedDTO updateFeedDTO);
+
+
+    Board getFeed(String id);
 
     void delete(String id);
 

@@ -10,10 +10,9 @@ import java.util.List;
 @Repository
 public interface BoardRepository extends ElasticsearchRepository<Board,String> {
 
-    List<ReqFeedDTO> findAllById(String id);
+    Board  findAllById(String id);
 
-
-    @Query("select new es.board.model.req.ReqFeedDTO(m.id,m.username,m.title,m.description from Board m")
-    List<ReqFeedDTO> findAllFeed();
+    @Query("{ \"match_all\": {} }")
+    List<Board> findAllBy();
 
 }

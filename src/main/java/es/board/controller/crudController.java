@@ -3,6 +3,7 @@ package es.board.controller;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.model.req.ReqFeedDTO;
+import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.entity.Board;
 import es.board.service.crudService;
@@ -22,8 +23,7 @@ public class crudController {
     private final crudService crud;
 
     @GetMapping("/get/feed/{keyword}")
-    public List<ReqFeedDTO> getFeedId(@PathVariable("keyword") String id) {
-
+    public Board getFeedId(@PathVariable("keyword") String id) {
 
    //    log.info(crud.getFeed(id).toString());
        return crud.getFeed(id);
@@ -31,9 +31,8 @@ public class crudController {
     @GetMapping("/get/feedAll")
     public List<ReqFeedDTO> getFeedAll() {
 
-        log.info(crud.getFeedAll().toString());
-
         return crud.getFeedAll();
+
     }
 
 
@@ -47,6 +46,12 @@ public class crudController {
     public void postFeedDTO(@RequestBody FeedSaveDTO feedSaveDTO) {
         log.info(feedSaveDTO.toString());
         crud.saveDTO(feedSaveDTO);
+
+    }
+    @PutMapping("/update/feed/{id}")
+    public UpdateFeedDTO updatedFeed(@PathVariable("id") String id, @RequestBody UpdateFeedDTO update){
+
+        return  crud.update(id,update);
 
     }
 
