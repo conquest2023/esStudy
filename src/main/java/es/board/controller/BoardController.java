@@ -1,15 +1,12 @@
 package es.board.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.model.req.ReqFeedDTO;
 import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.entity.Board;
-import es.board.service.crudService;
+import es.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +14,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class crudController {
+public class BoardController {
 
 
-    private final crudService crud;
+    private final BoardService crud;
 
     @GetMapping("/get/feed/{keyword}")
     public Board getFeedId(@PathVariable("keyword") String id) {

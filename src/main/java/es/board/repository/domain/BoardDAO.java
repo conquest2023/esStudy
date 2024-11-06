@@ -1,4 +1,4 @@
-package es.board.repository;
+package es.board.repository.domain;
 
 
 import es.board.model.req.ReqFeedDTO;

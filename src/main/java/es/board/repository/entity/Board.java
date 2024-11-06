@@ -53,7 +53,6 @@ public class Board {
                 .description(feedSaveDTO.getDescription())
                 .createdAt(LocalDate.now())
                 .build();
-
     }
 
 

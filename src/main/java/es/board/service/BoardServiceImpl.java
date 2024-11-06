@@ -3,29 +3,27 @@ package es.board.service;
 import es.board.model.req.ReqFeedDTO;
 import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
-import es.board.repository.BoardDAO;
+import es.board.repository.domain.BoardDAO;
 import es.board.repository.entity.Board;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Builder
 @RequiredArgsConstructor
-public class CrudServiceImpl implements crudService {
+public class BoardServiceImpl implements BoardService {
+
 
     private final BoardDAO boardDAO;
     @Override
     public void saveDTO(FeedSaveDTO dto) {
         Board board = new Board();
         boardDAO.saveDTO(board.BoardToEntity(dto));
-
     }
-
     @Override
     public void save(Board board) {
 
@@ -59,6 +57,7 @@ public class CrudServiceImpl implements crudService {
     }
     @Override
     public void delete(String id) {
+
         boardDAO.deleteFeed(id);
     }
 

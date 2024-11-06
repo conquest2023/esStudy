@@ -23,5 +23,7 @@ public class FeedSaveDTO {
     private String description;
 
 
+    private  int LikeCount;
+
     private LocalDateTime createdAt;
 }

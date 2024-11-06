@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public interface crudService {
+public interface BoardService {
 
 
     void saveDTO(FeedSaveDTO dto);
