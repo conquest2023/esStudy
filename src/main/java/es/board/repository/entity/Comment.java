@@ -27,8 +27,6 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 @Builder
-@Setting(settingPath = "elastic/post-setting.json")
-@Mapping(mappingPath = "elastic/post-mapping.json")
 public class Comment{
 
     @Id

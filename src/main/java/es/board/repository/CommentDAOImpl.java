@@ -30,6 +30,11 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
+    public List<Comment> SearchCommentBring(String keyword) {
+        return commentRepository.findCommentsByUsernameAndContent(keyword);
+    }
+
+    @Override
     public Comment CommentEdit(Comment comment) {
         return  commentRepository.save(comment);
     }
@@ -37,5 +42,10 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public Comment getCommentId(String commentUid) {
         return  commentRepository.findByCommentUID(commentUid);
+    }
+
+    @Override
+    public List<Comment> SearchCommentScore(String score) {
+        return commentRepository.findByContentMatchingQuery(score);
     }
 }

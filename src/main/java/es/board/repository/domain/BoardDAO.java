@@ -21,7 +21,8 @@ public interface BoardDAO {
   Board updateDTO(Board updateDTO);
 
 
-    List<Board> getFeedAll();
+
+  List<Board> getFeedAll();
 
    Board getFeed(String id);
 

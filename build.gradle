@@ -31,17 +31,17 @@ ext {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-//	implementation 'org.springframework.ai:spring-ai-elasticsearch-store-spring-boot-starter'
+//	implementation 'org.springframework.ai:spring-ai-elasticsㅈearch-store-spring-boot-starter'
+	implementation 'co.elastic.clients:elasticsearch-java:8.15.3'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-	}
 }
 
 tasks.named('test') {

@@ -1,9 +1,6 @@
 package es.board.controller;
 
-import es.board.model.req.ReqCommentDTO;
-import es.board.model.req.ReqFeedDTO;
-import es.board.model.req.UpdateCommentDTO;
-import es.board.model.req.UpdateFeedDTO;
+import es.board.model.req.*;
 import es.board.model.res.CommentSaveDTO;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +19,21 @@ public class CommentController {
     public void CommentSave(@RequestBody CommentSaveDTO commentSaveDTO){
         commentService.CommentSave(commentSaveDTO);
     }
+
+    @GetMapping("/get/comment/{keyword}")
+    public List<ReqSearchCommentDTO> CommentSearch( @PathVariable("keyword") String keyword)
+    {
+
+        return  commentService.SearchComment(keyword);
+    }
+
+    @GetMapping("/get/comment/score/{score}")
+    public List<ReqCommentDTO>  CommentScore(@PathVariable("score") String score){
+
+        return commentService.CommentScore(score);
+    }
+
+
 
     @GetMapping("/get/comment")
     public List<ReqCommentDTO> CommentGet(){

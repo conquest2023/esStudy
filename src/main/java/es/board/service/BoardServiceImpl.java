@@ -1,6 +1,7 @@
 package es.board.service;
 
 import es.board.model.req.ReqFeedDTO;
+import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.domain.BoardDAO;
@@ -29,6 +30,7 @@ public class BoardServiceImpl implements BoardService {
 
         boardDAO.save(board);
     }
+
 
     @Override
     public List<ReqFeedDTO> getFeedAll() {

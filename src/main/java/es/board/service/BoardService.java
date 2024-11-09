@@ -1,6 +1,7 @@
 package es.board.service;
 
 import es.board.model.req.ReqFeedDTO;
+import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateFeedDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.entity.Board;
@@ -14,6 +15,7 @@ public interface BoardService {
     void saveDTO(FeedSaveDTO dto);
 
     void save(Board board);
+
 
 
     List<ReqFeedDTO> getFeedAll();

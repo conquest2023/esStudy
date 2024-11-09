@@ -17,15 +17,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Builder
-@Setting(settingPath = "elastic/post-setting.json")
-@Mapping(mappingPath = "elastic/post-mapping.json")
 public class Board {
 
     @Id
     @Field(name="id", type = FieldType.Keyword)
     private String id;
 
-    @Field(type = FieldType.Text)
+    @Field
     private String username;
 
     @Field(type = FieldType.Text)
@@ -43,6 +41,7 @@ public class Board {
 
     @Field(type=FieldType.Date)
     private LocalDate deletedAt;
+
 
 
     public Board BoardToEntity(FeedSaveDTO feedSaveDTO) {

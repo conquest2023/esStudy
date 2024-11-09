@@ -18,9 +18,12 @@ public interface CommentDAO {
 
     List<Comment> CommentBringRepo();
 
+    List<Comment> SearchCommentBring(String keyword);
 
     Comment CommentEdit(Comment updateDTO);
 
 
-  Comment getCommentId(String commentUid);
+    Comment getCommentId(String commentUid);
+
+    List<Comment> SearchCommentScore(String score);
 }
