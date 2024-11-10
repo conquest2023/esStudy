@@ -6,11 +6,16 @@ import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface CommentService {
 
+
+    public String searchIndex(String indexName) throws IOException;
+    public String indexDocument(String indexName, Map<String, Object> document) throws IOException;
 
     void CommentSave(CommentSaveDTO commentSaveDTO);
 

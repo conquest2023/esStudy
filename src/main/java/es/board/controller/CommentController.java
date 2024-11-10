@@ -6,7 +6,9 @@ import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -15,6 +17,17 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    @GetMapping("/search")
+    public String search(@RequestParam String index) throws IOException {
+        return commentService.searchIndex(index);
+
+    }
+
+    // 문서 색인
+    @PostMapping("/index")
+    public String indexDocument(@RequestParam String index, @RequestBody Map<String, Object> document) throws IOException {
+        return commentService.indexDocument(index, document);
+    }
     @PostMapping("/save/comment")
     public void CommentSave(@RequestBody CommentSaveDTO commentSaveDTO){
         commentService.CommentSave(commentSaveDTO);
