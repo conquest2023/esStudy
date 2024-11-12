@@ -8,6 +8,8 @@ import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHeader;
@@ -22,9 +24,9 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 
 
 @Configuration
-public class ElasticConfig  {
+public class ElasticConfig {
 
-    String apiKey ="a1Z5ckVaTUJkc0NwWElFcE1QcWg6S2Q2LVJjbmhSYld6TEc2X3FmM1B6dw==";
+    String apiKey = "a1Z5ckVaTUJkc0NwWElFcE1QcWg6S2Q2LVJjbmhSYld6TEc2X3FmM1B6dw==";
     @Value("${spring.elasticsearch.username}")
     private String username;
 
@@ -59,4 +61,11 @@ public class ElasticConfig  {
     }
 
 
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+
     }
+}

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
 import es.board.model.res.FeedSaveDTO;
 import lombok.AllArgsConstructor;
@@ -42,9 +43,13 @@ public class Comment{
     @Field(type = FieldType.Integer)
     private int likeCount;
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis")
     private LocalDateTime createdAt;
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis")
     private LocalDateTime updatedAt;
 
@@ -63,5 +68,13 @@ public class Comment{
     }
 
 
+
+    public Comment convertDtoToEntity(UpdateCommentDTO eq) {
+            return  Comment.builder()
+                    .commentUID(eq.getCommentUID())
+                    .username(eq.getUsername())
+                    .content(eq.getContent())
+                    .build();
+    }
 
 }

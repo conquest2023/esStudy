@@ -1,5 +1,11 @@
 package es.board.service;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.transport.endpoints.BinaryResponse;
 import co.elastic.clients.util.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.model.req.*;
@@ -18,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +34,8 @@ import java.util.Map;
 public class CommentServiceImpl implements CommentService {
 
     private final RestClient client;
+
+    private final ElasticsearchClient esClient;
 
     private final CommentDAO commentDAO;
 
@@ -38,24 +47,44 @@ public class CommentServiceImpl implements CommentService {
         Response response = client.performRequest(request);
         return new String(response.getEntity().getContent().readAllBytes());
     }
-
     @Override
     public String indexDocument(String indexName, Map<String, Object> document) throws IOException {
-        Request request = new Request("POST", "/" + indexName + "/_doc");
+//        Request request = new Request("POST", "/" + indexName + "/_doc");
+
+        return  commentDAO.indexDocument(indexName,document);
+
+        // 결과 반환
 
         // JSON 형태로 변환 후 요청 본문에 추가
-        StringEntity entity = new StringEntity(
-                new ObjectMapper().writeValueAsString(document),
-                ContentType.APPLICATION_JSON
-        );
-
-        request.setEntity(entity);
-        Response response = client.performRequest(request);
-        return new String(response.getEntity().getContent().readAllBytes());
-
+//        StringEntity entity = new StringEntity(
+//                new ObjectMapper().writeValueAsString(document),
+//                ContentType.APPLICATION_JSON);
+//        request.setEntity(entity);
+//        Response response = client.performRequest(request);
+//        return new String(response.getEntity().getContent().readAllBytes());
     }
-    public void closeClient() throws IOException {
 
+    @Override
+    public List<Comment> SearchTextEx(String indexName, String text) throws IOException {
+        return commentDAO.SearchTextBring(indexName,text);
+    }
+    @Override
+    public List<Comment> EditCommentEx(String id, UpdateCommentDTO eq) throws IOException {
+        Comment comment=new Comment();
+
+       return commentDAO.EditCommentEx(id,comment.convertDtoToEntity(eq));
+    }
+    @Override
+    public List<Comment> BulkIndexTo(List<Comment> comments) throws IOException {
+        return  commentDAO.BulkIndex(comments);
+    }
+
+    @Override
+    public Comment PracticeSearch(String indexName, String id) throws IOException {
+        return commentDAO.PracticeSearch(indexName,id);
+    }
+
+    public void closeClient() throws IOException {
         client.close();
 
     }
@@ -117,5 +146,7 @@ public class CommentServiceImpl implements CommentService {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+
 
 }
