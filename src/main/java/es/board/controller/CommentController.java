@@ -1,7 +1,5 @@
 package es.board.controller;
 
-import co.elastic.clients.elasticsearch.core.GetResponse;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.model.req.*;
 import es.board.model.res.CommentSaveDTO;
 import es.board.repository.entity.Comment;
@@ -24,6 +22,20 @@ public class CommentController {
     public String search(@RequestParam String index) throws IOException {
         return commentService.searchIndex(index);
     }
+    @GetMapping("/search/paging/{num}")
+    public List<ReqCommentDTO> PagingSearch(@PathVariable int num) throws IOException {
+        return  commentService.PagingSearchIndex(num);
+    }
+    @GetMapping("/searchs/{text}")
+    public List<Comment> searchText(@PathVariable String text) throws IOException {
+        return  commentService.SearchTextEx(text);
+    }
+
+    @GetMapping("/search/like")
+    public List<ReqCommentDTO> LikeDESC() throws IOException {
+        return  commentService.LikeDESCTo();
+    }
+
 
     @PutMapping("/edit/{id}")
     public List<Comment> EditEx(@PathVariable String id, @RequestBody UpdateCommentDTO eq) throws IOException {
@@ -31,30 +43,19 @@ public class CommentController {
         return commentService.EditCommentEx(id,eq);
     }
 
-
-    @GetMapping("/searchs/{indexName}/{text}")
-    public List<Comment> searchText(@PathVariable String text
-                              , @PathVariable String indexName) throws IOException {
-        return  commentService.SearchTextEx(indexName,text);
+    @GetMapping("/search/{id}")
+    public Comment searchGetId(@PathVariable String id) throws IOException{
+        return commentService.SearchId(id);
     }
-
-    @GetMapping("/search/{indexName}/{id}")
-    public Comment searchPractice(@PathVariable String indexName, @PathVariable String id) throws IOException{
-        return commentService.PracticeSearch(indexName,id);
-    }
-
-
     @PostMapping("/bulks")
-    public  List<Comment> BulkIndex(@RequestBody List<Comment> comments) throws IOException {
+    public  List<CommentSaveDTO> BulkIndex(@RequestBody List<CommentSaveDTO> comments) throws IOException {
 
         return commentService.BulkIndexTo(comments);
     }
-
-
     // 문서 색인
     @PostMapping("/index")
-    public String indexDocument(@RequestParam String index, @RequestBody Map<String, Object> document) throws IOException {
-        return commentService.indexDocument(index, document);
+    public String indexDocument(@RequestParam String index, @RequestBody CommentSaveDTO dto) throws IOException {
+        return commentService.indexDocument(index, dto);
     }
     @PostMapping("/save/comment")
     public void CommentSave(@RequestBody CommentSaveDTO commentSaveDTO){

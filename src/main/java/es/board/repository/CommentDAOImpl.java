@@ -2,12 +2,14 @@ package es.board.repository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.json.JsonData;
 import es.board.model.req.ReqCommentDTO;
 import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateCommentDTO;
+import es.board.model.res.CommentSaveDTO;
 import es.board.repository.domain.CommentDAO;
 import es.board.repository.entity.Board;
 import es.board.repository.entity.Comment;
@@ -16,11 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static co.elastic.clients.elasticsearch.ingest.ProcessorBuilders.sort;
+import static java.rmi.server.LogStream.log;
 
 @Repository
 @RequiredArgsConstructor
@@ -45,13 +51,13 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public String indexDocument(String index, Map<String, Object> document) throws IOException {
+    public String indexDocument(String index, CommentSaveDTO dto) throws IOException {
+        dto.TimeNow();
         try {
             IndexResponse response = client.index(i -> i
                     .index(index)
-                    .document(document)
-            );
-            // 성공적으로 문서가 저장되면, 문서 ID를 반환합니다.
+                    .document(dto));
+            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
             return response.id();
         } catch (IOException e) {
             // 오류가 발생한 경우 로그를 출력합니다.
@@ -61,16 +67,13 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> SearchTextBring(String indexName, String text) throws IOException {
+    public List<Comment> SearchTextBring(String text) throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
-                        .index(indexName)  // 'comments' 인덱스에서 검색
+                        .index("comment")  // 'comments' 인덱스에서 검색
                         .query(q -> q        // 쿼리 정의
                                 .match(t -> t    // 'content' 필드에서  검색
                                         .field("content")
-                                        .query(text)
-
-                                )
-                        ),
+                                        .query(text))),
                 Comment.class  // 결과를 Comment 클래스 객체로 매핑
         );
 
@@ -78,6 +81,45 @@ public class CommentDAOImpl implements CommentDAO {
                 .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
                 .collect(Collectors.toList());
      return comments;
+    }
+
+    @Override
+    public List<Comment> LikeDESCBring() throws IOException {
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")  // 'comment' 인덱스에서 검색
+                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+                        .sort(sort -> sort.field(f -> f
+                                .field("likeCount")  // 정렬 기준 필드: likeCount
+                                .order(SortOrder.Desc)// 내림차순 정렬
+                        )),
+                Comment.class   // 결과를 Comment 클래스 객체로 매핑
+        );
+
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                // Elasticsearch 문서를 Comment 객체로 변환
+                .collect(Collectors.toList());
+        return comments;
+
+    }
+
+
+    @Override
+    public List<Comment> PagingSearchBring(int num) throws IOException {
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")  // 'comments' 인덱스에서 검색
+                        .from(num)
+                        .size(num+1)
+                        .query(q -> q
+                                .matchAll(t ->t)),
+                Comment.class  // 결과를 Comment 클래스 객체로 매핑
+        );
+
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                // Elasticsearch 문서를 Comment 객체로 변환
+                .collect(Collectors.toList());
+        return comments;
     }
 
     @Override
@@ -98,45 +140,56 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public Comment PracticeSearch(String indexName,String id) throws IOException {
+    public Comment SearchIdBring(String id) throws IOException {
         // GetResponse 객체를 사용하여 Elasticsearch에서 문서를 검색합니다.
         GetResponse<Comment> response = client.get(g -> g
-                        .index(indexName)  // 인덱스 이름을 전달합니다.
+                        .index("comment")  // 인덱스 이름을 전달합니다.
                         .id(id),// 문서 ID를 전달합니다.
                 Comment.class);       // Comment.class로 결과를 매핑합니다.
         // 문서가 존재하는지 확인하고, 존재하면 내용을 로그에 출력합니다.
         if (response.found()) {
             Comment comment = response.source();  // Elasticsearch 문서를 Comment 객체로 변환
-            log.info("Comment content: " + comment.getContent());
+            CommentDAOImpl.log.info("Comment content: " + comment.getContent());
             return comment;// 댓글 내용을 출력
         } else {
-            log.info("Comment not found");
+            CommentDAOImpl.log.info("Comment not found");
             return  null;
         }
     }
-
     @Override
     public List<Comment> BulkIndex(List<Comment> pages) throws IOException {
 
-        List<Comment> products = fetchProducts(pages);
         BulkRequest.Builder br = new BulkRequest.Builder();
-
-        for (Comment product : products) {
+        log.info(pages.toString());
+        for (Comment product : pages) {
+            log("인덱싱 중: " + product);
             br.operations(op -> op
                     .index(idx -> idx
                             .index("comment")
                             .document(product)
                     )
             );
+            log("인덱싱 중: " + product);
         }
-        for (Comment product : products) {
-            IndexResponse response = client.index(i -> i
-                    .index("comment")
-                    .document(product));
+        BulkResponse response = client.bulk(br.build());
+        log.info(response.toString());
+
+        // 에러가 발생한 경우 로그 출력
+        if (response.errors()) {
+            response.items().forEach(item -> {
+                if (item.error() != null) {
+                    log("Failed to index document with ID: " + item.id() + " Error: " + item.error().reason());
+                }
+            });
+        } else {
+            response.items().forEach(item -> {
+                log("Successfully indexed document with ID: " + item.id());
+            });
         }
 
-        return  products;
+        return pages;
     }
+
     @Override
     public void CommentSaveRepo(Comment dto) {
         commentRepository.save(dto);

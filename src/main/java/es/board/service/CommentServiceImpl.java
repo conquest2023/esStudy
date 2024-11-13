@@ -1,28 +1,19 @@
 package es.board.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.GetResponse;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.transport.endpoints.BinaryResponse;
-import co.elastic.clients.util.ContentType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.model.req.*;
 import es.board.model.res.CommentSaveDTO;
+import es.board.model.res.FeedSaveDTO;
 import es.board.repository.domain.CommentDAO;
-import es.board.repository.entity.Board;
 import es.board.repository.entity.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.entity.StringEntity;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +39,10 @@ public class CommentServiceImpl implements CommentService {
         return new String(response.getEntity().getContent().readAllBytes());
     }
     @Override
-    public String indexDocument(String indexName, Map<String, Object> document) throws IOException {
+    public String indexDocument(String indexName, CommentSaveDTO dto) throws IOException {
 //        Request request = new Request("POST", "/" + indexName + "/_doc");
-
-        return  commentDAO.indexDocument(indexName,document);
-
+        return  commentDAO.indexDocument(indexName,dto);
         // 결과 반환
-
         // JSON 형태로 변환 후 요청 본문에 추가
 //        StringEntity entity = new StringEntity(
 //                new ObjectMapper().writeValueAsString(document),
@@ -65,8 +53,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> SearchTextEx(String indexName, String text) throws IOException {
-        return commentDAO.SearchTextBring(indexName,text);
+    public List<Comment> SearchTextEx(String text) throws IOException {
+        return commentDAO.SearchTextBring(text);
     }
     @Override
     public List<Comment> EditCommentEx(String id, UpdateCommentDTO eq) throws IOException {
@@ -75,19 +63,37 @@ public class CommentServiceImpl implements CommentService {
        return commentDAO.EditCommentEx(id,comment.convertDtoToEntity(eq));
     }
     @Override
-    public List<Comment> BulkIndexTo(List<Comment> comments) throws IOException {
-        return  commentDAO.BulkIndex(comments);
+    public List<CommentSaveDTO> BulkIndexTo(List<CommentSaveDTO> comments) throws IOException {
+         commentDAO.BulkIndex(BulkToEntity(comments));
+          return  comments;
     }
 
     @Override
-    public Comment PracticeSearch(String indexName, String id) throws IOException {
-        return commentDAO.PracticeSearch(indexName,id);
+    public List<ReqCommentDTO> LikeDESCTo() throws IOException {
+        ReqCommentDTO req=new ReqCommentDTO();
+        return  req.DTOFromEntity(commentDAO.LikeDESCBring());
+    }
+
+    @Override
+    public List<ReqCommentDTO> PagingSearchIndex(int num) throws IOException {
+        ReqCommentDTO req=new ReqCommentDTO();
+        List<Comment> comments= commentDAO.PagingSearchBring(num);
+        log.info(comments.toString());
+        return  req.DTOFromEntity(comments);
+    }
+
+    @Override
+    public Comment SearchId(String id) throws IOException {
+        return commentDAO.SearchIdBring(id);
     }
 
     public void closeClient() throws IOException {
         client.close();
 
     }
+
+
+
 
 
     @Override
@@ -113,19 +119,16 @@ public class CommentServiceImpl implements CommentService {
       return req.DTOFromSearch(commentDAO.SearchCommentBring(keyword));
 
     }
-
     @Override
     public List<ReqCommentDTO> CommentBring() {
         ReqCommentDTO req=new ReqCommentDTO();
         return req.DTOFromEntity(commentDAO.CommentBringRepo());
     }
-
     @Override
     public List<ReqCommentDTO> CommentScore(String score) {
         ReqCommentDTO reqCommentDTO=new ReqCommentDTO();
         return  reqCommentDTO.DTOFromEntity(commentDAO.SearchCommentScore(score));
     }
-
     @Override
     public UpdateCommentDTO CommentEdit(String CommentUID,UpdateCommentDTO updateCommentDTO) {
         Comment updateComment=commentDAO.getCommentId(CommentUID);
@@ -135,10 +138,12 @@ public class CommentServiceImpl implements CommentService {
         return  updateCommentDTO;
     }
 
+
+
+
     public Comment updateCommentDTO(String id, Comment comment ,UpdateCommentDTO update){
         String username = update.getUsername() != null ? update.getUsername() : comment.getUsername();
         String content = update.getContent() != null ? update.getContent() : comment.getContent();
-
         return Comment.builder()
                 .commentUID(id)
                 .username(username)
@@ -147,6 +152,18 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
-
-
+    public List<Comment> BulkToEntity(List<CommentSaveDTO> res) {
+        List<Comment> comments = new ArrayList<>();
+        for (CommentSaveDTO dto : res) {
+            // 빌더 패턴을 사용해 Comment 객체 생성
+            Comment comment = Comment.builder()
+                    .commentUID(dto.getCommentUID())
+                    .username(dto.getUsername())
+                    .content(dto.getContent())
+                    .createdAt(dto.getCreatedAt())
+                    .build();
+            comments.add(comment);
+        }
+        return comments;
+    }
 }
