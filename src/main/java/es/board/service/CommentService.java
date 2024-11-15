@@ -4,13 +4,11 @@ import es.board.model.req.ReqCommentDTO;
 import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
-import es.board.model.res.FeedSaveDTO;
-import es.board.repository.entity.Comment;
+import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public interface CommentService {
@@ -19,6 +17,8 @@ public interface CommentService {
     public String searchIndex(String indexName) throws IOException;
     public String indexDocument(String indexName,CommentSaveDTO dto) throws IOException;
 
+
+
     List<Comment> SearchTextEx(String text) throws IOException;
 
     List<Comment> EditCommentEx(String id,UpdateCommentDTO eq) throws IOException;
@@ -26,7 +26,6 @@ public interface CommentService {
     List<CommentSaveDTO> BulkIndexTo(List<CommentSaveDTO> comments) throws IOException;
 
     List<ReqCommentDTO> LikeDESCTo() throws IOException;
-
 
     List<ReqCommentDTO> PagingSearchIndex(int num) throws IOException;
 

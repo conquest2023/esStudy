@@ -1,11 +1,9 @@
 package es.board.repository;
 
 
-import es.board.repository.entity.Board;
-import es.board.repository.entity.Comment;
+import es.board.repository.document.Comment;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,6 +22,8 @@ public interface CommentRepository  extends ElasticsearchRepository<Comment,Stri
 
     @Query("{ \"query\": { \"match\": { \"content\": \"?0\" } }, \"sort\": [ { \"_score\": { \"order\": \"desc\" } } ] }")
     List<Comment> findByContentMatchingQuery(String content);
+
+
 
 }
 

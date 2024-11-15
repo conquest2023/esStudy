@@ -3,9 +3,8 @@ package es.board.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.model.req.*;
 import es.board.model.res.CommentSaveDTO;
-import es.board.model.res.FeedSaveDTO;
-import es.board.repository.domain.CommentDAO;
-import es.board.repository.entity.Comment;
+import es.board.repository.dao.CommentDAO;
+import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.Request;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j

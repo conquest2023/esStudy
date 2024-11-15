@@ -18,8 +18,9 @@ public class UpdateFeedDTO {
 
     private String title;
 
-
     private String description;
+
+    private  int likeCount;
 
     private LocalDate updatedAt;
 }

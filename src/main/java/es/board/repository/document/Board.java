@@ -1,13 +1,16 @@
-package es.board.repository.entity;
+package es.board.repository.document;
 
 
 
-import es.board.model.req.ReqFeedDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.model.res.FeedSaveDTO;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +24,7 @@ public class Board {
 
     @Id
     @Field(name="id", type = FieldType.Keyword)
-    private String id;
+    private String feedUID;
 
     @Field
     private String username;
@@ -33,8 +36,15 @@ public class Board {
     private String description;
 
 
-    @Field(type=FieldType.Date)
-    private LocalDate createdAt;
+    @Field(type = FieldType.Integer)
+    private Integer likeCount;
+
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    private LocalDateTime createdAt;
+
 
     @Field(type=FieldType.Date)
     private LocalDate updatedAt;
@@ -44,13 +54,14 @@ public class Board {
 
 
 
+
     public Board BoardToEntity(FeedSaveDTO feedSaveDTO) {
         return Board.builder()
-                .id(feedSaveDTO.getId())
+                .feedUID(feedSaveDTO.getFeedUID())
                 .username(feedSaveDTO.getUsername())
                 .title(feedSaveDTO.getTitle())
                 .description(feedSaveDTO.getDescription())
-                .createdAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 

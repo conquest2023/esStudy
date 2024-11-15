@@ -1,24 +1,18 @@
-package es.board.repository;
+package es.board.repository.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.json.JsonData;
-import es.board.model.req.ReqCommentDTO;
-import es.board.model.req.ReqSearchCommentDTO;
-import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
-import es.board.repository.domain.CommentDAO;
-import es.board.repository.entity.Board;
-import es.board.repository.entity.Comment;
+import es.board.repository.CommentRepository;
+import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +29,7 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final ElasticsearchClient client;
 
-    private final  CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public Map<String, Object> search(String index) throws IOException, ElasticsearchException {
@@ -81,6 +75,7 @@ public class CommentDAOImpl implements CommentDAO {
                 .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
                 .collect(Collectors.toList());
      return comments;
+
     }
 
     @Override

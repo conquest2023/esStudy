@@ -1,4 +1,4 @@
-package es.board.repository.entity;
+package es.board.repository.document;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -6,24 +6,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import es.board.model.req.ReqCommentDTO;
 import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
-import es.board.model.res.FeedSaveDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.elasticsearch.annotations.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
 
 @Document(indexName = "comment")
 @NoArgsConstructor

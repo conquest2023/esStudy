@@ -1,6 +1,6 @@
 package es.board.model.req;
 
-import es.board.repository.entity.Comment;
+import es.board.repository.document.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

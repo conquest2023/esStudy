@@ -30,8 +30,6 @@ public class CommentSaveDTO {
     private LocalDateTime createdAt;
 
 
-
-
     public void TimeNow() {
         this.createdAt=LocalDateTime.now();
     }
