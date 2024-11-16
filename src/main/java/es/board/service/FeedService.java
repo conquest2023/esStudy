@@ -23,12 +23,12 @@ public interface FeedService {
 
     String createFeed(String indexName, FeedCreateResponse dto) throws IOException;
 
-    List<FeedRequest> getFeedList() throws IOException;
+    List<FeedRequest> getFeed() throws IOException;
 
-    List<FeedRequest> getLikeCountList() throws IOException;
+    List<FeedRequest> getLikeCount() throws IOException;
 
 
-    List<FeedRequest> getPagingFeedList(int num) throws IOException;
+    List<FeedRequest> getPagingFeed(int num) throws IOException;
 
 
 

@@ -56,19 +56,19 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedRequest> getFeedList() throws IOException {
+    public List<FeedRequest> getFeed() throws IOException {
         FeedRequest feedDTO=new FeedRequest();
         return feedDTO.dtoToFeed(feedDAO.findAllFeed());
     }
 
     @Override
-    public List<FeedRequest> getLikeCountList() throws IOException {
+    public List<FeedRequest> getLikeCount() throws IOException {
         FeedRequest req=new FeedRequest();
         return req.dtoToFeed(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<FeedRequest> getPagingFeedList(int num) throws IOException {
+    public List<FeedRequest> getPagingFeed(int num) throws IOException {
         FeedRequest req=new FeedRequest();
         return  req.dtoToFeed(feedDAO.findPagingFeed(num));
     }

@@ -6,26 +6,44 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ReqSearchCommentDTO {
+public class CommentRequest {
+
+
+    private String CommentUID;
 
     private String username;
 
     private String content;
 
-    public List<ReqSearchCommentDTO> DTOFromSearch(List<Comment> comment){
+    private  int LikeCount;
+
+    private LocalDateTime createdAt;
+
+
+
+
+
+
+    public List<CommentRequest> changeCommentToDTO(List<Comment> comment){
 
         return comment.stream()
-                .map(comment1 -> ReqSearchCommentDTO.builder()
+                .map(comment1 -> CommentRequest.builder()
+                        .CommentUID(comment1.getCommentUID())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
+                        .LikeCount(comment1.getLikeCount())
+                        .createdAt(comment1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+
 }

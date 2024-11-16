@@ -4,8 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.json.JsonData;
-import es.board.model.res.CommentSaveDTO;
+import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -15,9 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static co.elastic.clients.elasticsearch.ingest.ProcessorBuilders.sort;
@@ -32,21 +29,10 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final CommentRepository commentRepository;
 
-    @Override
-    public Map<String, Object> search(String index) throws IOException, ElasticsearchException {
-        SearchRequest request = new SearchRequest.Builder()
-                .index(index)
-                .build();
-        SearchResponse<JsonData> response = client.search(request, JsonData.class);
 
-        Map<String, Object> results = new HashMap<>();
-        response.hits().hits().forEach(hit -> results.put(hit.id(), hit.source().toString()));
-
-        return results;
-    }
 
     @Override
-    public String indexDocument(String index, CommentSaveDTO dto) throws IOException {
+    public String createCommentOne(String index, CommentCreateResponse dto) throws IOException {
         dto.TimeNow();
         try {
             IndexResponse response = client.index(i -> i
@@ -62,7 +48,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public String indexCommentSave(CommentSaveDTO dto) throws IOException {
+    public String indexCommentSave(CommentCreateResponse dto) throws IOException {
         dto.TimeNow();
         try {
             IndexResponse response = client.index(i -> i
@@ -78,7 +64,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> SearchCommentTimeDESC() throws IOException {
+    public List<Comment> findRecentComment() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
@@ -97,7 +83,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> SearchTextBring(String text) throws IOException {
+    public List<Comment> findSearchComment(String text) throws IOException {
         log.info(text);
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
@@ -116,7 +102,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> LikeDESCBring() throws IOException {
+    public List<Comment> findLikeCount() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comment' 인덱스에서 검색
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
@@ -137,7 +123,7 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public List<Comment> PagingSearchBring(int num) throws IOException {
+    public List<Comment> findPagingComment(int num) throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
                         .from(num)
@@ -155,7 +141,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> EditCommentEx(String id, Comment eq) throws IOException {
+    public List<Comment> modifyComment(String id, Comment eq) throws IOException {
 
           UpdateResponse<Comment> response= client.update(u -> u
                         .index("comment")
@@ -172,7 +158,7 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public Comment SearchIdBring(String id) throws IOException {
+    public Comment findIdOne(String id) throws IOException {
         // GetResponse 객체를 사용하여 Elasticsearch에서 문서를 검색합니다.
         GetResponse<Comment> response = client.get(g -> g
                         .index("comment")  // 인덱스 이름을 전달합니다.
@@ -189,7 +175,7 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
     @Override
-    public List<Comment> BulkIndex(List<Comment> pages) throws IOException {
+    public List<Comment> CreateManyComment(List<Comment> pages) throws IOException {
 
         BulkRequest.Builder br = new BulkRequest.Builder();
         log.info(pages.toString());
@@ -223,39 +209,15 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public void CommentSaveRepo(Comment dto) {
-        commentRepository.save(dto);
-    }
-
-    @Override
-    public void CommentRemoveRepo(String commentUid) {
-        commentRepository.deleteById(commentUid);
-    }
-
-    @Override
-    public List<Comment> CommentBringRepo() {
-        return commentRepository.findAllCommentBy();
-    }
-    @Override
-    public Comment CommentEdit(Comment comment) {
-        return  commentRepository.save(comment);
-    }
-    @Override
-    public Comment getCommentId(String commentUid) {
+    public Comment findCommentId(String commentUid) {
         return  commentRepository.findByCommentUID(commentUid);
     }
 
-    @Override
-    public List<Comment> SearchCommentBring(String keyword) {
-        return commentRepository.findCommentsByUsernameAndContent(keyword);
-    }
+//    @Override
+//    public List<Comment> SearchCommentBring(String keyword) {
+//        return commentRepository.findCommentsByUsernameAndContent(keyword);
+//    }
 
-
-
-    @Override
-    public List<Comment> SearchCommentScore(String score) {
-        return commentRepository.findByContentMatchingQuery(score);
-    }
 
 
     public List<Comment> fetchProducts(List<Comment> eq) {
@@ -266,5 +228,19 @@ public class CommentDAOImpl implements CommentDAO {
             result.add(comment);
         }
         return result;
+    }
+
+    public List<Comment> findCommentAll() throws IOException, ElasticsearchException {
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")
+                        .query(q->q
+                                .matchAll(t->t)),
+                Comment.class  // 결과를 Comment 클래스 객체로 매핑
+        );
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        return comments;
+
     }
 }

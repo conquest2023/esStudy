@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentSaveDTO {
+public class CommentCreateResponse {
 
     private String commentUID;
 
@@ -34,7 +34,7 @@ public class CommentSaveDTO {
         this.createdAt=LocalDateTime.now();
     }
 
-    public void TimePush(CommentSaveDTO dto) {
+    public void TimePush(CommentCreateResponse dto) {
          dto.setCreatedAt(createdAt);
     }
 }

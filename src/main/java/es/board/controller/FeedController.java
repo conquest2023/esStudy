@@ -27,7 +27,7 @@ public class FeedController {
     @GetMapping("/search/feed/paging/{num}")
     public List<FeedRequest> PagingSearch(@PathVariable int num) throws IOException {
 
-        return  feedService.getPagingFeedList(num);
+        return  feedService.getPagingFeed(num);
     }
 
 
@@ -48,7 +48,7 @@ public class FeedController {
 
     @GetMapping("/search/feed/like")
     public List<FeedRequest> LikeDESC() throws IOException {
-        return  feedService.getLikeCountList();
+        return  feedService.getLikeCount();
     }
 
     @PostMapping("/feed/bulks")

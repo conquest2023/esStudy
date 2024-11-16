@@ -25,7 +25,7 @@ public class FeedViewController {
     }
     @GetMapping("/search/view/feed/feedAll")
     public String getFeedList(Model model) throws IOException {
-        model.addAttribute("data",feedService.getFeedList());
+        model.addAttribute("data",feedService.getFeed());
         return "basic/feedAll";
     }
 
@@ -39,9 +39,9 @@ public class FeedViewController {
 
 
     @GetMapping("/search/view/feed/paging/{num}")
-    public String getPagingFeed(@PathVariable int num, Model model) throws IOException {
+    public String getPagingFeedList(@PathVariable int num, Model model) throws IOException {
 
-        model.addAttribute("data",feedService.getPagingFeedList(num));
+        model.addAttribute("data",feedService.getPagingFeed(num));
 
         return "basic/feedList";
     }
@@ -53,8 +53,8 @@ public class FeedViewController {
         return "basic/time";
     }
     @GetMapping("/search/view/feed/like")
-    public String getLikeCount(Model model) throws IOException {
-        model.addAttribute("data", feedService.getLikeCountList());
+    public String getLikeCountList(Model model) throws IOException {
+        model.addAttribute("data", feedService.getLikeCount());
         return  "basic/like";
     }
     @PostMapping("/search/view/feed/save")

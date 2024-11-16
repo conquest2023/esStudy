@@ -1,9 +1,9 @@
 package es.board.controller;
 
 
-import es.board.model.req.ReqCommentDTO;
-import es.board.model.req.UpdateCommentDTO;
-import es.board.model.res.CommentSaveDTO;
+import es.board.model.req.CommentRequest;
+import es.board.model.req.CommentUpdate;
+import es.board.model.res.CommentCreateResponse;
 import es.board.repository.document.Comment;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -17,38 +17,35 @@ import java.util.List;
 public class LowLevelCommentController {
     private final CommentService commentService;
 
-    @GetMapping("/search")
-    public String search(@RequestParam String index) throws IOException {
-        return commentService.searchIndex(index);
-    }
+ 
     @GetMapping("/search/paging/{num}")
-    public List<ReqCommentDTO> PagingSearch(@PathVariable int num) throws IOException {
-        return  commentService.PagingSearchIndex(num);
+    public List<CommentRequest> PagingSearch(@PathVariable int num) throws IOException {
+        return  commentService.getPagingComment(num);
     }
     @GetMapping("/searchs/{text}")
     public List<Comment> searchText(@PathVariable String text) throws IOException {
-        return  commentService.SearchTextEx(text);
+        return  commentService.getSearchComment(text);
     }
 
     @GetMapping("/search/like")
-    public List<ReqCommentDTO> LikeDESC() throws IOException {
-        return  commentService.LikeDESCTo();
+    public List<CommentRequest> LikeDESC() throws IOException {
+        return  commentService.getLikeCount();
     }
     @PostMapping("/index")
-    public String indexDocument(@RequestParam String index, @RequestBody CommentSaveDTO dto) throws IOException {
-        return commentService.indexDocument(index, dto);
+    public String indexDocument(@RequestParam String index, @RequestBody CommentCreateResponse dto) throws IOException {
+        return commentService.saveDocument(index, dto);
     }
     @PostMapping("/bulks")
-    public  List<CommentSaveDTO> BulkIndex(@RequestBody List<CommentSaveDTO> comments) throws IOException {
+    public  List<CommentCreateResponse> BulkIndex(@RequestBody List<CommentCreateResponse> comments) throws IOException {
 
-        return commentService.BulkIndexTo(comments);
+        return commentService.createBulkComment(comments);
     }
 
 
     @PutMapping("/edit/{id}")
-    public List<Comment> EditEx(@PathVariable String id, @RequestBody UpdateCommentDTO eq) throws IOException {
+    public List<Comment> EditEx(@PathVariable String id, @RequestBody CommentUpdate eq) throws IOException {
 
-        return commentService.EditCommentEx(id,eq);
+        return commentService.editComment(id,eq);
     }
 
 
