@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.json.JsonData;
 import es.board.model.res.CommentSaveDTO;
 import es.board.repository.CommentRepository;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,43 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
+    public String indexCommentSave(CommentSaveDTO dto) throws IOException {
+        dto.TimeNow();
+        try {
+            IndexResponse response = client.index(i -> i
+                    .index("comment")
+                    .document(dto));
+            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
+            return response.id();
+        } catch (IOException e) {
+            // 오류가 발생한 경우 로그를 출력합니다.
+            System.err.println("Error indexing document: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public List<Comment> SearchCommentTimeDESC() throws IOException {
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")
+                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+                        .sort(sort -> sort.field(f -> f
+                                .field("createdAt")
+                                .order(SortOrder.Desc)// 내림차순 정렬
+                        )),
+                Comment.class   // 결과를 Comment 클래스 객체로 매핑
+        );
+
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                // Elasticsearch 문서를 Comment 객체로 변환
+                .collect(Collectors.toList());
+        return comments;
+    }
+
+    @Override
     public List<Comment> SearchTextBring(String text) throws IOException {
+        log.info(text);
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
                         .query(q -> q        // 쿼리 정의
@@ -104,7 +141,7 @@ public class CommentDAOImpl implements CommentDAO {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
                         .from(num)
-                        .size(num+1)
+                        .size(num+3)
                         .query(q -> q
                                 .matchAll(t ->t)),
                 Comment.class  // 결과를 Comment 클래스 객체로 매핑

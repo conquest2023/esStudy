@@ -2,6 +2,7 @@ package es.board.repository.dao;
 
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.res.CommentSaveDTO;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +17,12 @@ public interface CommentDAO {
     Map<String, Object> search(String index)  throws IOException, ElasticsearchException;
 
     String indexDocument(String index, CommentSaveDTO dto) throws IOException;
+
+    List<Comment> SearchCommentTimeDESC() throws IOException;
+
+
+    String indexCommentSave(CommentSaveDTO dto) throws IOException;
+
 
     List<Comment> BulkIndex(List<Comment> pages) throws IOException;
 

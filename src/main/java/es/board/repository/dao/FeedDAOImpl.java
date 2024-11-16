@@ -97,6 +97,37 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
+    public String indexSaveFeed(FeedSaveDTO dto) throws IOException {
+        dto.TimePush();
+        try {
+            IndexResponse response = client.index(i -> i
+                    .index("board")
+                    .document(dto));
+            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
+            return response.id();
+        } catch (IOException e) {
+            // 오류가 발생한 경우 로그를 출력합니다.
+            System.err.println("Error indexing document: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public List<Board> searchAllBring() throws IOException, ElasticsearchException {
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                .query(q->q
+                        .matchAll(t->t)),
+                Board.class  // 결과를 Comment 클래스 객체로 매핑
+        );
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        return boards;
+
+    }
+
+    @Override
     public List<Board> SearchTextBring(String text) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")  //
@@ -114,7 +145,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> LikeDESCBring() throws IOException {
+    public List<Board> 좋아요내림차순가져오기() throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색

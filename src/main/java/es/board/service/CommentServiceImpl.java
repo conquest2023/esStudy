@@ -36,6 +36,8 @@ public class CommentServiceImpl implements CommentService {
         Response response = client.performRequest(request);
         return new String(response.getEntity().getContent().readAllBytes());
     }
+
+
     @Override
     public String indexDocument(String indexName, CommentSaveDTO dto) throws IOException {
 //        Request request = new Request("POST", "/" + indexName + "/_doc");
@@ -60,6 +62,20 @@ public class CommentServiceImpl implements CommentService {
 
        return commentDAO.EditCommentEx(id,comment.convertDtoToEntity(eq));
     }
+
+    @Override
+    public List<ReqCommentDTO> searchTimeDESC() throws IOException {
+        ReqCommentDTO commentDTO=new ReqCommentDTO();
+
+        return  commentDTO.DTOFromEntity(commentDAO.SearchCommentTimeDESC());
+    }
+
+    @Override
+    public String indexComment(CommentSaveDTO dto) throws IOException {
+
+        return  commentDAO.indexCommentSave(dto);
+    }
+
     @Override
     public List<CommentSaveDTO> BulkIndexTo(List<CommentSaveDTO> comments) throws IOException {
          commentDAO.BulkIndex(BulkToEntity(comments));

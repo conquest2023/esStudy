@@ -1,21 +1,18 @@
 package es.board.controller;
 
-import es.board.model.req.ReqCommentDTO;
 import es.board.model.req.ReqFeedDTO;
-import es.board.model.req.UpdateFeedDTO;
-import es.board.model.res.CommentSaveDTO;
 import es.board.model.res.FeedSaveDTO;
-import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @Slf4j
 public class FeedController {
@@ -30,8 +27,17 @@ public class FeedController {
     }
     @GetMapping("/search/feed/paging/{num}")
     public List<ReqFeedDTO> PagingSearch(@PathVariable int num) throws IOException {
+
         return  feedService.PagingSearchBoard(num);
     }
+
+
+    @GetMapping("/search/view/time")
+    public String searchView(@RequestParam String index,Model model) throws IOException {
+        model.addAttribute("data",feedService.searchBoard(index));
+        return "feedList";
+    }
+
     @GetMapping("/search/feed/time")
     public List<ReqFeedDTO> searchNewFeedDSEC() throws IOException {
         return feedService.searchTimeDESC();

@@ -1,14 +1,11 @@
 package es.board.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import es.board.model.req.ReqCommentDTO;
 import es.board.model.req.ReqFeedDTO;
 import es.board.model.req.UpdateFeedDTO;
-import es.board.model.res.CommentSaveDTO;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.dao.FeedDAO;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.Request;
@@ -45,6 +42,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public String SaveFeed(FeedSaveDTO feedSaveDTO) throws IOException {
+
+        return feedDAO.indexSaveFeed(feedSaveDTO);
+
+    }
+
+    @Override
     public List<ReqFeedDTO> searchTimeDESC() throws IOException {
         ReqFeedDTO reqFeedDTO=new ReqFeedDTO();
         return reqFeedDTO.DTOFromEntity(feedDAO.SearchBoardTimeDESC());
@@ -64,9 +68,15 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<ReqFeedDTO> searchAll() throws IOException {
+        ReqFeedDTO feedDTO=new ReqFeedDTO();
+        return feedDTO.DTOFromEntity(feedDAO.searchAllBring());
+    }
+
+    @Override
     public List<ReqFeedDTO> LikeBoardDESCTo() throws IOException {
         ReqFeedDTO req=new ReqFeedDTO();
-        return req.DTOFromEntity(feedDAO.LikeDESCBring());
+        return req.DTOFromEntity(feedDAO.좋아요내림차순가져오기());
     }
 
     @Override
@@ -74,9 +84,6 @@ public class FeedServiceImpl implements FeedService {
         ReqFeedDTO req=new ReqFeedDTO();
         return  req.DTOFromEntity(feedDAO.PagingSearchBring(num));
     }
-
-
-
 
     @Override
     public void saveDTO(FeedSaveDTO dto) {

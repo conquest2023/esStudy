@@ -4,7 +4,6 @@ package es.board.repository.dao;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.res.FeedSaveDTO;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -20,19 +19,24 @@ public interface FeedDAO {
 
     List<Board> BulkIndex(List<Board> pages) throws IOException;
 
+    String indexSaveFeed(FeedSaveDTO dto) throws IOException;
+
+
+    List<Board> searchAllBring()  throws IOException, ElasticsearchException;
+
     List<Board> SearchTextBring(String text) throws IOException;
 
-    List<Board> LikeDESCBring() throws IOException;
+    List<Board> 좋아요내림차순가져오기() throws IOException;
 
     List<Board> PagingSearchBring(int num) throws IOException;
 
     List<Board> SearchBoardTimeDESC() throws IOException;
 
-   Board saveDTO(Board dto);
+       Board saveDTO(Board dto);
 
-  Board save(Board board);
+      Board save(Board board);
 
-  Board updateDTO(Board updateDTO);
+      Board updateDTO(Board updateDTO);
 
 
 //   Board getFeed(String id);

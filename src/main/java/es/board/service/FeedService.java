@@ -15,15 +15,19 @@ import java.util.List;
 public interface FeedService {
 
 
-    public String searchBoard(String indexName) throws IOException;
+   String searchBoard(String indexName) throws IOException;
+
+
+   String SaveFeed(FeedSaveDTO feedSaveDTO) throws IOException;
 
 
     List<ReqFeedDTO> searchTimeDESC() throws IOException;
 
     List<FeedSaveDTO> BulkBoardTo(List<FeedSaveDTO> comments) throws IOException;
 
-    public String indexFeed(String indexName,FeedSaveDTO dto) throws IOException;
+    String indexFeed(String indexName,FeedSaveDTO dto) throws IOException;
 
+    List<ReqFeedDTO> searchAll() throws IOException;
 
     List<ReqFeedDTO> LikeBoardDESCTo() throws IOException;
 
