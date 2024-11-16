@@ -1,28 +1,24 @@
-package es.board.model.req;
+package es.board.model.res;
+
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import es.board.repository.document.Board;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ReqFeedDTO {
+public class FeedCreateResponse {
 
-    private String id;
 
+    private String feedUID;
 
     private String username;
 
@@ -32,7 +28,8 @@ public class ReqFeedDTO {
 
     private String description;
 
-    private int likeCount;
+    private  int likeCount;
+
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -41,17 +38,7 @@ public class ReqFeedDTO {
 
 
 
-
-    public List<ReqFeedDTO> DTOFromEntity(List<Board> boards) {
-        return boards.stream()
-                .map(board -> ReqFeedDTO.builder()
-                        .id(board.getFeedUID())
-                        .username(board.getUsername())
-                        .title(board.getTitle())
-                        .description(board.getDescription())
-                        .likeCount(board.getLikeCount())
-                        .createdAt(board.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
+    public void TimePush(){
+        this.createdAt=LocalDateTime.now();
     }
 }

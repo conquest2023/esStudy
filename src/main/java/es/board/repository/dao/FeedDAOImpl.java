@@ -4,20 +4,14 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.json.JsonData;
-import es.board.model.res.FeedSaveDTO;
-import es.board.repository.BoardRepository;
+import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.rmi.server.LogStream.log;
@@ -27,25 +21,10 @@ import static java.rmi.server.LogStream.log;
 @RequiredArgsConstructor
 public class FeedDAOImpl implements FeedDAO {
 
-    private final BoardRepository boardRepository;
-
     private final ElasticsearchClient client;
 
     @Override
-    public Map<String, Object> search(String index) throws IOException, ElasticsearchException {
-        SearchRequest request = new SearchRequest.Builder()
-                .index(index)
-                .build();
-        SearchResponse<JsonData> response = client.search(request, JsonData.class);
-
-        Map<String, Object> results = new HashMap<>();
-        response.hits().hits().forEach(hit -> results.put(hit.id(), hit.source().toString()));
-
-        return results;
-    }
-
-    @Override
-    public String indexDocument(String index, FeedSaveDTO dto) throws IOException {
+    public String saveFeed(String index, FeedCreateResponse dto) throws IOException {
         dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i
@@ -60,9 +39,8 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
-
     @Override
-    public List<Board> BulkIndex(List<Board> pages) throws IOException {
+    public List<Board> saveBulkFeed(List<Board> pages) throws IOException {
 
 
         BulkRequest.Builder br = new BulkRequest.Builder();
@@ -97,7 +75,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public String indexSaveFeed(FeedSaveDTO dto) throws IOException {
+    public String indexSaveFeed(FeedCreateResponse dto) throws IOException {
         dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i
@@ -112,8 +90,10 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+
+
     @Override
-    public List<Board> searchAllBring() throws IOException, ElasticsearchException {
+    public List<Board> findAllFeed() throws IOException, ElasticsearchException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                 .query(q->q
@@ -128,7 +108,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> SearchTextBring(String text) throws IOException {
+    public List<Board> findContent(String text) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")  //
                         .query(q -> q
@@ -145,7 +125,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> 좋아요내림차순가져오기() throws IOException {
+    public List<Board> findLikeCount() throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
@@ -164,7 +144,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> PagingSearchBring(int num) throws IOException {
+    public List<Board> findPagingFeed(int num) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
                         .from(num)
@@ -183,7 +163,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> SearchBoardTimeDESC() throws IOException {
+    public List<Board> findRecentFeed() throws IOException {
 
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
@@ -202,30 +182,5 @@ public class FeedDAOImpl implements FeedDAO {
         return boards;
     }
 
-    @Override
-    public Board saveDTO(Board dto) {
-       return boardRepository.save(dto);
-    }
 
-    @Override
-    public Board save(Board board) {
-        return  boardRepository.save(board);
-    }
-
-    @Override
-    public Board updateDTO(Board updateDTO) {
-        return updateDTO(updateDTO);
-    }
-
-
-//    @Override
-//    public Board getFeed(String id) {
-//
-//        return boardRepository.findAllById(id);
-//    }
-
-    @Override
-    public void deleteFeed(String id) {
-        boardRepository.deleteById(id);
-    }
 }

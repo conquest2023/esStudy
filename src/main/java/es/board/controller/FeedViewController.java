@@ -1,7 +1,6 @@
 package es.board.controller;
 
-import es.board.model.req.ReqFeedDTO;
-import es.board.model.res.FeedSaveDTO;
+import es.board.model.res.FeedCreateResponse;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,81 +20,61 @@ public class FeedViewController {
     @GetMapping("/")
     public String mainPage(Model model) {
 
-        model.addAttribute("feedSaveDTO", new FeedSaveDTO());
+        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
         return "basic/main";
     }
     @GetMapping("/search/view/feed/feedAll")
-    public String searchAll(Model model) throws IOException {
-        model.addAttribute("data",feedService.searchAll());
+    public String getFeedList(Model model) throws IOException {
+        model.addAttribute("data",feedService.getFeedList());
         return "basic/feedAll";
     }
 
 
     @GetMapping("/search/view/feed")
-    public String search(@RequestParam String index,Model model) throws IOException {
-        model.addAttribute("feedSaveDTO", new FeedSaveDTO());
-        model.addAttribute("data",feedService.searchBoard(index));
+    public String getFeed(@RequestParam String index, Model model) throws IOException {
+        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
+      //  model.addAttribute("data",feedService.searchBoard(index));
         return "basic/feedList";
     }
 
 
     @GetMapping("/search/view/feed/paging/{num}")
-    public String PagingSearch(@PathVariable int num,Model model) throws IOException {
+    public String getPagingFeed(@PathVariable int num, Model model) throws IOException {
 
-        model.addAttribute("data",feedService.PagingSearchBoard(num));
+        model.addAttribute("data",feedService.getPagingFeedList(num));
 
         return "basic/feedList";
     }
 
 
     @GetMapping("/search/view/feed/time")
-    public String searchNewFeedDSEC(Model model) throws IOException {
-        model.addAttribute("data",feedService.searchTimeDESC());
+    public String getRecentFeedList(Model model) throws IOException {
+        model.addAttribute("data",feedService.getRecentFeed());
         return "basic/time";
     }
     @GetMapping("/search/view/feed/like")
-    public String LikeDESC(Model model) throws IOException {
-        model.addAttribute("data", feedService.LikeBoardDESCTo());
+    public String getLikeCount(Model model) throws IOException {
+        model.addAttribute("data", feedService.getLikeCountList());
         return  "basic/like";
     }
     @PostMapping("/search/view/feed/save")
-    public String saveFeed(Model model, FeedSaveDTO feedSaveDTO) throws IOException {
-        model.addAttribute("feedSaveDTO", new FeedSaveDTO());
-        feedService.SaveFeed(feedSaveDTO);
+    public String saveFeed(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
+        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
+        feedService.saveFeed(feedSaveDTO);
         return "basic/feedList";  // 저장 후 메인 페이지로 리다이렉트
     }
-    @PostMapping("/feed/view")
-    public String indexDocument(@RequestParam String index, @RequestBody FeedSaveDTO dto)
-            throws IOException {
-        return feedService.indexFeed(index, dto);
-    }
+
+//    @PostMapping("/feed/view")
+//    public String indexDocument(@RequestParam String index, @RequestBody FeedCreateResponse dto)
+//            throws IOException {
+//        return feedService.indexFeed(index, dto);
+//    }
 
 
     @PostMapping("/feed/view/bulks")
-    public  List<FeedSaveDTO> BulkIndex(@RequestBody List<FeedSaveDTO> comments) throws IOException {
+    public  List<FeedCreateResponse> postBulkFeed(@RequestBody List<FeedCreateResponse> comments) throws IOException {
 
-        return feedService.BulkBoardTo(comments);
+        return feedService.createBulkFeed(comments);
     }
 
-
-
-
-    @PostMapping("/dto/view/feed")
-    public void postFeedDTO(@RequestBody FeedSaveDTO feedSaveDTO) {
-        log.info(feedSaveDTO.toString());
-        feedService.saveDTO(feedSaveDTO);
-
-    }
-//    @PutMapping("/update/feed/{id}")
-//    public UpdateFeedDTO updatedFeed(@PathVariable("id") String id, @RequestBody UpdateFeedDTO update){
-//
-//        return  feedService.update(id,update);
-//
-//    }
-
-    @DeleteMapping("/delete/view/{id}")
-    public void deleteFeed(@PathVariable("id") String id){
-
-        feedService.delete(id);
-    }
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import es.board.model.res.FeedSaveDTO;
+import es.board.model.res.FeedCreateResponse;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
@@ -55,7 +55,7 @@ public class Board {
 
 
 
-    public Board BoardToEntity(FeedSaveDTO feedSaveDTO) {
+    public Board BoardToEntity(FeedCreateResponse feedSaveDTO) {
         return Board.builder()
                 .feedUID(feedSaveDTO.getFeedUID())
                 .username(feedSaveDTO.getUsername())

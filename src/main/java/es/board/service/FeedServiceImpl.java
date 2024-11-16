@@ -1,20 +1,16 @@
 package es.board.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import es.board.model.req.ReqFeedDTO;
-import es.board.model.req.UpdateFeedDTO;
-import es.board.model.res.FeedSaveDTO;
+import es.board.model.req.FeedRequest;
+import es.board.model.res.FeedCreateResponse;
 import es.board.repository.dao.FeedDAO;
 import es.board.repository.document.Board;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,130 +27,57 @@ public class FeedServiceImpl implements FeedService {
     private final FeedDAO feedDAO;
 
 
-    @Override
-    public String searchBoard(String indexName) throws IOException {
-        Request request = new Request("GET", "/" + indexName + "/_search");
-        request.addParameter("pretty", "true");
 
-        Response response = client.performRequest(request);
-
-        return new String(response.getEntity().getContent().readAllBytes());
-    }
 
     @Override
-    public String SaveFeed(FeedSaveDTO feedSaveDTO) throws IOException {
+    public String saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
 
         return feedDAO.indexSaveFeed(feedSaveDTO);
 
     }
 
     @Override
-    public List<ReqFeedDTO> searchTimeDESC() throws IOException {
-        ReqFeedDTO reqFeedDTO=new ReqFeedDTO();
-        return reqFeedDTO.DTOFromEntity(feedDAO.SearchBoardTimeDESC());
+    public List<FeedRequest> getRecentFeed() throws IOException {
+        FeedRequest reqFeedDTO=new FeedRequest();
+        return reqFeedDTO.dtoToFeed(feedDAO.findRecentFeed());
     }
 
     @Override
-    public List<FeedSaveDTO> BulkBoardTo(List<FeedSaveDTO> feeds) throws IOException {
+    public List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> feeds) throws IOException {
 
-        feedDAO.BulkIndex(BulkToEntity(feeds));
+        feedDAO.saveBulkFeed(BulkToEntity(feeds));
 
         return feeds;
     }
 
     @Override
-    public String indexFeed(String indexName, FeedSaveDTO dto) throws IOException {
-        return feedDAO.indexDocument(indexName,dto);
+    public String createFeed(String indexName, FeedCreateResponse dto) throws IOException {
+        return feedDAO.saveFeed(indexName,dto);
     }
 
     @Override
-    public List<ReqFeedDTO> searchAll() throws IOException {
-        ReqFeedDTO feedDTO=new ReqFeedDTO();
-        return feedDTO.DTOFromEntity(feedDAO.searchAllBring());
+    public List<FeedRequest> getFeedList() throws IOException {
+        FeedRequest feedDTO=new FeedRequest();
+        return feedDTO.dtoToFeed(feedDAO.findAllFeed());
     }
 
     @Override
-    public List<ReqFeedDTO> LikeBoardDESCTo() throws IOException {
-        ReqFeedDTO req=new ReqFeedDTO();
-        return req.DTOFromEntity(feedDAO.좋아요내림차순가져오기());
+    public List<FeedRequest> getLikeCountList() throws IOException {
+        FeedRequest req=new FeedRequest();
+        return req.dtoToFeed(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<ReqFeedDTO> PagingSearchBoard(int num) throws IOException {
-        ReqFeedDTO req=new ReqFeedDTO();
-        return  req.DTOFromEntity(feedDAO.PagingSearchBring(num));
-    }
-
-    @Override
-    public void saveDTO(FeedSaveDTO dto) {
-        Board board = new Board();
-        feedDAO.saveDTO(board.BoardToEntity(dto));
-    }
-    @Override
-    public void save(Board board) {
-
-        feedDAO.save(board);
-    }
-
-    @Override
-    public List<ReqFeedDTO> getFeedAll() {
-        return null;
-    }
-
-
-//    @Override
-//    public UpdateFeedDTO update(String id, UpdateFeedDTO updateFeedDTO) {
-//
-//     Board board= feedDAO.getFeed(id);
-//
-//     feedDAO.updateDTO(updateFeed(id,board,updateFeedDTO));
-//
-//     return  updateFeedDTO;
-//    }
-//    @Override
-//    public Board getFeed(String id) {
-//
-//        // String boardId=  boardDAO.getFeed(id);
-//          return   feedDAO.getFeed(id);
-//
-//    }
-    @Override
-    public void delete(String id) {
-
-        feedDAO.deleteFeed(id);
+    public List<FeedRequest> getPagingFeedList(int num) throws IOException {
+        FeedRequest req=new FeedRequest();
+        return  req.dtoToFeed(feedDAO.findPagingFeed(num));
     }
 
 
 
-
-    public  Board updateFeed(String id,Board board ,UpdateFeedDTO update){
-        String username = update.getUsername() != null ? update.getUsername() : board.getUsername();
-        String title = update.getTitle() != null ? update.getTitle() : board.getTitle();
-        String description = update.getDescription() != null ? update.getDescription() : board.getDescription();
-
-        return Board.builder()
-                .feedUID(id)
-                .username(username)
-                .title(title)
-                .description(description)
-                .likeCount(update.getLikeCount())
-                .updatedAt(LocalDate.now())
-                .build();
-    }
-
-
-//    @Override
-//    public List<ReqFeedDTO> getFeedAll() {
-//        ReqFeedDTO reqFeedDTO=new ReqFeedDTO();
-//
-//        List<ReqFeedDTO> req=  reqFeedDTO.entityToDTO(boardDAO.getFeedAll());
-//
-//        return  req;
-//    }
-
-    public List<Board> BulkToEntity(List<FeedSaveDTO> res) {
+    public List<Board> BulkToEntity(List<FeedCreateResponse> res) {
         List<Board> boards = new ArrayList<>();
-        for (FeedSaveDTO dto : res) {
+        for (FeedCreateResponse dto : res) {
             // 빌더 패턴을 사용해 Comment 객체 생성
             Board feed = Board.builder()
                     .feedUID(dto.getFeedUID())
@@ -167,5 +90,17 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
+
+
+//    @Override
+//    public List<FeedRequest> getFeedAll() {
+//        FeedRequest reqFeedDTO=new FeedRequest();
+//
+//        List<FeedRequest> req=  reqFeedDTO.entityToDTO(boardDAO.getFeedAll());
+//
+//        return  req;
+//    }
+
+
 }
 

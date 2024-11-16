@@ -1,12 +1,11 @@
 package es.board.controller;
 
-import es.board.model.req.ReqFeedDTO;
-import es.board.model.res.FeedSaveDTO;
+import es.board.model.req.FeedRequest;
+import es.board.model.res.FeedCreateResponse;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -21,41 +20,41 @@ public class FeedController {
     private final FeedService feedService;
 
 
-    @GetMapping("/search/feed")
-    public String search(@RequestParam String index) throws IOException {
-        return feedService.searchBoard(index);
-    }
+//    @GetMapping("/search/feed")
+//    public String search(@RequestParam String index) throws IOException {
+//        return feedService.searchBoard(index);
+//    }
     @GetMapping("/search/feed/paging/{num}")
-    public List<ReqFeedDTO> PagingSearch(@PathVariable int num) throws IOException {
+    public List<FeedRequest> PagingSearch(@PathVariable int num) throws IOException {
 
-        return  feedService.PagingSearchBoard(num);
+        return  feedService.getPagingFeedList(num);
     }
 
 
-    @GetMapping("/search/view/time")
-    public String searchView(@RequestParam String index,Model model) throws IOException {
-        model.addAttribute("data",feedService.searchBoard(index));
-        return "feedList";
-    }
+//    @GetMapping("/search/view/time")
+//    public String searchView(@RequestParam String index,Model model) throws IOException {
+//        model.addAttribute("data",feedService.searchBoard(index));
+//        return "feedList";
+//    }
 
     @GetMapping("/search/feed/time")
-    public List<ReqFeedDTO> searchNewFeedDSEC() throws IOException {
-        return feedService.searchTimeDESC();
+    public List<FeedRequest> searchNewFeedDSEC() throws IOException {
+        return feedService.getRecentFeed();
     }
     @PostMapping("/feed")
-    public String indexDocument(@RequestParam String index, @RequestBody FeedSaveDTO dto) throws IOException {
-        return feedService.indexFeed(index, dto);
+    public String indexDocument(@RequestParam String index, @RequestBody FeedCreateResponse dto) throws IOException {
+        return feedService.createFeed(index, dto);
     }
 
     @GetMapping("/search/feed/like")
-    public List<ReqFeedDTO> LikeDESC() throws IOException {
-        return  feedService.LikeBoardDESCTo();
+    public List<FeedRequest> LikeDESC() throws IOException {
+        return  feedService.getLikeCountList();
     }
 
     @PostMapping("/feed/bulks")
-    public  List<FeedSaveDTO> BulkIndex(@RequestBody List<FeedSaveDTO> comments) throws IOException {
+    public  List<FeedCreateResponse> BulkIndex(@RequestBody List<FeedCreateResponse> comments) throws IOException {
 
-        return feedService.BulkBoardTo(comments);
+        return feedService.createBulkFeed(comments);
     }
 
 //    @GetMapping("/get/feed/{keyword}")
@@ -66,22 +65,5 @@ public class FeedController {
 //    }
 
 
-    @PostMapping("/dto/feed")
-    public void postFeedDTO(@RequestBody FeedSaveDTO feedSaveDTO) {
-        log.info(feedSaveDTO.toString());
-        feedService.saveDTO(feedSaveDTO);
 
-    }
-//    @PutMapping("/update/feed/{id}")
-//    public UpdateFeedDTO updatedFeed(@PathVariable("id") String id, @RequestBody UpdateFeedDTO update){
-//
-//        return  feedService.update(id,update);
-//
-//    }
-
-    @DeleteMapping("/delete/{id}")
-    public void deleteFeed(@PathVariable("id") String id){
-
-        feedService.delete(id);
-    }
 }

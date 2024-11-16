@@ -1,15 +1,11 @@
 package es.board.controller;
 
 import es.board.model.req.ReqCommentDTO;
-import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
-import es.board.model.res.FeedSaveDTO;
-import es.board.repository.document.Comment;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

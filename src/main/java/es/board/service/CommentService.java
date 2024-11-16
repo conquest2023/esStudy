@@ -1,7 +1,6 @@
 package es.board.service;
 
 import es.board.model.req.ReqCommentDTO;
-import es.board.model.req.ReqFeedDTO;
 import es.board.model.req.ReqSearchCommentDTO;
 import es.board.model.req.UpdateCommentDTO;
 import es.board.model.res.CommentSaveDTO;
