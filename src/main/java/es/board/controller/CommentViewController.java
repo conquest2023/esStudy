@@ -30,6 +30,21 @@ public class CommentViewController {
 
         return "basic/commentTime";
     }
+
+    @GetMapping("/search/view/comment")
+    public String getCommentMainPage(@RequestParam String index, Model model) throws IOException {
+        model.addAttribute("CommentCreateResponse", new CommentCreateResponse());
+
+        model.addAttribute("data",commentService.getComment());
+        return "basic/commentList";
+    }
+
+
+
+
+
+
+
     @GetMapping("/search/view/comment/text")
     public String getSearchCommentList(Model model, @RequestParam String text) throws IOException {
         log.info(commentService.getSearchComment(text).toString());
@@ -64,7 +79,6 @@ public class CommentViewController {
 
     @GetMapping("/search/view/comment/commentAll")
     public String getComment(Model model) throws IOException {
-       // model.addAttribute("CommentCreateResponse", new CommentCreateResponse());
         model.addAttribute("data",commentService.getComment());
 
         return "basic/commentAll";

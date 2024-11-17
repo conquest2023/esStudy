@@ -75,14 +75,13 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public String indexSaveFeed(FeedCreateResponse dto) throws IOException {
+    public void indexSaveFeed(FeedCreateResponse dto) throws IOException {
         dto.TimePush();
         try {
+            log.info(dto.toString());
             IndexResponse response = client.index(i -> i
                     .index("board")
                     .document(dto));
-            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
-            return response.id();
         } catch (IOException e) {
             // 오류가 발생한 경우 로그를 출력합니다.
             System.err.println("Error indexing document: " + e.getMessage());

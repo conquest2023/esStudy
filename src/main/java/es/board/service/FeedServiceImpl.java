@@ -30,9 +30,9 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
-    public String saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
+    public void saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
 
-        return feedDAO.indexSaveFeed(feedSaveDTO);
+        feedDAO.indexSaveFeed(feedSaveDTO);
 
     }
 

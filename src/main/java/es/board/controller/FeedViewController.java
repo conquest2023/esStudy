@@ -9,7 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+
 @RequiredArgsConstructor
 @Slf4j
 @Controller
@@ -26,14 +29,14 @@ public class FeedViewController {
     @GetMapping("/search/view/feed/feedAll")
     public String getFeedList(Model model) throws IOException {
         model.addAttribute("data",feedService.getFeed());
-        return "basic/feedAll";
+        return "basic/feedList";
     }
 
 
     @GetMapping("/search/view/feed")
     public String getFeed(@RequestParam String index, Model model) throws IOException {
-        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
-      //  model.addAttribute("data",feedService.searchBoard(index));
+        model.addAttribute("data",feedService.getFeed());
+        //  model.addAttribute("data",feedService.searchBoard(index));
         return "basic/feedList";
     }
 
@@ -59,9 +62,14 @@ public class FeedViewController {
     }
     @PostMapping("/search/view/feed/save")
     public String saveFeed(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
-        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
         feedService.saveFeed(feedSaveDTO);
-        return "basic/feedList";  // 저장 후 메인 페이지로 리다이렉트
+        return "redirect:/search/view/feed?index=board";   // 저장 후 메인 페이지로 리다이렉트
+    }
+
+    @GetMapping("/search/view/feed/Form")
+    public String FeedSaveForm(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
+        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
+        return  "basic/PostFeed";
     }
 
 //    @PostMapping("/feed/view")

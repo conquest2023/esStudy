@@ -44,7 +44,6 @@
         <a th:href="@{'/search/view/comment/commentAll'}" class="btn btn-link"><i class="fas fa-list"></i> 전체 게시글 ▼</a>
     </div>
 
-
     <!-- 좋아요 순 정렬 -->
     <div class="mb-4">
         <a th:href="@{'/search/view/comment/like'}" class="btn btn-link"><i class="fas fa-thumbs-up"></i> 좋아요 수 ▼</a>
@@ -83,55 +82,25 @@
         </ul>
     </nav>
     -->
-    <div class="container">
-        <!-- 검색 섹션 -->
-        <h2>댓글 검색</h2>
-        <form action="/search/view/comment/text" method="get" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="text" placeholder="검색어를 입력하세요" class="form-control" required/>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> 검색</button>
-            </div>
-        </form>
-        <!-- 새 게시글 작성 섹션 -->
-        <hr/>
-    </div>
+
     <h2>새 댓글 작성하기</h2>
 
-    <!-- 데이터 삽입 폼 -->
-    <form action="/search/view/comment/save" method="post" th:object="${CommentSaveDTO}">
-
-        <!-- 번호 -->
-        <div class="form-group">
-            <label for="commentUID">번호:</label>
-            <input type="text" id="commentUID" name="commentUID" th:field="*{commentUID}" class="form-control" required/>
-        </div>
-        <!-- 제목 -->
-        <div class="form-group">
-            <label for="username">이름:</label>
-            <input type="text" id="username" name="username" th:field="*{username}" class="form-control" required/>
-        </div>
-
-        <!-- 내용 -->
-        <div class="form-group">
-            <label for="content">내용:</label>
-            <textarea id="content" name="content" rows="4" th:field="*{content}" class="form-control" required></textarea>
-        </div>
-
-        <!-- 좋아요 수 -->
-        <div class="form-group">
-            <label for="likeCount">좋아요 수:</label>
-            <input type="number" id="likeCount" name="likeCount" th:field="*{likeCount}" class="form-control"/>
-        </div>
-
-        <!-- 저장 버튼 -->
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
-    </form>
-
-</div>
 
 <!-- Bootstrap JS (Optional) -->
 
-</body>
+
+<div class="container">
+    <!-- 검색 섹션 -->
+    <h2>댓글 검색</h2>
+    <form action="/search/view/comment/text" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="text" placeholder="검색어를 입력하세요" class="form-control" required/>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> 검색</button>
+        </div>
+    </form>
+    <!-- 새 게시글 작성 섹션 -->
+    <hr/>
+</div>
 <!-- 메인으로 돌아가기 버튼 -->
 <div class="text-center mt-4">
     <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>

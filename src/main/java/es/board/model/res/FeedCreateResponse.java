@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class FeedCreateResponse {
 
-
     private String feedUID;
 
     private String username;

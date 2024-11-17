@@ -14,7 +14,7 @@ public interface FeedService {
    //String searchBoard(String indexName) throws IOException;
 
 
-   String saveFeed(FeedCreateResponse feedSaveDTO) throws IOException;
+   void saveFeed(FeedCreateResponse feedSaveDTO) throws IOException;
 
 
     List<FeedRequest> getRecentFeed() throws IOException;

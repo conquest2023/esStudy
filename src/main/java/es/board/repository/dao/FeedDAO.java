@@ -18,7 +18,7 @@ public interface FeedDAO {
 
     List<Board> saveBulkFeed(List<Board> pages) throws IOException;
 
-    String indexSaveFeed(FeedCreateResponse dto) throws IOException;
+    void indexSaveFeed(FeedCreateResponse dto) throws IOException;
 
 
     List<Board> findAllFeed()  throws IOException, ElasticsearchException;
