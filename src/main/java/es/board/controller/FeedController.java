@@ -2,16 +2,18 @@ package es.board.controller;
 
 import es.board.model.req.FeedRequest;
 import es.board.model.res.FeedCreateResponse;
+import es.board.repository.dao.FeedDAO;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 public class FeedController {
@@ -49,6 +51,13 @@ public class FeedController {
     @GetMapping("/search/feed/like")
     public List<FeedRequest> LikeDESC() throws IOException {
         return  feedService.getLikeCount();
+    }
+
+    @GetMapping("/search/range")
+    public List<FeedRequest> getRange(Model model, @RequestParam String time) throws IOException{
+
+        return       feedService.getRangeTimeFeed(time);
+
     }
 
     @PostMapping("/feed/bulks")

@@ -40,11 +40,6 @@ public class CommentViewController {
     }
 
 
-
-
-
-
-
     @GetMapping("/search/view/comment/text")
     public String getSearchCommentList(Model model, @RequestParam String text) throws IOException {
         log.info(commentService.getSearchComment(text).toString());

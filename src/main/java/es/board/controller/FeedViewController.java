@@ -60,9 +60,16 @@ public class FeedViewController {
         model.addAttribute("data", feedService.getLikeCount());
         return  "basic/like";
     }
+    @GetMapping("/search/view/feed/range")
+    public  String getRangeTime(Model model,@RequestParam String time) throws IOException{
+
+        model.addAttribute("data",feedService.getRangeTimeFeed(time));
+        return  "basic/RangeTime";
+    }
+
     @PostMapping("/search/view/feed/save")
     public String saveFeed(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
-        feedService.saveFeed(feedSaveDTO);
+        model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
         return "redirect:/search/view/feed?index=board";   // 저장 후 메인 페이지로 리다이렉트
     }
 

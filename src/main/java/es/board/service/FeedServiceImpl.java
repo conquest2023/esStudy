@@ -30,16 +30,22 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
-    public void saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
+    public  FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
 
-        feedDAO.indexSaveFeed(feedSaveDTO);
+     return  feedDAO.indexSaveFeed(feedSaveDTO);
 
+    }
+
+    @Override
+    public List<FeedRequest> getRangeTimeFeed(String time) throws IOException {
+        FeedRequest reqFeedDTO=new FeedRequest();
+        return   reqFeedDTO.BoardEntityToDTO(feedDAO.findRangeTimeFeed(time));
     }
 
     @Override
     public List<FeedRequest> getRecentFeed() throws IOException {
         FeedRequest reqFeedDTO=new FeedRequest();
-        return reqFeedDTO.dtoToFeed(feedDAO.findRecentFeed());
+        return reqFeedDTO.BoardEntityToDTO(feedDAO.findRecentFeed());
     }
 
     @Override
@@ -58,19 +64,19 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<FeedRequest> getFeed() throws IOException {
         FeedRequest feedDTO=new FeedRequest();
-        return feedDTO.dtoToFeed(feedDAO.findAllFeed());
+        return feedDTO.BoardEntityToDTO(feedDAO.findAllFeed());
     }
 
     @Override
     public List<FeedRequest> getLikeCount() throws IOException {
         FeedRequest req=new FeedRequest();
-        return req.dtoToFeed(feedDAO.findLikeCount());
+        return req.BoardEntityToDTO(feedDAO.findLikeCount());
     }
 
     @Override
     public List<FeedRequest> getPagingFeed(int num) throws IOException {
         FeedRequest req=new FeedRequest();
-        return  req.dtoToFeed(feedDAO.findPagingFeed(num));
+        return  req.BoardEntityToDTO(feedDAO.findPagingFeed(num));
     }
 
 

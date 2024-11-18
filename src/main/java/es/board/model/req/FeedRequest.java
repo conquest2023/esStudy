@@ -42,7 +42,7 @@ public class FeedRequest {
 
 
 
-    public List<FeedRequest> dtoToFeed(List<Board> boards) {
+    public List<FeedRequest> BoardEntityToDTO(List<Board> boards) {
         return boards.stream()
                 .map(board -> FeedRequest.builder()
                         .id(board.getFeedUID())

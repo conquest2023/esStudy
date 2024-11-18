@@ -11,11 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import static java.rmi.server.LogStream.log;
-
 @Repository
 @Slf4j
 @RequiredArgsConstructor
@@ -70,18 +72,18 @@ public class FeedDAOImpl implements FeedDAO {
                 log("Successfully indexed document with ID: " + item.id());
             });
         }
-
         return pages;
     }
 
     @Override
-    public void indexSaveFeed(FeedCreateResponse dto) throws IOException {
+    public FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) throws IOException {
         dto.TimePush();
         try {
             log.info(dto.toString());
             IndexResponse response = client.index(i -> i
                     .index("board")
                     .document(dto));
+            return  dto;
         } catch (IOException e) {
             // 오류가 발생한 경우 로그를 출력합니다.
             System.err.println("Error indexing document: " + e.getMessage());
@@ -89,16 +91,37 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+    @Override
+    public List<Board> findRangeTimeFeed(String time) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        LocalDateTime inputTime = LocalDateTime.parse(time, formatter);
+
+        LocalDateTime timePlusOneDay = inputTime.plus(1, ChronoUnit.DAYS);
+        String endtime = timePlusOneDay.format(formatter);
+        SearchResponse<Board> response = client.search(s -> s
+                .index("board")
+                .query(q -> q
+                        .range(r->r
+                                .date(v->v
+                                        .gte(time)
+                                        .lte(endtime)
+                                                .field("createdAt")
+                                ))), Board.class);
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        log.info(boards.toString());
+        return boards;
+    }
 
 
     @Override
-    public List<Board> findAllFeed() throws IOException, ElasticsearchException {
+    public  List<Board> findAllFeed() throws IOException, ElasticsearchException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
-                .query(q->q
-                        .matchAll(t->t)),
-                Board.class  // 결과를 Comment 클래스 객체로 매핑
-        );
+                        .query(q->q
+                        .matchAll(t->t)),  //? match 와 matchAll의 차이
+                        Board.class);
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
                 .collect(Collectors.toList());
@@ -109,13 +132,12 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<Board> findContent(String text) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
-                        .index("board")  //
+                        .index("board")
                         .query(q -> q
                                 .match(t -> t
                                         .field("description")
                                         .query(text))),
-                Board.class  // 결과를 Comment 클래스 객체로 매핑
-        );
+                Board.class);
 
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
@@ -127,7 +149,7 @@ public class FeedDAOImpl implements FeedDAO {
     public List<Board> findLikeCount() throws IOException {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
-                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+                        .query(q -> q.matchAll(t -> t))
                         .sort(sort -> sort.field(f -> f
                                 .field("likeCount")  // 정렬 기준 필드: likeCount
                                 .order(SortOrder.Desc)// 내림차순 정렬
@@ -145,7 +167,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<Board> findPagingFeed(int num) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
-                        .index("comment")  // 'comments' 인덱스에서 검색
+                        .index("board")  // 'comments' 인덱스에서 검색
                         .from(num)
                         .size(num+1)
                         .query(q -> q
@@ -180,6 +202,4 @@ public class FeedDAOImpl implements FeedDAO {
                 .collect(Collectors.toList());
         return boards;
     }
-
-
 }

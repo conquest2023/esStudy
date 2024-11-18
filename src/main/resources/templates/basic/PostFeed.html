@@ -37,34 +37,39 @@
 <body>
 
 <div class="container">
-    <h1 class="text-center">작성하기</h1>
     <!-- 데이터 삽입 폼 -->
     <form action="/search/view/feed/save" method="post" th:object="${FeedCreateResponse}">
 
         <!-- 번호 -->
-        <div class="form-group">
-            <label for="feedUID">번호:</label>
-            <input type="text" id="feedUID" name="feedUID" th:field="*{feedUID}" class="form-control" required/>
-        </div>
-        <!-- 제목 -->
-        <div class="form-group">
-            <label for="username">이름:</label>
-            <input type="text" id="username" name="username" th:field="*{username}" class="form-control" required/>
-        </div>
-        <div class="form-group">
-            <label for="title">내용:</label>
-            <textarea id="title" name="title" rows="4" th:field="*{title}" class="form-control" required></textarea>
-        </div>
-        <!-- 내용 -->
-        <div class="form-group">
-            <label for="description">내용:</label>
-            <textarea id="description" name="description" rows="4" th:field="*{description}" class="form-control" required></textarea>
-        </div>
-        <!-- 좋아요 수 -->
-        <div class="form-group">
-            <label for="likeCount">좋아요 수:</label>
-            <input type="number" id="likeCount" name="likeCount" th:field="*{likeCount}" class="form-control"/>
-        </div>
+        <div class="container">
+            <h1 class="text-center">작성하기</h1>
+            <!-- 데이터 삽입 폼 -->
+            <form id="feedForm">
+                <!-- 번호 -->
+                <div class="form-group">
+                    <label for="feedUID">번호:</label>
+                    <input type="text" id="feedUID" name="feedUID" class="form-control" required/>
+                </div>
+                <!-- 제목 -->
+                <div class="form-group">
+                    <label for="username">이름:</label>
+                    <input type="text" id="username" name="username" class="form-control" required/>
+                </div>
+                <div class="form-group">
+                    <label for="title">제목:</label>
+                    <textarea id="title" name="title" rows="4" class="form-control" required></textarea>
+                </div>
+                <!-- 내용 -->
+                <div class="form-group">
+                    <label for="description">내용:</label>
+                    <textarea id="description" name="description" rows="4" class="form-control" required></textarea>
+                </div>
+                <!-- 좋아요 수 -->
+                <div class="form-group">
+                    <label for="likeCount">좋아요 수:</label>
+                    <input type="number" id="likeCount" name="likeCount" class="form-control"/>
+                </div>
+
 
         <!-- 저장 버튼 -->
         <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
@@ -75,7 +80,7 @@
     <div class="text-center mt-4">
         <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
     </div>
-
+    </form>
 </div>
 
 <!-- Bootstrap JS (Optional) -->
