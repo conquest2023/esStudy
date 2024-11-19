@@ -23,7 +23,8 @@ import java.time.LocalDateTime;
 public class Board {
 
     @Id
-    @Field(name="id", type = FieldType.Keyword)
+    private  String id;
+    @Field
     private String feedUID;
 
     @Field

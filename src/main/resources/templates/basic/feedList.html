@@ -46,6 +46,7 @@
                 <th>번호</th>
                 <th>제목</th>
                 <th>작성자</th>
+                <th>내용</th>
                 <th>좋아요 수</th>
                 <th>작성일자</th>
             </tr>
@@ -53,7 +54,8 @@
             <tbody>
             <!-- 게시글 리스트 출력 -->
             <tr th:each="board : ${data}">
-                <td><a th:href="@{/post/{id}(id=${board.id})}" th:text="${board.title}"></a></td>
+                <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.id}"></a></td>
+                <td th:text="${board.title}"></td>
                 <td th:text="${board.username}"></td>
                 <td th:text="${board.description}"></td>
                 <td th:text="${board.likeCount}"></td>
@@ -65,8 +67,41 @@
             </tr>
             </tbody>
         </table>
-    </div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav style="text-align: center;">
+            <ul class="pagination"
+                th:with="start=${(page/ maxPage) * maxPage + 1},
+                end=${(start + (maxPage - 1) < maxPage) ? (start + (maxPage - 1)) : maxPage},
+                totalPages=${maxPage == 0 ? 1 : maxPage}">
+
+                <!-- 처음 페이지로 이동 -->
+                <li th:if="${index > 0}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=0)}" class="page-link" th:text="'<<'"></a>
+                </li>
+
+                <!-- 이전 페이지로 이동 -->
+                <li th:if="${index > 0}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=${index - 1})}" class="page-link" th:text="'<'"></a>
+                </li>
+
+                <!-- 현재 페이지 범위 표시 -->
+                <li th:each="page : ${#numbers.sequence(start, end)}" class="page-item"
+                    th:classappend="${index == page - 1} ? 'active'">
+                    <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="${page}"></a>
+                </li>
+
+                <!-- 다음 페이지로 이동 -->
+                <li th:if="${end < totalPages}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=${end})}" class="page-link" th:text="'>'"></a>
+                </li>
+
+                <!-- 마지막 페이지로 이동 -->
+                <li th:if="${end < totalPages}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=${totalPages - 1})}" class="page-link" th:text="'>>'"></a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
         <!-- 좋아요 버튼과 최신순 정렬 버튼 -->
         <div class="d-flex">
             <a th:href="@{'/search/view/feed/like'}" class="btn btn-link me-2">
@@ -78,16 +113,14 @@
         </div>
 
         <!-- 게시물 검색 -->
-        <form action="/search/view/comment/text" method="get" class="d-flex align-items-center" style="width: 50%; max-width: 250px;">
+        <form action="/search/view/feed/range" method="get" class="d-flex align-items-center" style="width: 50%; max-width: 350px;">
             <!-- 날짜 텍스트 -->
-            <i class></i> 날짜
+            <h6>날짜</h6>
             <!-- 검색창과 버튼 -->
             <div class="input-group">
-                <input type="text" id="searchText" name="text" placeholder="날짜를 입력하세요" class="form-control form-control-sm" required />
-                <input type="text" id="searchText2" name="text" placeholder="날짜를 입력하세요" class="form-control form-control-sm" required />
+                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm" required />
+                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm" required />
                 <button type="submit" class="btn btn-primary btn-sm">
-
-
                     <i class="fas fa-search"></i> 검색
                 </button>
             </div>
@@ -113,7 +146,7 @@
 <!-- 중앙 정렬을 위한 div 추가 -->
 <div class="d-flex justify-content-center">
     <h6>게시물 검색</h6>
-    <form action="/search/view/comment/text" method="get" class="mb-3" style="width: 50%; max-width: 500px;">
+    <form action="/search/view/feed/text" method="get" class="mb-3" style="width: 50%; max-width: 500px;">
         <div class="input-group">
             <!-- 입력창 크기 작게 -->
             <input type="text" name="text" placeholder="검색어를 입력하세요" class="form-control form-control-sm" required />

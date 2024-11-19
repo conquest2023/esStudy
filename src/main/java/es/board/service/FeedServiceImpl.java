@@ -37,15 +37,15 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedRequest> getRangeTimeFeed(String time) throws IOException {
+    public List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate,LocalDateTime endTime) throws IOException {
         FeedRequest reqFeedDTO=new FeedRequest();
-        return   reqFeedDTO.BoardEntityToDTO(feedDAO.findRangeTimeFeed(time));
+        return   reqFeedDTO.BoardListToDTO(feedDAO.findRangeTimeFeed(startDate,endTime));
     }
 
     @Override
     public List<FeedRequest> getRecentFeed() throws IOException {
         FeedRequest reqFeedDTO=new FeedRequest();
-        return reqFeedDTO.BoardEntityToDTO(feedDAO.findRecentFeed());
+        return reqFeedDTO.BoardListToDTO(feedDAO.findRecentFeed());
     }
 
     @Override
@@ -57,6 +57,11 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<Board> getSearchBoard(String text) throws IOException {
+        return feedDAO.findSearchBoard(text);
+    }
+
+    @Override
     public String createFeed(String indexName, FeedCreateResponse dto) throws IOException {
         return feedDAO.saveFeed(indexName,dto);
     }
@@ -64,21 +69,27 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<FeedRequest> getFeed() throws IOException {
         FeedRequest feedDTO=new FeedRequest();
-        return feedDTO.BoardEntityToDTO(feedDAO.findAllFeed());
+        return feedDTO.BoardListToDTO(feedDAO.findAllFeed());
     }
 
     @Override
     public List<FeedRequest> getLikeCount() throws IOException {
         FeedRequest req=new FeedRequest();
-        return req.BoardEntityToDTO(feedDAO.findLikeCount());
+        return req.BoardListToDTO(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<FeedRequest> getPagingFeed(int num) throws IOException {
+    public List<FeedRequest> getPagingFeed(int page, int size) throws IOException {
         FeedRequest req=new FeedRequest();
-        return  req.BoardEntityToDTO(feedDAO.findPagingFeed(num));
+        return  req.BoardListToDTO(feedDAO.findPagingFeed(page, size));
     }
 
+    @Override
+    public FeedRequest getFeedId(String id) throws IOException {
+        FeedRequest request=new FeedRequest();
+
+        return request.BoardToDTO(feedDAO.findIdOne(id));
+    }
 
 
     public List<Board> BulkToEntity(List<FeedCreateResponse> res) {

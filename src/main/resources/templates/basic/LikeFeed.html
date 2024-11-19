@@ -46,6 +46,7 @@
             <th>번호</th>
             <th>제목</th>
             <th>작성자</th>
+            <th>내용</th>
             <th>좋아요 수</th>
             <th>작성일자</th>
         </tr>
@@ -56,6 +57,7 @@
             <td th:text="${board.id}"></td>
             <td th:text="${board.title}"></td>
             <td th:text="${board.username}"></td>
+            <td th:text="${board.description}"></td>
             <td th:text="${board.likeCount}"></td>
             <!-- 작성일자 표시 -->
             <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>

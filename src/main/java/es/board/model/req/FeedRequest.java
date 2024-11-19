@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class FeedRequest {
 
     private String id;
+
+    private String feedUID;
 
 
     private String username;
@@ -42,7 +45,7 @@ public class FeedRequest {
 
 
 
-    public List<FeedRequest> BoardEntityToDTO(List<Board> boards) {
+    public List<FeedRequest> BoardListToDTO(List<Board> boards) {
         return boards.stream()
                 .map(board -> FeedRequest.builder()
                         .id(board.getFeedUID())
@@ -54,4 +57,16 @@ public class FeedRequest {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+    public FeedRequest BoardToDTO(Board board) {
+            return FeedRequest.builder()
+                     .id(board.getId())
+                    .feedUID(board.getFeedUID())
+                    .username(board.getUsername())
+                    .title(board.getTitle())
+                    .description(board.getDescription())
+                    .createdAt(board.getCreatedAt())
+                    .build();
+        }
 }

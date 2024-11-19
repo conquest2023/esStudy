@@ -4,9 +4,11 @@ package es.board.repository.dao;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
+import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -21,7 +23,7 @@ public interface FeedDAO {
     FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) throws IOException;
 
 
-    List<Board> findRangeTimeFeed(String time) throws  IOException;
+    List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) throws  IOException;
 
 
     List<Board> findAllFeed()  throws IOException, ElasticsearchException;
@@ -30,12 +32,12 @@ public interface FeedDAO {
 
     List<Board> findLikeCount() throws IOException;
 
-    List<Board> findPagingFeed(int num) throws IOException;
+    List<Board> findPagingFeed(int page, int size) throws IOException;
 
     List<Board> findRecentFeed() throws IOException;
 
-
-
+    Board findIdOne(String id) throws IOException ;
+    List<Board> findSearchBoard(String text) throws IOException;
 
 
 //   Board getFeed(String id);

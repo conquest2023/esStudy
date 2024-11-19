@@ -1,11 +1,11 @@
 package es.board.repository.dao;
-
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
+import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import static java.rmi.server.LogStream.log;
@@ -92,31 +91,36 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findRangeTimeFeed(String time) throws IOException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        LocalDateTime inputTime = LocalDateTime.parse(time, formatter);
+    public List<Board> findRangeTimeFeed(LocalDateTime startDate,LocalDateTime endDate) throws IOException {
 
-        LocalDateTime timePlusOneDay = inputTime.plus(1, ChronoUnit.DAYS);
-        String endtime = timePlusOneDay.format(formatter);
+
+        String start= startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end= endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         SearchResponse<Board> response = client.search(s -> s
                 .index("board")
                 .query(q -> q
                         .range(r->r
                                 .date(v->v
-                                        .gte(time)
-                                        .lte(endtime)
-                                                .field("createdAt")
-                                ))), Board.class);
+                                        .gte(start)
+                                        .lte(end)
+                                                .field("createdAt")))), Board.class);
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
                 .collect(Collectors.toList());
         log.info(boards.toString());
         return boards;
+
+        //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+//        LocalDateTime inputTime = LocalDateTime.parse(time, formatter);
+//        LocalDateTime timePlusOneDay = inputTime.plus(1, ChronoUnit.DAYS);
+//        String endtime = timePlusOneDay.format(formatter);
     }
 
 
     @Override
     public  List<Board> findAllFeed() throws IOException, ElasticsearchException {
+
+
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .query(q->q
@@ -165,11 +169,12 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findPagingFeed(int num) throws IOException {
+    public List<Board> findPagingFeed(int page,int size) throws IOException {
+
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")  // 'comments' 인덱스에서 검색
-                        .from(num)
-                        .size(num+1)
+                        .from(page*size)
+                        .size(size)
                         .query(q -> q
                                 .matchAll(t ->t)),
                 Board.class  // 결과를 Comment 클래스 객체로 매핑
@@ -178,6 +183,24 @@ public class FeedDAOImpl implements FeedDAO {
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
                 // Elasticsearch 문서를 Comment 객체로 변환
+                .collect(Collectors.toList());
+        return boards;
+
+    }
+    @Override
+    public List<Board> findSearchBoard(String text) throws IOException {
+        log.info(text);
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                        .query(q -> q
+                                .match(t -> t
+                                        .field("description")
+                                        .query(text))),
+                Board.class  // 결과를 Comment 클래스 객체로 매핑
+        );
+
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
                 .collect(Collectors.toList());
         return boards;
 
@@ -201,5 +224,18 @@ public class FeedDAOImpl implements FeedDAO {
                 // Elasticsearch 문서를 Comment 객체로 변환
                 .collect(Collectors.toList());
         return boards;
+    }
+
+    @Override
+    public Board findIdOne(String id) throws IOException {
+
+        SearchResponse<Board> response = client.search(g -> g
+                        .index("board")
+                        .query(q -> q
+                                .match(t -> t
+                                        .field("feedUID")
+                                        .query(id))),
+                Board.class);
+        return  response.hits().hits().get(0).source();
     }
 }

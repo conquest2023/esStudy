@@ -2,9 +2,11 @@ package es.board.service;
 
 import es.board.model.req.FeedRequest;
 import es.board.model.res.FeedCreateResponse;
+import es.board.repository.document.Board;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,9 +19,7 @@ public interface FeedService {
     FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException;
 
 
-    List<FeedRequest> getRangeTimeFeed(String time) throws IOException;
-
-
+    List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate,LocalDateTime endTime) throws IOException;
 
 
     List<FeedRequest> getRecentFeed() throws IOException;
@@ -32,13 +32,12 @@ public interface FeedService {
 
     List<FeedRequest> getLikeCount() throws IOException;
 
-
-    List<FeedRequest> getPagingFeed(int num) throws IOException;
-
-
+    List<Board> getSearchBoard(String text) throws IOException;
+    List<FeedRequest> getPagingFeed(int page, int size) throws IOException;
 
 
 
 
+   FeedRequest getFeedId(String id) throws IOException;
 
 }

@@ -1,5 +1,6 @@
 package es.board.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import es.board.model.req.FeedRequest;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.dao.FeedDAO;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,11 +28,11 @@ public class FeedController {
 //    public String search(@RequestParam String index) throws IOException {
 //        return feedService.searchBoard(index);
 //    }
-    @GetMapping("/search/feed/paging/{num}")
-    public List<FeedRequest> PagingSearch(@PathVariable int num) throws IOException {
-
-        return  feedService.getPagingFeed(num);
-    }
+//    @GetMapping("/search/feed/paging/{num}")
+//    public List<FeedRequest> PagingSearch(@PathVariable int num) throws IOException {
+//
+//        return  feedService.getPagingFeed(page,size);
+//    }
 
 
 //    @GetMapping("/search/view/time")
@@ -41,8 +43,16 @@ public class FeedController {
 
     @GetMapping("/search/feed/time")
     public List<FeedRequest> searchNewFeedDSEC() throws IOException {
+        log.info(feedService.getRecentFeed().toString());
         return feedService.getRecentFeed();
     }
+
+    @GetMapping("/search/feedId")
+    public FeedRequest getFeedIdEx(Model model,@RequestParam String FeedUID) throws IOException {
+        model.addAttribute("getFeedId",feedService.getFeedId(FeedUID));
+        return feedService.getFeedId(FeedUID);
+    }
+
     @PostMapping("/feed")
     public String indexDocument(@RequestParam String index, @RequestBody FeedCreateResponse dto) throws IOException {
         return feedService.createFeed(index, dto);
@@ -54,9 +64,10 @@ public class FeedController {
     }
 
     @GetMapping("/search/range")
-    public List<FeedRequest> getRange(Model model, @RequestParam String time) throws IOException{
-
-        return       feedService.getRangeTimeFeed(time);
+    public List<FeedRequest> getRange(Model model, @RequestParam LocalDateTime startDate
+            , @RequestParam LocalDateTime endDate ) throws IOException{
+            log.info(startDate.toString());
+        return       feedService.getRangeTimeFeed(startDate,endDate);
 
     }
 
