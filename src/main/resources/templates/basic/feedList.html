@@ -69,31 +69,25 @@
         </table>
         <nav style="text-align: center;">
             <ul class="pagination"
-                th:with="start=${(page/ maxPage) * maxPage + 1},
-                end=${(start + (maxPage - 1) < maxPage) ? (start + (maxPage - 1)) : maxPage},
-                totalPages=${maxPage == 0 ? 1 : maxPage}">
+                th:with="
+            start=${(page / maxPage) * maxPage + 1},
+            end=${(start + maxPage - 1) < maxPage ? (start + maxPage - 1) : maxPage},
+            totalPages=${maxPage == 0 ? 1 : maxPage}">
 
                 <!-- 처음 페이지로 이동 -->
-                <li th:if="${index > 0}" class="page-item">
-                    <a th:href="@{/search/view/feed(page=0)}" class="page-link" th:text="'<<'"></a>
+                <li th:if="${page > 0}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="'<'"></a>
+                </li>
+                <li th:each="p : ${#numbers.sequence(start, end)}" class="page-item"
+                    th:classappend="${p - 1 == page} ? 'active'">
+                    <a th:href="@{/search/view/feed(page=${p - 1})}" class="page-link" th:text="${p}"></a>
                 </li>
 
-                <!-- 이전 페이지로 이동 -->
-                <li th:if="${index > 0}" class="page-item">
-                    <a th:href="@{/search/view/feed(page=${index - 1})}" class="page-link" th:text="'<'"></a>
-                </li>
-
-                <!-- 현재 페이지 범위 표시 -->
-                <li th:each="page : ${#numbers.sequence(start, end)}" class="page-item"
-                    th:classappend="${index == page - 1} ? 'active'">
-                    <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="${page}"></a>
+                <li th:if="${page + 1 < maxPage}" class="page-item">
+                    <a th:href="@{/search/view/feed(page=${page + 1})}" class="page-link" th:text="'>'"></a>
                 </li>
 
                 <!-- 다음 페이지로 이동 -->
-                <li th:if="${end < totalPages}" class="page-item">
-                    <a th:href="@{/search/view/feed(page=${end})}" class="page-link" th:text="'>'"></a>
-                </li>
-
                 <!-- 마지막 페이지로 이동 -->
                 <li th:if="${end < totalPages}" class="page-item">
                     <a th:href="@{/search/view/feed(page=${totalPages - 1})}" class="page-link" th:text="'>>'"></a>
@@ -107,9 +101,9 @@
             <a th:href="@{'/search/view/feed/like'}" class="btn btn-link me-2">
                 <i class="fas fa-thumbs-up"></i> 좋아요 수 ▼
             </a>
-            <a th:href="@{'/search/view/feed/time'}" class="btn btn-link">
-                <i class="fas fa-clock"></i> 최신 순 ▼
-            </a>
+<!--            <a th:href="@{'/search/view/feed/time'}" class="btn btn-link">-->
+<!--                <i class="fas fa-clock"></i> 최신 순 ▼-->
+<!--            </a>-->
         </div>
 
         <!-- 게시물 검색 -->
@@ -136,8 +130,7 @@
 
 
 
-
-
+</div>
 </div>
 </body>
 
@@ -145,7 +138,7 @@
 
 <!-- 중앙 정렬을 위한 div 추가 -->
 <div class="d-flex justify-content-center">
-    <h6>게시물 검색</h6>
+    <h6>게시물 검색 + 유저 검색 </h6>
     <form action="/search/view/feed/text" method="get" class="mb-3" style="width: 50%; max-width: 500px;">
         <div class="input-group">
             <!-- 입력창 크기 작게 -->

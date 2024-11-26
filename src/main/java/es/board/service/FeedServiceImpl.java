@@ -2,15 +2,18 @@ package es.board.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.model.req.FeedRequest;
+import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.dao.FeedDAO;
 import es.board.repository.document.Board;
+import es.board.repository.document.Comment;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Struct;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,18 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public double getSumLikeByPageOne(int page, int size) throws IOException {
+
+       return  (feedDAO.findSumLikeByPageOne(page,size));
+    }
+
+    @Override
+    public FeedRequest getPopularFeedOne() throws IOException {
+        FeedRequest feedRequest=new FeedRequest();
+        return  feedRequest.BoardToDTO(feedDAO.findPopularFeedOne());
+    }
+
+    @Override
     public List<FeedRequest> getRecentFeed() throws IOException {
         FeedRequest reqFeedDTO=new FeedRequest();
         return reqFeedDTO.BoardListToDTO(feedDAO.findRecentFeed());
@@ -51,7 +66,7 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> feeds) throws IOException {
 
-        feedDAO.saveBulkFeed(BulkToEntity(feeds));
+        feedDAO.saveBulkFeed(bulkToEntity(feeds));
 
         return feeds;
     }
@@ -70,6 +85,11 @@ public class FeedServiceImpl implements FeedService {
     public List<FeedRequest> getFeed() throws IOException {
         FeedRequest feedDTO=new FeedRequest();
         return feedDTO.BoardListToDTO(feedDAO.findAllFeed());
+    }
+
+    @Override
+    public double getTotalPage(int page, int size) throws IOException {
+        return  feedDAO.findTotalPage(page,size);
     }
 
     @Override
@@ -92,7 +112,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-    public List<Board> BulkToEntity(List<FeedCreateResponse> res) {
+    public List<Board> bulkToEntity(List<FeedCreateResponse> res) {
         List<Board> boards = new ArrayList<>();
         for (FeedCreateResponse dto : res) {
             // 빌더 패턴을 사용해 Comment 객체 생성
@@ -107,6 +127,12 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
+    @Override
+    public FeedUpdate updateFeed(String id, FeedUpdate update) throws Exception {
+        feedDAO.modifyFeed(id,update);
+        return  update;
+    }
+
 
 
 //    @Override

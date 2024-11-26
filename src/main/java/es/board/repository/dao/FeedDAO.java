@@ -2,6 +2,7 @@ package es.board.repository.dao;
 
 
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -28,16 +29,21 @@ public interface FeedDAO {
 
     List<Board> findAllFeed()  throws IOException, ElasticsearchException;
 
-    List<Board> findContent(String text) throws IOException;
-
     List<Board> findLikeCount() throws IOException;
 
     List<Board> findPagingFeed(int page, int size) throws IOException;
 
     List<Board> findRecentFeed() throws IOException;
 
+    Board modifyFeed(String id, FeedUpdate eq) throws Exception;
     Board findIdOne(String id) throws IOException ;
     List<Board> findSearchBoard(String text) throws IOException;
+
+     double findSumLikeByPageOne(int page, int size) throws IOException;
+      Board findPopularFeedOne() throws IOException;
+
+
+     double findTotalPage(int page, int size) throws IOException ;
 
 
 //   Board getFeed(String id);

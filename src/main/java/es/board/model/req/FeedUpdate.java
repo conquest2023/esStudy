@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class FeedUpdate {
 
-    private String id;
+    private String feedUID;
 
     private String username;
 

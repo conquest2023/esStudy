@@ -61,7 +61,7 @@ public class FeedRequest {
 
     public FeedRequest BoardToDTO(Board board) {
             return FeedRequest.builder()
-                     .id(board.getId())
+
                     .feedUID(board.getFeedUID())
                     .username(board.getUsername())
                     .title(board.getTitle())

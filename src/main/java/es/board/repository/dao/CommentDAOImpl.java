@@ -105,7 +105,9 @@ public class CommentDAOImpl implements CommentDAO {
     public List<Comment> findLikeCount() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comment' 인덱스에서 검색
+                        
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+
                         .sort(sort -> sort.field(f -> f
                                 .field("likeCount")  // 정렬 기준 필드: likeCount
                                 .order(SortOrder.Desc)// 내림차순 정렬

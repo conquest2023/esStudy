@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import es.board.model.req.FeedRequest;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.dao.FeedDAO;
+import es.board.repository.document.Board;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,12 @@ public class FeedController {
         return feedService.createBulkFeed(comments);
     }
 
+
+    @GetMapping("/test")
+    public FeedRequest test() throws IOException {
+
+        return feedService.getPopularFeedOne();
+    }
 //    @GetMapping("/get/feed/{keyword}")
 //    public Board getFeedId(@PathVariable("keyword") String id) {
 //
