@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <style>
+        /* 통합 CSS */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 150px 180px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            width: 300%;
+            max-width: 1000px;
+            text-align: center;
+        }
+        .login-container h2 {
+            font-size: 35px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .login-container input {
+            font-size: 20px;
+            padding: 10px;
+            margin-bottom: 25px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .login-container button {
+            font-size: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+        /* 아이콘 크기 조정 */
+        .login-container .fas {
+            font-size: 50px; /* 아이콘 크기를 키움 */
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <form th:action="@{/}" method="post" class="login-form">
+        <h1 class="login-title">로그인</h1>
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        <div class="form-group">
+            <label for="username"></label>
+            <input type="text" id="username" name="username" placeholder="아이디 입력" required>
+        </div>
+        <div class="form-group">
+            <label for="password"></label>
+            <input type="password" id="password" name="password" placeholder="비밀번호 입력" required>
+        </div>
+        <button type="submit" class="login-button">로그인</button>
+        <div class="login-options">
+            <a th:href="@{/forgot-password}">비밀번호 찾기</a>
+            <a th:href="@{/signup}">회원가입</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

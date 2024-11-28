@@ -35,8 +35,7 @@ public interface CommentService {
     List<CommentRequest> getComment() throws IOException;
 
 
-    Comment getCommentId(String id) throws IOException;
-
+    List<Comment> getCommentId(String id) throws IOException;
 
 
    // List<CommentSearchRequest> SearchComment(String keyword);

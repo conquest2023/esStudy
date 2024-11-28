@@ -40,6 +40,19 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<FeedRequest> getCategoryFeed(String category) throws IOException {
+        FeedRequest feedRequest=new FeedRequest();
+        return  feedRequest.BoardListToDTO(feedDAO.findCategoryAndContent(category));
+    }
+
+
+    @Override
+    public List<FeedRequest> getMonthPopularFeed() throws IOException {
+        FeedRequest feedRequest=new FeedRequest();
+        return  feedRequest.BoardListToDTO(feedDAO.findMonthPopularFeed());
+    }
+
+    @Override
     public List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate,LocalDateTime endTime) throws IOException {
         FeedRequest reqFeedDTO=new FeedRequest();
         return   reqFeedDTO.BoardListToDTO(feedDAO.findRangeTimeFeed(startDate,endTime));

@@ -28,6 +28,10 @@ public class Comment{
     @Field(name="id", type = FieldType.Keyword)
     private String commentUID;
 
+
+    @Field(type=FieldType.Keyword)
+    private String feedUID;
+
     @Field(type = FieldType.Text)
     private String username;
 
@@ -43,10 +47,14 @@ public class Comment{
     private LocalDateTime createdAt;
 
 
-    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
-    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime deletedAt;
 
 

@@ -24,6 +24,7 @@ public class FeedCreateResponse {
 
     private String title;
 
+    private  String category;
 
     private String description;
 

@@ -17,10 +17,10 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping("/search/{id}")
-    public Comment searchGetId(@PathVariable String id) throws IOException{
-        return commentService.getCommentId(id);
-    }
-    // 문서 색인
+//    @GetMapping("/search/{id}")
+//    public Comment searchGetId(@PathVariable String id) throws IOException{
+//        return commentService.getCommentId(id);
+//    }
+//    // 문서 색인
 
 }

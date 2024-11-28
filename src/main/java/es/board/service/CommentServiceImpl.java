@@ -89,7 +89,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment getCommentId(String id) throws IOException {
+    public List<Comment> getCommentId(String id) throws IOException {
         return commentDAO.findIdOne(id);
     }
 

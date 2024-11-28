@@ -37,6 +37,10 @@ public class Board {
     private String description;
 
 
+    @Field(type = FieldType.Text)
+    private String category;
+
+
     @Field(type = FieldType.Integer)
     private Integer likeCount;
 
@@ -47,7 +51,9 @@ public class Board {
     private LocalDateTime createdAt;
 
 
-    @Field(type=FieldType.Date)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDate updatedAt;
 
     @Field(type=FieldType.Date)

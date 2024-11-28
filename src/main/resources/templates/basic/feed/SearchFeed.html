@@ -46,9 +46,10 @@
             <th>번호</th>
             <th>제목</th>
             <th>작성자</th>
+            <th>카테고리</th>
+            <th>내용</th>
             <th>좋아요 수</th>
             <th>작성일자</th>
-            <th>작성일</th>
         </tr>
         </thead>
         <tbody>
@@ -57,6 +58,7 @@
             <td th:text="${board.feedUID}"></td>
             <td th:text="${board.title}"></td>
             <td th:text="${board.username}"></td>
+            <td th:text="${board.category}"></td>
             <td th:text="${board.description}"></td>
             <td th:text="${board.likeCount}"></td>
             <!-- 작성일자 표시 -->
@@ -72,7 +74,7 @@
 
     <!-- 메인으로 돌아가기 버튼 -->
     <div class="text-center mt-4">
-        <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
+        <a href="/static" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
     </div>
 
 </div>

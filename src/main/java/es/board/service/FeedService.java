@@ -19,11 +19,15 @@ public interface FeedService {
 
     FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException;
 
+    List<FeedRequest> getCategoryFeed(String category) throws  IOException;
+
 
     List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate,LocalDateTime endTime) throws IOException;
 
 
-   double getSumLikeByPageOne(int page, int size) throws IOException;
+    List<FeedRequest> getMonthPopularFeed() throws IOException;
+
+    double getSumLikeByPageOne(int page, int size) throws IOException;
 
     FeedRequest getPopularFeedOne() throws IOException;
 

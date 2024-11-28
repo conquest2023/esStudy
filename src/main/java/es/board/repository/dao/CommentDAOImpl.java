@@ -160,21 +160,25 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public Comment findIdOne(String id) throws IOException {
-        // GetResponse 객체를 사용하여 Elasticsearch에서 문서를 검색합니다.
-        GetResponse<Comment> response = client.get(g -> g
-                        .index("comment")  // 인덱스 이름을 전달합니다.
-                        .id(id),// 문서 ID를 전달합니다.
-                Comment.class);       // Comment.class로 결과를 매핑합니다.
-        // 문서가 존재하는지 확인하고, 존재하면 내용을 로그에 출력합니다.
-        if (response.found()) {
-            Comment comment = response.source();  // Elasticsearch 문서를 Comment 객체로 변환
-            CommentDAOImpl.log.info("Comment content: " + comment.getContent());
-            return comment;// 댓글 내용을 출력
-        } else {
-            CommentDAOImpl.log.info("Comment not found");
-            return  null;
-        }
+    public List<Comment> findIdOne(String id) throws IOException {
+
+
+
+
+        SearchResponse<Comment> response = client.search(g -> g
+                        .index("comment")
+                        .query(q -> q
+                                .match(t -> t
+                                        .field("feedUID")
+                                        .query(id))),
+                Comment.class);
+
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                // Elasticsearch 문서를 Comment 객체로 변환
+                .collect(Collectors.toList());
+        return comments;
+
     }
     @Override
     public List<Comment> CreateManyComment(List<Comment> pages) throws IOException {

@@ -35,6 +35,7 @@ public interface FeedDAO {
 
     List<Board> findRecentFeed() throws IOException;
 
+    List<Board> findCategoryAndContent(String category) throws IOException;
     Board modifyFeed(String id, FeedUpdate eq) throws Exception;
     Board findIdOne(String id) throws IOException ;
     List<Board> findSearchBoard(String text) throws IOException;
@@ -42,6 +43,8 @@ public interface FeedDAO {
      double findSumLikeByPageOne(int page, int size) throws IOException;
       Board findPopularFeedOne() throws IOException;
 
+
+    public List<Board> findMonthPopularFeed() throws IOException;
 
      double findTotalPage(int page, int size) throws IOException ;
 

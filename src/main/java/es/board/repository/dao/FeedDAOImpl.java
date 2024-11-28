@@ -195,22 +195,42 @@ public class FeedDAOImpl implements FeedDAO {
 
 
 
-
-
     @Override
     public List<Board> findSearchBoard(String text) throws IOException {
-        log.info(text);
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .query(q -> q
-                                .match(t -> t
-                                        .field("description")
-                                        .query(text))),
-                Board.class  // 결과를 Comment 클래스 객체로 매핑
-        );
-
+                                .bool(b -> b
+                                        .should(
+                                                a -> a.match(t -> t
+                                                        .field("title")
+                                                        .query(text)))
+                                        .should(
+                                                t -> t.match(m -> m
+                                                        .field("description")
+                                                        .query(text))))),
+                Board.class);
         List<Board> boards = response.hits().hits().stream()
-                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        return boards;
+
+    }
+
+    @Override
+    public List<Board> findCategoryAndContent(String category) throws IOException {
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                        .query(q -> q
+                                .bool(b -> b
+                                        .must(m->m.term(t->t.field("category")
+                                                .value(category)))
+                                        .should(t -> t.match(m -> m
+                                                        .field("description")
+                                                        .query(category))))),
+                Board.class);
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source())
                 .collect(Collectors.toList());
         return boards;
 
@@ -224,9 +244,8 @@ public class FeedDAOImpl implements FeedDAO {
         SearchResponse<Board> response = client.search(s -> s
 
                         .index("board")
-                        .from(page * size) // 페이지 시작점
+                        .from( size) // 페이지 시작점
                         .size(size)
-
                         .aggregations("totalLikes", a -> a
                                 .sum(sum -> sum.field("likeCount"))),
                 Board.class);
@@ -235,6 +254,25 @@ public class FeedDAOImpl implements FeedDAO {
                 .get("totalLikes")
                 .sum()
                 .value();
+    }
+
+
+    @Override
+    public List<Board> findMonthPopularFeed() throws IOException {
+        int monthPage=5;
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                        .sort(sort -> sort.field(f -> f
+                                .field("likeCount")
+                                .order(SortOrder.Desc)))
+                        .size(monthPage)
+                        .query(q -> q
+                                .matchAll(t -> t)),
+                Board.class);
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        return boards;
     }
 
     @Override

@@ -31,7 +31,7 @@ public interface CommentDAO {
     List<Comment> findPagingComment(int num) throws IOException;
 
 
-    Comment findIdOne(String id) throws IOException ;
+    List<Comment> findIdOne(String id) throws IOException ;
 
     List<Comment> modifyComment(String id, Comment comment) throws IOException;
 
