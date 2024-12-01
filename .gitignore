@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 65989e9
 /src/main/resources/application.yml
 /src/main/resources/application.properties
 HELP.md
@@ -18,12 +22,12 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+*.yml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
@@ -34,6 +38,9 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
+# ignore properties file
+application.properties
+application-API-KEY.properties
 ### VS Code ###
+
 .vscode/

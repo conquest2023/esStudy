@@ -26,14 +26,17 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 @Configuration
 public class ElasticConfig {
 
-    String apiKey = "a1Z5ckVaTUJkc0NwWElFcE1QcWg6S2Q2LVJjbmhSYld6TEc2X3FmM1B6dw==";
-    @Value("${spring.elasticsearch.username}")
+
+    @Value("${apikey}")
+    private String apiKey;
+
+    @Value("${username}")
     private String username;
 
-    @Value("${spring.elasticsearch.password}")
+    @Value("${password}")
     private String password;
 
-    @Value("${spring.elasticsearch.host}")
+    @Value("${host}")
     private String esHost;
 
 
