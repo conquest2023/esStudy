@@ -31,8 +31,7 @@ ext {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-//	implementation 'org.springframework.ai:spring-ai-elasticsㅈearch-store-spring-boot-starter'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.1.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'co.elastic.clients:elasticsearch-java:8.15.3'
 	implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.15.3'

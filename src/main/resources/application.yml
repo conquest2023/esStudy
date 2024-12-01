@@ -1,0 +1,18 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+cloud:
+  aws:
+    s3:
+      bucket: mention-bucket.bucket
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    credentials:
+      access-key: AKIA47CRVIQYR7NJ2LEJ
+      secret-key: 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
