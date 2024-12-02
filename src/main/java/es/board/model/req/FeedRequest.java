@@ -27,8 +27,10 @@ public class FeedRequest {
     private String feedUID;
 
 
+
     private String username;
 
+    private  String image;
 
     private String title;
 
@@ -52,6 +54,7 @@ public class FeedRequest {
                 .map(board -> FeedRequest.builder()
                         .id(board.getFeedUID())
                         .username(board.getUsername())
+                        .image(board.getImage())
                         .title(board.getTitle())
                         .description(board.getDescription())
                         .likeCount(board.getLikeCount())
@@ -67,6 +70,7 @@ public class FeedRequest {
 
                     .feedUID(board.getFeedUID())
                     .username(board.getUsername())
+                    .image(board.getImage())
                     .title(board.getTitle())
                     .description(board.getDescription())
                     .category(board.getCategory())

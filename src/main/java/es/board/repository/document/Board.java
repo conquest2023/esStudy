@@ -11,9 +11,11 @@ import es.board.model.res.FeedCreateResponse;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(indexName = "board")
 @NoArgsConstructor
@@ -29,6 +31,17 @@ public class Board {
 
     @Field
     private String username;
+
+    @Field(type =FieldType.Text)
+    private  String image;
+
+
+    @Field(type =FieldType.Keyword)
+    private String  attachFile;
+
+    @Field(type =FieldType.Keyword)
+    private List<String> imageFiles;
+
 
     @Field(type = FieldType.Text)
     private String title;

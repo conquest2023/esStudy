@@ -9,8 +9,11 @@ import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Struct;
@@ -20,6 +23,7 @@ import java.util.List;
 
 @Service
 @Builder
+@Slf4j
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
@@ -35,7 +39,7 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public  FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
 
-     return  feedDAO.indexSaveFeed(feedSaveDTO);
+        return  feedDAO.indexSaveFeed(feedSaveDTO);
 
     }
 
@@ -125,13 +129,33 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
+
+//    public FeedCreateResponse convertFileToBase64(FeedCreateResponse feedCreateResponse) throws IOException {
+//        byte[] fileBytes = feedCreateResponse.getAttachFile().getBytes();
+//        String  attachFileBase64 = Base64.encodeBase64String(fileBytes);
+//
+//        // 이미지 파일들을 Base64로 변환
+//        List<String> base64ImageFiles = new ArrayList<>();
+//        List<MultipartFile> imageFiles = feedCreateResponse.getImageFiles();
+//        if (imageFiles != null) {
+//            for (MultipartFile imageFile : imageFiles) {
+//                byte[] imageBytes = imageFile.getBytes();
+//                base64ImageFiles.add(Base64.encodeBase64String(imageBytes));  // 이미지 파일을 Base64로 인코딩
+//            }
+//        }
+//        feedCreateResponse.ConvertToBase64(attachFileBase64,base64ImageFiles);
+//        return feedCreateResponse;
+//    }
+
     public List<Board> bulkToEntity(List<FeedCreateResponse> res) {
         List<Board> boards = new ArrayList<>();
         for (FeedCreateResponse dto : res) {
-            // 빌더 패턴을 사용해 Comment 객체 생성
             Board feed = Board.builder()
                     .feedUID(dto.getFeedUID())
                     .title(dto.getTitle())
+//                    .image(dto.getImage())
+//                  .attachFile(dto.getAttachFileBase64())
+//                   .imageFiles(dto.getBase64ImageFiles())
                     .description(dto.getDescription())
                     .likeCount(dto.getLikeCount())
                     .createdAt(LocalDateTime.now())

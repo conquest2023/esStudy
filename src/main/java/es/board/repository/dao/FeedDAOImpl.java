@@ -82,7 +82,6 @@ public class FeedDAOImpl implements FeedDAO {
     public FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) throws IOException {
         dto.TimePush();
         try {
-            log.info(dto.toString());
             IndexResponse response = client.index(i -> i
                     .index("board")
                     .document(dto));
@@ -112,7 +111,6 @@ public class FeedDAOImpl implements FeedDAO {
         List<Board> boards = response.hits().hits().stream()
                 .map(Hit::source)
                 .collect(Collectors.toList());
-        log.info(boards.toString());
         return boards;
 
         //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");

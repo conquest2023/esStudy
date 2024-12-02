@@ -6,11 +6,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.model.file.UploadFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +25,15 @@ public class FeedCreateResponse {
 
     private String username;
 
+    private  String image;
+
+//    private MultipartFile attachFile;
+//
+//    private List<MultipartFile> imageFiles;
+//
+//    private String attachFileBase64;
+//
+//    private List<String> base64ImageFiles;
 
     private String title;
 
@@ -37,6 +50,13 @@ public class FeedCreateResponse {
     private LocalDateTime createdAt;
 
 
+
+
+//    public void   ConvertToBase64(String attachFile, List<String> imageBase64List){
+//        this.attachFileBase64= attachFile;
+//        this.base64ImageFiles= imageBase64List;
+//        base64ImageFiles.addAll(imageBase64List);
+//    }
 
 
 

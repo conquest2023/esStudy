@@ -1,28 +1,46 @@
 package es.board.controller;
 
+import es.board.model.file.FileStore;
+import es.board.model.file.UploadFile;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+
 
 
 @RequiredArgsConstructor
 @Slf4j
 @Controller
 public class FeedViewController {
+    @Value("%{file.dir}")
+    private  String fileDir;
+
 
     private final FeedService feedService;
 
     private  final CommentService commentService;
+
+    private  final FileStore fileStore;
 
 
     @GetMapping("/")
@@ -122,12 +140,18 @@ public class FeedViewController {
         return  "basic/feed/RangeTime";
     }
     @PostMapping("/search/view/feed/save")
-    public String saveFeed(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
+    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
+
+
         model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
-        return "redirect:/search/view/feed?index=board";   // 저장 후 메인 페이지로 리다이렉트
+//        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
+//        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
+        return "redirect:/search/view/feed?index=board";
     }
+
+
     @GetMapping("/search/view/feed/Form")
-    public String feedSaveForm(Model model, FeedCreateResponse feedSaveDTO) throws IOException {
+    public String feedSaveForm( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) {
         model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
         return  "basic/feed/PostFeed";
     }
@@ -140,3 +164,22 @@ public class FeedViewController {
     }
 
 }
+
+
+//        String imageName =request.getParameter(feedSaveDTO.getImage());
+//        Collection<Part> parts =request.getParts();
+//        for (Part part : parts) {
+//            log.info("name={}",part.getName());
+//
+//            Collection<String> headerNames=part.getHeaderNames();
+//
+//            for (String headerName : headerNames) {
+//                log.info("header {}:{}",headerName,part.getHeader(headerName));
+//            }
+//            log.info("submittedFileName={}",part.getSubmittedFileName());
+//            log.info("size={}",part.getSize());
+//
+//            InputStream inputStream=part.getInputStream();
+//            String fullPath="/fileSave"+part.getSubmittedFileName();
+//            part.write(fullPath);
+//        }

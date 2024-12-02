@@ -93,6 +93,9 @@
             </td>
 
         </tr>
+        <tr th:each="board : ${data}">
+            <td colspan="2" class="description-cell" th:text="${board.image}"></td> <!-- 내용 -->
+        </tr>
 
         <!-- 내용 칸을 크게 표시 -->
         <tr th:each="board : ${data}">
