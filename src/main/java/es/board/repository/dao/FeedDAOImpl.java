@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
+import es.board.model.res.ViewCountResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
@@ -192,7 +193,6 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
 
-
     @Override
     public List<Board> findSearchBoard(String text) throws IOException {
         SearchResponse<Board> response = client.search(s -> s
@@ -221,11 +221,11 @@ public class FeedDAOImpl implements FeedDAO {
                         .index("board")
                         .query(q -> q
                                 .bool(b -> b
-                                        .must(m->m.term(t->t.field("category")
+                                        .must(m -> m.term(t -> t.field("category")
                                                 .value(category)))
                                         .should(t -> t.match(m -> m
-                                                        .field("description")
-                                                        .query(category))))),
+                                                .field("description")
+                                                .query(category))))),
                 Board.class);
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
@@ -242,7 +242,7 @@ public class FeedDAOImpl implements FeedDAO {
         SearchResponse<Board> response = client.search(s -> s
 
                         .index("board")
-                        .from( size) // 페이지 시작점
+                        .from(size) // 페이지 시작점
                         .size(size)
                         .aggregations("totalLikes", a -> a
                                 .sum(sum -> sum.field("likeCount"))),
@@ -257,7 +257,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public List<Board> findMonthPopularFeed() throws IOException {
-        int monthPage=5;
+        int monthPage = 5;
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .sort(sort -> sort.field(f -> f
@@ -308,6 +308,23 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
+    public  void saveViewCounts(String id, Board view) throws IOException {
+//        IndexResponse response = client.index(g -> g
+//                .index("board")
+//                .id(id)
+//                .document(view));
+        UpdateResponse<Board> response= client.update(u -> u
+                        .index("board")
+                        .id(id)
+                        .doc(view),
+                Board.class
+        );
+
+    }
+
+
+
+    @Override
     public Board findPopularFeedOne() throws IOException {
         // Elasticsearch 검색 및 집계 요청
         SearchResponse<Board> response = client.search(s -> s
@@ -347,16 +364,6 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
 
-//        UpdateResponse<Board> response= client.update(u -> u
-//                        .index("board")
-//                        .id(id)
-//                        .doc(eq),
-//                Board.class
-//        );
-//
-//        if (response.get().source()==null){
-//            throw  new Exception("오류");
-//        }
-//        return   response.get().source();
+
 
 

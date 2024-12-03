@@ -127,29 +127,29 @@
                     <div class="col-12 text-center mb-4">
                         <div class="btn-group" role="group" aria-label="카테고리 선택">
 
-                            <a href="/category/free"
+                            <a href="/search/view/feed/list/자유"
                                class="btn btn-outline-primary"
-                               th:classappend="${currentCategory == 'free'} ? 'active' : ''">
+                               th:classappend="${currentCategory == '자유'} ? 'active' : ''">
                                 자유게시판
                             </a>
-                            <a href="/category/all"
+                            <a href="/search/view/feed/list/스포츠"
                                class="btn btn-primary"
-                               th:classappend="${currentCategory == 'all'} ? 'active' : ''">
+                               th:classappend="${currentCategory == '스포츠'} ? 'active' : ''">
                                 스포츠
                             </a>
-                            <a href="/category/economy"
+                            <a href="/search/view/feed/list/경제"
                                class="btn btn-outline-primary"
-                               th:classappend="${currentCategory == 'economy'} ? 'active' : ''">
+                               th:classappend="${currentCategory == '경제'} ? 'active' : ''">
                                 경제
                             </a>
-                            <a href="/category/technology"
+                            <a href="/search/view/feed/list/기술"
                                class="btn btn-outline-primary"
-                               th:classappend="${currentCategory == 'technology'} ? 'active' : ''">
+                               th:classappend="${currentCategory == '기술'} ? 'active' : ''">
                                 기술
                             </a>
-                            <a href="/category/technology"
+                            <a href="/search/view/feed/list/게임"
                                class="btn btn-outline-primary"
-                               th:classappend="${currentCategory == 'technology'} ? 'active' : ''">
+                               th:classappend="${currentCategory == '게임'} ? 'active' : ''">
                                  게임
                             </a>
                         </div>
@@ -168,6 +168,7 @@
                         <th>내용</th>
                         <th>좋아요 수</th>
                         <th>작성일자</th>
+                        <th>조회수</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -180,6 +181,7 @@
                         <td th:text="${board.description}"></td>
                         <td th:text="${board.likeCount}"></td>
                         <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${board.viewCount}"></td>
                     </tr>
                     <!-- 게시글이 없을 경우 -->
                     <tr th:if="${#lists.isEmpty(data)}">

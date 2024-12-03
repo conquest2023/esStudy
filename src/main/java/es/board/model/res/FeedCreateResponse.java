@@ -27,6 +27,8 @@ public class FeedCreateResponse {
 
     private  String image;
 
+    private int  viewCount;
+
 //    private MultipartFile attachFile;
 //
 //    private List<MultipartFile> imageFiles;
@@ -49,14 +51,6 @@ public class FeedCreateResponse {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
-
-
-
-//    public void   ConvertToBase64(String attachFile, List<String> imageBase64List){
-//        this.attachFileBase64= attachFile;
-//        this.base64ImageFiles= imageBase64List;
-//        base64ImageFiles.addAll(imageBase64List);
-//    }
 
 
 

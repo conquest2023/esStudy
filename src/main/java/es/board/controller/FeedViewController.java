@@ -3,6 +3,7 @@ package es.board.controller;
 import es.board.model.file.FileStore;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
+import es.board.model.res.ViewCountResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +79,8 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/id")
     public String getFeedId(Model model,@RequestParam String id) throws IOException {
-        log.info(feedService.getFeedId(id).toString());
+        feedService.saveViewCountFeed(id);
+        log.info(String.valueOf(feedService.getFeedId(id)));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
         return "basic/feed/FeedDetails";
@@ -111,7 +113,8 @@ public class FeedViewController {
     }
 
     @GetMapping("/search/view/feed/list/{category}")
-    public String getCategoryListFeed(Model model,@RequestParam String category) throws IOException {
+    public String getCategoryListFeed(Model model, @PathVariable String category) throws IOException {
+        log.info("testma,");
         model.addAttribute("data",feedService.getCategoryFeed(category));
 
         return "basic/feed/category";

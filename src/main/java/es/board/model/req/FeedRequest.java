@@ -39,7 +39,9 @@ public class FeedRequest {
 
     private String category;
 
-    private int likeCount;
+    private Integer likeCount;
+
+    private  int viewCount;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -59,6 +61,7 @@ public class FeedRequest {
                         .description(board.getDescription())
                         .likeCount(board.getLikeCount())
                         .category(board.getCategory())
+                        .viewCount(board.getViewCount())
                         .createdAt(board.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());

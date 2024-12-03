@@ -3,6 +3,7 @@ package es.board.service;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
+import es.board.model.res.ViewCountResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public interface FeedService {
 
     double getSumLikeByPageOne(int page, int size) throws IOException;
 
+    void  saveViewCountFeed(String  id) throws IOException;
     FeedRequest getPopularFeedOne() throws IOException;
 
     List<FeedRequest> getRecentFeed() throws IOException;

@@ -11,7 +11,6 @@ import es.board.model.res.FeedCreateResponse;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,6 +56,8 @@ public class Board {
     @Field(type = FieldType.Integer)
     private Integer likeCount;
 
+    @Field(type = FieldType.Integer)
+    private  int viewCount;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -85,5 +86,9 @@ public class Board {
                 .build();
     }
 
+    public  void plusCount(){
 
+        this.viewCount=viewCount+1;
+
+    }
 }

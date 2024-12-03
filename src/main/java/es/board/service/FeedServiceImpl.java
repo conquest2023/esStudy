@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
+import es.board.model.res.ViewCountResponse;
 import es.board.repository.dao.FeedDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -126,6 +127,15 @@ public class FeedServiceImpl implements FeedService {
         FeedRequest request=new FeedRequest();
 
         return request.BoardToDTO(feedDAO.findIdOne(id));
+    }
+
+    @Override
+    public  void  saveViewCountFeed(String  id) throws IOException {
+
+       Board view= feedDAO.findIdOne(id);
+       view.plusCount();
+       feedDAO.saveViewCounts(id,view);
+
     }
 
 

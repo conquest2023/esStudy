@@ -4,6 +4,7 @@ package es.board.repository.dao;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
+import es.board.model.res.ViewCountResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
@@ -43,7 +44,7 @@ public interface FeedDAO {
      double findSumLikeByPageOne(int page, int size) throws IOException;
       Board findPopularFeedOne() throws IOException;
 
-
+    void saveViewCounts(String id, Board view) throws IOException;
     public List<Board> findMonthPopularFeed() throws IOException;
 
      double findTotalPage(int page, int size) throws IOException ;

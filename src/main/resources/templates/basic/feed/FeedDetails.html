@@ -105,7 +105,7 @@
         <!-- 좋아요 수와 작성일자를 작게하고 오른쪽에 배치 -->
         <tr th:each="board : ${data}">
             <td colspan="2" class="small-text">
-                <p><strong>좋아요 수:</strong> <span th:text="${board.likeCount}"></span></p> <!-- 좋아요 수 -->
+                <p><strong>좋아요 수:</strong> <span th:text="${data.likeCount}"></span></p> <!-- 좋아요 수 -->
                 <p><strong>작성일자:</strong> <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p> <!-- 작성일자 -->
             </td>
         </tr>
