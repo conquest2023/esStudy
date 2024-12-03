@@ -1,28 +1,19 @@
 package es.board.controller;
 
 import es.board.model.file.FileStore;
-import es.board.model.file.UploadFile;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -45,7 +36,7 @@ public class FeedViewController {
 
     @GetMapping("/")
     public String mainPage(Model model) {
-
+        log.info("hello");
         model.addAttribute("feedSaveDTO", new FeedCreateResponse());
         return "basic/feed/main";
     }
@@ -107,7 +98,7 @@ public class FeedViewController {
     @GetMapping("/search/view/feed")
     public String getFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
-                          @RequestParam(defaultValue = "8") int size) throws IOException { // 페이지 크기
+                          @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
 
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
         model.addAttribute("page",page);  // 현재 페이지 번호
@@ -116,10 +107,15 @@ public class FeedViewController {
         //  log.info(String.valueOf(feedService.getSumLikeByPageOne(page,maxPage)));
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
         model.addAttribute("month",feedService.getMonthPopularFeed());
-
         return "basic/feed/feedList";
     }
 
+    @GetMapping("/search/view/feed/list/{category}")
+    public String getCategoryListFeed(Model model,@RequestParam String category) throws IOException {
+        model.addAttribute("data",feedService.getCategoryFeed(category));
+
+        return "basic/feed/category";
+    }
 
     @GetMapping("/search/view/feed/time")
     public String getRecentFeedList(Model model) throws IOException {
@@ -137,7 +133,7 @@ public class FeedViewController {
             , @RequestParam LocalDateTime endDate ) throws IOException{
 
         model.addAttribute("data",feedService.getRangeTimeFeed(startDate,endDate));
-        return  "basic/feed/RangeTime";
+        return "category";
     }
     @PostMapping("/search/view/feed/save")
     public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
