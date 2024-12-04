@@ -49,6 +49,7 @@ public interface FeedService {
     List<Board> getSearchBoard(String text) throws IOException;
     List<FeedRequest> getPagingFeed(int page, int size) throws IOException;
 
+    void deleteFeed(String id);
 
     public FeedUpdate updateFeed(String id, FeedUpdate update) throws Exception;
 

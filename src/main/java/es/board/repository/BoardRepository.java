@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BoardRepository extends ElasticsearchRepository<Board,String> {
 
+
+
 //    Board  findAllById(String id);
 
 }

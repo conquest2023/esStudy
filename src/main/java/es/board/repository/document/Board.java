@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.model.res.FeedCreateResponse;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @Document(indexName = "board")
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 @Data
 @Builder
 public class Board {
@@ -87,8 +89,6 @@ public class Board {
     }
 
     public  void plusCount(){
-
-        this.viewCount=viewCount+1;
-
+        viewCount++;
     }
 }

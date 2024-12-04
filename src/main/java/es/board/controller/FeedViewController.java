@@ -162,6 +162,13 @@ public class FeedViewController {
         return feedService.createBulkFeed(comments);
     }
 
+    @PostMapping("/search/view/feed/delete")
+    public  String deleteFeed(@RequestParam String id){
+        log.info("hello");
+        feedService.deleteFeed(id);
+        return "redirect:/search/view/feed?index=board";
+    }
+
 }
 
 

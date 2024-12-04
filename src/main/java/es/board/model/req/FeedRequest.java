@@ -77,6 +77,7 @@ public class FeedRequest {
                     .title(board.getTitle())
                     .description(board.getDescription())
                     .category(board.getCategory())
+                    .viewCount(board.getViewCount())
                     .createdAt(board.getCreatedAt())
                     .build();
         }

@@ -4,15 +4,18 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.model.res.ViewCountResponse;
+import es.board.repository.BoardRepository;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -20,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import static java.rmi.server.LogStream.log;
 @Repository
@@ -28,6 +32,10 @@ import static java.rmi.server.LogStream.log;
 public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
+
+    private  final BoardRepository boardRepository;
+
+    private final int increment=1;
 
     @Override
     public String saveFeed(String index, FeedCreateResponse dto) throws IOException {
@@ -192,6 +200,19 @@ public class FeedDAOImpl implements FeedDAO {
 
     }
 
+    @Override
+    @Transactional
+    public void deleteFeedOne(String id) {
+
+        log.info("Attempting to delete board with id: " + id);
+        try {
+            boardRepository.deleteById(id);
+            log.info("Successfully deleted board with id: " + id);
+        } catch (Exception e) {
+            log.error("Error deleting board with id: " + id, e);
+        }
+    }
+
 
     @Override
     public List<Board> findSearchBoard(String text) throws IOException {
@@ -309,17 +330,28 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public  void saveViewCounts(String id, Board view) throws IOException {
+         try {
+            client.update(u -> u
+                            .index("board")
+                            .id(id)
+                            .script(s -> s
+                                    .source("ctx._source.viewCount += params.increment")
+                                    .params(Map.of("increment", JsonData.of(increment)))),
+                    Board.class);
+            System.out.println("조회수 업데이트 성공");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("조회수 업데이트 실패");
+        }
 //        IndexResponse response = client.index(g -> g
 //                .index("board")
 //                .id(id)
 //                .document(view));
-        UpdateResponse<Board> response= client.update(u -> u
-                        .index("board")
-                        .id(id)
-                        .doc(view),
-                Board.class
-        );
-
+////        UpdateResponse<Board> response= client.update(u -> u
+////                        .index("board")
+////                        .id(id)
+////                        .doc(view),
+////                Board.class
     }
 
 

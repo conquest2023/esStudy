@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -123,6 +124,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    @Transactional
+    public void deleteFeed(String id) {
+
+        feedDAO.deleteFeedOne(id);
+    }
+
+    @Override
     public FeedRequest getFeedId(String id) throws IOException {
         FeedRequest request=new FeedRequest();
 
@@ -134,6 +142,7 @@ public class FeedServiceImpl implements FeedService {
 
        Board view= feedDAO.findIdOne(id);
        view.plusCount();
+       log.info(String.valueOf(view.getViewCount()));
        feedDAO.saveViewCounts(id,view);
 
     }

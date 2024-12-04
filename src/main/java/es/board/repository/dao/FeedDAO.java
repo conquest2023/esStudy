@@ -50,6 +50,7 @@ public interface FeedDAO {
      double findTotalPage(int page, int size) throws IOException ;
 
 
+     void deleteFeedOne(String id);
 //   Board getFeed(String id);
 
 
