@@ -63,6 +63,12 @@ public class CommentViewController {
         return  "basic/commentPaging";
     }
 
+    @GetMapping("/search/view/comment/post")
+    public  String commentPost() throws IOException {
+//        commentService.indexComment(commentSaveDTO);
+        return  "basic/comment/PostComment";
+    }
+
     // 문서 색인
     @PostMapping("/search/view/comment/save")
     public  String commentSave(@ModelAttribute CommentCreateResponse commentSaveDTO) throws IOException {

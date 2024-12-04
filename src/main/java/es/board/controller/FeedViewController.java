@@ -142,6 +142,7 @@ public class FeedViewController {
     public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
 
 
+        log.info(feedSaveDTO.toString());
         model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
 //        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
 //        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
@@ -163,7 +164,7 @@ public class FeedViewController {
     }
 
     @PostMapping("/search/view/feed/delete")
-    public  String deleteFeed(@RequestParam String id){
+    public  String deleteFeed(@RequestParam String id) throws IOException {
         log.info("hello");
         feedService.deleteFeed(id);
         return "redirect:/search/view/feed?index=board";

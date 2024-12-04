@@ -22,6 +22,7 @@ import java.sql.Struct;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Builder
@@ -40,10 +41,12 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public  FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
-
+        RandomFeedUID(feedSaveDTO);
         return  feedDAO.indexSaveFeed(feedSaveDTO);
 
     }
+
+
 
     @Override
     public List<FeedRequest> getCategoryFeed(String category) throws IOException {
@@ -86,7 +89,6 @@ public class FeedServiceImpl implements FeedService {
     public List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> feeds) throws IOException {
 
         feedDAO.saveBulkFeed(bulkToEntity(feeds));
-
         return feeds;
     }
 
@@ -125,7 +127,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     @Transactional
-    public void deleteFeed(String id) {
+    public void deleteFeed(String id) throws IOException {
 
         feedDAO.deleteFeedOne(id);
     }
@@ -141,9 +143,9 @@ public class FeedServiceImpl implements FeedService {
     public  void  saveViewCountFeed(String  id) throws IOException {
 
        Board view= feedDAO.findIdOne(id);
-       view.plusCount();
-       log.info(String.valueOf(view.getViewCount()));
        feedDAO.saveViewCounts(id,view);
+
+//       view.plusCount();
 
     }
 
@@ -189,17 +191,11 @@ public class FeedServiceImpl implements FeedService {
         return  update;
     }
 
+    private static void RandomFeedUID(FeedCreateResponse feedSaveDTO) {
+        String feedUID= UUID.randomUUID().toString();
+        feedSaveDTO.setFeedUID(feedUID);
+    }
+    }
 
 
-//    @Override
-//    public List<FeedRequest> getFeedAll() {
-//        FeedRequest reqFeedDTO=new FeedRequest();
-//
-//        List<FeedRequest> req=  reqFeedDTO.entityToDTO(boardDAO.getFeedAll());
-//
-//        return  req;
-//    }
-
-
-}
 

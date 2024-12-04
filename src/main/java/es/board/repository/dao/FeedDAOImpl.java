@@ -202,11 +202,21 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     @Transactional
-    public void deleteFeedOne(String id) {
+    public void deleteFeedOne(String id) throws IOException {
+        SearchResponse<Board> searchResponse = client.search(s -> s
+                .index("board")
+                .query(q -> q
+                        .term(t -> t
+                                .field("feedUID.keyword")
+                                .value(id)
+                        )
+                ), Board.class
+        );
+        String documentId = searchResponse.hits().hits().get(0).id();
 
         log.info("Attempting to delete board with id: " + id);
         try {
-            boardRepository.deleteById(id);
+            boardRepository.deleteById(documentId);
             log.info("Successfully deleted board with id: " + id);
         } catch (Exception e) {
             log.error("Error deleting board with id: " + id, e);
@@ -317,41 +327,50 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board findIdOne(String id) throws IOException {
-
+        log.info(id);
         SearchResponse<Board> response = client.search(g -> g
                         .index("board")
                         .query(q -> q
-                                .match(t -> t
-                                        .field("feedUID")
-                                        .query(id))),
+                                .term(t -> t
+                                        .field("feedUID.keyword") //Keyword를 왜 썻을까?
+                                        .value(id))),
                 Board.class);
+        if (response.hits().hits().isEmpty()) {
+            log.warn("문서를 찾을 수 없습니다. feedUID: {}", id);
+            return null;
+        }
         return response.hits().hits().get(0).source();
     }
 
     @Override
-    public  void saveViewCounts(String id, Board view) throws IOException {
-         try {
+    public  void saveViewCounts(String feedUID, Board view) throws IOException {
+        try {
+            // Step 1: feedUID로 _id 검색
+            SearchResponse<Board> searchResponse = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .term(t -> t
+                                    .field("feedUID.keyword")
+                                    .value(feedUID)
+                            )
+                    ), Board.class
+            );
+            // 검색된 문서의 _id 가져오기
+            String documentId = searchResponse.hits().hits().get(0).id();
+            // Step 2: _id를 사용해 viewCount 업데이트
             client.update(u -> u
-                            .index("board")
-                            .id(id)
-                            .script(s -> s
-                                    .source("ctx._source.viewCount += params.increment")
-                                    .params(Map.of("increment", JsonData.of(increment)))),
-                    Board.class);
-            System.out.println("조회수 업데이트 성공");
+                    .index("board")
+                    .id(documentId) // _id 사용
+                    .script(s -> s
+                            .source("ctx._source.viewCount += params.increment")
+                            .params(Map.of("increment", JsonData.of(increment)))
+                    ), Board.class
+            );
+
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("조회수 업데이트 실패");
         }
-//        IndexResponse response = client.index(g -> g
-//                .index("board")
-//                .id(id)
-//                .document(view));
-////        UpdateResponse<Board> response= client.update(u -> u
-////                        .index("board")
-////                        .id(id)
-////                        .doc(view),
-////                Board.class
     }
 
 
