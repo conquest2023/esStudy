@@ -2,8 +2,8 @@ package es.board.controller;
 
 import es.board.model.file.FileStore;
 import es.board.model.req.FeedUpdate;
+import es.board.model.res.CommentCreateResponse;
 import es.board.model.res.FeedCreateResponse;
-import es.board.model.res.ViewCountResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -65,7 +66,7 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/popularfeed")
     public String getMonthPopular(Model model) throws Exception {
-        return "basic/feed/feedList";
+        return "FeedList";
     }
 
     @PostMapping("/search/view/feed/update/save")
@@ -80,15 +81,30 @@ public class FeedViewController {
     @GetMapping("/search/view/feed/id")
     public String getFeedId(Model model,@RequestParam String id) throws IOException {
         feedService.saveViewCountFeed(id);
-        log.info(String.valueOf(feedService.getFeedId(id)));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
+        model.addAttribute("feedId", id);
         return "basic/feed/FeedDetails";
+
     }
+    @PostMapping("/search/view/feed/id")
+    public String saveCommentId(@RequestParam String id,
+                                   @ModelAttribute CommentCreateResponse commentSaveDTO,
+                                   Model model) throws IOException {
+        commentSaveDTO.setFeedUID(id);
+        commentService.indexComment(commentSaveDTO);
+//        model.addAttribute("data",feedService.getFeedId(id));
+//        model.addAttribute("comment",commentService.getCommentId(id));
+        model.addAttribute("push",commentSaveDTO);
+        return "redirect:/search/view/feed/id?id=" + id;
+    }
+
+
+
     @GetMapping("/search/view/feed/feedAll")
     public String getFeedList(Model model) throws IOException {
         model.addAttribute("data",feedService.getFeed());
-        return "basic/feed/feedList";
+        return "FeedList";
     }
     @GetMapping("/search/view/feed/text")
     public String getSearchBoardList(Model model, @RequestParam String text) throws IOException {
@@ -109,7 +125,7 @@ public class FeedViewController {
         //  log.info(String.valueOf(feedService.getSumLikeByPageOne(page,maxPage)));
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
         model.addAttribute("month",feedService.getMonthPopularFeed());
-        return "basic/feed/feedList";
+        return "FeedList";
     }
 
     @GetMapping("/search/view/feed/list/{category}")

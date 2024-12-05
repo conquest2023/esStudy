@@ -327,7 +327,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board findIdOne(String id) throws IOException {
-        log.info(id);
+//        log.info(id);
         SearchResponse<Board> response = client.search(g -> g
                         .index("board")
                         .query(q -> q

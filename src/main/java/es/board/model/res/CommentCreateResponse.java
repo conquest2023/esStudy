@@ -17,6 +17,8 @@ public class CommentCreateResponse {
 
     private String commentUID;
 
+    private  String feedUID;
+
     private String username;
 
 

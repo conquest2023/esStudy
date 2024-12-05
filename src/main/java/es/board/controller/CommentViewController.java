@@ -70,18 +70,18 @@ public class CommentViewController {
     }
 
     // 문서 색인
-    @PostMapping("/search/view/comment/save")
-    public  String commentSave(@ModelAttribute CommentCreateResponse commentSaveDTO) throws IOException {
-        commentService.indexComment(commentSaveDTO);
-        return "redirect:/";  // 저장 후 메인 페이지로 리다이렉트;
-    }
+//    @PostMapping("/search/view/comment/save")
+//    public  String commentSave(Model model, @ModelAttribute CommentCreateResponse commentSaveDTO) throws IOException {
+//
+//        model.addAttribute("data",commentService.indexComment(commentSaveDTO));
+//        return "basic/feed/FeedDetails";
+//    }
 
 
 
     @GetMapping("/search/view/comment/commentAll")
     public String getComment(Model model) throws IOException {
         model.addAttribute("data",commentService.getComment());
-
         return "basic/commentAll";
     }
     @PutMapping("/search/view/update/{CommentUID}")

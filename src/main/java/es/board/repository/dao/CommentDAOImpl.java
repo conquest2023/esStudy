@@ -216,6 +216,7 @@ public class CommentDAOImpl implements CommentDAO {
 
     @Override
     public Comment findCommentId(String commentUid) {
+//        log.info(commentUid);
         return  commentRepository.findByCommentUID(commentUid);
     }
 
