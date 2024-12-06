@@ -40,5 +40,6 @@ public interface CommentService {
 
    // List<CommentSearchRequest> SearchComment(String keyword);
 
+    void deleteComment(String id) throws IOException;
 
 }

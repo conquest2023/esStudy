@@ -110,14 +110,16 @@
                 </a>
             </td>
             <td>
-                <a th:href="@{/search/view/comment/delete(id=${comment.feedUID}, username=${comment.username})}" class="btn btn-default">
-                    <i class="fas fa-trash"></i> 삭제
-                </a>
+                <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" class="btn btn-default">
+                    <button type="submit">
+                        <i class="fas fa-trash"></i> 삭제하기
+                    </button>
+                </form>
+                </form>
             </td>
         </tr>
         </tbody>
     </table>
-
     <form th:action="@{/search/view/feed/id(id=${feedId})}" method="post" th:object="${CommentCreateResponse}" enctype="multipart/form-data">
         <div class="form-group">
             <label for="username">이름:</label>

@@ -93,6 +93,10 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findIdOne(id);
     }
 
+    @Override
+    public void deleteComment(String id) throws IOException {
+        commentDAO.deleteCommentId(id);
+    }
 
 
     public Comment updateCommentDTO(String id, Comment comment , CommentUpdate update){

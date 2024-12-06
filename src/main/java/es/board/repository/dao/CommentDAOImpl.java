@@ -214,27 +214,34 @@ public class CommentDAOImpl implements CommentDAO {
         return pages;
     }
 
+
     @Override
     public Comment findCommentId(String commentUid) {
 //        log.info(commentUid);
         return  commentRepository.findByCommentUID(commentUid);
     }
 
-//    @Override
-//    public List<Comment> SearchCommentBring(String keyword) {
-//        return commentRepository.findCommentsByUsernameAndContent(keyword);
-//    }
 
+    @Override
+    public  void deleteCommentId(String id) throws IOException {
+        SearchResponse<Comment> searchResponse = client.search(s -> s
+                .index("comment")
+                .query(q -> q
+                        .term(t -> t
+                                .field("feedUID")
+                                .value(id)
+                        )
+                ), Comment.class
+        );
 
-
-    public List<Comment> fetchProducts(List<Comment> eq) {
-        // 데이터베이스에서 Comment 데이터를 가져오는 로직
-        // 예시로 간단한 더미 데이터를 반환할 수 있습니다.
-        List<Comment> result = new ArrayList<>();
-        for (Comment comment : eq) {
-            result.add(comment);
+        log.info(searchResponse.toString());
+        String documentId = searchResponse.hits().hits().get(0).id();
+        try {
+            commentRepository.deleteById(documentId);
+            log.info("Successfully deleted board with id: " + id);
+        } catch (Exception e) {
+            log.error("Error deleting board with id: " + id, e);
         }
-        return result;
     }
 
     public List<Comment> findCommentAll() throws IOException, ElasticsearchException {
@@ -250,4 +257,5 @@ public class CommentDAOImpl implements CommentDAO {
         return comments;
 
     }
+
 }

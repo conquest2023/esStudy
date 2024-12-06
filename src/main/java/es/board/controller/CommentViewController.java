@@ -94,11 +94,17 @@ public class CommentViewController {
     }
 
 
-
-
-//    @DeleteMapping("/delete/comment/{id}")
-//    public  void CommentRemove(String commentUid){
-//
-//        commentService.CommentRemoveId(commentUid);
+//    @PostMapping("/search/view/feed/delete")
+//    public  String deleteFeed(@RequestParam String id) throws IOException {
+//        log.info("hello");
+//        feedService.deleteFeed(id);
+//        return "redirect:/search/view/feed?index=board";
 //    }
+
+    @PostMapping("/search/view/comment/delete")
+    public  String CommentRemove(@RequestParam  String id) throws IOException {
+        commentService.deleteComment(id);
+        return "redirect:/search/view/feed/id?id=" + id;
+
+    }
 }
