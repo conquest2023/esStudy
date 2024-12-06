@@ -1,6 +1,7 @@
 package es.board.repository.dao;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -58,7 +59,6 @@ public class FeedDAOImpl implements FeedDAO {
 
 
         BulkRequest.Builder br = new BulkRequest.Builder();
-        log.info(pages.toString());
         for (Board product : pages) {
             log("인덱싱 중: " + product);
             br.operations(op -> op
@@ -70,7 +70,7 @@ public class FeedDAOImpl implements FeedDAO {
             log("인덱싱 중: " + product);
         }
         BulkResponse response = client.bulk(br.build());
-        log.info(response.toString());
+
 
         // 에러가 발생한 경우 로그 출력
         if (response.errors()) {
@@ -195,7 +195,7 @@ public class FeedDAOImpl implements FeedDAO {
         );
         long totalHits = response.hits().total().value();
 
-        log.info(String.valueOf(totalHits));
+//        log.info(String.valueOf(totalHits));
         return totalHits;
 
     }
@@ -355,18 +355,17 @@ public class FeedDAOImpl implements FeedDAO {
                             )
                     ), Board.class
             );
-            // 검색된 문서의 _id 가져오기
             String documentId = searchResponse.hits().hits().get(0).id();
-            // Step 2: _id를 사용해 viewCount 업데이트
             client.update(u -> u
                     .index("board")
                     .id(documentId) // _id 사용
+                    .refresh(Refresh.WaitFor)
                     .script(s -> s
                             .source("ctx._source.viewCount += params.increment")
                             .params(Map.of("increment", JsonData.of(increment)))
+
                     ), Board.class
             );
-
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("조회수 업데이트 실패");

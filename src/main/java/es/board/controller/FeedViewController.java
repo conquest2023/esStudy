@@ -17,8 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-
-
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -85,7 +84,6 @@ public class FeedViewController {
         model.addAttribute("comment",commentService.getCommentId(id));
         model.addAttribute("feedId", id);
         return "basic/feed/FeedDetails";
-
     }
     @PostMapping("/search/view/feed/id")
     public String saveCommentId(@RequestParam String id,
@@ -93,18 +91,19 @@ public class FeedViewController {
                                    Model model) throws IOException {
         commentSaveDTO.setFeedUID(id);
         commentService.indexComment(commentSaveDTO);
-//        model.addAttribute("data",feedService.getFeedId(id));
-//        model.addAttribute("comment",commentService.getCommentId(id));
         model.addAttribute("push",commentSaveDTO);
         return "redirect:/search/view/feed/id?id=" + id;
     }
 
-
-
     @GetMapping("/search/view/feed/feedAll")
-    public String getFeedList(Model model) throws IOException {
+    public String getFeedList(Model model, @RequestBody Map<String, String> request) throws IOException {
+        log.info(request.toString());
+        String feedUID = request.get("feedUID");
+        if (feedUID != null) {
+            feedService.saveViewCountFeed(feedUID);
+        }
         model.addAttribute("data",feedService.getFeed());
-        return "FeedList";
+        return "basic/feed/feedList?index=board";
     }
     @GetMapping("/search/view/feed/text")
     public String getSearchBoardList(Model model, @RequestParam String text) throws IOException {
@@ -125,12 +124,10 @@ public class FeedViewController {
         //  log.info(String.valueOf(feedService.getSumLikeByPageOne(page,maxPage)));
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
         model.addAttribute("month",feedService.getMonthPopularFeed());
-        return "FeedList";
+        return "basic/feed/feedList";
     }
-
     @GetMapping("/search/view/feed/list/{category}")
     public String getCategoryListFeed(Model model, @PathVariable String category) throws IOException {
-        log.info("testma,");
         model.addAttribute("data",feedService.getCategoryFeed(category));
 
         return "basic/feed/category";
@@ -156,9 +153,6 @@ public class FeedViewController {
     }
     @PostMapping("/search/view/feed/save")
     public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
-
-
-        log.info(feedSaveDTO.toString());
         model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
 //        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
 //        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
@@ -185,6 +179,13 @@ public class FeedViewController {
         feedService.deleteFeed(id);
         return "redirect:/search/view/feed?index=board";
     }
+    @GetMapping("/search/view/feed/reload")
+    public  String reloadViewCount(Model model) throws  IOException{
+
+        model.addAttribute("data",feedService.getFeed());
+        return "basic/feed/feedList?index=board";
+    }
+
 
 }
 

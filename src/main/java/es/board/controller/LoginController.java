@@ -25,7 +25,7 @@ public class LoginController {
 
         feedMain(model);
         log.info("helldassda");
-        return "FeedList";
+        return "basic/feed/feedList";
     }
 
 
