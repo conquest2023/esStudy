@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -78,7 +77,7 @@ public class FeedViewController {
 
 
     @GetMapping("/search/view/feed/id")
-    public String getFeedId(Model model,@RequestParam String id) throws IOException {
+    public String getFeedDetail(Model model,@RequestParam String id) throws IOException {
         feedService.saveViewCountFeed(id);
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
@@ -89,7 +88,6 @@ public class FeedViewController {
     public String saveCommentId(@RequestParam String id,
                                    @ModelAttribute CommentCreateResponse commentSaveDTO,
                                    Model model) throws IOException {
-
         commentSaveDTO.setFeedUID(id);
         commentService.indexComment(commentSaveDTO);
         model.addAttribute("push",commentSaveDTO);
@@ -119,10 +117,10 @@ public class FeedViewController {
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
 
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
+        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
         model.addAttribute("page",page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);
-        // model.addAttribute("totalLikePage",feedService.getSumLikeByPageOne(page,maxPage));
-        //  log.info(String.valueOf(feedService.getSumLikeByPageOne(page,maxPage)));
+        model.addAttribute("totalPage", totalPage);
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
         model.addAttribute("month",feedService.getMonthPopularFeed());
         return "basic/feed/feedList";

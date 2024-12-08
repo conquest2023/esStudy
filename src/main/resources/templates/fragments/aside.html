@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .side-container {
+            background-color: #f8f9fa; /* 밝은 배경 */
+            padding: 15px;
+            height: 100vh; /* 화면 전체 높이 */
+            overflow-y: auto; /* 내용이 넘칠 경우 스크롤 활성화 */
+            border-right: 1px solid #ddd; /* 경계선 추가 */
+        }
+        .vertical-menu a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .vertical-menu a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .content-container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- 사이드바 -->
+        <aside class="col-md-3 col-lg-2 side-container">
+            <div class="vertical-menu">
+                <button type="button" class="btn btn-success w-100 text-start">
+                    <span class="fa fa-home"></span> Home
+                </button>
+                <hr>
+                <a href="/movie/list">
+                    <i class="fas fa-arrow-alt-circle-right"></i><span>&nbsp; Movie</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-user-circle"></i><span>&nbsp; User</span>
+                </a>
+<!--                <a href="#">-->
+<!--                    <i class="fas fa-user-circle"></i><span>&nbsp; 자유게시판</span>-->
+<!--                </a>-->
+
+                <!--                <div class="col-md-9 col-lg-10 content-container">-->
+<!--                    <h1 class="text-center">전체 게시글 목록</h1>-->
+<!--                    <div class="container my-4">-->
+<!--                        <div class="row">-->
+<!--                            <div class="col-12 text-center mb-4">-->
+<!--                                <div class="btn-group" role="group" aria-label="카테고리 선택">-->
+                                    <a href="/search/view/feed/list/자유"
+                                       class="btn btn-outline-primary"
+                                       th:classappend="${currentCategory == '자유'} ? 'active' : ''">
+                                        자유게시판
+                                    </a>
+                                    <a href="/search/view/feed/list/스포츠"
+                                       class="btn btn-outline-primary"
+                                       th:classappend="${currentCategory == '스포츠'} ? 'active' : ''">
+                                        스포츠
+                                    </a>
+                                    <a href="/search/view/feed/list/경제"
+                                       class="btn btn-outline-primary"
+                                       th:classappend="${currentCategory == '경제'} ? 'active' : ''">
+                                        경제
+                                    </a>
+                                    <a href="/search/view/feed/list/기술"
+                                       class="btn btn-outline-primary"
+                                       th:classappend="${currentCategory == '기술'} ? 'active' : ''">
+                                        기술
+                                    </a>
+                                    <a href="/search/view/feed/list/게임"
+                                       class="btn btn-outline-primary"
+                                       th:classappend="${currentCategory == '게임'} ? 'active' : ''">
+                                        게임
+                                    </a>
+                                </div>
+                      </aside>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+            </div>
+
+        </aside>
+        <!-- 메인 콘텐츠 -->
+
+
+<!-- Bootstrap JS & jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

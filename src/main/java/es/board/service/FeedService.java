@@ -3,7 +3,6 @@ package es.board.service;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.model.res.ViewCountResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +50,7 @@ public interface FeedService {
 
     void deleteFeed(String id) throws IOException;
 
+    Double getTotalFeed() throws IOException;
     public FeedUpdate updateFeed(String id, FeedUpdate update) throws Exception;
 
    FeedRequest getFeedId(String id) throws IOException;

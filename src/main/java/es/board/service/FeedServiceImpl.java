@@ -126,6 +126,12 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public  Double getTotalFeed() throws IOException {
+        return  feedDAO.findSumFeed();
+    }
+
+
+    @Override
     @Transactional
     public void deleteFeed(String id) throws IOException {
 

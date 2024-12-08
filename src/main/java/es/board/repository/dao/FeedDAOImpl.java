@@ -285,6 +285,29 @@ public class FeedDAOImpl implements FeedDAO {
                 .value();
     }
 
+    @Override
+    public double findSumFeed() throws IOException {
+
+
+        // Elasticsearch 검색 및 집계 요청
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                        .aggregations("feedCount", a -> a
+                                .valueCount(vc-> vc.field("feedUID.keyword"))),
+                Board.class);
+
+
+        Double feedCount = response.aggregations()
+                .get("feedCount")
+                .valueCount()
+                .value();
+
+        log.info("Feed count: " + feedCount);
+
+        return feedCount;
+    }
+
+
 
     @Override
     public List<Board> findMonthPopularFeed() throws IOException {
