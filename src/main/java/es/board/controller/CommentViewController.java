@@ -58,7 +58,7 @@ public class CommentViewController {
         model.addAttribute("currentPage",num);
         model.addAttribute("totalPages", num+6
         );
-        model.addAttribute("data",commentService.getPagingComment(num));
+//        model.addAttribute("data",commentService.getPagingComment(num,));
 
         return  "basic/commentPaging";
     }

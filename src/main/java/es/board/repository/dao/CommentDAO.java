@@ -34,6 +34,8 @@ public interface CommentDAO {
     void deleteCommentId(String id) throws IOException;
     List<Comment> findIdOne(String id) throws IOException ;
 
+    List<Comment> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException;
+
     List<Comment> modifyComment(String id, Comment comment) throws IOException;
 
      List<Comment> findCommentAll() throws IOException, ElasticsearchException;

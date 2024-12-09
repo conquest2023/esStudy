@@ -109,22 +109,8 @@
             border-radius: 5px;
             margin-bottom: 10px;
         }
-        /*.container-fluid {*/
-        /*    display: flex;*/
-        /*    flex-wrap: nowrap;*/
-        /*}*/
 
-        /*main {*/
-        /*    flex-grow: 3;*/
-        /*}*/
 
-        /*aside {*/
-        /*    position: sticky;*/
-        /*    top: 100px;*/
-        /*    z-index: 70;*/
-        /*    background-color: #f8f9fa;*/
-        /*    height: auto;*/
-        /*}*/
 
         .list-group-item .btn {
             margin-left: auto;
@@ -146,9 +132,8 @@
         /* 메인 콘텐츠 */
         main {
             float: left;
-            width: 50%; /* 메인 콘텐츠가 차지할 비율 */
+            width: calc(100% - 25%); /* 사이드바를 제외한 너비 */
         }
-
         /* 사이드바 */
         aside {
             float: right;
@@ -178,18 +163,14 @@
         .side-container {
             background-color: #f8f9fa; /* 밝은 배경 */
             position: sticky;
+
             padding: 15px;
             float:right;
             top: 0;
             z-index: 10;
             height: auto; /* 사이드바가 전체 높이를 차지하도록 */
-            overflow-y: auto; /* 내용이 넘치면 스크롤 가능 */
             border-right: 1px solid #ddd; /* 경계선 추가 */
         }
-        /*main {*/
-        /*    float: left;*/
-        /*    width: calc(100% - 25%); !* 사이드바를 제외한 너비 *!*/
-        /*}*/
         .container-fluid {
             overflow-x:hidden;
         }
@@ -249,9 +230,9 @@
                     <span class="fa fa-home"></span> Home
                 </button>
                 <hr>
-                <a href="/movie/list">
-                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>
-                </a>
+<!--                <a href="/movie/list">-->
+<!--                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>-->
+<!--                </a>-->
                 <a href="#">
                     <i class="fas fa-user-circle"></i><span>&nbsp; User</span>
                 </a>
@@ -277,6 +258,8 @@
 <!--        <div class="row">-->
             <!-- 메인 콘텐츠 -->
             <main class="col-md-9 col-lg-10">
+                <h1 class="text-center">전체글보기</h1>
+
                 <!-- 게시판 내용 -->
                 <div class="mb-4">
                     <!-- 날짜 검색 폼 -->
@@ -297,10 +280,11 @@
                             <tr>
                                 <th>제목</th>
                                 <th>작성자</th>
-                                <th>카테고리</th>
                                 <th>내용</th>
-                                <th>좋아요 수</th>
-                                <th>작성일자</th>
+                                <th>댓글수</th>
+                                <!--<th>카테고리</th>-->
+<!--                                <th>좋아요 수</th>-->
+                                <th>작성일</th>
                                 <th>조회수</th>
                             </tr>
                             </thead>
@@ -308,10 +292,12 @@
                             <!-- 게시글 데이터 반복 -->
                             <tr th:each="board : ${data}">
                                 <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
-                                <td th:text="${board.username}"></td>
-                                <td th:text="${board.category}"></td>
+
                                 <td th:text="${board.description}"></td>
-                                <td th:text="${board.likeCount}"></td>
+
+                                <td th:text="${board.username}"></td>
+<!--                                <td th:text="${board.category}"></td>-->
+<!--                                <td th:text="${board.likeCount}"></td>-->
                                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
                                 <td th:text="${board.viewCount}"></td>
                             </tr>
@@ -385,47 +371,36 @@
         </main>
 
 
-                <aside class="col-md-3 col-lg-3" style="position: sticky; top: 100px; z-index: 100;">
-                    <h3 class="fw-bold">이달의 인기 게시물</h3>
-                    <div class="list-group">
-                        <!-- 랭킹 게시물 반복 -->
-                        <div th:each="board, iterStat : ${month}"
-                             class="list-group-item d-flex justify-content-between align-items-center"
-                             style="border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px; background-color: #f9f9f9;">
-                            <!-- 순위 표시 -->
-                            <div class="rank-circle me-3"
-                                 style="background-color: #FFD700; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;">
-                                <span th:text="${iterStat.index + 1}"></span>
-                            </div>
-
-                            <!-- 게시물 내용 -->
-                            <div class="ms-2 me-auto">
-                                <h6 class="fw-bold text-truncate mb-1" th:text="${board.title}" style="font-size: 16px; color: #333;"></h6>
-                                <small class="text-muted" th:text="'작성자: ' + ${board.username}" style="font-size: 12px;"></small>
-                            </div>
-
-                            <!-- 자세히 보기 버튼 -->
-                            <a th:href="@{/search/view/feed/id(id=${board.id})}"
-                               class="btn btn-outline-primary btn-sm"
-                               style="font-size: 12px; padding: 5px 10px;">
-                                보기
-                            </a>
+            <aside class="col-md-3 col-lg-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
+                <h3 class="fw-bold">이달의 인기 게시물</h3>
+                <div class="list-group">
+                    <!-- 랭킹 게시물 반복 -->
+                    <div th:each="board, iterStat : ${month}"
+                         class="list-group-item d-flex justify-content-between align-items-center"
+                         style="border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px; background-color: #f9f9f9;">
+                        <!-- 순위 표시 -->
+                        <div class="rank-circle me-3"
+                             style="background-color: #FFD700; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;">
+                            <span th:text="${iterStat.index + 1}"></span>
                         </div>
+
+                        <!-- 게시물 내용 -->
+                        <div class="ms-2 me-auto">
+                            <h6 class="fw-bold text-truncate mb-1" th:text="${board.title}" style="font-size: 16px; color: #333;"></h6>
+                            <small class="text-muted" th:text="'작성자: ' + ${board.username}" style="font-size: 12px;"></small>
+                        </div>
+
+                        <!-- 자세히 보기 버튼 -->
+                        <a th:href="@{/search/view/feed/id(id=${board.id})}"
+                           class="btn btn-outline-primary btn-sm"
+                           style="font-size: 12px; padding: 5px 10px;">
+                            보기
+                        </a>
                     </div>
-                </aside>
+                </div>
+            </aside>
 
-            </div> <!-- row 끝 -->
-        </div><!-- container-fluid 끝 -->
-<!--            &lt;!&ndash; 하단 버튼들 &ndash;&gt;-->
-<!--            <div class="d-flex justify-content-between align-items-center mb-4">-->
-<!--                <div class="d-flex">-->
-<!--                    <a th:href="@{'/search/view/feed/like'}" class="btn btn-link me-2">-->
-<!--                        <i class="fas fa-thumbs-up"></i> 좋아요 수 ▼-->
-<!--                    </a>-->
-<!--                </div>-->
-
-
-    </div>
+        </div> <!-- row 끝 -->
     </div>
 
 <!-- 중앙 정렬을 위한 div 추가 -->

@@ -50,6 +50,7 @@ public interface FeedService {
 
     void deleteFeed(String id) throws IOException;
 
+    List<String> getfeedUIDList(int page, int size) throws IOException;
     Double getTotalFeed() throws IOException;
     public FeedUpdate updateFeed(String id, FeedUpdate update) throws Exception;
 

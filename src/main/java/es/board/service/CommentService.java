@@ -29,7 +29,7 @@ public interface CommentService {
 
     List<CommentRequest> getLikeCount() throws IOException;
 
-    List<CommentRequest> getPagingComment(int num) throws IOException;
+    List<CommentRequest> getPagingComment(List<String> feedUIDs ,int num,int size) throws IOException;
 
 
     List<CommentRequest> getComment() throws IOException;

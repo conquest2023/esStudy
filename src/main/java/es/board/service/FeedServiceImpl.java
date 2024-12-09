@@ -4,25 +4,21 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.model.res.ViewCountResponse;
 import es.board.repository.dao.FeedDAO;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Struct;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Builder
@@ -43,10 +39,14 @@ public class FeedServiceImpl implements FeedService {
     public  FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException {
         RandomFeedUID(feedSaveDTO);
         return  feedDAO.indexSaveFeed(feedSaveDTO);
-
+    
     }
 
-
+    @Override
+    public  List<String> getfeedUIDList(int page, int size) throws IOException {
+  
+      return   extractFeedUID(page,size);
+    }
 
     @Override
     public List<FeedRequest> getCategoryFeed(String category) throws IOException {
@@ -121,10 +121,11 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getPagingFeed(int page, int size) throws IOException {
+
         FeedRequest req=new FeedRequest();
         return  req.BoardListToDTO(feedDAO.findPagingFeed(page, size));
     }
-
+    
     @Override
     public  Double getTotalFeed() throws IOException {
         return  feedDAO.findSumFeed();
@@ -150,12 +151,18 @@ public class FeedServiceImpl implements FeedService {
 
        Board view= feedDAO.findIdOne(id);
        feedDAO.saveViewCounts(id,view);
-
-//       view.plusCount();
-
     }
 
 
+
+
+    private List<String> extractFeedUID(int page, int size) throws IOException {
+        List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()
+                .map(Board::getFeedUID)
+                .collect(Collectors.toList());
+
+        return  feedUIDs;
+    }
 
 //    public FeedCreateResponse convertFileToBase64(FeedCreateResponse feedCreateResponse) throws IOException {
 //        byte[] fileBytes = feedCreateResponse.getAttachFile().getBytes();

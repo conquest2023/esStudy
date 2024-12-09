@@ -21,21 +21,9 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentDAO commentDAO;
 
-
-
-
     @Override
     public String saveDocument(String indexName, CommentCreateResponse dto) throws IOException {
-//        Request request = new Request("POST", "/" + indexName + "/_doc");
         return  commentDAO.createCommentOne(indexName,dto);
-        // 결과 반환
-        // JSON 형태로 변환 후 요청 본문에 추가
-//        StringEntity entity = new StringEntity(
-//                new ObjectMapper().writeValueAsString(document),
-//                ContentType.APPLICATION_JSON);
-//        request.setEntity(entity);
-//        Response response = client.performRequest(request);
-//        return new String(response.getEntity().getContent().readAllBytes());
     }
 
     @Override
@@ -75,11 +63,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentRequest> getPagingComment(int num) throws IOException {
+    public List<CommentRequest> getPagingComment(List<String> feedUIDs, int num,int size) throws IOException {
         CommentRequest req=new CommentRequest();
-        List<Comment> comments= commentDAO.findPagingComment(num);
-        log.info(comments.toString());
-        return  req.changeCommentToDTO(comments);
+        return  req.changeCommentToDTO(commentDAO.findPagingComment(feedUIDs,num,size));
     }
 
     @Override

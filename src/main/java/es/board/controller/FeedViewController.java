@@ -36,7 +36,6 @@ public class FeedViewController {
 
     @GetMapping("/")
     public String mainPage(Model model) {
-        log.info("hello");
         model.addAttribute("feedSaveDTO", new FeedCreateResponse());
         return "basic/feed/main";
     }
@@ -62,10 +61,10 @@ public class FeedViewController {
         return "basic/feed/CategoryFeed";
     }
 
-    @GetMapping("/search/view/feed/popularfeed")
-    public String getMonthPopular(Model model) throws Exception {
-        return "FeedList";
-    }
+//    @GetMapping("/search/view/feed/popularfeed")
+//    public String getMonthPopular(Model model) throws Exception {
+//        return "FeedList";
+//    }
 
     @PostMapping("/search/view/feed/update/save")
     public String editSaveFeed(Model model,@ModelAttribute FeedUpdate feedUpdate) throws Exception {
@@ -96,7 +95,7 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/feedAll")
     public String getFeedList(Model model, @RequestBody Map<String, String> request) throws IOException {
-        log.info(request.toString());
+
         String feedUID = request.get("feedUID");
         if (feedUID != null) {
             feedService.saveViewCountFeed(feedUID);
@@ -106,7 +105,6 @@ public class FeedViewController {
     }
     @GetMapping("/search/view/feed/text")
     public String getSearchBoardList(Model model, @RequestParam String text) throws IOException {
-        log.info(feedService.getSearchBoard(text).toString());
         model.addAttribute("data",feedService.getSearchBoard(text));
         return "basic/feed/SearchFeed";
     }
@@ -115,16 +113,15 @@ public class FeedViewController {
     public String getFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-
+        log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
         int totalPage=(int) Math.ceil( feedService.getTotalFeed());
-        model.addAttribute("page",page);  // 현재 페이지 번호
-        model.addAttribute("maxPage", maxPage);
-        model.addAttribute("totalPage", totalPage);
-        model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
-        model.addAttribute("month",feedService.getMonthPopularFeed());
+        basicSettingFeed(model, page, size, maxPage, totalPage);
         return "basic/feed/feedList";
     }
+
+
+
     @GetMapping("/search/view/feed/list/{category}")
     public String getCategoryListFeed(Model model, @PathVariable String category) throws IOException {
         model.addAttribute("data",feedService.getCategoryFeed(category));
@@ -132,21 +129,20 @@ public class FeedViewController {
         return "basic/feed/category";
     }
 
-    @GetMapping("/search/view/feed/time")
-    public String getRecentFeedList(Model model) throws IOException {
-        model.addAttribute("data",feedService.getRecentFeed());
-        return "basic/feed/RecentFeed";
-    }
-    @GetMapping("/search/view/feed/like")
-    public String getLikeCountList(Model model) throws IOException {
-        model.addAttribute("data", feedService.getLikeCount());
-        return "basic/feed/LikeFeed";
-    }
+//    @GetMapping("/search/view/feed/time")
+//    public String getRecentFeedList(Model model) throws IOException {
+//        model.addAttribute("data",feedService.getRecentFeed());
+//        return "basic/feed/RecentFeed";
+//    }
+//    @GetMapping("/search/view/feed/like")
+//    public String getLikeCountList(Model model) throws IOException {
+//        model.addAttribute("data", feedService.getLikeCount());
+//        return "basic/feed/LikeFeed";
+//    }
 
     @GetMapping("/search/view/feed/range")
     public  String getRangeTime(Model model, @RequestParam LocalDateTime startDate
             , @RequestParam LocalDateTime endDate ) throws IOException{
-
         model.addAttribute("data",feedService.getRangeTimeFeed(startDate,endDate));
         return "category";
     }
@@ -174,7 +170,6 @@ public class FeedViewController {
 
     @PostMapping("/search/view/feed/delete")
     public  String deleteFeed(@RequestParam String id) throws IOException {
-        log.info("hello");
         feedService.deleteFeed(id);
         return "redirect:/search/view/feed?index=board";
     }
@@ -185,6 +180,13 @@ public class FeedViewController {
         return "basic/feed/feedList?index=board";
     }
 
+    private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
+        model.addAttribute("page", page);  // 현재 페이지 번호
+        model.addAttribute("maxPage", maxPage);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
+        model.addAttribute("month",feedService.getMonthPopularFeed());
+    }
 
 }
 

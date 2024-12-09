@@ -2,19 +2,25 @@ package es.board.repository.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
+import com.amazonaws.services.s3.model.Bucket;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static co.elastic.clients.elasticsearch.ingest.ProcessorBuilders.sort;
@@ -28,7 +34,6 @@ public class CommentDAOImpl implements CommentDAO {
     private final ElasticsearchClient client;
 
     private final CommentRepository commentRepository;
-
 
 
     @Override
@@ -97,7 +102,7 @@ public class CommentDAOImpl implements CommentDAO {
         List<Comment> comments = response.hits().hits().stream()
                 .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
                 .collect(Collectors.toList());
-     return comments;
+        return comments;
 
     }
 
@@ -105,7 +110,7 @@ public class CommentDAOImpl implements CommentDAO {
     public List<Comment> findLikeCount() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comment' 인덱스에서 검색
-                        
+
                         .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
 
                         .sort(sort -> sort.field(f -> f
@@ -129,9 +134,9 @@ public class CommentDAOImpl implements CommentDAO {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")  // 'comments' 인덱스에서 검색
                         .from(num)
-                        .size(num+3)
+                        .size(num + 3)
                         .query(q -> q
-                                .matchAll(t ->t)),
+                                .matchAll(t -> t)),
                 Comment.class  // 결과를 Comment 클래스 객체로 매핑
         );
 
@@ -145,7 +150,7 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public List<Comment> modifyComment(String id, Comment eq) throws IOException {
 
-          UpdateResponse<Comment> response= client.update(u -> u
+        UpdateResponse<Comment> response = client.update(u -> u
                         .index("comment")
                         .id(id)
                         .doc(eq),
@@ -163,8 +168,6 @@ public class CommentDAOImpl implements CommentDAO {
     public List<Comment> findIdOne(String id) throws IOException {
 
 
-
-
         SearchResponse<Comment> response = client.search(g -> g
                         .index("comment")
                         .query(q -> q
@@ -180,6 +183,7 @@ public class CommentDAOImpl implements CommentDAO {
         return comments;
 
     }
+
     @Override
     public List<Comment> CreateManyComment(List<Comment> pages) throws IOException {
 
@@ -218,12 +222,12 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public Comment findCommentId(String commentUid) {
 //        log.info(commentUid);
-        return  commentRepository.findByCommentUID(commentUid);
+        return commentRepository.findByCommentUID(commentUid);
     }
 
 
     @Override
-    public  void deleteCommentId(String id) throws IOException {
+    public void deleteCommentId(String id) throws IOException {
         SearchResponse<Comment> searchResponse = client.search(s -> s
                 .index("comment")
                 .query(q -> q
@@ -244,10 +248,71 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
 
+    @Override
+    public List<Comment> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException {
+        List<FieldValue> fieldValues = feedUIDs.stream()
+                .map(FieldValue::of)
+                .collect(Collectors.toList());
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")
+                        .from(page * size)
+                        .size(size)
+                        .query(q -> q
+                                .terms(a->a.field("feedUID")
+                                        .terms(v->v.value(fieldValues))))
+                .aggregations("feed_comment_count", a -> a
+                        .terms(t -> t
+                                .field("feedUID.keyword") // 게시글 ID별 댓글 수 집계
+                                .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+                        )
+                        .aggregations("comment_count", ag -> ag
+                                .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+                        )
+                ),
+        Comment.class);
+
+        // 집계 결과 처리
+        Map<String, Long> feedCommentCounts = new HashMap<>();
+
+        // "feed_comment_count" 집계 가져오기
+        ㅅ feedCommentCountAgg = response.aggregations()
+                .get("feed_comment_count")
+                .terms();
+
+        if (feedCommentCountAgg != null) {
+            for (Bucket bucket : feedCommentCountAgg.buckets().array()) {
+                String feedUID = bucket.key().stringValue(); // 게시글 ID
+                Long commentCount = bucket.docCount(); // 해당 게시글의 댓글 수
+
+                // "comment_count" 서브 집계 가져오기
+                ValueCountAggregate commentCountAgg = bucket.aggregations()
+                        .get("comment_count")
+                        .valueCount();
+
+                if (commentCountAgg != null) {
+                    commentCount = (long) commentCountAgg.value();
+                }
+
+                feedCommentCounts.put(feedUID, commentCount);
+            }
+        }
+
+        // 응답에서 집계 결과 가져오기
+
+
+
+
+
+        return  null;
+    }
+
+
+    @Override
     public List<Comment> findCommentAll() throws IOException, ElasticsearchException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
                         .query(q->q
+
                                 .matchAll(t->t)),
                 Comment.class  // 결과를 Comment 클래스 객체로 매핑
         );

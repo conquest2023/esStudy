@@ -69,8 +69,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="title">카테고리:</label>
-                    <textarea id="category" name="category"  class="form-control" required></textarea>
+                    <label for="category"> </label>
+                    <div class="dropdown">
+                        <!-- 드롭다운 버튼 -->
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            카테고리를 선택하세요
+                        </button>
+
+                        <!-- 드롭다운 메뉴 -->
+                        <!-- 드롭다운 메뉴 -->
+                        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="selectCategory('자유')">자유</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="selectCategory('스포츠')">스포츠</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="selectCategory('경제')">경제</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="selectCategory('기술')">기술</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="selectCategory('게임')">게임</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- 선택된 카테고리를 저장할 숨겨진 input -->
+                    <input type="hidden" id="category" name="category" required>
                 </div>
                 <!-- 내용 -->
                 <div class="form-group">
@@ -92,9 +110,25 @@
         </div>
     </form>
 </div>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Bootstrap JS (Optional) -->
 <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
+<script>
+    function selectCategory(category) {
+        // 드롭다운 버튼의 텍스트를 선택한 카테고리로 변경
+        document.getElementById('categoryDropdown').innerText = category;
+
+        // 선택된 카테고리를 숨겨진 input 필드에 설정
+        document.getElementById('category').value = category;
+
+        console.log('선택된 카테고리:', category); // 디버깅용 로그
+    }
+</script>
 </html>

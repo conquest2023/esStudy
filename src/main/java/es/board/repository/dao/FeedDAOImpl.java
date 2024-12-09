@@ -302,7 +302,6 @@ public class FeedDAOImpl implements FeedDAO {
                 .valueCount()
                 .value();
 
-        log.info("Feed count: " + feedCount);
 
         return feedCount;
     }
