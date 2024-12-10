@@ -28,9 +28,9 @@ public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
 
-    private  final BoardRepository boardRepository;
+    private final BoardRepository boardRepository;
 
-    private final int increment=1;
+    private final int increment = 1;
 
     @Override
     public String saveFeed(String index, FeedCreateResponse dto) throws IOException {
@@ -287,7 +287,7 @@ public class FeedDAOImpl implements FeedDAO {
         SearchResponse<Board> response = client.search(s -> s
                         .index("board")
                         .aggregations("feedCount", a -> a
-                                .valueCount(vc-> vc.field("feedUID.keyword"))),
+                                .valueCount(vc -> vc.field("feedUID.keyword"))),
                 Board.class);
 
 
@@ -299,7 +299,6 @@ public class FeedDAOImpl implements FeedDAO {
 
         return feedCount;
     }
-
 
 
     @Override
@@ -359,7 +358,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public  void saveViewCounts(String feedUID, Board view) throws IOException {
+    public void saveViewCounts(String feedUID, Board view) throws IOException {
         try {
             // Step 1: feedUID로 _id 검색
             SearchResponse<Board> searchResponse = client.search(s -> s
@@ -389,7 +388,6 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
 
-
     @Override
     public Board findPopularFeedOne() throws IOException {
         // Elasticsearch 검색 및 집계 요청
@@ -408,27 +406,44 @@ public class FeedDAOImpl implements FeedDAO {
                 .max()
                 .value();
 
-        return  null;
+        return null;
     }
-
-
 
     @Override
     public Board modifyFeed(String id, FeedUpdate eq) throws Exception {
-        UpdateResponse<Board> response= client.update(u -> u
-                        .index("board")
-                        .id(id)
-                        .doc(eq),
-                Board.class
-        );
+        SearchResponse<Board> searchResponse = client.search(s -> s
+                .index("board")
+                .query(q -> q
+                        .term(t -> t
+                                .field("feedUID.keyword")
+                                .value(id)
+                        )
+                ), Board.class);
 
-//        List<Board> comments = new ArrayList<>();
-//        comments.add(Board);
-        return response.get().source();
+        // 검색 결과가 없는 경우 예외 처리
+        if (searchResponse.hits().hits().isEmpty()) {
+            throw new Exception("게시물을 찾을 수 없습니다.");
+        }
+        String documentId = searchResponse.hits().hits().get(0).id();
+
+        // 게시물 업데이트
+        UpdateResponse<Board> response = client.update(u -> u
+                .index("board")
+                .id(documentId)
+                .doc(eq), Board.class);
+
+        // 응답이 null인 경우 예외 처리
+        GetResponse<Board> getResponse = client.get(g -> g
+                .index("board")
+                .id(documentId), Board.class);
+
+        if (getResponse.found()) {
+            return getResponse.source();
+        } else {
+            throw new Exception("업데이트된 문서를 찾을 수 없습니다.");
+        }
     }
-
-    }
-
+}
 
 
 

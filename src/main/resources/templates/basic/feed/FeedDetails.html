@@ -20,16 +20,27 @@
             text-align: left;
         }
         body {
-            background-color: #f8f9fa;
+            /*background-color: #f8f9fa;*/
+            /*padding: 20px;*/
+            background-color: #f0f0f0; /* 연한 회색 배경 */
+            color: #333333; /* 텍스트 기본 색상 */
+            font-family: Arial, sans-serif;
             padding: 20px;
         }
         h1 {
             margin-bottom: 30px;
         }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff; /* 흰색 테이블 배경 */
+            margin-bottom: 20px;
+        }
         .table th, .table td {
             vertical-align: middle;
             padding: 15px;
             border: none;
+            border-bottom: 1px solid #ddd; /* 라인 추가 */
             color: inherit;
         }
         .description-cell {
@@ -45,6 +56,7 @@
             text-align: right;
             color: inherit;
         }
+
         .btn-link {
             color: #007bff;
             text-decoration: none;
@@ -65,9 +77,19 @@
 <div class="container">
 <!--    <h1 class="text-center">피드</h1>-->
 
-    <!-- 게시글 리스트 -->
     <table class="table table-striped table-hover">
-        <tbody>
+
+    <tr th:each="board : ${data}">
+        <!-- 수정하기 버튼을 별도 셀로 이동 -->
+        <td style="text-align: right;">
+            <a th:href="@{/search/view/feed/update(id=${board.feedUID}, username=${board.username})}">
+                <button type="submit">
+                    <i class="fas fa-edit"></i>수정하기
+                </button>
+            </a>
+        </td>
+    </tr>
+    <!-- 게시글 리스트 -->
         <tr th:each="board : ${data}">
             <td colspan="2">
                 <h4 th:text="${board.title}"></h4>
@@ -87,7 +109,6 @@
                 <p><strong>좋아요 수:</strong> <span th:text="${board.likeCount}"></span></p> <!-- 좋아요 수 -->
                 <p><strong>작성일자:</strong> <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p> <!-- 작성일자 -->
             </td>
-        </tr>
 
         <!-- 게시글이 없을 경우 -->
         <tr th:if="${#lists.isEmpty(data)}">
@@ -114,7 +135,6 @@
                     <button type="submit">
                         <i class="fas fa-trash"></i> 삭제하기
                     </button>
-                </form>
                 </form>
             </td>
         </tr>

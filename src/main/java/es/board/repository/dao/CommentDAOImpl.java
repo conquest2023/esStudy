@@ -252,8 +252,6 @@ public class CommentDAOImpl implements CommentDAO {
                 .collect(Collectors.toList());
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
-                        .from(page * size)
-                        .size(size)
                         .query(q -> q
                                 .terms(a -> a.field("feedUID")
                                         .terms(v -> v.value(fieldValues))))

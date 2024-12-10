@@ -180,7 +180,7 @@ public class FeedViewController {
     }
 
     private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
-      //  log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
+       log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
         model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);
