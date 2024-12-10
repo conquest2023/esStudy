@@ -31,7 +31,7 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findSearchComment(text);
     }
     @Override
-    public List<Comment> editComment(String id, CommentUpdate eq) throws IOException {
+    public Comment editComment(String id, CommentUpdate eq) throws Exception {
         Comment comment=new Comment();
 
        return commentDAO.modifyComment(id,comment.convertDtoToEntity(eq));

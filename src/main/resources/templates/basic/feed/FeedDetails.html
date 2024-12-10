@@ -126,7 +126,7 @@
             <td th:text="${comment.likeCount}"></td>
             <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
             <td>
-                <a th:href="@{/search/view/comment/update(id=${comment.feedUID}, username=${comment.username})}" class="btn btn-default">
+                <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-default">
                     <i class="fas fa-edit"></i> 수정
                 </a>
             </td>

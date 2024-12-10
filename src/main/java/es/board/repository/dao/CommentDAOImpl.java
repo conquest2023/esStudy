@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -145,19 +146,39 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> modifyComment(String id, Comment eq) throws IOException {
+    public Comment modifyComment(String id, Comment eq) throws Exception {
 
-        UpdateResponse<Comment> response = client.update(u -> u
-                        .index("comment")
-                        .id(id)
-                        .doc(eq),
-                Comment.class
-        );
+        SearchResponse<Comment> searchResponse = client.search(s -> s
+                .index("comment")
+                .query(q -> q
+                        .term(t -> t
+                                .field("feedUID")
+                                .value(id)
+                        )
+                ), Comment.class);
 
-        List<Comment> comments = new ArrayList<>();
-        comments.add(eq);
+        // 검색 결과가 없는 경우 예외 처리
+        if (searchResponse.hits().hits().isEmpty()) {
+            throw new Exception("게시물을 찾을 수 없습니다.");
+        }
+        String documentId = searchResponse.hits().hits().get(0).id();
 
-        return comments;
+        // 게시물 업데이트
+        UpdateResponse<Board> response = client.update(u -> u
+                .index("comment")
+                .id(documentId)
+                .doc(eq), Board.class);
+
+        // 응답이 null인 경우 예외 처리
+        GetResponse<Comment> getResponse = client.get(g -> g
+                .index("comment")
+                .id(documentId), Comment.class);
+
+        if (getResponse.found()) {
+            return getResponse.source();
+        } else {
+            throw new Exception("업데이트된 문서를 찾을 수 없습니다.");
+        }
     }
 
 

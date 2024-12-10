@@ -37,7 +37,7 @@ public interface CommentDAO {
 
     Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException;
 
-    List<Comment> modifyComment(String id, Comment comment) throws IOException;
+    Comment modifyComment(String id, Comment comment) throws Exception;
 
      List<Comment> findCommentAll() throws IOException, ElasticsearchException;
 

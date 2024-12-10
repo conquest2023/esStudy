@@ -19,7 +19,7 @@ public interface CommentService {
 
     List<Comment> getSearchComment(String text) throws IOException;
 
-    List<Comment> editComment(String id, CommentUpdate eq) throws IOException;
+    Comment editComment(String id, CommentUpdate eq) throws Exception;
 
     List<CommentRequest> getRecentComment() throws IOException;
 

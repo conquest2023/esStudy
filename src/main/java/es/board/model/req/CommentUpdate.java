@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public class CommentUpdate {
     private String CommentUID;
 
+    private  String feedUID;
+
     private String username;
 
     private String content;
