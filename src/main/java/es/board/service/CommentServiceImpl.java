@@ -7,11 +7,11 @@ import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -63,9 +63,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentRequest> getPagingComment(List<String> feedUIDs, int num,int size) throws IOException {
+    public Map<String, Long> getPagingComment(List<String> feedUIDs, int num, int size) throws IOException {
         CommentRequest req=new CommentRequest();
-        return  req.changeCommentToDTO(commentDAO.findPagingComment(feedUIDs,num,size));
+        return  commentDAO.findPagingComment(feedUIDs,num,size);
     }
 
     @Override

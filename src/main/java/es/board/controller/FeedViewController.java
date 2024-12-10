@@ -113,7 +113,6 @@ public class FeedViewController {
     public String getFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-        log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
         int totalPage=(int) Math.ceil( feedService.getTotalFeed());
         basicSettingFeed(model, page, size, maxPage, totalPage);
@@ -181,6 +180,8 @@ public class FeedViewController {
     }
 
     private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
+      //  log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
+        model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);
         model.addAttribute("totalPage", totalPage);

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface CommentService {
@@ -29,7 +30,7 @@ public interface CommentService {
 
     List<CommentRequest> getLikeCount() throws IOException;
 
-    List<CommentRequest> getPagingComment(List<String> feedUIDs ,int num,int size) throws IOException;
+    Map<String, Long> getPagingComment(List<String> feedUIDs , int num, int size) throws IOException;
 
 
     List<CommentRequest> getComment() throws IOException;

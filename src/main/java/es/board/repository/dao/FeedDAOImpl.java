@@ -6,23 +6,17 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.model.res.ViewCountResponse;
 import es.board.repository.BoardRepository;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

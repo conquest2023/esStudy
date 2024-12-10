@@ -1,17 +1,13 @@
 package es.board.repository.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
-import com.amazonaws.services.s3.model.Bucket;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
-import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -23,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static co.elastic.clients.elasticsearch.ingest.ProcessorBuilders.sort;
+import static co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Kind.Terms;
 import static java.rmi.server.LogStream.log;
 
 @Repository
@@ -70,40 +66,41 @@ public class CommentDAOImpl implements CommentDAO {
 
     @Override
     public List<Comment> findRecentComment() throws IOException {
-        SearchResponse<Comment> response = client.search(s -> s
-                        .index("comment")
-                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
-                        .sort(sort -> sort.field(f -> f
-                                .field("createdAt")
-                                .order(SortOrder.Desc)// 내림차순 정렬
-                        )),
-                Comment.class   // 결과를 Comment 클래스 객체로 매핑
-        );
-
-        List<Comment> comments = response.hits().hits().stream()
-                .map(hit -> hit.source())
-                // Elasticsearch 문서를 Comment 객체로 변환
-                .collect(Collectors.toList());
-        return comments;
+//        SearchResponse<Comment> response = client.search(s -> s
+//                        .index("comment")
+//                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+//                        .sort(sort -> sort.field(f -> f
+//                                .field("createdAt")
+//                                .order(SortOrder.Desc)// 내림차순 정렬
+//                        )),
+//                Comment.class   // 결과를 Comment 클래스 객체로 매핑
+//        );
+//
+//        List<Comment> comments = response.hits().hits().stream()
+//                .map(hit -> hit.source())
+//                // Elasticsearch 문서를 Comment 객체로 변환
+//                .collect(Collectors.toList());
+//        return comments;
+        return  null;
     }
 
     @Override
     public List<Comment> findSearchComment(String text) throws IOException {
-        log.info(text);
-        SearchResponse<Comment> response = client.search(s -> s
-                        .index("comment")  // 'comments' 인덱스에서 검색
-                        .query(q -> q        // 쿼리 정의
-                                .match(t -> t    // 'content' 필드에서  검색
-                                        .field("content")
-                                        .query(text))),
-                Comment.class  // 결과를 Comment 클래스 객체로 매핑
-        );
-
-        List<Comment> comments = response.hits().hits().stream()
-                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
-                .collect(Collectors.toList());
-        return comments;
-
+//        log.info(text);
+//        SearchResponse<Comment> response = client.search(s -> s
+//                        .index("comment")  // 'comments' 인덱스에서 검색
+//                        .query(q -> q        // 쿼리 정의
+//                                .match(t -> t    // 'content' 필드에서  검색
+//                                        .field("content")
+//                                        .query(text))),
+//                Comment.class  // 결과를 Comment 클래스 객체로 매핑
+//        );
+//
+//        List<Comment> comments = response.hits().hits().stream()
+//                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
+//                .collect(Collectors.toList());
+//        return comments;
+    return  null;
     }
 
     @Override
@@ -249,7 +246,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException {
+    public Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException {
         List<FieldValue> fieldValues = feedUIDs.stream()
                 .map(FieldValue::of)
                 .collect(Collectors.toList());
@@ -258,57 +255,29 @@ public class CommentDAOImpl implements CommentDAO {
                         .from(page * size)
                         .size(size)
                         .query(q -> q
-                                .terms(a->a.field("feedUID")
-                                        .terms(v->v.value(fieldValues))))
-                .aggregations("feed_comment_count", a -> a
-                        .terms(t -> t
-                                .field("feedUID.keyword") // 게시글 ID별 댓글 수 집계
-                                .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
-                        )
-                        .aggregations("comment_count", ag -> ag
-                                .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
-                        )
-                ),
-        Comment.class);
+                                .terms(a -> a.field("feedUID")
+                                        .terms(v -> v.value(fieldValues))))
+                        .aggregations("feed_comment_count", a -> a
+                                .terms(t -> t
+                                        .field("feedUID.keyword") // 게시글 ID별 댓글 수 집계
+                                        .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+                                )
+                                .aggregations("comment_count", ag -> ag
+                                        .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+                                )
+                        ),
+                Comment.class);
 
-        // 집계 결과 처리
-        Map<String, Long> feedCommentCounts = new HashMap<>();
-
-        // "feed_comment_count" 집계 가져오기
-        ㅅ feedCommentCountAgg = response.aggregations()
-                .get("feed_comment_count")
-                .terms();
-
-        if (feedCommentCountAgg != null) {
-            for (Bucket bucket : feedCommentCountAgg.buckets().array()) {
-                String feedUID = bucket.key().stringValue(); // 게시글 ID
-                Long commentCount = bucket.docCount(); // 해당 게시글의 댓글 수
-
-                // "comment_count" 서브 집계 가져오기
-                ValueCountAggregate commentCountAgg = bucket.aggregations()
-                        .get("comment_count")
-                        .valueCount();
-
-                if (commentCountAgg != null) {
-                    commentCount = (long) commentCountAgg.value();
-                }
-
-                feedCommentCounts.put(feedUID, commentCount);
-            }
-        }
-
-        // 응답에서 집계 결과 가져오기
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
 
 
+        return  aggregationCountComment(comments);
 
-
-
-        return  null;
     }
-
-
     @Override
-    public List<Comment> findCommentAll() throws IOException, ElasticsearchException {
+    public List<Comment> findCommentAll() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
                         .query(q->q
@@ -323,4 +292,10 @@ public class CommentDAOImpl implements CommentDAO {
 
     }
 
+
+    private   Map<String, Long> aggregationCountComment(List<Comment> comments){
+
+     return comments.stream()
+             .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
+    }
 }
