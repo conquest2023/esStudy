@@ -125,7 +125,14 @@ public class FeedServiceImpl implements FeedService {
         FeedRequest req=new FeedRequest();
         return  req.BoardListToDTO(feedDAO.findPagingFeed(page, size));
     }
-    
+
+    @Override
+    public List<FeedRequest> getMostViewFeed(int page, int size) throws IOException {
+        FeedRequest req=new FeedRequest();
+        return  req.BoardListToDTO(feedDAO.findMostViewFeed(page, size));
+    }
+
+
     @Override
     public  Double getTotalFeed() throws IOException {
         return  feedDAO.findSumFeed();

@@ -119,6 +119,18 @@ public class FeedViewController {
         return "basic/feed/feedList";
     }
 
+    @GetMapping("/search/view/feed/list/most")
+    public String getMostViewFeed(Model model,
+                          @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
+                          @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
+
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
+        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+        basicSettingFeed(model, page, size, maxPage, totalPage);
+        model.addAttribute("data",feedService.getMostViewFeed(page,size));
+        return "basic/feed/MostViewFeed";
+    }
+
 
 
     @GetMapping("/search/view/feed/list/{category}")
@@ -128,11 +140,11 @@ public class FeedViewController {
         return "/basic/feed/CategoryFeed";
     }
 
-//    @GetMapping("/search/view/feed/time")
-//    public String getRecentFeedList(Model model) throws IOException {
-//        model.addAttribute("data",feedService.getRecentFeed());
-//        return "basic/feed/RecentFeed";
-//    }
+    @GetMapping("/search/view/feed/latest")
+    public String getRecentFeedList(Model model) throws IOException {
+        model.addAttribute("data",feedService.getRecentFeed());
+        return "basic/feed/RecentFeed";
+    }
 //    @GetMapping("/search/view/feed/like")
 //    public String getLikeCountList(Model model) throws IOException {
 //        model.addAttribute("data", feedService.getLikeCount());

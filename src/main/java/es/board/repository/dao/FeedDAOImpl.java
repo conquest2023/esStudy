@@ -176,6 +176,27 @@ public class FeedDAOImpl implements FeedDAO {
         return boards;
     }
 
+    @Override
+    public List<Board> findMostViewFeed(int page, int size) throws IOException {
+
+        SearchResponse<Board> response = client.search(s -> s
+                        .index("board")
+                        .from((page - 1) * size)
+                        .sort(sort -> sort.field(f -> f
+                                .field("viewCount")
+                                .order(SortOrder.Desc)
+                        ))
+                        .size(size)
+                        .query(q -> q
+                                .matchAll(t -> t)),
+                Board.class);
+        List<Board> boards = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        log.info(boards.toString());
+        return boards;
+    }
+
 
     @Override
     public double findTotalPage(int page, int size) throws IOException {

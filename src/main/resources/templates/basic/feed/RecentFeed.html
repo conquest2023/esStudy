@@ -56,10 +56,10 @@
             <td th:text="${board.feedUID}"></td>
             <td th:text="${board.title}"></td>
             <td th:text="${board.username}"></td>
-            <td th:text="${board.category}"></td>
+<!--            <td th:text="${board.category}"></td>-->
             <td th:text="${board.description}"></td>
             <td th:text="${board.likeCount}"></td>
-            <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
 
         </tr>
 

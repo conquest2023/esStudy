@@ -43,6 +43,16 @@
             max-width: 800px; /* 적절한 최대 폭 설정 */
             margin: 0 auto; /* 중앙 정렬 */
         }
+        a {
+            color: black; /* 원하는 색상으로 변경 */
+            text-decoration: none; /* 밑줄 제거 */
+        }
+
+        /* 마우스 오버 시 색상 변경 */
+        a:hover {
+            color: #007bff; /* 호버 시 색상 */
+            text-decoration: underline; /* 호버 시 밑줄 추가 */
+        }
 
         .input-group {
             position: relative;
@@ -363,10 +373,21 @@
                     <!-- 날짜 검색 폼 -->
                     <div class="d-flex justify-content-end align-items-center mb-3">
                         <div class="btn-group btn-group-sm" role="group" aria-label="Sorting options">
-                            <button type="button"  onclick="sortBy('latest')">최신순</button>
-                            <button type="button"  onclick="sortBy('comments')">댓글순</button>
-                            <button type="button"  onclick="sortBy('views')">조회순</button>
-                            <button type="button"  onclick="sortBy('recommendations')">추천순</button>
+                            <a href="/search/view/feed/latest">
+                                <button type="button">최신순</button>
+                            </a>
+
+                            <a href="/search/view/feed/list/comments">
+                                <button type="button">댓글순</button>
+                            </a>
+
+                            <a href="/search/view/feed/list/most" id="mostSortLink">
+                                <button type="button">조회순</button>
+                            </a>
+
+                            <a href="/search/view/feed/list/recommendations">
+                                <button type="button">추천순</button>
+                            </a>
                         </div>
                     </div>
                         <!-- 게시글 리스트 -->
@@ -389,7 +410,6 @@
                             <tr th:each="board : ${data}">
                                 <!-- 제목 -->
                                 <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
-
                                 <!-- 작성자 -->
 
                                 <!-- 내용과 댓글수 -->
@@ -402,7 +422,7 @@
                                 </td>
                                 <td th:text="${board.username}"></td>
                                 <!-- 작성일 -->
-                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
 
                                 <!-- 조회수 -->
                                 <td th:text="${board.viewCount}"></td>
@@ -492,7 +512,7 @@
         </main>
 
     <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
-        <h3 class="fw-bold">이달의 인기 게시물</h3>
+        <h3 class="fw-bold">인기 게시물</h3>
         <div class="ranking-box">
             <!-- 랭킹 게시물 반복 -->
             <div th:each="board, iterStat : ${month}" class="ranking-item">
@@ -637,8 +657,15 @@
                 }
             });
         });
+    })
+
+    document.getElementById('mostSortLink').addEventListener('click', function() {
+        var page = 1;  // 예시로 첫 페이지를 설정
+        var size = 10; // 예시로 10개의 항목을 설정
+
+        // href 속성을 동적으로 설정
+        this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
     });
-    <!--<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>-->
 </script>
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"

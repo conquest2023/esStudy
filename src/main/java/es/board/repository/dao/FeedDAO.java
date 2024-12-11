@@ -49,7 +49,7 @@ public interface FeedDAO {
 
      double findTotalPage(int page, int size) throws IOException ;
 
-
+    List<Board> findMostViewFeed(int page, int size) throws IOException;
     double findSumFeed() throws IOException;
 
      void deleteFeedOne(String id) throws IOException;
