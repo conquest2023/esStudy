@@ -23,7 +23,30 @@
         #searchInput {
             max-width: 300px; /* 입력 필드 너비 제한 */
         }
+        /* 검색 영역 간격 조정 */
+        .mb-4 {
+            margin-bottom: 20px;
+        }
+        input[type="date"] {
+            width: auto; /* 필드 크기를 내용에 맞게 조정 */
+            max-width: 150px; /* 최대 폭 설정 */
+            display: inline-block; /* 블록이 아닌 인라인 요소로 표시 */
+            margin: 5px; /* 주위 간격 설정 */
+        }
+        .form-control[type="date"] {
+            width: auto !important;
+            max-width: 150px;
+        }
+        .date-container {
+            position: relative; /* 자식 요소의 위치 조정 */
+            width: 100%; /* 컨테이너 폭 */
+            max-width: 800px; /* 적절한 최대 폭 설정 */
+            margin: 0 auto; /* 중앙 정렬 */
+        }
 
+        .input-group {
+            position: relative;
+        }
         .input-group select,
         .input-group input,
         .input-group button {
@@ -40,13 +63,7 @@
         .table th, .table td {
             vertical-align: middle;
         }
-        .btn-link {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .btn-link:hover {
-            text-decoration: underline;
-        }
+
         .pagination {
             justify-content: center;
         }
@@ -59,6 +76,9 @@
             color: #333;
             font-weight: 500;
         }
+        .list-group-item small {
+            color: #777777;
+        }
         .list-group-item a:hover {
             text-decoration: underline;
             color: #007bff;
@@ -67,7 +87,10 @@
             background-color: #007bff;
             color: white;
         }
-
+        .btn-group-sm .btn {
+            min-width: 80px; /* 버튼 폭 균일화 */
+            text-align: center;
+        }
         .btn-group .btn:hover {
             background-color: #e9ecef;
         }
@@ -79,6 +102,36 @@
         .table {
             margin-top: 5px;
         }
+        .ranking-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        .ranking-title:hover {
+            text-decoration: underline;
+        }
+
+        /* 작성자 정보 스타일 */
+        .ranking-item small {
+            color: #777777;
+        }
+
+        /* 보기 버튼 스타일 */
+        .ranking-item .btn {
+            margin-left: auto;
+        }
+
+        /* 각 랭킹 아이템 스타일 */
+        .ranking-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
         .rank-circle {
             width: 40px;
             height: 40px;
@@ -109,8 +162,23 @@
             border-radius: 5px;
             margin-bottom: 10px;
         }
+        /* 왼쪽 사이드바 */
+        .left-sidebar {
+            flex-shrink: 0;
+            width: 10%; /* 고정된 너비 */
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+        }
+        .right-sidebar {
+            flex-shrink: 0;
+            top: 50%; /* 화면의 중간 위치 */
+            width: 15%; /* Increased width for better balance */
+            background-color: #f8f9fa;
+            border-left: 1px solid #ddd;
+            padding: 20px;
 
-
+            /*overflow-y: auto; !* Allow vertical scrolling if needed *!*/
+        }
 
         .list-group-item .btn {
             margin-left: auto;
@@ -125,9 +193,7 @@
         .list-group-item:nth-child(1) .rank-number {
             color: #ff4500; /* 1위는 빨간색 */
         }
-        .container-fluid {
-            display: block;
-        }
+
 
         /* 메인 콘텐츠 */
         main {
@@ -135,17 +201,37 @@
             width: calc(100% - 25%); /* 사이드바를 제외한 너비 */
         }
         /* 사이드바 */
-        aside {
-            float: right;
-            width: 20%; /* 사이드바가 차지할 비율 */
-            position: sticky;
-            top: 100px;
-            z-index: 100;
-            background-color: #f8f9fa;
-        }
+
         .list-group-item:nth-child(1) .title-link {
             font-weight: bold;
         }
+
+        /* 제목 텍스트 스타일 */
+        .list-group-item h6 {
+            font-size: 14px;
+            font-weight:bold;
+            color:#333333;
+        }
+        .main-content {
+            flex-grow: 1;
+            width: 70%; /* Adjusted width for better balance */
+            padding: 20px;
+            overflow-y: auto; /* Allow vertical scrolling if needed */
+        }
+
+        /* 반응형 디자인 */
+        /*@media (max-width: 768px) {*/
+        /*    .left-sidebar,*/
+        /*    .right-sidebar {*/
+        /*        display: none; !* 모바일에서는 사이드바 숨기기 *!*/
+        /*    }*/
+
+        /*    .main-content {*/
+        /*        width: 100%; !* 메인 콘텐츠가 전체 화면을 차지 *!*/
+        /*        padding-right: 0;*/
+        /*        padding-left: 0;*/
+        /*    }*/
+        /*}*/
 
         .list-group-item:nth-child(2) .rank-number {
             color: #ffa500; /* 2위는 주황색 */
@@ -163,17 +249,14 @@
         .side-container {
             background-color: #f8f9fa; /* 밝은 배경 */
             position: sticky;
-
-            padding: 15px;
+            padding: 10px;
             float:right;
             top: 0;
-            z-index: 10;
+            z-index: 50;
             height: auto; /* 사이드바가 전체 높이를 차지하도록 */
             border-right: 1px solid #ddd; /* 경계선 추가 */
         }
-        .container-fluid {
-            overflow-x:hidden;
-        }
+
 
         .vertical-menu a {
             display: block;
@@ -186,11 +269,25 @@
             background-color: #007bff;
             color: #fff;
         }
+        /* Flexbox 컨테이너 */
         .container-fluid {
-            overflow: auto; /* 스크롤이 가능하도록 설정 */
+            display: flex;
+            flex-wrap: nowrap;
             height: 100vh;
         }
-
+        #dateFields {
+            display: none; /* 기본적으로 숨김 */
+            position: absolute;
+            top: 40px; /* 검색창 아래로 40px 정도 배치 */
+            left: 0; /* 검색창과 정렬 */
+            z-index: 10; /* 다른 요소 위에 표시 */
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+            width: max-content; /* 폼 크기를 내용에 맞게 설정 */
+        }
         aside {
             position: sticky;
             top: 20px; /* 고정될 위치 */
@@ -222,9 +319,10 @@
     </div>
 </head>
 <div class="container-fluid">
-    <div class="row">
+<!--    <div class="row">-->
         <!-- 사이드바 -->
-        <aside class="col-md-3 col-lg-2 side-container" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0; z-index: 10;">
+        <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa;
+        height: 100vh; position: sticky; top: 0;">
             <div class="vertical-menu">
                 <button type="button" class="btn btn-success w-100 text-start">
                     <span class="fa fa-home"></span> Home
@@ -234,7 +332,7 @@
 <!--                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>-->
 <!--                </a>-->
                 <a href="#">
-                    <i class="fas fa-user-circle"></i><span>&nbsp; User</span>
+                    <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>
                 </a>
                 <a href="/search/view/feed/list/자유">
                     <i class="fas fa-comments"></i><span>&nbsp; 자유</span>
@@ -246,7 +344,7 @@
                     <i class="fas fa-chart-line"></i><span>&nbsp; 경제</span>
                 </a>
                 <a href="/search/view/feed/list/기술">
-                    <i class="fas fa-laptop-code"></i><span>&nbsp; 기술</span>
+                    <i class="fas fa-laptop-code"></i><span>&nbsp;IT정보</span>
                 </a>
                 <a href="/search/view/feed/list/게임">
                     <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>
@@ -257,31 +355,29 @@
 <!--    <div class="container-fluid">-->
 <!--        <div class="row">-->
             <!-- 메인 콘텐츠 -->
-            <main class="col-md-9 col-lg-10">
+        <main class="main-content col-md-7">
                 <h1 class="text-center">전체글보기</h1>
 
                 <!-- 게시판 내용 -->
                 <div class="mb-4">
                     <!-- 날짜 검색 폼 -->
-                    <div class="d-flex justify-content-end align-items-center mb-2">
-                        <form action="/search/view/feed/range" method="get" class="d-flex align-items-center">
-                            <div class="input-group input-group-sm">
-                                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm" required />
-                                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm" required />
-                                <button type="submit" class="btn btn-primary btn-sm ms-2">
-                                    <i class="fas fa-search"></i> 검색
-                                </button>
-                            </div>
-                        </form>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Sorting options">
+                            <button type="button"  onclick="sortBy('latest')">최신순</button>
+                            <button type="button"  onclick="sortBy('comments')">댓글순</button>
+                            <button type="button"  onclick="sortBy('views')">조회순</button>
+                            <button type="button"  onclick="sortBy('recommendations')">추천순</button>
+                        </div>
                     </div>
                         <!-- 게시글 리스트 -->
                         <table class="table table-striped table-hover">
                             <thead>
                             <tr>
                                 <th>제목</th>
-                                <th>작성자</th>
                                 <th>내용</th>
-                                <th>댓글수</th>
+
+                                <th>작성자</th>
+<!--                                <th>댓글수</th>-->
                                 <!--<th>카테고리</th>-->
 <!--                                <th>좋아요 수</th>-->
                                 <th>작성일</th>
@@ -291,21 +387,30 @@
                             <tbody>
                             <!-- 게시글 데이터 반복 -->
                             <tr th:each="board : ${data}">
-                            <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
+                                <!-- 제목 -->
+                                <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
 
-                                <td th:text="${board.description}"></td>
+                                <!-- 작성자 -->
 
+                                <!-- 내용과 댓글수 -->
+                                <td>
+                                    <span th:text="${board.description}"></span>
+                                    <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
+                                    <span th:if="${count[board.id] > 0}" style="color: #007bff; font-weight: bold;">
+                    [<span th:text="${count[board.id]}"></span>]
+                </span>
+                                </td>
                                 <td th:text="${board.username}"></td>
-                                <td th:text="${count[board.id]}"></td>
-<!--                                <td th:text="${board.category}"></td>-->
-<!--                                <td th:text="${board.likeCount}"></td>-->
-                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                <!-- 작성일 -->
+                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+
+                                <!-- 조회수 -->
                                 <td th:text="${board.viewCount}"></td>
                             </tr>
 
                             <!-- 데이터가 없을 때 -->
                             <tr th:if="${#lists.isEmpty(data)}">
-                                <td colspan="7" class="text-center">게시글이 없습니다.</td>
+                                <td colspan="5" class="text-center">게시글이 없습니다.</td>
                             </tr>
                             </tbody>
                         </table>
@@ -340,27 +445,42 @@
                         <td th:text="${totalPage}"></td>
                     </tr>
                 </nav>
-            <div class="d-flex justify-content-center align-items-center mb-1" style="width: 100%; text-align: center;">
-                <!-- 일반 검색 -->
-                <form id="searchForm" method="get" class="mb" style="display: flex; align-items: center; justify-content: center;">
-                    <div class="input-group" style="width: 500px; margin: 0 auto;"> <!-- 폼 너비를 고정 -->
-                        <select id="searchType" name="searchType" class="form-control form-control-sm"
-                                style="width: 25%; margin-right: 5px; background: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; padding: 5px;
-                    -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 10 10%22%3E%3Cpath fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22 d=%22M1 3L5 7L9 3%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 10px center; background-size: 10px;">
-                            <option value="text">제목 + 내용</option>
-                            <option value="category">카테고리</option>
-                        </select>
+                    <div class="mb-4">
+                        <!-- 통합 검색 폼 -->
+                        <form id="searchForm" method="get" class="d-flex align-items-center justify-content-center" style="width: 100%;">
+                            <div class="input-group input-group-sm" style="width: 80%; max-width: 800px;">
+                                <!-- 검색 타입 선택 -->
+                                <select id="searchType" name="searchType" class="form-control form-control-sm"
+                                        style="width: 10%; margin-right: 5px; background: #f8f9fa; border-radius: 5px;"
+                                        onchange="toggleDateFields()">
+                                    <option value="text">제목 + 내용</option>
+                                    <option value="category">카테고리</option>
+                                    <option value="date">날짜 검색</option>
+                                </select>
 
-                        <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요"
-                               class="form-control form-control-sm" style="width: 50%; margin-right: 5px;" required />
+                                <!-- 검색어 입력 -->
+                                <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요"
+                                       class="form-control form-control-sm" style="width: 40%; margin-right: 5px;" />
 
-                        <button type="button" class="btn btn-primary btn-sm" style="width: 15%; white-space: nowrap;" onclick="redirectSearch()">
-                            <i class="fas fa-search"></i> 검색
-                        </button>
+                                <!-- 날짜 선택 (기본적으로 숨김) -->
+                                <div id="dateFields" style="display: none; position: absolute; top: 40px; left: 0; z-index: 10; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>
+                                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"
+                                       style="width: 100px; margin-right: 10px;" />
+                                <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>
+                                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"
+                                       style="width: 100px;" />
+                            </div>
+
+                                <!-- 검색 버튼 -->
+                                <button type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">
+                                    <i class="fas fa-search"></i> 검색
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-            <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
+
+                    <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
                 <form action="/search/view/feed/Form" method="get">
                     <button type="submit" class="btn btn-secondary">
                         <i class="fas fa-home"></i> 작성하기
@@ -371,38 +491,32 @@
 
         </main>
 
+    <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
+        <h3 class="fw-bold">이달의 인기 게시물</h3>
+        <div class="ranking-box">
+            <!-- 랭킹 게시물 반복 -->
+            <div th:each="board, iterStat : ${month}" class="ranking-item">
+                <!-- 순위와 게시물 내용 -->
+                <div class="d-flex align-items-center">
+                    <!-- 순위 -->
+                    <span class="rank-number" th:text="${iterStat.index + 1} + '.'"></span>
 
-            <aside class="col-md-3 col-lg-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
-                <h3 class="fw-bold">이달의 인기 게시물</h3>
-                <div class="list-group">
-                    <!-- 랭킹 게시물 반복 -->
-                    <div th:each="board, iterStat : ${month}"
-                         class="list-group-item d-flex justify-content-between align-items-center"
-                         style="border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px; background-color: #f9f9f9;">
-                        <!-- 순위 표시 -->
-                        <div class="rank-circle me-3"
-                             style="background-color: #FFD700; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;">
-                            <span th:text="${iterStat.index + 1}"></span>
-                        </div>
-
-                        <!-- 게시물 내용 -->
-                        <div class="ms-2 me-auto">
-                            <h6 class="fw-bold text-truncate mb-1" th:text="${board.title}" style="font-size: 16px; color: #333;"></h6>
-                            <small class="text-muted" th:text="'작성자: ' + ${board.username}" style="font-size: 12px;"></small>
-                        </div>
-
-                        <!-- 자세히 보기 버튼 -->
-                        <a th:href="@{/search/view/feed/id(id=${board.id})}"
-                           class="btn btn-outline-primary btn-sm"
-                           style="font-size: 12px; padding: 5px 10px;">
-                            보기
-                        </a>
+                    <!-- 게시물 제목과 작성자 -->
+                    <div class="ms-2 me-auto">
+                        <a th:href="@{/search/view/feed/id(id=${board.id})}" class="ranking-title"
+                           th:text="${board.title}"></a>
+                        <small class="text-muted d-block" th:text="'작성자: ' + ${board.username}"></small>
                     </div>
+
+                    <!-- 보기 버튼 -->
+<!--                    <a th:href="@{/search/view/feed/id(id=${board.id})}" class="btn btn-outline-primary btn-sm">보기</a>-->
                 </div>
-            </aside>
+            </div>
+        </div>
+
+    </aside>
 
         </div> <!-- row 끝 -->
-    </div>
 
 <!-- 중앙 정렬을 위한 div 추가 -->
 
@@ -411,19 +525,42 @@
     document.getElementById("searchButton").addEventListener("click", function() {
         console.log("검색 버튼 클릭됨");
     });
+    function toggleDateFields() {
+        const searchType = document.getElementById('searchType').value;
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const dateFields = document.getElementById('dateFields');
+        const searchInput = document.getElementById('searchInput');
+
+        if (searchType === 'date') {
+            // 날짜 검색 선택 시
+            dateFields.style.display = 'block'; // 날짜 폼 표시
+            searchInput.style.display = 'none'; // 검색어 입력 숨김
+        } else {
+            // 일반 검색 또는 카테고리 검색
+            dateFields.style.display = 'none'; // 날짜 폼 숨김
+            searchInput.style.display = 'block'; // 검색어 입력 표시
+        }
+    }
+
     function redirectSearch() {
         const form = document.getElementById('searchForm');
         const searchType = document.getElementById('searchType').value;
         const searchText = document.getElementById('searchInput').value;
-
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
         // searchType 값에 따라 form.action 설정
         if (searchType === "text") {
             form.action = '/search/view/feed/text';
         } else if (searchType === "category") {
             form.action = '/search/view/feed/category';
-        }
+        } else if (searchType === 'date') {
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+    }
 
-        // searchText를 쿼리 파라미터로 추가 (searchType은 제외)
+
+    // searchText를 쿼리 파라미터로 추가 (searchType은 제외)
         if (searchText) {
             form.action += `?text=${encodeURIComponent(searchText)}`;
         }
@@ -434,7 +571,75 @@
         form.submit();
     }
 </script>
+<!--<script>-->
+<!--    function redirectSearch() {-->
+<!--        const form = document.getElementById('searchForm');-->
+<!--        const searchType = document.getElementById('searchType').value;-->
+<!--        const searchText = document.getElementById('searchInput').value;-->
+<!--        const startDate = document.getElementById('startDate').value;-->
+<!--        const endDate = document.getElementById('endDate').value;-->
 
+<!--        // 기본 URL 설정-->
+<!--        let actionUrl = '/search/view/feed';-->
+
+<!--        // 조건에 따라 URL에 파라미터 추가-->
+<!--        const params = new URLSearchParams();-->
+
+<!--        if (searchType) params.append('searchType', searchType);-->
+<!--        if (searchText) params.append('text', searchText);-->
+<!--        if (startDate) params.append('startDate', startDate);-->
+<!--        if (endDate) params.append('endDate', endDate);-->
+
+<!--        // 최종 URL 설정-->
+<!--        form.action = `${actionUrl}?${params.toString()}`;-->
+
+<!--        console.log('최종 form.action:', form.action);-->
+
+<!--        // 폼 제출-->
+<!--        form.submit();-->
+<!--    }-->
+<!--</script>-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // 검색 폼 제출 시 AJAX로 요청 보내기
+        $('#searchForm').submit(function (e) {
+            e.preventDefault(); // 기본 폼 제출을 막음
+
+            // 폼 데이터를 가져오기
+            var searchData = $(this).serialize();
+
+            // AJAX 요청 보내기
+            $.ajax({
+                type: "GET",
+                url: "/search/view/feed?page=0", // 서버의 검색 결과를 처리할 URL
+                data: searchData,
+                success: function (response) {
+                    // 성공적으로 데이터를 받으면 해당 내용을 페이지에 업데이트
+                    // 예: 게시글 리스트를 갱신
+                    $('tbody').html('');
+                    response.data.forEach(function (board) {
+                        var row = '<tr>' +
+                            '<td><a href="/search/view/feed/id(id=' + board.id + ')">' + board.title + '</a></td>' +
+                            '<td>' + board.username + '</td>' +
+                            '<td>' + board.description + '</td>' +
+                            '<td>' + board.commentCount + '</td>' +
+                            '<td>' + new Date(board.createdAt).toLocaleString() + '</td>' +
+                            '<td>' + board.viewCount + '</td>' +
+                            '</tr>';
+                        $('tbody').append(row);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    alert('에러 발생: ' + error);
+                }
+            });
+        });
+    });
+    <!--<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+</script>
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"
 >-->
@@ -442,7 +647,7 @@
 <!--</div>-->
 
 <!-- Bootstrap JS (Optional) -->
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 
 </div>
 </html>

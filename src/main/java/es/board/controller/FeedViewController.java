@@ -71,7 +71,7 @@ public class FeedViewController {
         log.info(feedUpdate.toString());
         feedService.updateFeed(feedUpdate.getFeedUID(),feedUpdate);
         model.addAttribute("data", feedUpdate);
-        return  "redirect:/search/view/feed?index=board";
+        return  "redirect:/search/view/feed/id?id=" +feedUpdate.getFeedUID();
     }
 
 
@@ -125,7 +125,7 @@ public class FeedViewController {
     public String getCategoryListFeed(Model model, @PathVariable String category) throws IOException {
         model.addAttribute("data",feedService.getCategoryFeed(category));
 
-        return "basic/feed/category";
+        return "/basic/feed/CategoryFeed";
     }
 
 //    @GetMapping("/search/view/feed/time")
@@ -143,7 +143,7 @@ public class FeedViewController {
     public  String getRangeTime(Model model, @RequestParam LocalDateTime startDate
             , @RequestParam LocalDateTime endDate ) throws IOException{
         model.addAttribute("data",feedService.getRangeTimeFeed(startDate,endDate));
-        return "category";
+        return "/basic/feed/RangeFeed";
     }
     @PostMapping("/search/view/feed/save")
     public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
@@ -180,7 +180,6 @@ public class FeedViewController {
     }
 
     private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
-       log.info(commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size).toString());
         model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);
