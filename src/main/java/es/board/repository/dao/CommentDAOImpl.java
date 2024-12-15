@@ -296,6 +296,7 @@ public class CommentDAOImpl implements CommentDAO {
                 .collect(Collectors.toList());
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
+                        .size(1000)
                         .query(q -> q
                                 .terms(a -> a.field("feedUID")
                                         .terms(v -> v.value(fieldValues))))
@@ -347,13 +348,16 @@ public class CommentDAOImpl implements CommentDAO {
         Map<String, Long> countMap = comments.stream()
                 .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
 
-        return countMap.entrySet().stream()
-                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+        return comments.stream()
+                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // 댓글 수 기준 내림차순
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (e1, e2) -> e1,
-                        LinkedHashMap::new));
+                        LinkedHashMap::new
+                ));
     }
 }
 

@@ -185,6 +185,7 @@ public class FeedViewController {
                                        @RequestParam(defaultValue = "10") int size) throws  IOException{
             int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
             int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+            model.addAttribute("commentDESC",commentService.getPagingCommentDESC(feedService.getfeedUIDList(page,size),page,size));
             basicSettingFeed(model, page, size, maxPage, totalPage);
             return  "basic/comment/MostCommentDESC";
         }
@@ -204,14 +205,11 @@ public class FeedViewController {
     }
 
     private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
-        log.info(String.valueOf(page));
-        log.info(String.valueOf(size));
         model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);
         model.addAttribute("totalPage", totalPage);
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
-//        model.addAttribute("commentDESC",commentService.getPagingCommentDESC(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("month",feedService.getMonthPopularFeed());
     }
 
