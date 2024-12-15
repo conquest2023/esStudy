@@ -15,6 +15,9 @@
             width: 100%;
             border-collapse: collapse;
         }
+        tr {
+            border-bottom: 1px solid #ddd;
+        }
         .comment-item {
             display: flex;
             flex-direction: column; /* 세로로 배치 */
@@ -219,33 +222,59 @@
     </table>
 <!--    <td th:text="${comment.likeCount}"></td>-->
     <!-- 댓글 리스트 -->
-    <table class="comment-table">
+    <div class="container mt-4">
+        <!-- 목록 버튼 -->
+        <div class="mb-3">
+            <a href="#" class="btn btn-info text-white" style="font-weight: bold;">
+                <i class="fas fa-arrow-left"></i> 목록
+            </a>
+        </div>
+
+        <!-- Comments 섹션 -->
+        <div class="comments-section mb-4">
+            <div class="bg-light p-3 border rounded">
+                <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
+                    <i class="fas fa-comments"></i> Comments
+                </h5>
+    <table class="comment-table" style="width: 100%; border-collapse: collapse;">
         <tbody>
-        <tr th:each="comment : ${comment}">
-            <td class="comment-item">
-                <div class="comment-username" th:text="${comment.username}"></div>
-                <div class="comment-content" th:text="${comment.content}"></div>
-                <div class="comment-createdAt" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></div>
+        <!-- 댓글 반복 -->
+        <tr th:each="comment : ${comment}" style="border-bottom: 1px solid #ddd;">
+            <td class="comment-item" style="padding: 10px;">
+                <!-- 댓글 작성자 -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <!-- 댓글 작성자 (왼쪽) -->
+                    <div class="comment-username" style="font-weight: bold; color: #333;" th:text="${comment.username}"></div>
+                    <!-- 작성 시간 (오른쪽) -->
+                    <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+                <!-- 댓글 내용 -->
+                <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
+                <!-- 작성 시간 -->
             </td>
-            <td>
-                <button class="btn btn-default" onclick="toggleOptions('${comment.feedUID}')">
-                    ...
-                </button>
-                <!-- 수정과 삭제 버튼들이 포함된 div -->
-                <div id="options-${comment.feedUID}" class="comment-options" style="display:none;">
-                    <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-default">
-                        <i class="fas fa-edit"></i> 수정
+            <!-- 수정 및 삭제 버튼 -->
+            <td style="text-align: right; vertical-align: top; padding: 10px;">
+                <button class="btn btn-light btn-sm" onclick="toggleOptions('${comment.feedUID}')">...</button>
+                <div id="options-${comment.feedUID}" class="comment-options" style="display:none; margin-top: 5px;">
+                    <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">
+                        수정
                     </a>
-                    <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" class="btn btn-default">
-                        <button type="submit">
-                            <i class="fas fa-trash"></i> 삭제하기
-                        </button>
+                    <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
                     </form>
                 </div>
             </td>
         </tr>
+        <!-- 댓글이 없을 경우 -->
+        <tr th:if="${#lists.isEmpty(comment)}">
+            <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
+        </tr>
         </tbody>
     </table>
+                <div class="write-comment bg-white p-3 border rounded shadow-sm">
+                    <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
+                        <i class="fas fa-pencil-alt"></i> Write a Comment
+                    </h5>
     <form th:action="@{/search/view/feed/id(id=${feedId})}" method="post" th:object="${CommentCreateResponse}" enctype="multipart/form-data">
         <div class="form-group">
             <label for="username">이름:</label>
