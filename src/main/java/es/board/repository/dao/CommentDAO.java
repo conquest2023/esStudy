@@ -31,7 +31,7 @@ public interface CommentDAO {
 
     List<Comment> findPagingComment(int num) throws IOException;
 
-
+    Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size) throws IOException;
     void deleteCommentId(String id) throws IOException;
     List<Comment> findIdOne(String id) throws IOException ;
 

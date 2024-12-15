@@ -25,7 +25,7 @@ public interface CommentService {
 
     String indexComment(CommentCreateResponse dto) throws IOException;
 
-
+    Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) throws IOException;
     List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) throws IOException;
 
     List<CommentRequest> getLikeCount() throws IOException;

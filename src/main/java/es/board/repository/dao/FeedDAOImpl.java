@@ -193,10 +193,9 @@ public class FeedDAOImpl implements FeedDAO {
         List<Board> boards = response.hits().hits().stream()
                 .map(hit -> hit.source())
                 .collect(Collectors.toList());
-        log.info(boards.toString());
+//        log.info(boards.toString());
         return boards;
     }
-
 
     @Override
     public double findTotalPage(int page, int size) throws IOException {

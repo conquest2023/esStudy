@@ -41,6 +41,7 @@ public class CommentViewController {
     }
 
 
+
     @GetMapping("/search/view/comment/text")
     public String getSearchCommentList(Model model, @RequestParam String text) throws IOException {
         log.info(commentService.getSearchComment(text).toString());
@@ -53,6 +54,10 @@ public class CommentViewController {
           model.addAttribute("data",commentService.getLikeCount());
           return  "basic/commentLike";
     }
+//    @GetMapping("/search/view/comment/desc")
+//    public  String  getMostCommentDESC(Model model) throws  IOException{
+//    }
+
     @GetMapping("/search/view/comment/paging")
     public String getPagingCommentList(Model model, @RequestParam(defaultValue = "1") int num) throws IOException {
 
@@ -74,7 +79,7 @@ public class CommentViewController {
     // 문서 색인
 //    @PostMapping("/search/view/comment/save")
 //    public  String commentSave(Model model, @ModelAttribute CommentCreateResponse commentSaveDTO) throws IOException {
-//
+//        log.info(commentSaveDTO.toString());
 //        model.addAttribute("data",commentService.indexComment(commentSaveDTO));
 //        return "basic/feed/FeedDetails";
 //    }

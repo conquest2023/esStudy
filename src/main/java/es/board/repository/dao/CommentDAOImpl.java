@@ -3,7 +3,6 @@ package es.board.repository.dao;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
@@ -14,13 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Kind.Terms;
 import static java.rmi.server.LogStream.log;
 
 @Repository
@@ -56,6 +51,7 @@ public class CommentDAOImpl implements CommentDAO {
             IndexResponse response = client.index(i -> i
                     .index("comment")
                     .document(dto));
+            log.info("hekkio");
             // 성공적으로 문서가 저장되면, 문서 ID를 반환.
             return response.id();
         } catch (IOException e) {
@@ -82,7 +78,7 @@ public class CommentDAOImpl implements CommentDAO {
 //                // Elasticsearch 문서를 Comment 객체로 변환
 //                .collect(Collectors.toList());
 //        return comments;
-        return  null;
+        return null;
     }
 
     @Override
@@ -101,7 +97,7 @@ public class CommentDAOImpl implements CommentDAO {
 //                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
 //                .collect(Collectors.toList());
 //        return comments;
-    return  null;
+        return null;
     }
 
     @Override
@@ -273,6 +269,33 @@ public class CommentDAOImpl implements CommentDAO {
                 .collect(Collectors.toList());
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
+                        .size(1000)
+                        .query(q -> q
+                                .terms(a -> a.field("feedUID")
+                                        .terms(v -> v.value(fieldValues)))),
+//                        .aggregations("feed_comment_count", a -> a
+//                                .terms(t -> t
+//                                        .field("feedUID") // 게시글 ID별 댓글 수 집계
+//                                        .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+//                                )
+//                                .aggregations("comment_count", ag -> ag
+//                                        .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+//                                )
+//                        ),
+                Comment.class);
+        List<Comment> comments = response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+        return aggregationCountComment(comments);
+
+    }
+    @Override
+    public Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size) throws IOException {
+        List<FieldValue> fieldValues = feedUIDs.stream()
+                .map(FieldValue::of)
+                .collect(Collectors.toList());
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")
                         .query(q -> q
                                 .terms(a -> a.field("feedUID")
                                         .terms(v -> v.value(fieldValues))))
@@ -292,16 +315,17 @@ public class CommentDAOImpl implements CommentDAO {
                 .collect(Collectors.toList());
 
 
-        return  aggregationCountComment(comments);
+        return countCommentDESC(comments);
 
     }
+
     @Override
     public List<Comment> findCommentAll() throws IOException {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
-                        .query(q->q
+                        .query(q -> q
 
-                                .matchAll(t->t)),
+                                .matchAll(t -> t)),
                 Comment.class  // 결과를 Comment 클래스 객체로 매핑
         );
         List<Comment> comments = response.hits().hits().stream()
@@ -312,9 +336,24 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
 
-    private   Map<String, Long> aggregationCountComment(List<Comment> comments){
+    private Map<String, Long> aggregationCountComment(List<Comment> comments) {
 
-     return comments.stream()
-             .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
+        return comments.stream()
+                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
+    }
+
+
+    private Map<String, Long> countCommentDESC(List<Comment> comments) {
+        Map<String, Long> countMap = comments.stream()
+                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
+
+        return countMap.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
     }
 }
+

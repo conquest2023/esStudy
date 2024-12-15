@@ -37,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
        return commentDAO.modifyComment(id,comment.convertDtoToEntity(eq));
     }
 
+
     @Override
     public List<CommentRequest> getRecentComment() throws IOException {
         CommentRequest commentDTO=new CommentRequest();
@@ -64,8 +65,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Map<String, Long> getPagingComment(List<String> feedUIDs, int num, int size) throws IOException {
-        CommentRequest req=new CommentRequest();
+//        log.info(commentDAO.findPagingComment(feedUIDs,num,size).toString());
         return  commentDAO.findPagingComment(feedUIDs,num,size);
+    }
+
+    @Override
+    public Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) throws IOException {
+        return  commentDAO.findPagingCommentDESC(feedUIDs,num,size);
     }
 
     @Override
