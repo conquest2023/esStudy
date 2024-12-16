@@ -39,7 +39,7 @@ public class FeedRequest {
 
     private String category;
 
-    private Integer likeCount;
+    private int likeCount;
 
     private  int viewCount;
 
@@ -78,6 +78,7 @@ public class FeedRequest {
                     .description(board.getDescription())
                     .category(board.getCategory())
                     .viewCount(board.getViewCount())
+                    .likeCount(board.getLikeCount())
                     .createdAt(board.getCreatedAt())
                     .build();
         }

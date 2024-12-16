@@ -9,12 +9,15 @@ import es.board.service.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,14 +80,20 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/id")
     public String getFeedDetail(Model model,@RequestParam String id)  {
-        feedService.saveViewCountFeed(id);
-        log.info( String.valueOf(commentService.getSumComment(id)));
-        model.addAttribute("count",commentService.getSumComment(id));
-        model.addAttribute("data",feedService.getFeedId(id));
-        model.addAttribute("comment",commentService.getCommentId(id));
-        model.addAttribute("feedId", id);
+
+        feedDetailParts(model, id);
         return "basic/feed/FeedDetails";
     }
+
+    @PostMapping("/search/view/feed/increase-like/{feedUID}")
+    public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String feedUID) {
+        log.info(feedUID);
+        feedService.plusLike(feedUID);
+
+        Map<String, Integer> response = new HashMap<>();
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/search/view/feed/id")
     public String saveCommentId(@RequestParam String id,
                                    @ModelAttribute CommentCreateResponse commentSaveDTO,
@@ -215,7 +224,16 @@ public class FeedViewController {
         model.addAttribute("month",feedService.getMonthPopularFeed());
     }
 
+    private void feedDetailParts(Model model, String id) {
+        feedService.saveViewCountFeed(id);
+        log.info(feedService.getFeedId(id).toString());
+        model.addAttribute("count",commentService.getSumComment(id));
+        model.addAttribute("data",feedService.getFeedId(id));
+        model.addAttribute("comment",commentService.getCommentId(id));
+        model.addAttribute("feedId", id);
+    }
 }
+
 
 
 //        String imageName =request.getParameter(feedSaveDTO.getImage());

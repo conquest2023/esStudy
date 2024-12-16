@@ -5,6 +5,7 @@ import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
 import es.board.repository.dao.FeedDAO;
+import es.board.repository.dao.LikeDAO;
 import es.board.repository.document.Board;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class FeedServiceImpl implements FeedService {
     private final ElasticsearchClient esClient;
 
     private final FeedDAO feedDAO;
+
+    private  final LikeDAO likeDAO;
 
 
     @Override
@@ -151,6 +154,10 @@ public class FeedServiceImpl implements FeedService {
         feedDAO.modifyFeed(id, update);
         return update;
     }
+    @Override
+    public  void plusLike(String id) {
+        likeDAO.saveLike(id);
+    }
 
     private static void RandomFeedUID(FeedCreateResponse feedSaveDTO) {
         String feedUID = UUID.randomUUID().toString();
@@ -176,6 +183,7 @@ public class FeedServiceImpl implements FeedService {
                 .collect(Collectors.toList());
         return feedUIDs;
     }
+
 }
 
 

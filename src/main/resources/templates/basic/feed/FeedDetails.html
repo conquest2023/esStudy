@@ -208,16 +208,28 @@
                 </div>
             </td>
         </tr>
-
-        <!-- 좋아요 수 -->
         <tr th:each="board : ${data}">
             <td colspan="2" class="small-text" style="padding: 10px; text-align: left; font-size: 0.9rem; color: #777;">
-                <p>
-                    <strong>댓글 수:</strong> <span th:text="${count}"></span>
-                    <strong>좋아요 수:</strong> <span th:text="${board.likeCount}"></span>
+                <p style="display: flex; justify-content: flex-start; align-items: center;">
+                    <!-- 댓글 수 -->
+                    <span style="margin-right: 20px;">
+                <strong>댓글:</strong> <span th:text="${count}"></span>
+            </span>
+
+                    <!-- 좋아요 수와 하트 아이콘 -->
+                    <span style="display: flex; align-items: center;">
+                <strong>좋아요:</strong>
+                        <!-- 좋아요 수 -->
+                <span th:id="'like-count-' + ${board.feedUID}" th:text="${board.likeCount}" style="margin-left: 5px; margin-right: 10px;"></span>
+                        <!-- 하트 아이콘 -->
+                <button class="like-btn" th:data-feed-uid="${board.feedUID}">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </span>
                 </p>
             </td>
         </tr>
+
         <!-- 게시글이 없을 경우 -->
         <tr th:if="${#lists.isEmpty(data)}">
             <td colspan="2" class="text-center">게시글이 없습니다.</td>
@@ -325,6 +337,32 @@
                     // 클릭된 댓글의 옵션만 토글
                     targetElement.style.display = isCurrentlyVisible ? "none" : "block"; // 상태 반전
                 }
+            });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".like-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const feedUID = this.getAttribute("data-feed-uid");  // data-feed-uid에서 feedUID 값을 추출
+                const likeCountSpan = document.getElementById(`like-count-${feedUID}`);  // 좋아요 수 표시하는 요소
+
+                console.log("FeedUID sent:", feedUID);  // 값이 제대로 추출되는지 확인
+
+                // 서버에 AJAX 요청 보내기 (POST 방식)
+                fetch(`/search/view/feed/increase-like/${feedUID}`, {
+                    method: 'POST',  // POST 방식으로 요청
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.error("Error increasing like count:", error);
+                    });
             });
         });
     });

@@ -22,6 +22,7 @@ public interface FeedService {
 
     double getSumLikeByPageOne(int page, int size);
 
+     void plusLike(String id);
     void saveViewCountFeed(String id);
 
     FeedRequest getPopularFeedOne();

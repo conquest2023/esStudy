@@ -56,7 +56,7 @@ public class Board {
 
 
     @Field(type = FieldType.Integer)
-    private Integer likeCount;
+    private int likeCount;
 
     @Field(type = FieldType.Integer)
     private  int viewCount;

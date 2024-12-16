@@ -16,7 +16,6 @@ public interface CommentRepository  extends ElasticsearchRepository<Comment,Stri
     @Query("{ \"match_all\": {} }")
     List<Comment> findAllCommentBy();
 
-
     @Query("{\"match\": {\"content\": \"?0\"}}")
     List<Comment> findCommentsByUsernameAndContent(String keyword);
 
