@@ -52,7 +52,7 @@ public interface FeedDAO {
     List<Board> findMostViewFeed(int page, int size) ;
     double findSumFeed();
 
-     void deleteFeedOne(String id);
+    void deleteFeedOne(String id);
 //   Board getFeed(String id);
 
 

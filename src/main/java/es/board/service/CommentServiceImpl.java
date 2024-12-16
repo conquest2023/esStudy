@@ -56,6 +56,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public int getSumComment(String id) {
+        return commentDAO.findSumComment(id);
+    }
+
+    @Override
     public List<CommentRequest> getLikeCount() {
         CommentRequest req = new CommentRequest();
         return req.changeCommentToDTO(commentDAO.findLikeCount());

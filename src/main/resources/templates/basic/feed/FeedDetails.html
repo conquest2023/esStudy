@@ -211,8 +211,11 @@
 
         <!-- 좋아요 수 -->
         <tr th:each="board : ${data}">
-            <td colspan="2" class="small-text" style="padding: 10px; text-align: right; font-size: 0.9rem; color: #777;">
-                <p><strong>좋아요 수:</strong> <span th:text="${board.likeCount}"></span></p>
+            <td colspan="2" class="small-text" style="padding: 10px; text-align: left; font-size: 0.9rem; color: #777;">
+                <p>
+                    <strong>댓글 수:</strong> <span th:text="${count}"></span>
+                    <strong>좋아요 수:</strong> <span th:text="${board.likeCount}"></span>
+                </p>
             </td>
         </tr>
         <!-- 게시글이 없을 경우 -->
@@ -239,43 +242,29 @@
                 </h5>
                 <table class="comment-table" style="width: 100%; border-collapse: collapse;">
                     <tbody>
-                    <!-- 댓글 반복 -->
                     <tr th:each="comment : ${comment}" style="border-bottom: 1px solid #ddd;">
                         <td class="comment-item" style="padding: 10px;">
-                            <!-- 댓글 작성자와 작성 시간 -->
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="comment-username" style="font-weight: bold; color: #333;" th:text="${comment.username}"></div>
                                 <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
                             </div>
-                            <!-- 댓글 내용 -->
                             <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
                         </td>
-
-                        <!-- 수정 및 삭제 버튼 -->
                         <td style="text-align: right; vertical-align: top; padding: 10px;">
-                            <!-- 토글 버튼 -->
-                            <button class="btn btn-light btn-sm toggle-btn"
-                                    th:data-id="'options-' + ${comment.feedUID}">...</button>
-                            <!-- 수정/삭제 옵션 -->
-                            <div th:id="'options-' + ${comment.feedUID}"
-                                 class="comment-options"
-                                 style="display: none; margin-top: 5px;">
-                                <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}"
-                                   class="btn btn-outline-secondary btn-sm">수정</a>
-                                <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}"
-                                      method="post" style="display: inline;">
+                            <button class="btn btn-light btn-sm toggle-btn" data-id="options-${comment.feedUID}">...</button>
+                            <div id="options-${comment.feedUID}" class="comment-options" style="display:none; margin-top: 5px;">
+                                <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
+                                <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" style="display: inline;">
                                     <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
+                    <tr th:if="${#lists.isEmpty(comment)}">
+                        <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
+                    </tr>
                     </tbody>
-        <!-- 댓글이 없을 경우 -->
-        <tr th:if="${#lists.isEmpty(comment)}">
-            <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
+                </table>
                 <div class="write-comment bg-white p-3 border rounded shadow-sm">
                     <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
                         <i class="fas fa-pencil-alt"></i> Write a Comment
@@ -317,35 +306,27 @@
     </tr>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // 모든 토글 버튼을 가져옵니다.
-        const toggleButtons = document.querySelectorAll('.toggle-btn');
+    document.addEventListener("DOMContentLoaded", function () {
+        // 모든 토글 버튼에 이벤트 추가
+        document.querySelectorAll(".toggle-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const targetId = this.getAttribute("data-id"); // 버튼의 data-id 속성 가져오기
+                const targetElement = document.getElementById(targetId); // 해당 ID를 가진 div 요소 찾기
 
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', (event) => {
-                // 현재 클릭된 버튼의 data-id 값을 가져옵니다.
-                const targetId = button.getAttribute('data-id');
+                if (targetElement) {
+                    // 현재 상태를 확인하여 토글 처리
+                    const isCurrentlyVisible = targetElement.style.display === "block"; // 현재 표시 여부 확인
 
-                // 해당 ID에 해당하는 옵션 요소를 가져옵니다.
-                const optionsElement = document.getElementById(targetId);
+                    // 모든 옵션을 숨기기
+                    document.querySelectorAll(".comment-options").forEach(option => {
+                        option.style.display = "none"; // 모든 div를 숨깁니다
+                    });
 
-                // 다른 옵션은 닫고 현재 옵션만 토글합니다.
-                document.querySelectorAll('.comment-options').forEach(el => {
-                    if (el !== optionsElement) {
-                        el.style.display = 'none';
-                    }
-                });
-
-                // 현재 요소의 display 상태를 토글합니다.
-                if (optionsElement.style.display === 'none' || optionsElement.style.display === '') {
-                    optionsElement.style.display = 'block';
-                } else {
-                    optionsElement.style.display = 'none';
+                    // 클릭된 댓글의 옵션만 토글
+                    targetElement.style.display = isCurrentlyVisible ? "none" : "block"; // 상태 반전
                 }
             });
         });
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</html>

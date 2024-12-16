@@ -28,6 +28,9 @@ public interface CommentService {
     Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
     List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) ;
 
+
+    int getSumComment(String id);
+
     List<CommentRequest> getLikeCount() ;
 
     Map<String, Long> getPagingComment(List<String> feedUIDs , int num, int size) ;

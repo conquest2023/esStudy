@@ -76,8 +76,10 @@ public class FeedViewController {
 
 
     @GetMapping("/search/view/feed/id")
-    public String getFeedDetail(Model model,@RequestParam String id) throws IOException {
+    public String getFeedDetail(Model model,@RequestParam String id)  {
         feedService.saveViewCountFeed(id);
+        log.info( String.valueOf(commentService.getSumComment(id)));
+        model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
         model.addAttribute("feedId", id);

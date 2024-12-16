@@ -208,6 +208,22 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
 
+     @Override
+     public int findSumComment(String id) {
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q.term(t -> t.field("feedUID").value(id))),
+                    Comment.class
+            );
+            long commentCount = response.hits().total().value();
+            return (int) commentCount;
+        } catch (IOException e) {
+            log.error("Error searching for comment by id", e);
+            throw new IndexException("Failed to find comment by ID", e);
+        }
+    }
+
     @Override
     public List<Comment> CreateManyComment(List<Comment> pages) {
 

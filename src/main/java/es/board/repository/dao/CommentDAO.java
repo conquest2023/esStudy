@@ -33,6 +33,8 @@ public interface CommentDAO {
 
     void deleteCommentId(String id);
 
+    int findSumComment(String id);
+
     List<Comment> findIdOne(String id);
 
     Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size);
