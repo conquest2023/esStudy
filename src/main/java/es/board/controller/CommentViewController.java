@@ -26,14 +26,14 @@ public class CommentViewController {
 //        return "basic/commentAll";
 //    }
     @GetMapping("/search/view/comment/time")
-    public String getRecentCommentList(Model model) throws IOException {
+    public String getRecentCommentList(Model model) {
         model.addAttribute("data",commentService.getRecentComment());
 
         return "basic/commentTime";
     }
 
     @GetMapping("/search/view/comment")
-    public String getCommentMainPage(@RequestParam String index, Model model) throws IOException {
+    public String getCommentMainPage(@RequestParam String index, Model model) {
         model.addAttribute("CommentCreateResponse", new CommentCreateResponse());
 
         model.addAttribute("data",commentService.getComment());
@@ -43,14 +43,14 @@ public class CommentViewController {
 
 
     @GetMapping("/search/view/comment/text")
-    public String getSearchCommentList(Model model, @RequestParam String text) throws IOException {
+    public String getSearchCommentList(Model model, @RequestParam String text){
         log.info(commentService.getSearchComment(text).toString());
         model.addAttribute("data",commentService.getSearchComment(text));
 
         return  "/basic/commentSearch";
     }
     @GetMapping("/search/view/comment/like")
-    public String getLikeCount(Model model) throws IOException {
+    public String getLikeCount(Model model) {
           model.addAttribute("data",commentService.getLikeCount());
           return  "basic/commentLike";
     }
@@ -59,7 +59,7 @@ public class CommentViewController {
 //    }
 
     @GetMapping("/search/view/comment/paging")
-    public String getPagingCommentList(Model model, @RequestParam(defaultValue = "1") int num) throws IOException {
+    public String getPagingCommentList(Model model, @RequestParam(defaultValue = "1") int num)  {
 
 //        model.addAttribute("currentPage",num);
 //        model.addAttribute("totalPages", num+6
@@ -71,7 +71,7 @@ public class CommentViewController {
     }
 
     @GetMapping("/search/view/comment/post")
-    public  String commentPost() throws IOException {
+    public  String commentPost() {
 //        commentService.indexComment(commentSaveDTO);
         return  "basic/comment/PostComment";
     }
@@ -92,13 +92,13 @@ public class CommentViewController {
 //        return "basic/commentAll";
 //    }
     @GetMapping("/search/view/comment/update")
-    public String updateComment(Model model, @RequestParam String id,  @ModelAttribute CommentUpdate commentUpdate) throws IOException {
+    public String updateComment(Model model, @RequestParam String id,  @ModelAttribute CommentUpdate commentUpdate)  {
         model.addAttribute("id", id);
         model.addAttribute("CommentUpdate", commentUpdate);
         return  "basic/comment/EditComment";
     }
     @PostMapping("/search/view/comment/update/save")
-    public String editSaveComment(Model model,@ModelAttribute CommentUpdate commentUpdate) throws Exception {
+    public String editSaveComment(Model model,@ModelAttribute CommentUpdate commentUpdate)  {
         model.addAttribute("CommentUpdate", commentUpdate);
         log.info(commentUpdate.toString());
         commentService.editComment(commentUpdate.getFeedUID(),commentUpdate);
@@ -114,7 +114,7 @@ public class CommentViewController {
 //    }
 
     @PostMapping("/search/view/comment/delete")
-    public  String CommentRemove(@RequestParam  String id) throws IOException {
+    public  String CommentRemove(@RequestParam  String id)  {
         commentService.deleteComment(id);
         return "redirect:/search/view/feed/id?id=" + id;
 

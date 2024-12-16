@@ -15,31 +15,31 @@ import java.util.Map;
 public interface CommentDAO {
 
 
-    String createCommentOne(String index, CommentCreateResponse dto) throws IOException;
+    String createCommentOne(String index, CommentCreateResponse dto);
 
-    List<Comment> findRecentComment() throws IOException;
+    List<Comment> findRecentComment();
 
+    String indexCommentSave(CommentCreateResponse dto);
 
-    String indexCommentSave(CommentCreateResponse dto) throws IOException;
+    List<Comment> CreateManyComment(List<Comment> pages);
 
+    List<Comment> findSearchComment(String text);
 
-    List<Comment> CreateManyComment(List<Comment> pages) throws IOException;
+    List<Comment> findLikeCount();
 
-    List<Comment> findSearchComment(String text) throws IOException;
+    List<Comment> findPagingComment(int num);
 
-    List<Comment> findLikeCount() throws IOException;
+    Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size);
 
-    List<Comment> findPagingComment(int num) throws IOException;
+    void deleteCommentId(String id);
 
-    Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size) throws IOException;
-    void deleteCommentId(String id) throws IOException;
-    List<Comment> findIdOne(String id) throws IOException ;
+    List<Comment> findIdOne(String id);
 
-    Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size) throws IOException;
+    Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size);
 
-    Comment modifyComment(String id, Comment comment) throws Exception;
+    Comment modifyComment(String id, Comment comment) ;
 
-     List<Comment> findCommentAll() throws IOException, ElasticsearchException;
+    List<Comment> findCommentAll();
 
     Comment findCommentId(String commentUid);
 

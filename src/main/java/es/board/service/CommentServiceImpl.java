@@ -1,5 +1,6 @@
 package es.board.service;
 
+import es.board.ex.IndexException;
 import es.board.model.req.*;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.dao.CommentDAO;
@@ -22,76 +23,71 @@ public class CommentServiceImpl implements CommentService {
     private final CommentDAO commentDAO;
 
     @Override
-    public String saveDocument(String indexName, CommentCreateResponse dto) throws IOException {
-        return  commentDAO.createCommentOne(indexName,dto);
+    public String saveDocument(String indexName, CommentCreateResponse dto) {
+        return commentDAO.createCommentOne(indexName, dto);
     }
 
     @Override
-    public List<Comment> getSearchComment(String text) throws IOException {
+    public List<Comment> getSearchComment(String text) {
         return commentDAO.findSearchComment(text);
     }
-    @Override
-    public Comment editComment(String id, CommentUpdate eq) throws Exception {
-        Comment comment=new Comment();
-
-       return commentDAO.modifyComment(id,comment.convertDtoToEntity(eq));
-    }
-
 
     @Override
-    public List<CommentRequest> getRecentComment() throws IOException {
-        CommentRequest commentDTO=new CommentRequest();
-
-        return  commentDTO.changeCommentToDTO(commentDAO.findRecentComment());
+    public Comment editComment(String id, CommentUpdate eq) {
+        Comment comment = new Comment();
+        return commentDAO.modifyComment(id, comment.convertDtoToEntity(eq));
     }
 
     @Override
-    public String indexComment(CommentCreateResponse dto) throws IOException {
-
-        return  commentDAO.indexCommentSave(dto);
+    public List<CommentRequest> getRecentComment() {
+        CommentRequest commentDTO = new CommentRequest();
+        return commentDTO.changeCommentToDTO(commentDAO.findRecentComment());
     }
 
     @Override
-    public List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) throws IOException {
-         commentDAO.CreateManyComment(BulkToEntity(comments));
-          return  comments;
+    public String indexComment(CommentCreateResponse dto) {
+        return commentDAO.indexCommentSave(dto);
     }
 
     @Override
-    public List<CommentRequest> getLikeCount() throws IOException {
-        CommentRequest req=new CommentRequest();
-        return  req.changeCommentToDTO(commentDAO.findLikeCount());
+    public List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) {
+        commentDAO.CreateManyComment(BulkToEntity(comments));
+        return comments;
     }
 
     @Override
-    public Map<String, Long> getPagingComment(List<String> feedUIDs, int num, int size) throws IOException {
-//        log.info(commentDAO.findPagingComment(feedUIDs,num,size).toString());
-        return  commentDAO.findPagingComment(feedUIDs,num,size);
+    public List<CommentRequest> getLikeCount() {
+        CommentRequest req = new CommentRequest();
+        return req.changeCommentToDTO(commentDAO.findLikeCount());
     }
 
     @Override
-    public Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) throws IOException {
-        return  commentDAO.findPagingCommentDESC(feedUIDs,num,size);
+    public Map<String, Long> getPagingComment(List<String> feedUIDs, int num, int size) {
+        return commentDAO.findPagingComment(feedUIDs, num, size);
     }
 
     @Override
-    public List<CommentRequest> getComment() throws IOException {
-        CommentRequest commentRequest=new CommentRequest();
+    public Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) {
+        return commentDAO.findPagingCommentDESC(feedUIDs, num, size);
+    }
+
+    @Override
+    public List<CommentRequest> getComment() {
+        CommentRequest commentRequest = new CommentRequest();
         return commentRequest.changeCommentToDTO(commentDAO.findCommentAll());
     }
 
     @Override
-    public List<Comment> getCommentId(String id) throws IOException {
+    public List<Comment> getCommentId(String id) {
         return commentDAO.findIdOne(id);
     }
 
     @Override
-    public void deleteComment(String id) throws IOException {
+    public void deleteComment(String id) {
         commentDAO.deleteCommentId(id);
     }
 
-
-    public Comment updateCommentDTO(String id, Comment comment , CommentUpdate update){
+    public Comment updateCommentDTO(String id, Comment comment, CommentUpdate update) {
         String username = update.getUsername() != null ? update.getUsername() : comment.getUsername();
         String content = update.getContent() != null ? update.getContent() : comment.getContent();
         return Comment.builder()
