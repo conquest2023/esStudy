@@ -6,55 +6,51 @@ import es.board.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public interface FeedService {
 
+    FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO);
 
-   //String searchBoard(String indexName) throws IOException;
+    List<FeedRequest> getCategoryFeed(String category);
 
+    List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime);
 
-    FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) throws IOException;
+    List<FeedRequest> getMonthPopularFeed();
 
-    List<FeedRequest> getCategoryFeed(String category) throws  IOException;
+    double getSumLikeByPageOne(int page, int size);
 
+    void saveViewCountFeed(String id);
 
-    List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate,LocalDateTime endTime) throws IOException;
+    FeedRequest getPopularFeedOne();
 
+    List<FeedRequest> getRecentFeed();
 
-    List<FeedRequest> getMonthPopularFeed() throws IOException;
+    List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> comments);
 
-    double getSumLikeByPageOne(int page, int size) throws IOException;
+    String createFeed(String indexName, FeedCreateResponse dto);
 
-    void  saveViewCountFeed(String  id) throws IOException;
-    FeedRequest getPopularFeedOne() throws IOException;
+    List<FeedRequest> getFeed();
 
-    List<FeedRequest> getRecentFeed() throws IOException;
+    double getTotalPage(int page, int size);
 
-    List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> comments) throws IOException;
+    List<FeedRequest> getLikeCount();
 
-    String createFeed(String indexName, FeedCreateResponse dto) throws IOException;
+    List<Board> getSearchBoard(String text);
 
-    List<FeedRequest> getFeed() throws IOException;
+    List<FeedRequest> getPagingFeed(int page, int size);
 
+    void deleteFeed(String id);
 
-    double getTotalPage(int page,int size) throws  IOException;
+    List<FeedRequest> getMostViewFeed(int page, int size);
 
-    List<FeedRequest> getLikeCount() throws IOException;
+    List<String> getfeedUIDList(int page, int size);
 
-    List<Board> getSearchBoard(String text) throws IOException;
-    List<FeedRequest> getPagingFeed(int page, int size) throws IOException;
+    Double getTotalFeed();
 
-    void deleteFeed(String id) throws IOException;
+    FeedUpdate updateFeed(String id, FeedUpdate update);
 
-    List<FeedRequest> getMostViewFeed(int page, int size) throws IOException;
-    List<String> getfeedUIDList(int page, int size) throws IOException;
-    Double getTotalFeed() throws IOException;
-    public FeedUpdate updateFeed(String id, FeedUpdate update) throws Exception;
-
-   FeedRequest getFeedId(String id) throws IOException;
-
+    FeedRequest getFeedId(String id);
 }

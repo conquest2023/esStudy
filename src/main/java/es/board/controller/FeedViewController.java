@@ -49,14 +49,14 @@ public class FeedViewController {
 //        return "basic/EditFeed";
 //    }
     @GetMapping("/search/view/feed/update")
-    public String editFeed(@RequestParam("id") String id, @RequestParam("username") String username, Model model) throws Exception {
+    public String editFeed(@RequestParam("id") String id, @RequestParam("username") String username, Model model)  {
         model.addAttribute("id", id);
         model.addAttribute("username", username);
         return "basic/feed/EditFeed";
     }
 
     @GetMapping("/search/view/feed/category")
-    public String getCategory(Model model,@RequestParam String text) throws Exception {
+    public String getCategory(Model model,@RequestParam String text)  {
         model.addAttribute("data",feedService.getCategoryFeed(text));
         return "basic/feed/CategoryFeed";
     }
@@ -67,7 +67,7 @@ public class FeedViewController {
 //    }
 
     @PostMapping("/search/view/feed/update/save")
-    public String editSaveFeed(Model model,@ModelAttribute FeedUpdate feedUpdate) throws Exception {
+    public String editSaveFeed(Model model,@ModelAttribute FeedUpdate feedUpdate)  {
 //        log.info(feedUpdate.toString());
         feedService.updateFeed(feedUpdate.getFeedUID(),feedUpdate);
         model.addAttribute("data", feedUpdate);
@@ -95,7 +95,7 @@ public class FeedViewController {
     }
 
     @GetMapping("/search/view/feed/feedAll")
-    public String getFeedList(Model model, @RequestBody Map<String, String> request) throws IOException {
+    public String getFeedList(Model model, @RequestBody Map<String, String> request)  {
 
         String feedUID = request.get("feedUID");
         if (feedUID != null) {
@@ -105,7 +105,7 @@ public class FeedViewController {
         return "basic/feed/feedList?index=board";
     }
     @GetMapping("/search/view/feed/text")
-    public String getSearchBoardList(Model model, @RequestParam String text) throws IOException {
+    public String getSearchBoardList(Model model, @RequestParam String text)  {
         model.addAttribute("data",feedService.getSearchBoard(text));
         return "basic/feed/SearchFeed";
     }
@@ -135,14 +135,14 @@ public class FeedViewController {
 
 
     @GetMapping("/search/view/feed/list/{category}")
-    public String getCategoryListFeed(Model model, @PathVariable String category) throws IOException {
+    public String getCategoryListFeed(Model model, @PathVariable String category){
         model.addAttribute("data",feedService.getCategoryFeed(category));
 
         return "/basic/feed/CategoryFeed";
     }
 
     @GetMapping("/search/view/feed/latest")
-    public String getRecentFeedList(Model model) throws IOException {
+    public String getRecentFeedList(Model model)  {
         model.addAttribute("data",feedService.getRecentFeed());
         return "basic/feed/RecentFeed";
     }
@@ -154,12 +154,12 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/range")
     public  String getRangeTime(Model model, @RequestParam LocalDateTime startDate
-            , @RequestParam LocalDateTime endDate ) throws IOException{
+            , @RequestParam LocalDateTime endDate ) {
         model.addAttribute("data",feedService.getRangeTimeFeed(startDate,endDate));
         return "/basic/feed/RangeFeed";
     }
     @PostMapping("/search/view/feed/save")
-    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) throws IOException {
+    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO)  {
         model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
 //        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
 //        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
@@ -175,7 +175,7 @@ public class FeedViewController {
 
 
     @PostMapping("/feed/view/bulks")
-    public  List<FeedCreateResponse> postBulkFeed(@RequestBody List<FeedCreateResponse> comments) throws IOException {
+    public  List<FeedCreateResponse> postBulkFeed(@RequestBody List<FeedCreateResponse> comments)  {
 
         return feedService.createBulkFeed(comments);
     }
@@ -193,12 +193,12 @@ public class FeedViewController {
 
 
     @PostMapping("/search/view/feed/delete")
-    public  String deleteFeed(@RequestParam String id) throws IOException {
+    public  String deleteFeed(@RequestParam String id) {
         feedService.deleteFeed(id);
         return "redirect:/search/view/feed?index=board";
     }
     @GetMapping("/search/view/feed/reload")
-    public  String reloadViewCount(Model model) throws  IOException{
+    public  String reloadViewCount(Model model){
 
         model.addAttribute("data",feedService.getFeed());
         return "basic/feed/feedList?index=board";

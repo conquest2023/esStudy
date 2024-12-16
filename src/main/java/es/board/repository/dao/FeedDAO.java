@@ -18,41 +18,41 @@ public interface FeedDAO {
 
    // Map<String, Object> search(String index)  throws IOException, ElasticsearchException;
 
-    String saveFeed(String index, FeedCreateResponse dto) throws IOException;
+    String saveFeed(String index, FeedCreateResponse dto) ;
 
-    List<Board> saveBulkFeed(List<Board> pages) throws IOException;
+    List<Board> saveBulkFeed(List<Board> pages) ;
 
-    FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) throws IOException;
-
-
-    List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) throws  IOException;
+    FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) ;
 
 
-    List<Board> findAllFeed()  throws IOException, ElasticsearchException;
+    List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;
 
-    List<Board> findLikeCount() throws IOException;
 
-    List<Board> findPagingFeed(int page, int size) throws IOException;
+    List<Board> findAllFeed()  ;
 
-    List<Board> findRecentFeed() throws IOException;
+    List<Board> findLikeCount() ;
 
-    List<Board> findCategoryAndContent(String category) throws IOException;
-    Board modifyFeed(String id, FeedUpdate eq) throws Exception;
-    Board findIdOne(String id) throws IOException ;
-    List<Board> findSearchBoard(String text) throws IOException;
+    List<Board> findPagingFeed(int page, int size) ;
 
-     double findSumLikeByPageOne(int page, int size) throws IOException;
-      Board findPopularFeedOne() throws IOException;
+    List<Board> findRecentFeed() ;
 
-    void saveViewCounts(String id, Board view) throws IOException;
-    public List<Board> findMonthPopularFeed() throws IOException;
+    List<Board> findCategoryAndContent(String category) ;
+    Board modifyFeed(String id, FeedUpdate eq) ;
+    Board findIdOne(String id)  ;
+    List<Board> findSearchBoard(String text);
 
-     double findTotalPage(int page, int size) throws IOException ;
+     double findSumLikeByPageOne(int page, int size);
+      Board findPopularFeedOne() ;
 
-    List<Board> findMostViewFeed(int page, int size) throws IOException;
-    double findSumFeed() throws IOException;
+    void saveViewCounts(String id, Board view) ;
+    public List<Board> findMonthPopularFeed() ;
 
-     void deleteFeedOne(String id) throws IOException;
+     double findTotalPage(int page, int size)  ;
+
+    List<Board> findMostViewFeed(int page, int size) ;
+    double findSumFeed();
+
+     void deleteFeedOne(String id);
 //   Board getFeed(String id);
 
 
