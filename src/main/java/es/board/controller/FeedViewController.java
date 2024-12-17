@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -87,9 +88,7 @@ public class FeedViewController {
 
     @PostMapping("/search/view/feed/increase-like/{feedUID}")
     public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String feedUID) {
-        log.info(feedUID);
         feedService.plusLike(feedUID);
-
         Map<String, Integer> response = new HashMap<>();
         return ResponseEntity.ok(response);
     }
@@ -97,13 +96,13 @@ public class FeedViewController {
     @PostMapping("/search/view/feed/id")
     public String saveCommentId(@RequestParam String id,
                                    @ModelAttribute CommentCreateResponse commentSaveDTO,
-                                   Model model) throws IOException {
-        commentSaveDTO.setFeedUID(id);
-//        log.info(commentSaveDTO.toString());
+                                   Model model)  {
+        commentSaveDTO.commentBasicSetting(id);
         commentService.indexComment(commentSaveDTO);
         model.addAttribute("push",commentSaveDTO);
         return "redirect:/search/view/feed/id?id=" + id;
     }
+
 
     @GetMapping("/search/view/feed/feedAll")
     public String getFeedList(Model model, @RequestBody Map<String, String> request)  {
@@ -226,12 +225,17 @@ public class FeedViewController {
 
     private void feedDetailParts(Model model, String id) {
         feedService.saveViewCountFeed(id);
-        log.info(feedService.getFeedId(id).toString());
         model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
         model.addAttribute("feedId", id);
     }
+    private static void commentSetIds(String id, CommentCreateResponse commentSaveDTO) {
+        commentSaveDTO.setFeedUID(id);
+        commentSaveDTO.TimeNow();
+        commentSaveDTO.setCommentUID(UUID.randomUUID().toString());
+    }
+
 }
 
 

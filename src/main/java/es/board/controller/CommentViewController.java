@@ -6,11 +6,14 @@ import es.board.model.res.CommentCreateResponse;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Controller
@@ -25,6 +28,13 @@ public class CommentViewController {
 //        model.addAttribute("data",commentService.getCommentId(id));
 //        return "basic/commentAll";
 //    }
+@PostMapping("/search/view/comment/increase-like/{commentUID}")
+public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String commentUID) {
+    log.info(commentUID);
+    commentService.plusCommentLike(commentUID);
+    Map<String, Integer> response = new HashMap<>();
+    return ResponseEntity.ok(response);
+}
     @GetMapping("/search/view/comment/time")
     public String getRecentCommentList(Model model) {
         model.addAttribute("data",commentService.getRecentComment());

@@ -47,7 +47,7 @@ public class CommentDAOImpl implements CommentDAO {
 
     @Override
     public String indexCommentSave(CommentCreateResponse dto) {
-        dto.TimeNow();
+
         try {
             IndexResponse response = client.index(i -> i
                     .index("comment")

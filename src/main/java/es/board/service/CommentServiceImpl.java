@@ -4,6 +4,7 @@ import es.board.ex.IndexException;
 import es.board.model.req.*;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.dao.CommentDAO;
+import es.board.repository.dao.LikeDAO;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -21,6 +23,8 @@ public class CommentServiceImpl implements CommentService {
 
 
     private final CommentDAO commentDAO;
+
+    private  final LikeDAO likeDAO;
 
     @Override
     public String saveDocument(String indexName, CommentCreateResponse dto) {
@@ -47,6 +51,11 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public String indexComment(CommentCreateResponse dto) {
         return commentDAO.indexCommentSave(dto);
+    }
+
+    @Override
+    public void plusCommentLike(String id) {
+            likeDAO.saveCommentLike(id);
     }
 
     @Override

@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +38,9 @@ public class CommentCreateResponse {
         this.createdAt=LocalDateTime.now();
     }
 
-    public void TimePush(CommentCreateResponse dto) {
-         dto.setCreatedAt(createdAt);
+    public void commentBasicSetting(String id) {
+        this.feedUID=id;
+        this.createdAt=LocalDateTime.now();
+        this.commentUID=UUID.randomUUID().toString();
     }
 }

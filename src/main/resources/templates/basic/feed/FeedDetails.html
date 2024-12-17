@@ -209,21 +209,18 @@
             </td>
         </tr>
         <tr th:each="board : ${data}">
+            <!-- 게시글 좋아요 버튼 -->
             <td colspan="2" class="small-text" style="padding: 10px; text-align: left; font-size: 0.9rem; color: #777;">
                 <p style="display: flex; justify-content: flex-start; align-items: center;">
-                    <!-- 댓글 수 -->
-                    <span style="margin-right: 20px;">
+            <span style="margin-right: 20px;">
                 <strong>댓글:</strong> <span th:text="${count}"></span>
             </span>
 
-                    <!-- 좋아요 수와 하트 아이콘 -->
                     <span style="display: flex; align-items: center;">
                 <strong>좋아요:</strong>
-                        <!-- 좋아요 수 -->
-                <span th:id="'like-count-' + ${board.feedUID}" th:text="${board.likeCount}" style="margin-left: 5px; margin-right: 10px;"></span>
-                        <!-- 하트 아이콘 -->
-                <button class="like-btn" th:data-feed-uid="${board.feedUID}">
-                    <i class="fas fa-heart"></i>
+                <span th:id="'like-count-feed-' + ${board.feedUID}" th:text="${board.likeCount}" style="margin-left: 5px; margin-right: 10px;"></span>
+                <button class="like-btn" th:data-feed-uid="${board.feedUID}" style="background: none; border: none; padding: 0;">
+                    <i class="far fa-heart"></i>
                 </button>
             </span>
                 </p>
@@ -238,45 +235,35 @@
     </table>
 <!--    <td th:text="${comment.likeCount}"></td>-->
     <!-- 댓글 리스트 -->
-    <div class="container mt-4">
-        <!-- 목록 버튼 -->
-        <div class="mb-3">
-            <a href="#" class="btn btn-info text-white" style="font-weight: bold;">
-                <i class="fas fa-arrow-left"></i> 목록
-            </a>
+    <div class="comments-section mb-4">
+        <div class="bg-light p-3 border rounded">
+            <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
+                <i class="fas fa-comments"></i> Comments
+            </h5>
+            <table class="comment-table" style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                <tr th:each="comment : ${comment}">
+                    <td class="comment-item" style="padding: 10px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="comment-username" style="font-weight: bold; color: #333;" th:text="${comment.username}"></div>
+                            <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+                        </div>
+                        <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
+                    </td>
+                    <td style="text-align: right; vertical-align: top; padding: 10px;">
+                        <button class="like-btn" th:data-comment-id="${comment.commentUID}" style="background: none; border: none; padding: 0;">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <span th:id="'like-count-comment-' + ${comment.commentUID}" th:text="${comment.likeCount}" style="margin-left: 10px;"></span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(comment)}">
+                    <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Comments 섹션 -->
-        <div class="comments-section mb-4">
-            <div class="bg-light p-3 border rounded">
-                <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
-                    <i class="fas fa-comments"></i> Comments
-                </h5>
-                <table class="comment-table" style="width: 100%; border-collapse: collapse;">
-                    <tbody>
-                    <tr th:each="comment : ${comment}" style="border-bottom: 1px solid #ddd;">
-                        <td class="comment-item" style="padding: 10px;">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="comment-username" style="font-weight: bold; color: #333;" th:text="${comment.username}"></div>
-                                <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
-                            </div>
-                            <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
-                        </td>
-                        <td style="text-align: right; vertical-align: top; padding: 10px;">
-                            <button class="btn btn-light btn-sm toggle-btn" data-id="options-${comment.feedUID}">...</button>
-                            <div id="options-${comment.feedUID}" class="comment-options" style="display:none; margin-top: 5px;">
-                                <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
-                                <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" style="display: inline;">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(comment)}">
-                        <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
-                    </tr>
-                    </tbody>
-                </table>
+    </div>
                 <div class="write-comment bg-white p-3 border rounded shadow-sm">
                     <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
                         <i class="fas fa-pencil-alt"></i> Write a Comment
@@ -319,6 +306,72 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // 댓글 좋아요 버튼 클릭 이벤트
+        document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
+            button.addEventListener("click", function () {
+                const commentId = this.getAttribute("data-comment-id");  // 댓글의 feedUID 추출
+                const likeCountSpan = document.getElementById(`like-count-${commentId}`);  // 해당 댓글의 좋아요 수 표시하는 요소
+                const heartIcon = this.querySelector("i");
+
+                // 하트 상태 토글 (빈 하트 -> 채워진 하트)
+                if (heartIcon.classList.contains("far")) {
+                    heartIcon.classList.remove("far");
+                    heartIcon.classList.add("fas");  // 채워진 하트로 변경
+                } else {
+                    heartIcon.classList.remove("fas");
+                    heartIcon.classList.add("far");  // 빈 하트로 변경
+                }
+
+                // 서버에 AJAX 요청 보내기 (댓글 좋아요)
+                fetch(`/search/view/comment/increase-like/${commentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())  // 서버에서 응답을 받으면 JSON 형식으로 처리
+                    .then(data => {
+                    })
+                    .catch(error => {
+                        console.error("Error increasing like count:", error);
+                    });
+            });
+        });
+
+        // 피드 좋아요 버튼 클릭 이벤트
+        document.querySelectorAll(".like-btn[data-feed-uid]").forEach(button => {
+            button.addEventListener("click", function () {
+                const feedUID = this.getAttribute("data-feed-uid");  // 피드의 feedUID 추출
+                const likeCountSpan = document.getElementById(`like-count-${feedUID}`);  // 해당 피드의 좋아요 수 표시하는 요소
+                const heartIcon = this.querySelector("i");
+
+                // 하트 상태 토글 (빈 하트 -> 채워진 하트)
+                if (heartIcon.classList.contains("far")) {
+                    heartIcon.classList.remove("far");
+                    heartIcon.classList.add("fas");  // 채워진 하트로 변경
+                } else {
+                    heartIcon.classList.remove("fas");
+                    heartIcon.classList.add("far");  // 빈 하트로 변경
+                }
+
+                // 서버에 AJAX 요청 보내기 (피드 좋아요)
+                fetch(`/search/view/feed/increase-like/${feedUID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // likeCountSpan.textContent = data.newLikeCount;  // 서버로부터 받은 새로운 좋아요 수
+                    })
+                    .catch(error => {
+                        console.error("Error increasing like count:", error);
+                    });
+            });
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
         // 모든 토글 버튼에 이벤트 추가
         document.querySelectorAll(".toggle-btn").forEach(button => {
             button.addEventListener("click", function () {
@@ -341,30 +394,6 @@
         });
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".like-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const feedUID = this.getAttribute("data-feed-uid");  // data-feed-uid에서 feedUID 값을 추출
-                const likeCountSpan = document.getElementById(`like-count-${feedUID}`);  // 좋아요 수 표시하는 요소
 
-                console.log("FeedUID sent:", feedUID);  // 값이 제대로 추출되는지 확인
-
-                // 서버에 AJAX 요청 보내기 (POST 방식)
-                fetch(`/search/view/feed/increase-like/${feedUID}`, {
-                    method: 'POST',  // POST 방식으로 요청
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error("Error increasing like count:", error);
-                    });
-            });
-        });
-    });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>

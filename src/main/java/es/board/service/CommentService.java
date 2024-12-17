@@ -25,6 +25,7 @@ public interface CommentService {
 
     String indexComment(CommentCreateResponse dto) ;
 
+    void  plusCommentLike(String id);
     Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
     List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) ;
 
