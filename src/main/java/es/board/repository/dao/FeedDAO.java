@@ -47,6 +47,7 @@ public interface FeedDAO {
     void saveViewCounts(String id, Board view) ;
      List<Board> findMonthPopularFeed();
 
+    int findAllViewCount();
     List<Board> findPopularFeedDESC(int page,int size);
     double findTotalPage(int page, int size)  ;
 

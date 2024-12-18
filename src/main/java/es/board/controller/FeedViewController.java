@@ -216,7 +216,8 @@ public class FeedViewController {
         return "basic/feed/feedList?index=board";
     }
 
-    private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) throws IOException {
+    private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) {
+        model.addAttribute("viewCount",feedService.getViewCountAll());
         model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
         model.addAttribute("maxPage", maxPage);

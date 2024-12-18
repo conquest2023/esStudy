@@ -531,6 +531,25 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to modify feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }
+
+    @Override
+    public int findAllViewCount() {
+        try {
+            SearchResponse<Board> searchResponse = client.search(s -> s
+                    .index("board")
+                            .aggregations("totalViews", a -> a.sum(sum -> sum.field("viewCount"))),
+                    Board.class);
+
+            return (int) searchResponse.aggregations()
+                    .get("totalViews")
+                    .sum()
+                    .value();
+
+         } catch (IOException e) {
+            log.info("조회수 가져오기 실패");
+            throw new IndexException(e);
+        }
+    }
 }
 
 

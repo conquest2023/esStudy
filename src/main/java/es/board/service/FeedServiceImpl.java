@@ -77,6 +77,11 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public int getViewCountAll() {
+        return feedDAO.findAllViewCount();
+    }
+
+    @Override
     public FeedRequest getPopularFeedOne() {
         FeedRequest feedRequest = new FeedRequest();
         return feedRequest.BoardToDTO(feedDAO.findPopularFeedOne());
