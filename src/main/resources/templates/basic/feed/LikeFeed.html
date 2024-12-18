@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>좋아요 내림차순 게시글 목록</title>
+    <title>인기 게시물</title>
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -37,50 +37,76 @@
 <body>
 
 <div class="container">
-    <h1 class="text-center">좋아요 내림차순 게시글 목록</h1>
+    <h1 class="text-center">인기 게시물</h1>
 
     <!-- 게시글 리스트 -->
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>카테고리</th>
-            <th>내용</th>
-            <th>좋아요 수</th>
-            <th>작성일자</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- 게시글 리스트 출력 -->
-        <tr th:each="board : ${data}">
-            <td th:text="${board.feedUID}"></td>
-            <td th:text="${board.title}"></td>
-            <td th:text="${board.username}"></td>
-            <td th:text="${board.category}"></td>
-            <td th:text="${board.description}"></td>
-            <td th:text="${board.likeCount}"></td>
-            <!-- 작성일자 표시 -->
-            <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        </tr>
+    <div class="mb-4">
+        <!-- 날짜 검색 폼 -->
+        <div class="mb-4">
+            <!-- 게시글 리스트 -->
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>내용</th>
 
-        <!-- 게시글이 없을 경우 -->
-        <tr th:if="${#lists.isEmpty(data)}">
-            <td colspan="5" class="text-center">게시글이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
+                    <th>작성자</th>
+                    <!--                                <th>댓글수</th>-->
+                    <!--<th>카테고리</th>-->
+                    <!--                                <th>좋아요 수</th>-->
+                    <th>작성일</th>
+                    <th>좋아요</th>
+                    <th>조회수</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 게시글 데이터 반복 -->
+                <tr th:each="board : ${popular}">
+                    <!-- 제목 -->
+                    <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
+                    <!-- 작성자 -->
 
-    <!-- 메인으로 돌아가기 버튼 -->
-    <div class="text-center mt-4">
-        <a href="/static" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
-    </div>
+                    <!-- 내용과 댓글수 -->
+                    <td>
+                        <span th:text="${board.description}"></span>
+                        <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
+                        <span th:if="${count[board.id] > 0}" style="color: #007bff; font-weight: bold;">
+                    [<span th:text="${count[board.id]}"></span>]
+                </span>
+                    </td>
+                    <td th:text="${board.username}"></td>
+                    <!-- 작성일 -->
+                    <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
 
-</div>
+                    <!-- 조회수 -->
+                    <td th:text="${board.likeCount}"></td>
+                    <td th:text="${board.viewCount}"></td>
 
-<!-- Bootstrap JS (Optional) -->
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+                </tr>
+
+                <!-- 데이터가 없을 때 -->
+                <tr th:if="${#lists.isEmpty(data)}">
+                    <td colspan="5" class="text-center">게시글이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 게시글이 없을 경우 -->
+            <tr th:if="${#lists.isEmpty(data)}">
+                <td colspan="5" class="text-center">게시글이 없습니다.</td>
+            </tr>
+            </tbody>
+            </table>
+
+            <!-- 메인으로 돌아가기 버튼 -->
+            <div class="text-center mt-4">
+                <a href="/static" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
+            </div>
+
+        </div>
+
+        <!-- Bootstrap JS (Optional) -->
+        <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

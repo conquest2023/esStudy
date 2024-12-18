@@ -42,12 +42,13 @@ public interface FeedDAO {
     List<Board> findSearchBoard(String text);
 
      double findSumLikeByPageOne(int page, int size);
-      Board findPopularFeedOne() ;
+      Board findPopularFeedOne();
 
     void saveViewCounts(String id, Board view) ;
-    public List<Board> findMonthPopularFeed() ;
+     List<Board> findMonthPopularFeed();
 
-     double findTotalPage(int page, int size)  ;
+    List<Board> findPopularFeedDESC(int page,int size);
+    double findTotalPage(int page, int size)  ;
 
     List<Board> findMostViewFeed(int page, int size) ;
     double findSumFeed();

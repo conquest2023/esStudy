@@ -94,6 +94,17 @@ public class FeedViewController {
         model.addAttribute("push",commentSaveDTO);
         return "redirect:/search/view/feed/id?id=" + id;
     }
+    @GetMapping("/search/view/feed/list/popular")
+    public String getPopularFeedDESC(Model model,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size) throws IOException {
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
+        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+        basicSettingFeed(model, page, size, maxPage, totalPage);
+        model.addAttribute("popular",feedService.getPopularFeedDESC(page,size));
+        return "basic/feed/LikeFeed";
+    }
+
 
 
     @GetMapping("/search/view/feed/feedAll")
@@ -126,7 +137,6 @@ public class FeedViewController {
     public String getMostViewFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
         int totalPage=(int) Math.ceil( feedService.getTotalFeed());
         basicSettingFeed(model, page, size, maxPage, totalPage);

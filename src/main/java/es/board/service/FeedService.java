@@ -20,6 +20,7 @@ public interface FeedService {
 
     List<FeedRequest> getMonthPopularFeed();
 
+    List<FeedRequest>  getPopularFeedDESC(int page,int size);
     double getSumLikeByPageOne(int page, int size);
 
      void plusLike(String id);

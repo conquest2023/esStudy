@@ -370,6 +370,26 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
+    public List<Board> findPopularFeedDESC(int page,int size)  {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .size(size)
+                            .sort(sort -> sort.field(f -> f
+                                    .field("likeCount")
+                                    .order(SortOrder.Desc)))
+                            .query(q -> q.matchAll(t -> t))
+                            ,Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException  e) {
+            log.error("Error fetching month popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch month popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
+        }
+    }
+
+    @Override
     public List<Board> findRecentFeed()  {
 
         try {

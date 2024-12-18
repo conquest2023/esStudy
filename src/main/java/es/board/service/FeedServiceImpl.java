@@ -60,6 +60,12 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<FeedRequest> getPopularFeedDESC(int page, int size) {
+        FeedRequest feedRequest=new FeedRequest();
+        return  feedRequest.BoardListToDTO(feedDAO.findPopularFeedDESC(page,size));
+    }
+
+    @Override
     public List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
         FeedRequest reqFeedDTO = new FeedRequest();
         return reqFeedDTO.BoardListToDTO(feedDAO.findRangeTimeFeed(startDate, endTime));
