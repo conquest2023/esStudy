@@ -49,47 +49,46 @@
 
   <!-- 게시글 보기 모드 -->
   <div id="view-mode">
-    <h2 id="view-title"></h2>
-    <p></p>
-    <p></p>
+    <!-- 제목 -->
+    <h2 th:text="${feedUpdate.title}"></h2>  <!-- 서버에서 전달된 제목이 여기 들어감 -->
 
+    <!-- 작성자 및 작성일자 -->
+    <p><strong>작성자:</strong> <span th:text="${feedUpdate.username}"></span></p>
+    <p><strong>작성일자:</strong> <span th:text="${#temporals.format(feedUpdate.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+    <!-- 게시글 내용 -->
     <div class="mt-3 mb-3">
-      <p id="view-description"></p>
+      <p th:text="${feedUpdate.description}"></p>  <!-- 서버에서 전달된 게시글 내용 -->
     </div>
-
-    <button onclick="toggleEditMode()" class="btn btn-primary">
-      <i class="fas fa-edit"></i> 수정하기
-    </button>
-
-    <!-- 댓글 리스트 생략 -->
-
   </div>
+
+  <!-- 수정하기 버튼 -->
+  <button onclick="toggleEditMode()" class="btn btn-primary">
+    <i class="fas fa-edit"></i> 수정하기
+  </button>
 
   <!-- 게시글 편집 모드 -->
   <div id="edit-mode" class="edit-mode">
-    <form action="/search/view/feed/update/save" method="POST" th:object="${FeedUpdate}">
+  <form action="/search/view/feed/update/save" method="POST" th:object="${feedUpdate}">
+    <input type="hidden" th:field="*{feedUID}" />
+    <!-- 제목 수정 -->
+    <div class="mb-4">
+      <label for="title">제목:</label>
+      <textarea id="title" name="title" rows="2" class="form-control" th:value="${feedUpdate.title}"></textarea>
+    </div>
 
-      <!-- 제목 수정 -->
-      <div class="mb-4">
-        <label for="title">제목:</label>
-        <textarea id="title" name="title" rows="2" class="form-control">□ L O</textarea>
-      </div>
+    <!-- 내용 수정 -->
+    <div class="mb-4">
+      <label for="description">내용:</label>
+      <textarea id="description" name="description" rows="4" class="form-control" th:value="${feedUpdate.description}"></textarea>
+    </div>
 
-      <!-- 내용 수정 -->
-      <div class="mb-4">
-        <label for="description">내용:</label>
-        <textarea id="description" name="description" rows="4" class="form-control">기존 내용</textarea>
-      </div>
-
-      <!-- 저장 및 취소 버튼 -->
-      <div class="d-flex justify-content-between mt-3">
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
-        <button type="button" onclick="toggleEditMode()" class="btn btn-secondary"><i class="fas fa-times"></i> 취소</button>
-      </div>
-
-    </form>
-  </div>
-
+    <!-- 저장 및 취소 버튼 -->
+    <div class="d-flex justify-content-between mt-3">
+      <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
+      <button type="button" onclick="toggleEditMode()" class="btn btn-secondary"><i class="fas fa-times"></i> 취소</button>
+    </div>
+  </form>
 </div>
 
 <script>

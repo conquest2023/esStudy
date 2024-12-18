@@ -18,8 +18,6 @@ public class FeedUpdate {
 
     private String title;
 
-
-
     private String description;
 
     private  int likeCount;

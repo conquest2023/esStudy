@@ -255,7 +255,16 @@
                             <i class="far fa-heart"></i>
                         </button>
                         <span th:id="'like-count-comment-' + ${comment.commentUID}" th:text="${comment.likeCount}" style="margin-left: 10px;"></span>
+                        <button class="btn btn-light btn-sm toggle-btn" data-id="options-${comment.feedUID}">...</button>
+                        <div id="options-${comment.feedUID}" class="comment-options" style="display:none; margin-top: 5px;">
+                            <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
+                            <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
+                            </form>
+                        </div>
                     </td>
+                    </td>
+                    <!-- 수정 및 삭제 버튼 -->
                 </tr>
                 <tr th:if="${#lists.isEmpty(comment)}">
                     <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>

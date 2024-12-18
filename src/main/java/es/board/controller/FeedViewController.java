@@ -44,18 +44,11 @@ public class FeedViewController {
         return "basic/feed/main";
     }
 
-//    @GetMapping("/search/view/feed/update")
-//    public String editFeed(Model model,@RequestParam String id,
-//                           @RequestBody FeedUpdate feedUpdate) throws Exception {
-//
-//        feedService.updateFeed(id,feedUpdate);
-//        model.addAttribute("data", new FeedUpdate());
-//        return "basic/EditFeed";
-//    }
     @GetMapping("/search/view/feed/update")
     public String editFeed(@RequestParam("id") String id, @RequestParam("username") String username, Model model)  {
-        model.addAttribute("id", id);
-        model.addAttribute("username", username);
+        model.addAttribute("feedUpdate",feedService.getFeedId(id));
+    //        model.addAttribute("id", id);
+//        model.addAttribute("username", username);
         return "basic/feed/EditFeed";
     }
 
@@ -72,9 +65,8 @@ public class FeedViewController {
 
     @PostMapping("/search/view/feed/update/save")
     public String editSaveFeed(Model model,@ModelAttribute FeedUpdate feedUpdate)  {
-//        log.info(feedUpdate.toString());
         feedService.updateFeed(feedUpdate.getFeedUID(),feedUpdate);
-        model.addAttribute("data", feedUpdate);
+        model.addAttribute("feedUpdate", feedUpdate);
         return  "redirect:/search/view/feed/id?id=" +feedUpdate.getFeedUID();
     }
 
