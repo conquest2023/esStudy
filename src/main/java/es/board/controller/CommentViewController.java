@@ -85,34 +85,23 @@ public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable Stri
 //        commentService.indexComment(commentSaveDTO);
         return  "basic/comment/PostComment";
     }
-
-    // 문서 색인
-//    @PostMapping("/search/view/comment/save")
-//    public  String commentSave(Model model, @ModelAttribute CommentCreateResponse commentSaveDTO) throws IOException {
-//        log.info(commentSaveDTO.toString());
-//        model.addAttribute("data",commentService.indexComment(commentSaveDTO));
-//        return "basic/feed/FeedDetails";
-//    }
-
-
-
-//    @GetMapping("/search/view/comment/commentAll")
-//    public String getComment(Model model) throws IOException {
-//        model.addAttribute("data",commentService.getComment());
-//        return "basic/commentAll";
-//    }
     @GetMapping("/search/view/comment/update")
-    public String updateComment(Model model, @RequestParam String id,  @ModelAttribute CommentUpdate commentUpdate)  {
-        model.addAttribute("id", id);
+    public String updateComment(Model model, @RequestParam String commentUID,
+                                @ModelAttribute CommentUpdate commentUpdate)  {
+        model.addAttribute("id", commentService.getCommentOne(commentUID));
+        model.addAttribute("commentUID", commentUID);
+        model.addAttribute("feedUID",commentUpdate.getFeedUID());
         model.addAttribute("CommentUpdate", commentUpdate);
         return  "basic/comment/EditComment";
     }
     @PostMapping("/search/view/comment/update/save")
-    public String editSaveComment(Model model,@ModelAttribute CommentUpdate commentUpdate)  {
+    public String editSaveComment(Model model, @RequestParam String commentUID,
+                                  @RequestParam String feedUID,
+                                  @ModelAttribute CommentUpdate commentUpdate)  {
         model.addAttribute("CommentUpdate", commentUpdate);
-        log.info(commentUpdate.toString());
-        commentService.editComment(commentUpdate.getFeedUID(),commentUpdate);
-        return  "redirect:/search/view/feed/id?id=" + commentUpdate.getFeedUID();
+        log.info("commentUID: " + commentUID);
+        commentService.editComment(commentUID,commentUpdate);
+        return  "redirect:/search/view/feed/id?id=" + feedUID;
     }
 
 
@@ -124,9 +113,10 @@ public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable Stri
 //    }
 
     @PostMapping("/search/view/comment/delete")
-    public  String CommentRemove(@RequestParam  String id)  {
+    public  String CommentRemove(@RequestParam String id, @RequestParam String feedUID)  {
+
         commentService.deleteComment(id);
-        return "redirect:/search/view/feed/id?id=" + id;
+        return "redirect:/search/view/feed/id?id=" + feedUID;
 
     }
 }

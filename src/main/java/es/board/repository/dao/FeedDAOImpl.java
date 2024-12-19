@@ -10,7 +10,6 @@ import es.board.ex.DBIoException;
 import es.board.ex.IndexException;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.repository.BoardRepository;
 import es.board.repository.document.Board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
 
-    private final BoardRepository boardRepository;
+//    private final BoardRepository boardRepository;
 
     private final int increment = 1;
 
@@ -247,7 +246,7 @@ public class FeedDAOImpl implements FeedDAO {
                     ), Board.class
             );
             String documentId = searchResponse.hits().hits().get(0).id();
-            boardRepository.deleteById(documentId);
+//            boardRepository.deleteById(documentId);
             log.info("Successfully deleted board with id: {}", id);
         } catch (Exception e) {
             log.error("Error deleting board with id: {}", id, e);

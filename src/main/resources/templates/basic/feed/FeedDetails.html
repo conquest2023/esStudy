@@ -249,22 +249,38 @@
                             <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
                         </div>
                         <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
+
+                        <!-- 답글 달기 버튼, 댓글 내용 바로 밑에 위치 -->
+                        <div style="margin-top: 5px; font-size: 0.8rem; color: #333;">
+                            <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">답글 달기</button>
+                        </div>
+
+                        <div class="reply-form" th:id="'reply-form-' + ${comment.commentUID}" style="display: none; margin-top: 10px; font-size: 0.8rem; color: #333;">
+                            <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:name="'reply-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
+                            <button class="btn btn-primary btn-sm mt-2" onclick="submitReply('${comment.commentUID}')">답글 작성</button>
+                        </div>
                     </td>
                     <td style="text-align: right; vertical-align: top; padding: 10px;">
                         <button class="like-btn" th:data-comment-id="${comment.commentUID}" style="background: none; border: none; padding: 0;">
                             <i class="far fa-heart"></i>
                         </button>
                         <span th:id="'like-count-comment-' + ${comment.commentUID}" th:text="${comment.likeCount}" style="margin-left: 10px;"></span>
-                        <button class="btn btn-light btn-sm toggle-btn" data-id="options-${comment.feedUID}">...</button>
-                        <div id="options-${comment.feedUID}" class="comment-options" style="display:none; margin-top: 5px;">
-                            <a th:href="@{/search/view/comment/update(id=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
-                            <form th:action="@{/search/view/comment/delete(id=${comment.feedUID})}" method="post" style="display: inline;">
+
+                        <button class="btn btn-light btn-sm toggle-btn" th:attr="data-id='options-' + ${comment.commentUID}">...</button>
+                        <div th:id="'options-' + ${comment.commentUID}" class="comment-options" style="display:none; margin-top: 5px;">
+                            <a th:href="@{/search/view/comment/update(commentUID=${comment.commentUID}, feedUID=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
+                            <input type="hidden" name="commentUID" value="${commentUID}">
+                            <form th:action="@{/search/view/comment/delete(id=${comment.commentUID}, feedUID=${comment.feedUID})}" method="post" style="display: inline;">
+
                                 <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
                             </form>
+
                         </div>
                     </td>
-                    </td>
-                    <!-- 수정 및 삭제 버튼 -->
+                </tr>
+                </tbody>
+            </table>
+            <!-- 수정 및 삭제 버튼 -->
                 </tr>
                 <tr th:if="${#lists.isEmpty(comment)}">
                     <td colspan="2" style="text-align: center; padding: 20px; color: #777;">댓글이 없습니다.</td>
@@ -315,14 +331,28 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // 답글 달기 버튼 클릭 시 답글 입력 폼 토글
+        document.querySelectorAll(".reply-toggle").forEach(button => {
+            button.addEventListener("click", function () {
+                const commentId = this.getAttribute("data-comment-id");
+                const replyForm = document.getElementById(`reply-form-${commentId}`);
+
+                if (replyForm) {
+                    replyForm.classList.toggle("show");
+                } else {
+                    console.warn(`답글 입력 폼을 찾을 수 없습니다. commentId: ${commentId}`);
+                }
+            });
+        });
+
         // 댓글 좋아요 버튼 클릭 이벤트
         document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
             button.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");  // 댓글의 feedUID 추출
-                const likeCountSpan = document.getElementById(`like-count-${commentId}`);  // 해당 댓글의 좋아요 수 표시하는 요소
+                const commentId = this.getAttribute("data-comment-id");
+                const likeCountSpan = document.getElementById(`like-count-${commentId}`);
                 const heartIcon = this.querySelector("i");
 
-                // 하트 상태 토글 (빈 하트 -> 채워진 하트)
+                // 하트 상태 토글
                 if (heartIcon.classList.contains("far")) {
                     heartIcon.classList.remove("far");
                     heartIcon.classList.add("fas");  // 채워진 하트로 변경
@@ -338,8 +368,12 @@
                         'Content-Type': 'application/json'
                     }
                 })
-                    .then(response => response.json())  // 서버에서 응답을 받으면 JSON 형식으로 처리
+                    .then(response => response.json())
                     .then(data => {
+                        // 서버 응답을 받아 새로운 좋아요 수를 업데이트
+                        if (data.newLikeCount) {
+                            likeCountSpan.textContent = data.newLikeCount;
+                        }
                     })
                     .catch(error => {
                         console.error("Error increasing like count:", error);
@@ -350,17 +384,17 @@
         // 피드 좋아요 버튼 클릭 이벤트
         document.querySelectorAll(".like-btn[data-feed-uid]").forEach(button => {
             button.addEventListener("click", function () {
-                const feedUID = this.getAttribute("data-feed-uid");  // 피드의 feedUID 추출
-                const likeCountSpan = document.getElementById(`like-count-${feedUID}`);  // 해당 피드의 좋아요 수 표시하는 요소
+                const feedUID = this.getAttribute("data-feed-uid");
+                const likeCountSpan = document.getElementById(`like-count-${feedUID}`);
                 const heartIcon = this.querySelector("i");
 
-                // 하트 상태 토글 (빈 하트 -> 채워진 하트)
+                // 하트 상태 토글
                 if (heartIcon.classList.contains("far")) {
                     heartIcon.classList.remove("far");
-                    heartIcon.classList.add("fas");  // 채워진 하트로 변경
+                    heartIcon.classList.add("fas");
                 } else {
                     heartIcon.classList.remove("fas");
-                    heartIcon.classList.add("far");  // 빈 하트로 변경
+                    heartIcon.classList.add("far");
                 }
 
                 // 서버에 AJAX 요청 보내기 (피드 좋아요)
@@ -372,37 +406,35 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // likeCountSpan.textContent = data.newLikeCount;  // 서버로부터 받은 새로운 좋아요 수
+                        // 서버 응답을 받아 새로운 좋아요 수를 업데이트
+                        if (data.newLikeCount) {
+                            likeCountSpan.textContent = data.newLikeCount;
+                        }
                     })
                     .catch(error => {
                         console.error("Error increasing like count:", error);
                     });
             });
         });
-    });
-    document.addEventListener("DOMContentLoaded", function () {
+
         // 모든 토글 버튼에 이벤트 추가
         document.querySelectorAll(".toggle-btn").forEach(button => {
             button.addEventListener("click", function () {
-                const targetId = this.getAttribute("data-id"); // 버튼의 data-id 속성 가져오기
-                const targetElement = document.getElementById(targetId); // 해당 ID를 가진 div 요소 찾기
+                const targetId = this.getAttribute("data-id");
+                const targetElement = document.getElementById(targetId);
 
                 if (targetElement) {
-                    // 현재 상태를 확인하여 토글 처리
-                    const isCurrentlyVisible = targetElement.style.display === "block"; // 현재 표시 여부 확인
+                    const isCurrentlyVisible = targetElement.style.display === "block";
 
-                    // 모든 옵션을 숨기기
                     document.querySelectorAll(".comment-options").forEach(option => {
-                        option.style.display = "none"; // 모든 div를 숨깁니다
+                        option.style.display = "none";  // 모든 div를 숨깁니다
                     });
 
-                    // 클릭된 댓글의 옵션만 토글
-                    targetElement.style.display = isCurrentlyVisible ? "none" : "block"; // 상태 반전
+                    targetElement.style.display = isCurrentlyVisible ? "none" : "block";  // 상태 반전
                 }
             });
         });
     });
-
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>

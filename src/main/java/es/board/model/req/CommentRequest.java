@@ -31,7 +31,7 @@ public class CommentRequest {
 
 
 
-    public List<CommentRequest> changeCommentToDTO(List<Comment> comment){
+    public List<CommentRequest> changeCommentListDTO(List<Comment> comment){
 
         return comment.stream()
                 .map(comment1 -> CommentRequest.builder()
@@ -42,6 +42,16 @@ public class CommentRequest {
                         .createdAt(comment1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public  CommentRequest changeCommentDTO(Comment comment){
+
+        return CommentRequest.builder()
+                .CommentUID(comment.getCommentUID())
+                .username(comment.getUsername())
+                .content(comment.getContent())
+                .build();
+
     }
 
 

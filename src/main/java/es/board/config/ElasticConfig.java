@@ -42,11 +42,14 @@ public class ElasticConfig {
 
     @Bean
     public RestClient restClient() {
-        return RestClient
-                .builder(HttpHost.create(esHost))
+        return RestClient.builder(HttpHost.create(esHost))
                 .setDefaultHeaders(new Header[]{
                         new BasicHeader("Authorization", "ApiKey " + apiKey)
                 })
+                .setRequestConfigCallback(requestConfigBuilder ->
+                        requestConfigBuilder
+                                .setConnectTimeout(20000)  // 연결 타임아웃 설정 (5초)
+                                .setSocketTimeout(20000))  // 읽기 타임아웃 설정 (5초)
                 .build();
     }
 

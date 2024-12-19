@@ -1,12 +1,9 @@
 package es.board.repository.dao;
 
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.res.CommentCreateResponse;
-import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +32,7 @@ public interface CommentDAO {
 
     int findSumComment(String id);
 
-    List<Comment> findIdOne(String id);
+    List<Comment> findDetailComment(String id);
 
     Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size);
 

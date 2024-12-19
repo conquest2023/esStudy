@@ -1,6 +1,5 @@
 package es.board.service;
 
-import es.board.ex.IndexException;
 import es.board.model.req.*;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.dao.CommentDAO;
@@ -9,12 +8,11 @@ import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.io.IOException;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -45,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentRequest> getRecentComment() {
         CommentRequest commentDTO = new CommentRequest();
-        return commentDTO.changeCommentToDTO(commentDAO.findRecentComment());
+        return commentDTO.changeCommentListDTO(commentDAO.findRecentComment());
     }
 
     @Override
@@ -72,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentRequest> getLikeCount() {
         CommentRequest req = new CommentRequest();
-        return req.changeCommentToDTO(commentDAO.findLikeCount());
+        return req.changeCommentListDTO(commentDAO.findLikeCount());
     }
 
     @Override
@@ -88,12 +86,17 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentRequest> getComment() {
         CommentRequest commentRequest = new CommentRequest();
-        return commentRequest.changeCommentToDTO(commentDAO.findCommentAll());
+        return commentRequest.changeCommentListDTO(commentDAO.findCommentAll());
     }
 
+    public CommentRequest getCommentOne(String commentUID){
+        CommentRequest comment =new CommentRequest();
+        return  comment.changeCommentDTO(commentDAO.findCommentId(commentUID));
+    }
     @Override
     public List<Comment> getCommentId(String id) {
-        return commentDAO.findIdOne(id);
+
+        return commentDAO.findDetailComment(id);
     }
 
     @Override

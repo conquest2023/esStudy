@@ -152,14 +152,14 @@ public class CommentDAOImpl implements CommentDAO {
         try {
             SearchResponse<Comment> searchResponse = client.search(s -> s
                             .index("comment")
-                            .query(q -> q.term(t -> t.field("feedUID").value(id))),
+                            .query(q -> q.term(t -> t.field("commentUID").value(id))),
                     Comment.class
             );
+            log.info(id);
 
             if (searchResponse.hits().hits().isEmpty()) {
                 throw new Exception("Comment not found with id: " + id);
             }
-
             String documentId = searchResponse.hits().hits().get(0).id();
 
             // 게시물 업데이트
@@ -188,9 +188,7 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public List<Comment> findIdOne(String id)  {
-
-
+    public List<Comment> findDetailComment(String id)  {
         try {
             SearchResponse<Comment> response = client.search(g -> g
                             .index("comment")
@@ -208,21 +206,23 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
 
-     @Override
-     public int findSumComment(String id) {
-        try {
-            SearchResponse<Comment> response = client.search(s -> s
-                            .index("comment")
-                            .query(q -> q.term(t -> t.field("feedUID").value(id))),
-                    Comment.class
-            );
-            long commentCount = response.hits().total().value();
-            return (int) commentCount;
-        } catch (IOException e) {
-            log.error("Error searching for comment by id", e);
-            throw new IndexException("Failed to find comment by ID", e);
-        }
-    }
+//    @Override
+//    public Comment findCommentId(String id)  {
+//        try {
+//            SearchResponse<Comment> response = client.search(g -> g
+//                            .index("comment")
+//                            .query(q -> q.match(t -> t.field("feedUID").query(id))),
+//                    Comment.class
+//            );
+//
+//            // 검색된 결과를 Comment 객체로 변환
+//            return response.hits().hits().get(0).source();
+//        } catch (IOException e) {
+//            log.error("Error searching for comment by id", e);
+//            throw new IndexException("Failed to find comment by ID", e);
+//        }
+//    }
+
 
     @Override
     public List<Comment> CreateManyComment(List<Comment> pages) {
@@ -260,30 +260,71 @@ public class CommentDAOImpl implements CommentDAO {
             throw new IndexException("Failed to bulk index comments", e);
         }
     }
-
-
     @Override
-    public Comment findCommentId(String commentUid) {
-//        log.info(commentUid);
-        return commentRepository.findByCommentUID(commentUid);
-    }
-
-
-    @Override
-    public void deleteCommentId(String id) {
+    public int findSumComment(String id) {
         try {
-            SearchResponse<Comment> searchResponse = client.search(s -> s
+            SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
                             .query(q -> q.term(t -> t.field("feedUID").value(id))),
                     Comment.class
             );
-
-            String documentId = searchResponse.hits().hits().get(0).id();
-            commentRepository.deleteById(documentId);
-            log.info("Successfully deleted comment with id: " + id);
+            long commentCount = response.hits().total().value();
+            return (int) commentCount;
         } catch (IOException e) {
-            log.error("Error deleting comment with id: " + id, e);
-            throw new IndexException("Failed to delete comment with ID", e);
+            log.error("Error searching for comment by id", e);
+            throw new IndexException("Failed to find comment by ID", e);
+        }
+    }
+
+
+
+    @Override
+    public Comment findCommentId(String commentUid) {
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q.term(t -> t.field("commentUID").value(commentUid))),
+                    Comment.class);
+
+            // 첫 번째 hit의 source를 반환
+            if (!response.hits().hits().isEmpty()) {
+                return response.hits().hits().get(0).source(); // hits()에서 첫 번째 hit의 source를 가져옴
+            } else {
+                return null; // 결과가 없으면 null 반환
+            }
+        } catch (IOException e) {
+            log.error("Error searching for comment by id", e);
+            throw new IndexException("Failed to find comment by ID", e);
+        }
+    }
+//        log.info(commentUid);
+
+
+
+    @Override
+    public void deleteCommentId(String commentId)  {
+        try {
+            // commentUID로 Elasticsearch에서 해당 댓글을 찾는 쿼리
+            SearchResponse<Comment> searchResponse = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q.term(t -> t.field("commentUID").value(commentId))),
+                    Comment.class
+            );
+
+            // 검색 결과가 비어 있는지 확인
+            if (searchResponse.hits().hits().isEmpty()) {
+                log.warn("No comment found with commentUID: " + commentId);
+                return;  // 결과가 없으면 삭제를 하지 않고 메서드를 종료
+            }
+
+            // 결과가 있을 경우 첫 번째 문서의 ID를 가져옴
+            String documentId = searchResponse.hits().hits().get(0).id();
+            commentRepository.deleteById(documentId);  // 댓글 삭제
+            log.info("Successfully deleted comment with commentUID: " + commentId);
+
+        } catch (IOException e) {
+            log.error("Error deleting comment with commentUID: " + commentId, e);
+            throw new IndexException("Failed to delete comment with commentUID", e);
         }
     }
 

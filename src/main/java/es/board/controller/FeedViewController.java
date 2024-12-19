@@ -73,7 +73,6 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/id")
     public String getFeedDetail(Model model,@RequestParam String id)  {
-
         feedDetailParts(model, id);
         return "basic/feed/FeedDetails";
     }
