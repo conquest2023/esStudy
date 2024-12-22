@@ -6,6 +6,7 @@ import es.board.model.res.CommentCreateResponse;
 import es.board.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
+import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ public class FeedViewController {
 
     private  final FileStore fileStore;
 
-
+    private final ReplyService replyService;
     @GetMapping("/")
     public String mainPage(Model model) {
         model.addAttribute("feedSaveDTO", new FeedCreateResponse());
@@ -230,6 +231,7 @@ public class FeedViewController {
         model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));
+        model.addAttribute("reply",replyService.getPartialReply(id));
         model.addAttribute("feedId", id);
     }
     private static void commentSetIds(String id, CommentCreateResponse commentSaveDTO) {

@@ -250,16 +250,20 @@
                         </div>
                         <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
 
-                        <!-- 답글 달기 버튼, 댓글 내용 바로 밑에 위치 -->
                         <div style="margin-top: 5px; font-size: 0.8rem; color: #333;">
-                            <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">답글 달기</button>
+                            <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">
+                                답글 달기
+                            </button>
                         </div>
 
                         <div class="reply-form" th:id="'reply-form-' + ${comment.commentUID}" style="display: none; margin-top: 10px; font-size: 0.8rem; color: #333;">
-                            <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:name="'reply-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
-                            <button class="btn btn-primary btn-sm mt-2" onclick="submitReply('${comment.commentUID}')">답글 작성</button>
+                            <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:id="'reply-textarea-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
+                            <input type="hidden" name="commentUID" th:value="${comment.commentUID}">
+                            <input type="hidden" name="feedId" th:value="${feedId}">
+                            <button class="btn-submit-reply" th:data-comment-id="${comment.commentUID}" th:data-feed-id="${feedUID}">
+                                답글 작성
+                            </button>
                         </div>
-                    </td>
                     <td style="text-align: right; vertical-align: top; padding: 10px;">
                         <button class="like-btn" th:data-comment-id="${comment.commentUID}" style="background: none; border: none; padding: 0;">
                             <i class="far fa-heart"></i>
@@ -277,6 +281,7 @@
 
                         </div>
                     </td>
+                        </div>
                 </tr>
                 </tbody>
             </table>
@@ -338,13 +343,57 @@
                 const replyForm = document.getElementById(`reply-form-${commentId}`);
 
                 if (replyForm) {
-                    replyForm.classList.toggle("show");
+                    // 답글 폼을 토글 (보이거나 숨기기)
+                    replyForm.style.display = (replyForm.style.display === "none" || replyForm.style.display === "") ? "block" : "none";
                 } else {
                     console.warn(`답글 입력 폼을 찾을 수 없습니다. commentId: ${commentId}`);
                 }
             });
         });
 
+        // 답글 작성 버튼 클릭 시
+        document.querySelectorAll(".btn-submit-reply").forEach(button => {
+            button.addEventListener("click", function () {
+                const commentId = this.getAttribute("data-comment-id");
+                const feedId = this.getAttribute("data-feed-id"); // URL에서 feedUID를 직접 가져오는 대신 버튼에서 가져옵니다.
+                const replyContent = document.getElementById(`reply-textarea-${commentId}`).value;
+
+                if (replyContent.trim() === "") {
+                    alert("답글 내용을 입력해 주세요.");
+                    return;
+                }
+
+                // submitReply 함수 호출
+                submitReply(commentId, replyContent, feedId);
+            });
+        });
+    });
+
+    // AJAX로 답글 전송
+    function submitReply(commentId, replyContent, feedUID) {
+        const data = {
+            commentUID: commentId,
+            feedUID: feedUID,
+            content: replyContent
+        };
+
+        // fetch 요청 보내기
+        fetch('/search/view/reply/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',  // JSON 형식으로 데이터를 보냄
+            },
+            body: JSON.stringify(data)  // JSON 형식으로 데이터를 전송
+        })
+            .then(response => response.json())  // 서버의 응답을 JSON 형식으로 처리
+            .then(data => {
+                console.log('답글이 저장되었습니다:', data);
+                // 성공적으로 처리된 경우 UI를 업데이트하거나, 답글 폼을 초기화하는 등의 작업
+            })
+            .catch(error => {
+                console.error('답글 저장 중 오류 발생:', error);
+            });
+    }
         // 댓글 좋아요 버튼 클릭 이벤트
         document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
             button.addEventListener("click", function () {
@@ -434,7 +483,5 @@
                 }
             });
         });
-    });
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
