@@ -39,10 +39,17 @@ public class FeedViewController {
     private  final FileStore fileStore;
 
     private final ReplyService replyService;
+
+
     @GetMapping("/")
     public String mainPage(Model model) {
-        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
-        return "basic/feed/main";
+        int page=0;
+        int size=10;
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
+        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+        basicSettingFeed(model, page, size, maxPage, totalPage);
+//        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
+        return "basic/feed/feedList";
     }
 
     @GetMapping("/search/view/feed/update")

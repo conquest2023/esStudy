@@ -302,6 +302,45 @@
             position: sticky;
             top: 20px; /* 고정될 위치 */
         }
+        /* aside 스타일 */
+        .aside-container {
+            width: 300px; /* 고정 너비 */
+            height: 100vh; /* 화면 전체 높이 */
+            background-color: #f4f4f4;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 로그인 컨테이너 스타일 */
+        .login-container {
+            width: 100%; /* aside 내부에 맞게 조정 */
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 입력 필드 스타일 */
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 버튼 스타일 */
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
         html, body {
             height: 100%;
             margin: 0;
@@ -310,6 +349,25 @@
         main {
             float: left;
             width: calc(100% - 25%); /* 사이드바를 제외한 너비 */
+        }
+        .notice-container {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .notice-container a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .notice-container a:hover {
+            text-decoration: underline;
         }
 
         .row {
@@ -331,8 +389,26 @@
 <div class="container-fluid">
 <!--    <div class="row">-->
         <!-- 사이드바 -->
-        <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa;
-        height: 100vh; position: sticky; top: 0;">
+        <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
+            <div class="notice-container">
+                <p>서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.</p>
+            </div>
+<!--            <div class="login-container">-->
+<!--                <form action="/login" method="POST">-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="username">아이디</label>-->
+<!--                        <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required>-->
+<!--                    </div>-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="password">비밀번호</label>-->
+<!--                        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>-->
+<!--                    </div>-->
+<!--                    <button type="submit" class="login-btn">로그인</button>-->
+<!--                </form>-->
+<!--                <div class="links">-->
+<!--                    <p><a href="/signup">회원가입</a> | <a href="/reset-password">아이디/비밀번호 변경</a></p>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="vertical-menu">
                 <button type="button" class="btn btn-success w-100 text-start">
                     <span class="fa fa-home"></span> Home
@@ -341,6 +417,7 @@
 <!--                <a href="/movie/list">-->
 <!--                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>-->
 <!--                </a>-->
+
                 <a href="#">
                     <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>
                 </a>
@@ -358,6 +435,9 @@
                 </a>
                 <a href="/search/view/feed/list/게임">
                     <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>
+                </a>
+                <a href="/search/view/feed/list/공부">
+                    <i class="fas fa-laptop-code"></i><span> 공부</span>
                 </a>
             </div>
         </aside>
