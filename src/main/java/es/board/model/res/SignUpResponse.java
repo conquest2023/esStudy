@@ -6,15 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class SignUpResponse {
 
     private String userId;
 
     private  String username;
 
-    private int age;
+    private  String age;
 
     private String password;
 
