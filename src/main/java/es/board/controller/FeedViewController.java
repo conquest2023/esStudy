@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.model.file.FileStore;
 import es.board.model.req.FeedUpdate;
+import es.board.model.req.ReplyRequest;
 import es.board.model.res.CommentCreateResponse;
 import es.board.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
@@ -32,13 +33,14 @@ public class FeedViewController {
     private  String fileDir;
 
 
+    private final ReplyService replyService;
+
     private final FeedService feedService;
 
     private  final CommentService commentService;
 
     private  final FileStore fileStore;
 
-    private final ReplyService replyService;
 
 
     @GetMapping("/")
@@ -81,7 +83,7 @@ public class FeedViewController {
 
     @GetMapping("/search/view/feed/id")
     public String getFeedDetail(Model model,@RequestParam String id)  {
-        feedDetailParts(model, id);
+        feedDetailParts(model, id,true);
         return "basic/feed/FeedDetails";
     }
 
@@ -99,6 +101,7 @@ public class FeedViewController {
         commentSaveDTO.commentBasicSetting(id);
         commentService.indexComment(commentSaveDTO);
         model.addAttribute("push",commentSaveDTO);
+        feedDetailParts(model, id,false);
         return "redirect:/search/view/feed/id?id=" + id;
     }
     @GetMapping("/search/view/feed/list/popular")
@@ -233,8 +236,12 @@ public class FeedViewController {
         model.addAttribute("month",feedService.getMonthPopularFeed());
     }
 
-    private void feedDetailParts(Model model, String id) {
-        feedService.saveViewCountFeed(id);
+    public void feedDetailParts(Model model, String id,boolean isView) {
+        if (isView) {
+            feedService.saveViewCountFeed(id); // 조회수 증가
+        }
+//        log.info(replyService.getRepliesGroupedByComment(id).toString());
+        model.addAttribute("replies", replyService.getRepliesGroupedByComment(id));
         model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));
         model.addAttribute("comment",commentService.getCommentId(id));

@@ -34,6 +34,7 @@ public class ReplyDAOImpl implements ReplyDAO {
                                     .field("feedUID")
                                     .value(id)))
             ,Reply.class);
+            log.info(response.toString());
             return  response.hits().hits().stream()
                     .map(hit->hit.source())
                     .collect(Collectors.toList());

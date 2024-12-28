@@ -3,12 +3,15 @@ package es.board.service.impl;
 import es.board.model.req.ReplyRequest;
 import es.board.model.res.ReplyCreateResponse;
 import es.board.repository.ReplyDAO;
+import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,5 +29,15 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public  void  saveReply(ReplyCreateResponse response){
         replyDAO.saveReply(response);
+    }
+
+
+
+    public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
+
+        List<ReplyRequest> replies = getPartialReply(feedId);
+//        log.info(replies.toString());
+        return replies.stream()
+                .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
     }
 }

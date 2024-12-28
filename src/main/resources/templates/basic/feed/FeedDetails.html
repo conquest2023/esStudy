@@ -249,7 +249,19 @@
                             <div class="comment-createdAt" style="font-size: 0.9rem; color: #888;" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
                         </div>
                         <div class="comment-content" style="margin-top: 5px; color: #555;" th:text="${comment.content}"></div>
+                        <div class="replies" style="margin-left: 20px; margin-top: 10px;">
 
+                            <ul>
+                                <!-- 답글 반복 -->
+                                <li th:each="reply : ${replies[comment.commentUID]}" style="margin-bottom: 5px;">
+                                    <span style="font-weight: bold; color: #333;" th:text="${reply.username}"></span>:
+                                    <span style="color: #555;" th:text="${reply.content}"></span>
+                                    <small style="font-size: 0.8rem; color: #888;" th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+                                </li>
+                            </ul>
+                            <p th:if="${!#maps.containsKey(replies, comment.commentUID)}" style="font-size: 0.8rem; color: #888;">답글이 없습니다.</p>
+                        </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <div style="margin-top: 5px; font-size: 0.8rem; color: #333;">
                             <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">
                                 답글 달기
@@ -260,7 +272,9 @@
                             <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:id="'reply-textarea-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
                             <input type="hidden" name="commentUID" th:value="${comment.commentUID}">
                             <input type="hidden" name="feedId" th:value="${feedId}">
-                            <button class="btn-submit-reply" th:data-comment-id="${comment.commentUID}" th:data-feed-id="${feedUID}">
+                            <input type="hidden" name="username" th:value="${comment.username}">
+                            <button class="btn-submit-reply" th:data-comment-id="${comment.commentUID}"
+                                    th:data-feed-id="${comment.feedUID}" th:data-username="${comment.username}">
                                 답글 작성
                             </button>
                         </div>
@@ -281,7 +295,7 @@
 
                         </div>
                     </td>
-                        </div>
+
                 </tr>
                 </tbody>
             </table>
@@ -340,7 +354,8 @@
         document.querySelectorAll(".reply-toggle").forEach(button => {
             button.addEventListener("click", function () {
                 const commentId = this.getAttribute("data-comment-id");
-                const replyForm = document.getElementById(`reply-form-${commentId}`);
+                const replyForm = document.getElementById(`reply-form-${commentId}`
+                );
 
                 if (replyForm) {
                     // 답글 폼을 토글 (보이거나 숨기기)
@@ -357,40 +372,48 @@
                 const commentId = this.getAttribute("data-comment-id");
                 const feedId = this.getAttribute("data-feed-id"); // URL에서 feedUID를 직접 가져오는 대신 버튼에서 가져옵니다.
                 const replyContent = document.getElementById(`reply-textarea-${commentId}`).value;
-
+                const username = this.getAttribute("data-username");
                 if (replyContent.trim() === "") {
                     alert("답글 내용을 입력해 주세요.");
                     return;
                 }
 
                 // submitReply 함수 호출
-                submitReply(commentId, replyContent, feedId);
+                submitReply(commentId, replyContent, feedId,username);
             });
         });
     });
 
     // AJAX로 답글 전송
-    function submitReply(commentId, replyContent, feedUID) {
+    function submitReply(commentId, replyContent, feedUID, username) {
         const data = {
             commentUID: commentId,
             feedUID: feedUID,
-            content: replyContent
+            content: replyContent,
+            username: username
         };
 
         // fetch 요청 보내기
         fetch('/search/view/reply/save', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',  // JSON 형식으로 데이터를 보냄
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify(data)  // JSON 형식으로 데이터를 전송
+            body: JSON.stringify(data)
         })
-            .then(response => response.json())  // 서버의 응답을 JSON 형식으로 처리
-            .then(data => {
-                console.log('답글이 저장되었습니다:', data);
-                // 성공적으로 처리된 경우 UI를 업데이트하거나, 답글 폼을 초기화하는 등의 작업
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text(); // 단순 문자열로 처리
+            })
+            .then(redirectUrl => {
+                console.log('리다이렉션 URL:', redirectUrl);
+                // 해당 URL로 이동
+                window.location.href = redirectUrl;
             })
             .catch(error => {
+                console.log(data);
                 console.error('답글 저장 중 오류 발생:', error);
             });
     }
