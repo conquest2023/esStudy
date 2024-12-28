@@ -1,10 +1,11 @@
-package es.board.service;
+package es.board.service.impl;
 
 import es.board.model.req.*;
 import es.board.model.res.CommentCreateResponse;
-import es.board.repository.dao.CommentDAO;
-import es.board.repository.dao.LikeDAO;
+import es.board.repository.CommentDAO;
+import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
+import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

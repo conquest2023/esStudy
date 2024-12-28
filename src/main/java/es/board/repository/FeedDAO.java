@@ -1,15 +1,11 @@
-package es.board.repository.dao;
+package es.board.repository;
 
 
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.model.res.ViewCountResponse;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 

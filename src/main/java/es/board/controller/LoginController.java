@@ -1,13 +1,16 @@
 package es.board.controller;
 
+import es.board.model.res.LoginResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
+import es.board.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
@@ -25,18 +28,24 @@ public class LoginController {
 
     private  final CommentService commentService;
 
+    private  final UserService userService;
 
     @GetMapping("/login")
     public String login() {
-        log.info("helldassda");
         return "basic/feed/login";
     }
 
     @PostMapping("/login/pass")
-    public String  loginPass(Model model) {
-        feedMain(model);
-        log.info("helldassdasdasa");
-        return "basic/feed/feedList";
+    public String  loginPass(Model model,  LoginResponse response) {
+
+        if (!userService.login(response)){
+            model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
+            return "basic/feed/login";
+        }else{
+            feedMain(model);
+            return "basic/feed/feedList";
+        }
+
     }
 
 

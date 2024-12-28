@@ -1,4 +1,4 @@
-package es.board.repository.dao;
+package es.board.repository.impl;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
+import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class LikeDAOImpl implements  LikeDAO {
+public class LikeDAOImpl implements LikeDAO {
     private final int increment = 1;
 
     private final ElasticsearchClient client;

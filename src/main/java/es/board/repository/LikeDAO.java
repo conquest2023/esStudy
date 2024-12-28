@@ -1,7 +1,5 @@
-package es.board.repository.dao;
+package es.board.repository;
 
-
-import org.springframework.stereotype.Repository;
 
 public interface LikeDAO {
 

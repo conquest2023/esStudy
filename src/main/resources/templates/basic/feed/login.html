@@ -26,6 +26,12 @@
             max-width: 1000px;
             text-align: center;
         }
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
         .login-container h2 {
             font-size: 35px;
             text-align: center;
@@ -66,8 +72,8 @@
         <h1 class="login-title">로그인</h1>
         <div th:if="${error}" class="error-message" th:text="${error}"></div>
         <div class="form-group">
-            <label for="username"></label>
-            <input type="text" id="username" name="username" placeholder="아이디 입력" required>
+            <label for="userId"></label>
+            <input type="text" id="userId" name="userId" placeholder="아이디 입력" required>
         </div>
         <div class="form-group">
             <label for="password"></label>

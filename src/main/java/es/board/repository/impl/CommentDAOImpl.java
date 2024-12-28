@@ -1,4 +1,4 @@
-package es.board.repository.dao;
+package es.board.repository.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.*;
 import es.board.ex.IndexException;
 import es.board.model.res.CommentCreateResponse;
 import es.board.repository.CommentRepository;
+import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,6 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.rmi.server.LogStream.log;
 
 @Repository
 @RequiredArgsConstructor

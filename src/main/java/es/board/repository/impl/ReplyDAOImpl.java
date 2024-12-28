@@ -1,26 +1,24 @@
-package es.board.repository.dao;
+package es.board.repository.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.ex.IndexException;
 import es.board.model.res.ReplyCreateResponse;
+import es.board.repository.ReplyDAO;
 import es.board.repository.document.Reply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
 @Slf4j
-public class ReplyDAOImpl implements  ReplyDAO {
+public class ReplyDAOImpl implements ReplyDAO {
 
     private final ElasticsearchClient client;
 

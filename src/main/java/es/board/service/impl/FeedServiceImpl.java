@@ -1,12 +1,13 @@
-package es.board.service;
+package es.board.service.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.model.req.FeedRequest;
 import es.board.model.req.FeedUpdate;
 import es.board.model.res.FeedCreateResponse;
-import es.board.repository.dao.FeedDAO;
-import es.board.repository.dao.LikeDAO;
+import es.board.repository.FeedDAO;
+import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

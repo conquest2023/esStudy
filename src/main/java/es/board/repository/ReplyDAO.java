@@ -1,4 +1,4 @@
-package es.board.repository.dao;
+package es.board.repository;
 
 import es.board.model.res.ReplyCreateResponse;
 import es.board.repository.document.Reply;
