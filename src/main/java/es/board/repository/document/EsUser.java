@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 //import jakarta.persistence.Column;
+import es.board.model.res.SignUpResponse;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,14 +17,17 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import java.time.LocalDateTime;
 
 
-@Document(indexName = "user")
+@Entity
+@Table(name = "user_table")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
 public class EsUser {
 
-    private  String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private  int id;
 
     private  String userId;
 
@@ -46,4 +51,16 @@ public class EsUser {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
+
+
+    public EsUser DtoToUser(SignUpResponse sign){
+        return  EsUser.builder()
+                .id(id)
+                .userId(sign.getUserId())
+                .username(sign.getUsername())
+                .password(sign.getPassword())
+                .age(sign.getAge())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }

@@ -6,7 +6,7 @@ import es.board.model.res.SignUpResponse;
 public interface UserService {
 
 
-    SignUpResponse createUser(SignUpResponse sign);
+    void createUser(SignUpResponse sign);
     boolean login(LoginResponse login);
 
     Boolean checkId(SignUpResponse sign);

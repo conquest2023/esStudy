@@ -1,9 +1,12 @@
 package es.board.model.res;
 
 
+import es.board.repository.document.EsUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,4 +23,6 @@ public class SignUpResponse {
 
 
     private  String category;
+
+
 }
