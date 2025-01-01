@@ -39,10 +39,10 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
+            if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 이후의 토큰만 추출
             if (jwtTokenProvider.validateToken(token)) {
-
+                log.info(token);
                 return ResponseEntity.ok(Map.of(
                         "username",jwtTokenProvider.getAuthentication(token).getName(),
                         "isLoggedIn", true));
@@ -55,9 +55,11 @@ public class LoginController {
     @PostMapping("/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+        log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             jwtTokenProvider.addToBlacklist(token); // 토큰 블랙리스트 처리
+            log.info("[DEBUG] 블랙리스트에 추가된 토큰: " + token);
         }
         return ResponseEntity.ok(Map.of(
                 "message", "로그아웃되었습니다.",

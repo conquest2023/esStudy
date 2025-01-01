@@ -27,10 +27,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authorizationHeader = httpRequest.getHeader("Authorization");
 
-        log.info("Authorization Header: {}", authorizationHeader);
+//        log.info("Authorization Header: {}", authorizationHeader);
 
         if(token !=null&& jwtTokenProvider.validateToken(token)){
             if (jwtTokenProvider.isTokenBlacklisted(token)) {
+                log.info("[DEBUG] 블랙리스트에 등록된 토큰 요청 차단: " + token);
                 ((HttpServletResponse)response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 ((HttpServletResponse)response).getWriter().write("Unauthorized: Token is invalid or expired");
                 return;

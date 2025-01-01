@@ -750,6 +750,54 @@
             });
         });
     })
+    document.addEventListener("DOMContentLoaded", () => {
+        // localStorage.setItem("accessToken", data.accessToken);
+        const token = localStorage.getItem("token");
+        if (token) {
+            console.log("저장된 토큰 확인:", token);
+            // 서버로 요청 보내기
+            fetch("/api/user-info", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            })
+                .then(response => {
+                    console.log("서버 응답 상태 코드:", response.status); // 디버깅용
+                    console.log("[DEBUG] 저장된 토큰:", localStorage.getItem("token"));
+                    // if (!response.ok) throw new Error("인증 실패");
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("서버 응답 데이터:", data); // 디버깅용
+
+                    const loginMessage = document.getElementById("login-message");
+                    const userMessage = document.getElementById("user-message");
+                    const usernameElement = document.getElementById("username");
+
+                    if (data.isLoggedIn) {
+                        // 로그인 상태 업데이트
+                        if (loginMessage) loginMessage.style.display = "none";
+                        if (userMessage) userMessage.style.display = "block";
+                        if (usernameElement) usernameElement.textContent = data.username;
+                    } else {
+                        console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
+                        window.location.href = "/login";
+                    }
+                })
+                .catch(error => {
+                    console.error("[DEBUG] 에러 발생:", error.message);
+                    alert("세션이 만료되었습니다. 로그인 해주세요.");
+                    localStorage.removeItem("accessToken");
+                    window.location.href = "/login";
+                });
+        } else {
+            console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
+            // window.location.href = "/login";
+        }
+    });
+
 
     document.getElementById('mostSortLink').addEventListener('click', function() {
         var page = 1;  // 예시로 첫 페이지를 설정
@@ -759,99 +807,34 @@
         this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
     });
     function logout() {
-        console.log("[DEBUG] 로그아웃 요청 시작");
+        const token = localStorage.getItem("token");
+        console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
 
-        // 1. JWT 토큰 삭제
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-
-        // 2. 서버에 로그아웃 요청 (선택 사항)
         fetch("/auth/logout", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             }
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 console.log("[DEBUG] 서버 응답 데이터:", data);
+                if (data.isLoggedIn === false) {
+                    console.log("[DEBUG] 로그아웃 성공");
+                    localStorage.removeItem("token"); // 토큰 삭제
+                    console.log("[DEBUG] localStorage 상태:", localStorage.getItem("token")); // 삭제 확인
 
-                if (data && data.isLoggedIn === false) {
-                    // UI 업데이트
-                    const loginMessage = document.getElementById("login-message");
-                    const userMessage = document.getElementById("user-message");
-                    const usernameElement = document.getElementById("username");
-
-                    if (loginMessage) loginMessage.style.display = "block"; // 로그인 메시지 표시
-                    if (userMessage) userMessage.style.display = "none"; // 사용자 메시지 숨기기
-                    if (usernameElement) usernameElement.textContent = ""; // 사용자 이름 초기화
-
-                    // 피드백 메시지 표시
-                    alert(data.message || "로그아웃되었습니다.");
-                    window.location.href = "/logout/user";
+                        window.location.href = "/logout/user";
                 } else {
-                    console.error("[DEBUG] 서버 응답이 예상과 다릅니다:", data);
+                    console.error("[DEBUG] 로그아웃 실패, 서버에서 여전히 로그인 상태로 응답");
                 }
             })
-            .catch(error => {
-                console.error("[DEBUG] 서버 로그아웃 중 오류:", error);
-                alert("로그아웃 중 문제가 발생했습니다.");
+            .catch((error) => {
+                console.error("[DEBUG] 로그아웃 중 에러 발생:", error);
             });
+
     }
-
-
-    document.addEventListener("DOMContentLoaded", () => {
-                    const token = localStorage.getItem("token");
-
-                    if (token) {
-                        console.log("저장된 토큰 확인:", token);
-
-                        // 서버로 요청 보내기
-                        fetch("/api/user-info", {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`
-                            }
-                        })
-                            .then(response => {
-                                console.log("서버 응답 상태 코드:", response.status); // 디버깅용
-                                if (!response.ok) throw new Error("인증 실패");
-                                return response.json();
-                            })
-                            .then(data => {
-                                console.log("서버 응답 데이터:", data); // 디버깅용
-
-                                const loginMessage = document.getElementById("login-message");
-                                const userMessage = document.getElementById("user-message");
-                                const usernameElement = document.getElementById("username");
-
-                                if (data.isLoggedIn) {
-                                    // 로그인 상태 업데이트
-                                    if (loginMessage) loginMessage.style.display = "none";
-                                    if (userMessage) userMessage.style.display = "block";
-                                    if (usernameElement) usernameElement.textContent = data.username;
-                                } else {
-                                    console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
-                                    window.location.href = "/login";
-                                }
-                            })
-                            .catch(error => {
-                                console.error("[DEBUG] 에러 발생:", error.message);
-                                alert("세션이 만료되었습니다. 로그인 해주세요.");
-                                localStorage.removeItem("accessToken");
-                                window.location.href = "/login";
-                            });
-                    } else {
-                        console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
-                        window.location.href = "/login";
-                    }
-                });
-
-
-
-            // 서버 로그아웃 요청
-
     </script>
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"

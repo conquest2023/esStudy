@@ -101,7 +101,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
         if (claims.get("auth")==null) {
             throw new RuntimeException("유효하지 않은 토큰: 사용자 정보가 없습니다.");
         }
-          log.info(claims.toString());
         String rawAuth = claims.get("auth") != null ? claims.get("auth").toString() : "ROLE_GUEST"; // 기본 권한 추가
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(rawAuth.split(","))
                 .filter(role -> !role.isBlank()) // 빈 문자열 필터링
@@ -122,6 +121,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     }
     public boolean blackListValidateToken(String token) {
         if (isTokenBlacklisted(token)) {
+            System.out.println("[DEBUG] 블랙리스트에 등록된 토큰: " + token);
             return false; // 블랙리스트에 있으면 무효화
         }
         // 기존 유효성 검사 로직
