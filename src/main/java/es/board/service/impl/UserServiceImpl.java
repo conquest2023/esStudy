@@ -3,9 +3,8 @@ package es.board.service.impl;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.model.res.LoginResponse;
 import es.board.model.res.SignUpResponse;
-import es.board.repository.UserDAO;
 import es.board.repository.UserRepository;
-import es.board.repository.document.EsUser;
+import es.board.repository.entity.EsUser;
 import es.board.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +38,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean login(LoginResponse login) {
 
-//        if(!userRepository.existsByUserIdAndPassword(login.getUserId(),login.getPassword())){
+//        return userRepository.existsByUserIdAndPassword(login.getUserId(),login.getPassword());
+//        if(!userRepository.existsByUserIdAndPassword(login.getUserId(),login.getPassword())) {
 //            return  false;
 //        }else{
-            UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(login.getUserId(),login.getPassword());
-            log.info(authenticationToken.toString());
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.info("Authorities: {}", authentication.getAuthorities());
-            jwtTokenProvider.generateToken(authentication);
-            log.info(jwtTokenProvider.generateToken(authentication).toString());
-            return true;
+        UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(login.getUserId(),login.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-    }
+        return  true;
+        }
+
 
     @Override
     public Boolean checkId(SignUpResponse sign) {
@@ -66,4 +63,17 @@ public class UserServiceImpl implements UserService {
     public void signUp() {
 
     }
+
+    @Override
+    public Authentication authenticate(LoginResponse login) {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
+
+        // 인증 수행
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        log.info("Authorities: {}", authentication.getAuthorities());
+
+        return authentication;
+    }
+
 }

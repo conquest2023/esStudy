@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -21,11 +22,19 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProvider jwtTokenProvider;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token=resolveToken((HttpServletRequest)request);
 
+        String token=resolveToken((HttpServletRequest)request);
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String authorizationHeader = httpRequest.getHeader("Authorization");
+
+        log.info("Authorization Header: {}", authorizationHeader);
 
         if(token !=null&& jwtTokenProvider.validateToken(token)){
-
+            if (jwtTokenProvider.isTokenBlacklisted(token)) {
+                ((HttpServletResponse)response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                ((HttpServletResponse)response).getWriter().write("Unauthorized: Token is invalid or expired");
+                return;
+            }
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
     }

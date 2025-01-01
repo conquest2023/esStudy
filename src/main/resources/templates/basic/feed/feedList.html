@@ -390,10 +390,18 @@
 <!--    <div class="row">-->
         <!-- 사이드바 -->
         <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
-            <div class="notice-container">
-                <p>서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.</p>
+            <button id="logout-button" class="btn btn-secondary w-100 text-start" onclick="logout()">로그아웃</button>
+
+
+            <!--            <div id="message" class="notice-container"  th:attr="data-access-token=${accessToken}"></div>-->
+<!--                <div class="notice-container">-->
+
+            <div id="auth-status">
+                <p id="login-message">서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.</p>
+                <p id="user-message" style="display: none;">안녕하세요, <span id="username"> </span>사용자님!</p>
             </div>
-<!--            <div class="login-container">-->
+
+            <!--            <div class="login-container">-->
 <!--                <form action="/login" method="POST">-->
 <!--                    <div class="form-group">-->
 <!--                        <label for="username">아이디</label>-->
@@ -750,7 +758,101 @@
         // href 속성을 동적으로 설정
         this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
     });
-</script>
+    function logout() {
+        console.log("[DEBUG] 로그아웃 요청 시작");
+
+        // 1. JWT 토큰 삭제
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+
+        // 2. 서버에 로그아웃 요청 (선택 사항)
+        fetch("/auth/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("[DEBUG] 서버 응답 데이터:", data);
+
+                if (data && data.isLoggedIn === false) {
+                    // UI 업데이트
+                    const loginMessage = document.getElementById("login-message");
+                    const userMessage = document.getElementById("user-message");
+                    const usernameElement = document.getElementById("username");
+
+                    if (loginMessage) loginMessage.style.display = "block"; // 로그인 메시지 표시
+                    if (userMessage) userMessage.style.display = "none"; // 사용자 메시지 숨기기
+                    if (usernameElement) usernameElement.textContent = ""; // 사용자 이름 초기화
+
+                    // 피드백 메시지 표시
+                    alert(data.message || "로그아웃되었습니다.");
+                    window.location.href = "/logout/user";
+                } else {
+                    console.error("[DEBUG] 서버 응답이 예상과 다릅니다:", data);
+                }
+            })
+            .catch(error => {
+                console.error("[DEBUG] 서버 로그아웃 중 오류:", error);
+                alert("로그아웃 중 문제가 발생했습니다.");
+            });
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+                    const token = localStorage.getItem("token");
+
+                    if (token) {
+                        console.log("저장된 토큰 확인:", token);
+
+                        // 서버로 요청 보내기
+                        fetch("/api/user-info", {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`
+                            }
+                        })
+                            .then(response => {
+                                console.log("서버 응답 상태 코드:", response.status); // 디버깅용
+                                if (!response.ok) throw new Error("인증 실패");
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log("서버 응답 데이터:", data); // 디버깅용
+
+                                const loginMessage = document.getElementById("login-message");
+                                const userMessage = document.getElementById("user-message");
+                                const usernameElement = document.getElementById("username");
+
+                                if (data.isLoggedIn) {
+                                    // 로그인 상태 업데이트
+                                    if (loginMessage) loginMessage.style.display = "none";
+                                    if (userMessage) userMessage.style.display = "block";
+                                    if (usernameElement) usernameElement.textContent = data.username;
+                                } else {
+                                    console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
+                                    window.location.href = "/login";
+                                }
+                            })
+                            .catch(error => {
+                                console.error("[DEBUG] 에러 발생:", error.message);
+                                alert("세션이 만료되었습니다. 로그인 해주세요.");
+                                localStorage.removeItem("accessToken");
+                                window.location.href = "/login";
+                            });
+                    } else {
+                        console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
+                        window.location.href = "/login";
+                    }
+                });
+
+
+
+            // 서버 로그아웃 요청
+
+    </script>
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"
 >-->

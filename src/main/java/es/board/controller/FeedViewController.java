@@ -1,5 +1,6 @@
 package es.board.controller;
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.model.file.FileStore;
 import es.board.model.req.FeedUpdate;
 import es.board.model.req.ReplyRequest;
@@ -8,6 +9,7 @@ import es.board.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.ReplyService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,18 +43,41 @@ public class FeedViewController {
 
     private  final FileStore fileStore;
 
+    private  final JwtTokenProvider jwtTokenProvider;
 
 
-    @GetMapping("/")
-    public String mainPage(Model model) {
-        int page=0;
-        int size=10;
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+    @GetMapping("/logout/user")
+    public String logoutPage(Model model) {
+        int page = 0;
+        int size = 10;
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
+        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
         basicSettingFeed(model, page, size, maxPage, totalPage);
-//        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
+        model.addAttribute("isLoggedIn", false);
         return "basic/feed/feedList";
     }
+    @GetMapping("/")
+    public String mainPage(Model model, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7); // "Bearer " 이후의 토큰만 추출
+        }
+        int page = 0;
+        int size = 10;
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
+        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
+        basicSettingFeed(model, page, size, maxPage, totalPage);
+        if (token != null && jwtTokenProvider.validateToken(token))  {
+            log.info(jwtTokenProvider.getAuthentication(token).getName());
+            model.addAttribute("isLoggedIn", true);
+            model.addAttribute("username", jwtTokenProvider.getAuthentication(token).getName());
+        }else {
+            model.addAttribute("isLoggedIn", false);
+        }
+//        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
+            return "basic/feed/feedList";
+        }
+
 
     @GetMapping("/search/view/feed/update")
     public String editFeed(@RequestParam("id") String id, @RequestParam("username") String username, Model model)  {

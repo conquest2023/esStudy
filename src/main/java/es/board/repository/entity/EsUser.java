@@ -1,4 +1,4 @@
-package es.board.repository.document;
+package es.board.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,16 +9,15 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.model.res.SignUpResponse;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -58,14 +57,19 @@ public class EsUser implements UserDetails {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
-
-    @Builder.Default
-    private List<String> roles=new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER) // 즉시 로딩하여 권한 정보를 가져옴
+    @JoinTable(
+            name = "user_roles", // 연결 테이블 이름
+            joinColumns = @JoinColumn(name = "user_id"), // 사용자 ID와 매핑
+            inverseJoinColumns = @JoinColumn(name = "role_id") // 역할 ID와 매핑
+    )
+    private Set<Role> roles;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return  null;
+//        return this.roles.stream()
+//                .map(SimpleGrantedAuthority::new)
+//                .collect(Collectors.toList());
     }
 
     @Override
@@ -89,12 +93,15 @@ public class EsUser implements UserDetails {
     }
 
     public EsUser DtoToUser(SignUpResponse sign, String password){
+        Role defaultRole = new Role();
+        defaultRole.setName("ROLE_USER");
         return  EsUser.builder()
                 .id(id)
                 .userId(sign.getUserId())
                 .username(sign.getUsername())
                 .password(password)
                 .age(sign.getAge())
+//                .roles(Set.of(defaultRole))
                 .createdAt(LocalDateTime.now())
                 .build();
     }

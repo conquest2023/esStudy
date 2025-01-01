@@ -1,24 +1,18 @@
 package es.board.repository.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.ex.IndexException;
-import es.board.model.res.FeedCreateResponse;
 import es.board.model.res.LoginResponse;
 import es.board.model.res.SignUpResponse;
 import es.board.repository.UserDAO;
-import es.board.repository.document.Board;
-import es.board.repository.document.EsUser;
+import es.board.repository.entity.EsUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j

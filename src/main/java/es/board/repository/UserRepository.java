@@ -1,5 +1,5 @@
 package es.board.repository;
-import es.board.repository.document.EsUser;
+import es.board.repository.entity.EsUser;
 import  org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
