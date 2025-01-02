@@ -1,7 +1,7 @@
 package es.board.service;
 
-import es.board.model.req.ReplyRequest;
-import es.board.model.res.ReplyCreateResponse;
+import es.board.controller.model.req.ReplyRequest;
+import es.board.controller.model.res.ReplyCreateResponse;
 
 import java.util.List;
 import java.util.Map;

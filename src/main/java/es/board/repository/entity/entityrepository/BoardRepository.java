@@ -1,4 +1,4 @@
-package es.board.repository;
+package es.board.repository.entity.entityrepository;
 
 import es.board.repository.document.Board;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;

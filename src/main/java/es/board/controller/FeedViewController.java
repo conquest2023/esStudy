@@ -1,19 +1,18 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.model.file.FileStore;
-import es.board.model.req.FeedUpdate;
-import es.board.model.req.ReplyRequest;
-import es.board.model.res.CommentCreateResponse;
-import es.board.model.res.FeedCreateResponse;
+import es.board.controller.model.file.FileStore;
+import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.ReplyService;
+import es.board.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +33,7 @@ public class FeedViewController {
     @Value("%{file.dir}")
     private  String fileDir;
 
+    private  final UserService userService;
 
     private final ReplyService replyService;
 
@@ -44,6 +44,7 @@ public class FeedViewController {
     private  final FileStore fileStore;
 
     private  final JwtTokenProvider jwtTokenProvider;
+
 
 
     @GetMapping("/logout/user")
@@ -206,18 +207,48 @@ public class FeedViewController {
         return "/basic/feed/RangeFeed";
     }
     @PostMapping("/search/view/feed/save")
-    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO)  {
-        model.addAttribute("res",feedService.saveFeed(feedSaveDTO));
-//        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
+    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO,
+                            @RequestHeader(value = "Authorization", required = false) String token){
+        log.info(feedSaveDTO.toString());
+        if (token == null || !token.startsWith("Bearer ")) {
+            log.info(feedSaveDTO.toString());
+            // 비로그인 상태
+            model.addAttribute("userId", null);
+            model.addAttribute("res", feedService.saveFeed(feedSaveDTO));
+        } else {
+            // 로그인 상태
+            String userId = jwtTokenProvider.getUserId(token.substring(7)); // "Bearer " 이후의 토큰 추출
+            model.addAttribute("userId", userId);
+            model.addAttribute("res", feedService.saveFeed(feedSaveDTO));
+        }
+        //        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
 //        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
         return "redirect:/search/view/feed?index=board";
     }
 
 
     @GetMapping("/search/view/feed/Form")
-    public String feedSaveForm( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO) {
-        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
-        return  "basic/feed/PostFeed";
+    public String feedSaveForm( Model model,  @RequestHeader(value = "Authorization", required = false) String token) {
+
+//        log.info(token);
+//        if (token != null && token.startsWith("Bearer ")) {
+//            // JWT에서 userId와 username 추출
+//            String jwtToken = token.substring(7); // "Bearer " 제거
+//            String userId = jwtTokenProvider.getUserId(jwtToken);
+//            String username = jwtTokenProvider.getUsername(jwtToken);
+//            log.info(userId,username);
+//            // 모델에 userId와 username 추가
+//            model.addAttribute("userId", userId);
+//            model.addAttribute("userName", username);
+//        } else {
+//            log.info("null");
+            // 로그아웃 상태 처리
+            model.addAttribute("userId", null);
+            model.addAttribute("userName", "");
+            return  "basic/feed/PostFeed";
+//        log.info(feedSaveDTO.toString());
+//        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
+
     }
 
 

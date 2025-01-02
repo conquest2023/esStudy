@@ -1,4 +1,4 @@
-package es.board.model.req;
+package es.board.controller.model.req;
 
 import es.board.repository.document.Board;
 import lombok.AllArgsConstructor;

@@ -1,17 +1,20 @@
 package es.board.service.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import es.board.model.req.FeedRequest;
-import es.board.model.req.FeedUpdate;
-import es.board.model.res.FeedCreateResponse;
+import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.Post;
+import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.RestClient;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +30,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
-    private final RestClient client;
+//    private final RestClient client;
 
-    private final ElasticsearchClient esClient;
+//    private final ElasticsearchClient esClient;
 
     private final FeedDAO feedDAO;
+
+    private final PostRepository postRepository;
 
     private  final LikeDAO likeDAO;
 
 
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
+        Post post=new Post();
         RandomFeedUID(feedSaveDTO);
+        postRepository.save((post.PostToEntity(feedSaveDTO)));
         return feedDAO.indexSaveFeed(feedSaveDTO);
     }
 

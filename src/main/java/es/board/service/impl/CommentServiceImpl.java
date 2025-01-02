@@ -1,7 +1,8 @@
 package es.board.service.impl;
 
-import es.board.model.req.*;
-import es.board.model.res.CommentCreateResponse;
+import es.board.controller.model.req.CommentRequest;
+import es.board.controller.model.req.CommentUpdate;
+import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;

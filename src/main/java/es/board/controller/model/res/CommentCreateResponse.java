@@ -1,4 +1,4 @@
-package es.board.model.res;
+package es.board.controller.model.res;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

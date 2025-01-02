@@ -1,4 +1,4 @@
-package es.board.model.res;
+package es.board.controller.model.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

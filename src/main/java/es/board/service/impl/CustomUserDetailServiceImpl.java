@@ -1,6 +1,6 @@
 package es.board.service.impl;
 
-import es.board.repository.UserRepository;
+import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.EsUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +40,13 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
                 authorities
         );
     }
+
+    public   String createUserDetails(String username){
+        String user=userRepository.findByUserIdOne(username);
+
+        return user;
+    }
+
 
     private  UserDetails createUserDetails(EsUser user){
         return User.builder()

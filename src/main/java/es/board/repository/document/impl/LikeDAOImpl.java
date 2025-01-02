@@ -1,4 +1,4 @@
-package es.board.repository.impl;
+package es.board.repository.document.impl;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;

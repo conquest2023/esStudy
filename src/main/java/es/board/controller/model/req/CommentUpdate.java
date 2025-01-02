@@ -1,4 +1,4 @@
-package es.board.model.req;
+package es.board.controller.model.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

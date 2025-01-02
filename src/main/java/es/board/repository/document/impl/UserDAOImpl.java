@@ -1,11 +1,11 @@
-package es.board.repository.impl;
+package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.ex.IndexException;
-import es.board.model.res.LoginResponse;
-import es.board.model.res.SignUpResponse;
+import es.board.controller.model.res.LoginResponse;
+import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.UserDAO;
 import es.board.repository.entity.EsUser;
 import lombok.RequiredArgsConstructor;

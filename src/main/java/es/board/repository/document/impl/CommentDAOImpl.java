@@ -1,12 +1,12 @@
-package es.board.repository.impl;
+package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import es.board.ex.IndexException;
-import es.board.model.res.CommentCreateResponse;
-import es.board.repository.CommentRepository;
+import es.board.controller.model.res.CommentCreateResponse;
+import es.board.repository.entity.entityrepository.CommentRepository;
 import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;

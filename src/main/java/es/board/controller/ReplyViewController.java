@@ -1,9 +1,8 @@
 package es.board.controller;
 
 
-import es.board.model.req.ReplyRequest;
-import es.board.model.res.ReplyCreateResponse;
-import es.board.repository.document.Reply;
+import es.board.controller.model.req.ReplyRequest;
+import es.board.controller.model.res.ReplyCreateResponse;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor

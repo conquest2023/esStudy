@@ -1,4 +1,4 @@
-package es.board.model.file;
+package es.board.controller.model.file;
 
 import lombok.Data;
 

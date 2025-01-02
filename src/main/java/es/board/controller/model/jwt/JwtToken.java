@@ -1,4 +1,4 @@
-package es.board.model.jwt;
+package es.board.controller.model.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,7 @@
 package es.board.controller;
 
-import es.board.model.req.CommentUpdate;
-import es.board.model.req.FeedUpdate;
-import es.board.model.res.CommentCreateResponse;
+import es.board.controller.model.req.CommentUpdate;
+import es.board.controller.model.res.CommentCreateResponse;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

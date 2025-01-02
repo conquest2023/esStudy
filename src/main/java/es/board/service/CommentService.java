@@ -1,13 +1,11 @@
 package es.board.service;
 
-import es.board.model.req.CommentRequest;
-import es.board.model.req.CommentUpdate;
-import es.board.model.req.FeedRequest;
-import es.board.model.res.CommentCreateResponse;
+import es.board.controller.model.req.CommentRequest;
+import es.board.controller.model.req.CommentUpdate;
+import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 

@@ -1,10 +1,10 @@
-package es.board.repository.impl;
+package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.ex.IndexException;
-import es.board.model.res.ReplyCreateResponse;
+import es.board.controller.model.res.ReplyCreateResponse;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Reply;
 import lombok.RequiredArgsConstructor;

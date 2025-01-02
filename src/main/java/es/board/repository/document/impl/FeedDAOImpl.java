@@ -1,4 +1,4 @@
-package es.board.repository.impl;
+package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.Refresh;
@@ -7,8 +7,8 @@ import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
-import es.board.model.req.FeedUpdate;
-import es.board.model.res.FeedCreateResponse;
+import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
 import lombok.RequiredArgsConstructor;

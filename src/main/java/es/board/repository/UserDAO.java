@@ -1,7 +1,7 @@
 package es.board.repository;
 
-import es.board.model.res.LoginResponse;
-import es.board.model.res.SignUpResponse;
+import es.board.controller.model.res.LoginResponse;
+import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.entity.EsUser;
 
 public interface UserDAO {

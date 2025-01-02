@@ -1,6 +1,6 @@
 package es.board.repository;
 
-import es.board.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 

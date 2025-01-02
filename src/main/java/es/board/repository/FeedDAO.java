@@ -1,8 +1,8 @@
 package es.board.repository;
 
 
-import es.board.model.req.FeedUpdate;
-import es.board.model.res.FeedCreateResponse;
+import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Repository;
 

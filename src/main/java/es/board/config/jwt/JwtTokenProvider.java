@@ -1,6 +1,8 @@
 package es.board.config.jwt;
 
-import es.board.model.jwt.JwtToken;
+import es.board.controller.model.jwt.JwtToken;
+import es.board.repository.entity.EsUser;
+import es.board.service.impl.CustomUserDetailServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -42,18 +44,20 @@ private final Set<String> blacklistedTokens = new HashSet<>();
         return blacklistedTokens.contains(token);
     }
     //    Authentication authentication
-    public JwtToken generateToken(Authentication authentication) {
+    public JwtToken generateToken(Authentication authentication,String userId) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
+
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 864000);
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth",authorities)
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setSubject(userId) // "sub"에 userId 저장
+                .claim("username", authentication.getName()) // "username" 클레임에 이름 저장
+                .claim("auth", authorities) // 권한 정보 저장
+                .setExpiration(accessTokenExpiresIn) // 만료 시간 설정
+                .signWith(key, SignatureAlgorithm.HS256) // 서명
                 .compact();
 
         String refreshToken= Jwts.builder()
@@ -91,9 +95,12 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String getUsername(String token) {
+        return parseClaims(token).get("username", String.class); // "username" 클레임에서 값 추출
+    }
 
     public  String getUserId(String token){
-        return  parseClaims(token).get("loginId",String.class);
+        return  parseClaims(token).get("sub",String.class);
     }
 
     public Authentication getAuthentication(String accessToken) {

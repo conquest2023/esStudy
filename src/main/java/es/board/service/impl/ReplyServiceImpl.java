@@ -1,9 +1,8 @@
 package es.board.service.impl;
 
-import es.board.model.req.ReplyRequest;
-import es.board.model.res.ReplyCreateResponse;
+import es.board.controller.model.req.ReplyRequest;
+import es.board.controller.model.res.ReplyCreateResponse;
 import es.board.repository.ReplyDAO;
-import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,9 +1,9 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.model.jwt.JwtToken;
-import es.board.model.res.LoginResponse;
-import es.board.model.res.SignUpResponse;
+import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.res.LoginResponse;
+import es.board.controller.model.res.SignUpResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.UserService;
@@ -39,12 +39,13 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+
             if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 이후의 토큰만 추출
             if (jwtTokenProvider.validateToken(token)) {
-                log.info(token);
                 return ResponseEntity.ok(Map.of(
-                        "username",jwtTokenProvider.getAuthentication(token).getName(),
+                        "userId",jwtTokenProvider.getUserId(token),
+                        "username",jwtTokenProvider.getUsername(token),
                         "isLoggedIn", true));
             }
         }
@@ -55,7 +56,7 @@ public class LoginController {
     @PostMapping("/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info(token);
+//        log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             jwtTokenProvider.addToBlacklist(token); // 토큰 블랙리스트 처리
@@ -109,7 +110,7 @@ public class LoginController {
             return "basic/login/Login"; // 로그인 화면 렌더링
         }
         Authentication authentication = userService.authenticate(response);
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
+        JwtToken token = jwtTokenProvider.generateToken(authentication,response.getUserId());
 
         feedMain(model); // 메인 화면 렌더링 메서드 호출
         model.addAttribute("isLoggedIn", true);
@@ -126,7 +127,7 @@ public class LoginController {
         }
 //        String refreshToken = jwtTokenProvider.createRefreshToken(response.getUserId());
         Authentication authentication = userService.authenticate(response);
-        JwtToken token = jwtTokenProvider.generateToken(authentication);
+        JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
 
 
 //        log.info("Refresh Token 생성: {}", refreshToken);
