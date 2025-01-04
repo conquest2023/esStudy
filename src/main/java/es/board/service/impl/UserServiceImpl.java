@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
 
         // 인증 수행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-//        log.info("Authorities: {}", authentication.getAuthorities());
+        log.info(authentication.toString());
 
         return authentication;
     }

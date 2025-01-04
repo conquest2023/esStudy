@@ -35,41 +35,12 @@ public class LoginController {
     private final UserService userService;
 
     private final JwtTokenProvider jwtTokenProvider;
-    @GetMapping("/api/user-info")
-    @ResponseBody
-    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
 
-            if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 이후의 토큰만 추출
-            if (jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.ok(Map.of(
-                        "userId",jwtTokenProvider.getUserId(token),
-                        "username",jwtTokenProvider.getUsername(token),
-                        "isLoggedIn", true));
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                "error", "세션이 만료되었습니다."
-        ));
-    }
-    @PostMapping("/auth/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-//        log.info(token);
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            jwtTokenProvider.addToBlacklist(token); // 토큰 블랙리스트 처리
-            log.info("[DEBUG] 블랙리스트에 추가된 토큰: " + token);
-        }
-        return ResponseEntity.ok(Map.of(
-                "message", "로그아웃되었습니다.",
-                "isLoggedIn", false));
-    }
 
 
     @GetMapping("/login")
     public String login() {
+
         return "basic/login/Login";
     }
 
@@ -78,6 +49,7 @@ public class LoginController {
 
         return "basic/login/SignUp";
     }
+
 
     @PostMapping("/signup/pass")
     public String signIn(@ModelAttribute SignUpResponse sign, Model model) {
@@ -111,6 +83,7 @@ public class LoginController {
         }
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication,response.getUserId());
+        log.info(token.toString());
 
         feedMain(model); // 메인 화면 렌더링 메서드 호출
         model.addAttribute("isLoggedIn", true);
@@ -118,43 +91,7 @@ public class LoginController {
         return "basic/feed/feedList"; // 메인 화면 렌더링
     }
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
 
-        if (!userService.login(response)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
-        }
-//        String refreshToken = jwtTokenProvider.createRefreshToken(response.getUserId());
-        Authentication authentication = userService.authenticate(response);
-        JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
-
-
-//        log.info("Refresh Token 생성: {}", refreshToken);
-        log.info("Access Token 생성: {}", token);
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", token.getAccessToken(),
-                "refreshToken", token.getRefreshToken(),
-                "username", authentication.getName(),
-                "isLoggedIn", true
-        ));
-    }
-
-    @PostMapping("/auth/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 Refresh Token입니다.");
-        }
-        String userId = jwtTokenProvider.getUserId(refreshToken);
-        String newAccessToken = jwtTokenProvider.generateTokenId(userId);
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken
-        ));
-    }
 
     private void feedMain(Model model){
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);

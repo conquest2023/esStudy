@@ -27,9 +27,11 @@ import java.util.List;
 public class Board {
 
     @Id
-    private  String id;
+    private  int id;
     @Field
     private String feedUID;
+
+    private String userId;
 
     @Field
     private String username;
@@ -64,7 +66,6 @@ public class Board {
 
     private  boolean anonymous;
 
-    private String userId;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

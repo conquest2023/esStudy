@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class FeedCreateResponse {
 
 
-    private  String id;
+    private  int id;
 
     private String feedUID;
 

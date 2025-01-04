@@ -69,8 +69,8 @@
                     <td>
                         <span th:text="${board.description}"></span>
                         <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
-                        <span th:if="${count[board.id] > 0}" style="color: #007bff; font-weight: bold;">
-                    [<span th:text="${count[board.id]}"></span>]
+                        <span th:if="${count[board.feedUID] > 0}" style="color: #007bff; font-weight: bold;">
+                    [<span th:text="${count[board.feedUID]}"></span>]
                 </span>
                     </td>
                     <td th:text="${board.username}"></td>

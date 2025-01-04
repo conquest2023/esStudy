@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -8,7 +7,17 @@
 
     <style>
         .gradient-custom {
-            background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+            background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -20,6 +29,7 @@
                 <h2 class="text-white">LOGIN</h2>
                 <p class="text-white-50 mt-2 mb-5">서비스를 사용하려면 로그인을 해주세요!</p>
 
+                <!-- 로그인 폼 시작 -->
                 <div class="mb-2">
                     <form class="login-form" onsubmit="handleLogin(event)">
                         <div th:if="${error}" class="error-message text-danger mb-3" th:text="${error}"></div>
@@ -31,29 +41,39 @@
                             <label class="form-label text-white" for="password">비밀번호</label>
                             <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력" required>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">로그인</button>
+                        <!-- 버튼 타입 변경: 엔터 키로도 로그인 가능 -->
+                        <button type="submit" id="loginButton" class="btn btn-primary">로그인</button>
                     </form>
 
+                    <!-- 추가 버튼 -->
                     <div class="mt-3">
                         <a th:href="@{/forgot-password}" class="btn btn-link text-white">비밀번호 찾기</a>
                         <button type="button" class="btn btn-secondary" onclick="location.href='/signup'">회원가입</button>
                     </div>
                 </div>
             </div>
+            <!-- 홈 버튼 -->
             <button type="button" class="btn btn-secondary" onclick="location.href='/'">홈</button>
         </div>
     </div>
 </section>
 </body>
 
-</html>
+<!-- Axios 스크립트 -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <script>
+    // 로그인 버튼 클릭 이벤트 처리
+    document.querySelector('.login-form').addEventListener('submit', handleLogin);
+
+    // 로그인 함수
     function handleLogin(event) {
         event.preventDefault(); // 기본 폼 제출 동작 막기
 
         // 사용자 입력 값 가져오기
         const userId = document.getElementById("userId").value;
         const password = document.getElementById("password").value;
+
         // 로그인 요청
         login(userId, password);
     }
@@ -61,46 +81,37 @@
     function login(userId, password) {
         console.log("로그인 요청 시작"); // 디버깅 로그 추가
 
-        fetch("/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, password })
+        axios.post("/authlogin", {
+            userId: userId,
+            password: password
         })
-            .then((response) => {
-                console.log("서버 응답 상태:", response.status); // 응답 상태 코드 확인
-                if (!response.ok) {
-                    console.log("서버 응답 본문:", response); // 응답 객체 확인
-                    return response.text().then((text) => {
-                        throw new Error(`로그인 실패: ${response.status}, ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log("서버 응답 데이터:", data); // 서버에서 반환된 데이터 확인
+            .then(response => {
+                console.log("서버 응답 상태:", response.status);
+                console.log("서버 응답 데이터:", response.data);
+
+                const data = response.data;
+
                 if (data.accessToken && data.refreshToken && data.isLoggedIn) {
                     // 토큰 저장
                     localStorage.setItem("token", data.accessToken);
                     localStorage.setItem("refreshToken", data.refreshToken);
                     console.log("토큰 저장 완료:", data.accessToken);
+
                     // 리다이렉트
                         window.location.href = "/";
                 } else {
                     alert("아이디와 비밀번호를 확인해주세요.");
                 }
             })
-            .catch((error) => {
-                console.error("Error during login:", error); // 에러 메시지 출력
-                alert("서버와의 연결에 문제가 있습니다.");
+            .catch(error => {
+                if (error.response) {
+                    console.error("로그인 실패:", error.response.data);
+                    alert(`로그인 실패: ${error.response.data}`);
+                } else {
+                    console.error("서버와의 연결에 문제가 있습니다.", error);
+                    alert("서버와의 연결에 문제가 있습니다.");
+                }
             });
     }
-    // API 요청 함수 (JWT 만료 처리 포함)
-
-    // 에러 메시지 표시 함수
-    function showError(message) {
-        if (errorMessage) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = "block";
-        }
-    }
 </script>
+</html>

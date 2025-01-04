@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 @Builder
 public class FeedRequest {
 
-    private String id;
+    private int id;
+
+    private  String userId;
 
     private String feedUID;
-
-
 
     private String username;
 
@@ -53,7 +53,9 @@ public class FeedRequest {
     public List<FeedRequest> BoardListToDTO(List<Board> boards) {
         return boards.stream()
                 .map(board -> FeedRequest.builder()
-                        .id(board.getFeedUID())
+                        .feedUID(board.getFeedUID())
+                        .id(board.getId())
+                        .userId(board.getUserId())
                         .username(board.getUsername())
                         .image(board.getImage())
                         .title(board.getTitle())
@@ -69,8 +71,9 @@ public class FeedRequest {
 
     public FeedRequest BoardToDTO(Board board) {
             return FeedRequest.builder()
-                    .id(board.getId())
                     .feedUID(board.getFeedUID())
+                    .id(board.getId())
+                    .userId(board.getUserId())
                     .username(board.getUsername())
                     .image(board.getImage())
                     .title(board.getTitle())

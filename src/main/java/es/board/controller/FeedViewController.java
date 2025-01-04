@@ -46,7 +46,6 @@ public class FeedViewController {
     private  final JwtTokenProvider jwtTokenProvider;
 
 
-
     @GetMapping("/logout/user")
     public String logoutPage(Model model) {
         int page = 0;
@@ -57,9 +56,11 @@ public class FeedViewController {
         model.addAttribute("isLoggedIn", false);
         return "basic/feed/feedList";
     }
+
     @GetMapping("/")
     public String mainPage(Model model, HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+        log.info("token /={}", token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 이후의 토큰만 추출
         }
@@ -68,16 +69,16 @@ public class FeedViewController {
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
         int totalPage = (int) Math.ceil(feedService.getTotalFeed());
         basicSettingFeed(model, page, size, maxPage, totalPage);
-        if (token != null && jwtTokenProvider.validateToken(token))  {
+        if (token != null && jwtTokenProvider.validateToken(token)) {
             log.info(jwtTokenProvider.getAuthentication(token).getName());
             model.addAttribute("isLoggedIn", true);
             model.addAttribute("username", jwtTokenProvider.getAuthentication(token).getName());
-        }else {
+            return "basic/feed/feedList";
+        } else {
             model.addAttribute("isLoggedIn", false);
-        }
-//        model.addAttribute("feedSaveDTO", new FeedCreateResponse());
             return "basic/feed/feedList";
         }
+    }
 
 
     @GetMapping("/search/view/feed/update")
@@ -271,8 +272,9 @@ public class FeedViewController {
 
 
     @PostMapping("/search/view/feed/delete")
-    public  String deleteFeed(@RequestParam String id) {
-        feedService.deleteFeed(id);
+    public  String deleteFeed(@RequestParam String id,int userId) {
+        log.info("userId:{}",userId);
+        feedService.deleteFeed(id,userId);
         return "redirect:/search/view/feed?index=board";
     }
     @GetMapping("/search/view/feed/reload")
@@ -296,7 +298,6 @@ public class FeedViewController {
         if (isView) {
             feedService.saveViewCountFeed(id); // 조회수 증가
         }
-//        log.info(replyService.getRepliesGroupedByComment(id).toString());
         model.addAttribute("replies", replyService.getRepliesGroupedByComment(id));
         model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));

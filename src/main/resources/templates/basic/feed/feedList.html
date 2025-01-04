@@ -501,15 +501,15 @@
                             <!-- 게시글 데이터 반복 -->
                             <tr th:each="board : ${data}">
                                 <!-- 제목 -->
-                                <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
+                                <td><a th:href="@{/search/view/feed/id(id=${board.feedUID})}" th:text="${board.title}"></a></td>
                                 <!-- 작성자 -->
 
                                 <!-- 내용과 댓글수 -->
                                 <td>
                                     <span th:text="${board.description}"></span>
                                     <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
-                                    <span th:if="${count[board.id] > 0}" style="color: red; font-weight: bold;">
-                    [<span th:text="${count[board.id]}"></span>]
+                                    <span th:if="${count[board.feedUID] > 0}" style="color: red; font-weight: bold;">
+                    [<span th:text="${count[board.feedUID]}"></span>]
                 </span>
                                 </td>
                                 <td th:text="${board.username}"></td>
@@ -585,7 +585,7 @@
                             </div>
 
                                 <!-- 검색 버튼 -->
-                                <button type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">
+                                <button id="searchId" type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">
                                     <i class="fas fa-search"></i> 검색
                                 </button>
                             </div>
@@ -634,7 +634,7 @@
 
 
 <script>
-    document.getElementById("searchButton").addEventListener("click", function() {
+    document.getElementById("searchId").addEventListener("click", function() {
         console.log("검색 버튼 클릭됨");
     });
     function toggleDateFields() {
@@ -751,26 +751,36 @@
         });
     })
     document.addEventListener("DOMContentLoaded", () => {
-        // localStorage.setItem("accessToken", data.accessToken);
         const token = localStorage.getItem("token");
+
         if (token) {
+            const endpoint = "/info";
+            console.log(`[DEBUG] ${window.location.host}${endpoint}로 요청을 보냅니다.`);
+            console.log("현재 페이지:", window.location.href);
             console.log("저장된 토큰 확인:", token);
-            // 서버로 요청 보내기
-            fetch("/api/user-info", {
+            console.log("현재 호스트:", window.location.host);
+            console.log("현재 프로토콜:", window.location.protocol);
+            console.log("현재 경로명:", window.location.pathname);
+
+
+
+            fetch("/info", {
+                url: "/info",
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    "Authorization": `Bearer ${token}`
                 }
             })
                 .then(response => {
-                    console.log("서버 응답 상태 코드:", response.status); // 디버깅용
-                    console.log("[DEBUG] 저장된 토큰:", localStorage.getItem("token"));
+                    console.log("서버 응답 상태 코드:", response.status);
+                    console.log("[DEBUG] 저장된 토큰:", token);
+
                     // if (!response.ok) throw new Error("인증 실패");
                     return response.json();
                 })
                 .then(data => {
-                    console.log("서버 응답 데이터:", data); // 디버깅용
+                    console.log("서버 응답 데이터:", data);
 
                     const loginMessage = document.getElementById("login-message");
                     const userMessage = document.getElementById("user-message");
@@ -782,15 +792,17 @@
                         if (userMessage) userMessage.style.display = "block";
                         if (usernameElement) usernameElement.textContent = data.username;
                     } else {
+                        // 여기가 문제 부분이었는데, then(...) 쓸 이유가 전혀 없음
+                        console.log("유저 정보:", data);
                         console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
-                        window.location.href = "/login";
+                        // window.location.href = "/";
                     }
                 })
                 .catch(error => {
                     console.error("[DEBUG] 에러 발생:", error.message);
-                    alert("세션이 만료되었습니다. 로그인 해주세요.");
+                    console.log("token", token);
                     localStorage.removeItem("accessToken");
-                    window.location.href = "/login";
+                    // window.location.href = "/";
                 });
         } else {
             console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
@@ -810,7 +822,8 @@
         const token = localStorage.getItem("token");
         console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
 
-        fetch("/auth/logout", {
+        fetch("https://zkrp.site/authlogout", {
+
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -1,6 +1,5 @@
 package es.board.service.impl;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
@@ -13,8 +12,6 @@ import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RestClient;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +40,11 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
+
         Post post=new Post();
-        RandomFeedUID(feedSaveDTO);
-        postRepository.save((post.PostToEntity(feedSaveDTO)));
+        Post savePost= postRepository.save((post.PostToEntity(feedSaveDTO)));
+
+        esSettingId(feedSaveDTO,savePost.getId());
         return feedDAO.indexSaveFeed(feedSaveDTO);
     }
 
@@ -152,7 +151,8 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     @Transactional
-    public void deleteFeed(String id) {
+    public void deleteFeed(String id,int userId) {
+        postRepository.deleteById(userId);
         feedDAO.deleteFeedOne(id);
     }
 
@@ -177,10 +177,7 @@ public class FeedServiceImpl implements FeedService {
         likeDAO.saveLike(id);
     }
 
-    private static void RandomFeedUID(FeedCreateResponse feedSaveDTO) {
-        String feedUID = UUID.randomUUID().toString();
-        feedSaveDTO.setFeedUID(feedUID);
-    }
+
     public List<Board> bulkToEntity(List<FeedCreateResponse> res) {
         List<Board> boards = new ArrayList<>();
         for (FeedCreateResponse dto : res) {
@@ -194,6 +191,10 @@ public class FeedServiceImpl implements FeedService {
             boards.add(feed);
         }
         return boards;
+    }
+    private void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
+        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
+        feedSaveDTO.setId(id);
     }
     private List<String> extractFeedUID(int page, int size) {
         List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()

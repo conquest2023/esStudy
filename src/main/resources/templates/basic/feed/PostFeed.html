@@ -38,7 +38,7 @@
 
 <div class="container">
     <!-- 데이터 삽입 폼 -->
-    <form action="/search/view/feed/save" method="post"   th:object="${FeedCreateResponse}" enctype="multipart/form-data">
+    <form action="/search/view/feed/save" method="post" th:object="${FeedCreateResponse}" enctype="multipart/form-data">
 
         <!-- 번호 -->
         <div class="container">
@@ -51,19 +51,25 @@
 <!--                    <input type="text" id="feedUID" name="id" class="form-control" required/>-->
 <!--                </div>-->
                 <!-- 제목 -->
-                <div class="form-group" id="name-input-group">
+                <div class="form-group" id="name-input-group" style="display: none;">
                     <label for="username">이름:</label>
-                    <input type="text" id="username" name="username" class="form-control" required />
+                    <input type="text" id="username" name="username" class="form-control" />
                 </div>
-
-                <!-- 사용자 ID (숨겨진 필드) -->
-                <input type="hidden" id="userId" name="userId" />
-
+                <input type="hidden" id="hiddenUsername" name="username" />
                 <!-- 익명 여부 -->
                 <div class="form-group form-check">
                     <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input" />
                     <label class="form-check-label" for="anonymous">익명</label>
                 </div>
+
+                <!-- 사용자 ID (숨겨진 필드) -->
+                <input type="hidden" id="userId" name="userId" />
+
+<!--                &lt;!&ndash; 익명 여부 &ndash;&gt;-->
+<!--                <div class="form-group form-check">-->
+<!--                    <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input" />-->
+<!--                    <label class="form-check-label" for="anonymous">익명</label>-->
+<!--                </div>-->
                 <div class="form-group">
                     <label for="title">제목:</label>
                     <textarea id="title" name="title"  class="form-control" required></textarea>
@@ -140,17 +146,19 @@
 
         console.log('선택된 카테고리:', category); // 디버깅용 로그
     }
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("token"); // 저장된 토큰 가져오기
         const anonymousCheckbox = document.getElementById("anonymous");
         const usernameInputGroup = document.getElementById("name-input-group");
         const usernameInput = document.getElementById("username");
+        const hiddenUsernameInput = document.getElementById("hiddenUsername");
         const userIdInput = document.getElementById("userId");
 
         // 초기 상태 설정
         if (token) {
-            // 토큰이 있는 경우
-            fetch("/api/user-info", {
+            // 토큰이 있는 경우: 로그인 상태
+            fetch("/info", {
+                url: "info",
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -160,22 +168,29 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.isLoggedIn) {
-                        // 이름 입력창 숨김
-                        usernameInputGroup.style.display = "none";
+                        console.log("로그인된 사용자:", data.username);
+                        console.log("사용자 ID:", data.userId);
 
                         // 숨겨진 필드에 사용자 정보 저장
                         userIdInput.value = data.userId;
+                        hiddenUsernameInput.value = data.username;
+                        usernameInput.value = data.username;
+
+                        // 기본적으로 이름 입력 필드 숨김
+                        usernameInputGroup.style.display = "none";
 
                         // 익명 체크박스 상태 변경 이벤트
                         anonymousCheckbox.addEventListener("change", () => {
                             if (anonymousCheckbox.checked) {
-                                // 익명 모드: 이름 입력창 표시
                                 usernameInputGroup.style.display = "block";
                                 usernameInput.value = ""; // 초기화
+                                usernameInput.required = true; // 필수 설정
                             } else {
-                                // 익명 모드 해제: 이름 입력창 숨김
+                                // 익명 모드 해제: 이름 입력 필드 숨기기
                                 usernameInputGroup.style.display = "none";
-                                usernameInput.value = ""; // 초기화
+                                hiddenUsernameInput.value = data.username;
+                                usernameInput.value = data.username; // 서버에서 가져온 이름 복원
+                                usernameInput.required = false; // 필수 제거
                             }
                         });
                     }
@@ -184,18 +199,68 @@
                     console.error("요청 처리 중 오류 발생:", error);
                 });
         } else {
-            // 토큰이 없는 경우: 이름 입력창 기본 표시
-            usernameInputGroup.style.display = "block";
+            // 토큰이 없는 경우: 로그아웃 상태
+            usernameInputGroup.style.display = "block"; // 이름 입력 필드 기본 표시
+            usernameInput.required = true; // 입력 필수
 
             // 익명 체크박스 상태 변경 이벤트
             anonymousCheckbox.addEventListener("change", () => {
                 if (anonymousCheckbox.checked) {
-                    // 익명 모드: 이름 입력창 표시
                     usernameInput.value = ""; // 초기화
                 }
             });
         }
     });
+    document.querySelector("form").addEventListener("submit", (e) => {
+        const usernameInput = document.getElementById("username");
+
+        // 필드가 숨겨져 있거나 비활성화된 경우 required 제거
+        if (usernameInput.disabled || usernameInput.style.display === "none") {
+            usernameInput.required = false;
+        }
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+        const anonymousCheckbox = document.getElementById("anonymous");
+        const usernameInput = document.getElementById("username");
+        const usernameInputGroup = document.getElementById("name-input-group");
+
+        // 초기 상태 설정
+        usernameInputGroup.style.display = "none"; // 기본적으로 숨김
+        usernameInput.disabled = true;
+        usernameInput.required = false;
+
+        // 익명 체크박스 상태 변경 이벤트
+        anonymousCheckbox.addEventListener("change", () => {
+            if (anonymousCheckbox.checked) {
+                // 익명 모드 활성화
+                usernameInputGroup.style.display = "block";
+                usernameInput.disabled = false;
+                usernameInput.required = true;
+                usernameInput.value = ""; // 초기화
+            } else {
+                // 익명 모드 해제
+                usernameInputGroup.style.display = "none";
+                usernameInput.disabled = true;
+                usernameInput.required = false;
+            }
+        });
+
+        // 폼 제출 시 숨겨진 필드의 required 속성 제거
+        document.querySelector("form").addEventListener("submit", (e) => {
+            if (usernameInput.disabled || usernameInput.style.display === "none") {
+                usernameInput.required = false;
+            }
+        });
+    });
+    document.querySelector("form").addEventListener("submit", (e) => {
+        const hiddenUsername = document.getElementById("hiddenUsername");
+
+        // `username` 값을 숨겨진 필드에 동기화
+        if (usernameInput.style.display === "none") {
+            hiddenUsername.value = usernameInput.value; // 숨겨진 필드에 사용자 이름 저장
+        }
+    });
+
     // // 익명 체크박스 상태 변경 이벤트
     // anonymousCheckbox.addEventListener("change", () => {
     //     if (anonymousCheckbox.checked) {

@@ -11,6 +11,7 @@ import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.entityrepository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -29,7 +30,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
 
-//    private final BoardRepository boardRepository;
+   private final BoardRepository boardRepository;
 
     private final int increment = 1;
 
@@ -246,8 +247,8 @@ public class FeedDAOImpl implements FeedDAO {
                     ), Board.class
             );
             String documentId = searchResponse.hits().hits().get(0).id();
-//            boardRepository.deleteById(documentId);
-            log.info("Successfully deleted board with id: {}", id);
+            boardRepository.deleteById(documentId);
+//            log.info("Successfully deleted board with id: {}", id);
         } catch (Exception e) {
             log.error("Error deleting board with id: {}", id, e);
             throw new RuntimeException("Failed to delete feed", e);
@@ -446,6 +447,7 @@ public class FeedDAOImpl implements FeedDAO {
                             )
                     ), Board.class
             );
+            log.info(searchResponse.toString());
             String documentId = searchResponse.hits().hits().get(0).id();
             client.update(u -> u
                     .index("board")

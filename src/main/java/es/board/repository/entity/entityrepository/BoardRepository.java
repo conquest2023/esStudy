@@ -9,6 +9,7 @@ public interface BoardRepository extends ElasticsearchRepository<Board,String> {
 
 
 
+
 //    Board  findAllById(String id);
 
 }

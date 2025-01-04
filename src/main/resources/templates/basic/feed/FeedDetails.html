@@ -333,6 +333,7 @@
         <td style="text-align: center;">
             <form th:action="@{/search/view/feed/delete}" method="post">
                 <input type="hidden" name="id" th:value="${data.feedUID}" />
+                <input type="hidden" name="userId" th:value="${data.id}">
                 <button type="submit" class="btn btn-secondary">
                     <i class="fas fa-trash"></i> 삭제
                 </button>

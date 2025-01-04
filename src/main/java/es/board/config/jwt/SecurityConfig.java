@@ -26,7 +26,7 @@ public class SecurityConfig {
         return  httpSecurity
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
           .authorizeHttpRequests(authz -> authz
-                  .requestMatchers("/", "/auth/logout", "/login", "/signup").permitAll()
+//                  .requestMatchers("/", "/auth/logout", "/login", "/signup").permitAll()
 ////                  .requestMatchers("/public/**","/login", "/login/pass").permitAll()
 ////                               .requestMatchers( "/login").permitAll()
 ////                 .requestMatchers("").permitAll() // 특정 엔드포인트 허용
