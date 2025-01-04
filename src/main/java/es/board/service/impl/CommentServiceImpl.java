@@ -6,6 +6,7 @@ import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
+import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,11 @@ public class CommentServiceImpl implements CommentService {
 
     private  final LikeDAO likeDAO;
 
+    private  final PostRepository postRepository;
     @Override
     public String saveDocument(String indexName, CommentCreateResponse dto) {
+
+
         return commentDAO.createCommentOne(indexName, dto);
     }
 

@@ -19,6 +19,8 @@ public class CommentCreateResponse {
 
     private String commentUID;
 
+    private  String userId;
+
     private  String feedUID;
 
     private String username;
@@ -27,6 +29,9 @@ public class CommentCreateResponse {
     private String content;
 
     private  int likeCount;
+
+    private  boolean anonymous;
+
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

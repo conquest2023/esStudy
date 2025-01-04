@@ -28,6 +28,7 @@ public class Comment{
     @Field(name="id", type = FieldType.Keyword)
     private String commentUID;
 
+    private  String userId;
 
     @Field(type=FieldType.Keyword)
     private String feedUID;
@@ -40,6 +41,8 @@ public class Comment{
 
     @Field(type = FieldType.Integer)
     private int likeCount;
+
+    private  boolean anonymous;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

@@ -20,9 +20,14 @@ public class CommentRequest {
 
     private String username;
 
+    private  String userId;
+
+
     private String content;
 
     private  int LikeCount;
+
+    private  boolean anonymous;
 
     private LocalDateTime createdAt;
 
@@ -36,6 +41,7 @@ public class CommentRequest {
         return comment.stream()
                 .map(comment1 -> CommentRequest.builder()
                         .CommentUID(comment1.getCommentUID())
+                        .userId(comment1.getCommentUID())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
                         .LikeCount(comment1.getLikeCount())
