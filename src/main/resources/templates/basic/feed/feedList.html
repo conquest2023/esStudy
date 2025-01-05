@@ -622,7 +622,7 @@
 
                     <!-- 게시물 제목과 작성자 -->
                     <div class="ms-2 me-auto">
-                        <a th:href="@{/search/view/feed/id(id=${board.id})}" class="ranking-title"
+                        <a th:href="@{/search/view/feed/id(id=${board.feedUID})}" class="ranking-title"
                            th:text="${board.title}"></a>
                         <small class="text-muted d-block" th:text="'작성자: ' + ${board.username}"></small>
                     </div>

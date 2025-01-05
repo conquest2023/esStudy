@@ -23,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Builder
-public class User implements UserDetails {
+public class User {
 
 
 
@@ -67,33 +67,7 @@ public class User implements UserDetails {
     )
 
     private Set<Role> roles;
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return  null;
-//        return this.roles.stream()
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
-    }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 
     public void updateLastLogin( LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
@@ -112,5 +86,8 @@ public class User implements UserDetails {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+
+
 
 }

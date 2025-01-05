@@ -5,6 +5,7 @@ import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.UserDAO;
+import es.board.repository.document.EsUser;
 import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.User;
 import es.board.service.UserService;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
     public void createUser(SignUpResponse sign) {
 
         User user=new User();
+
 
         String password=passwordEncoder.encode(sign.getPassword());
         userRepository.save(user.DtoToUser(sign, password));

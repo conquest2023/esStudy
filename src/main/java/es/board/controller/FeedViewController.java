@@ -199,6 +199,7 @@ public class FeedViewController {
     @ResponseBody
     public Map<String, Object> saveFeed(Model model, @ModelAttribute FeedCreateResponse feedSaveDTO,
                                         @RequestHeader(value = "Authorization", required = false) String token) {
+        log.info(feedSaveDTO.toString());
         Map<String, Object> response = new HashMap<>();
         if (token == null || !token.startsWith("Bearer ")) {
             model.addAttribute("userId", null);

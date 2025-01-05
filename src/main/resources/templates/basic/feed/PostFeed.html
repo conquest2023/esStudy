@@ -188,7 +188,8 @@
                 const feedList = document.getElementById("feedList");
 
                 if (!feedList) return;
-
+                // const createdAt = new Date(feed.createdAt);
+                // const formattedDate = createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
                 // 피드 항목 생성
                 const feedItem = document.createElement("div");
                 feedItem.classList.add("feed-item", "p-3", "border", "rounded", "mb-3");
@@ -196,7 +197,7 @@
                 feedItem.innerHTML = `
         <h5>${feed.title}</h5>
         <p>${feed.description}</p>
-        <small>작성자: ${feed.username || "익명"} | ${new Date(feed.createdAt).toLocaleString()}</small>
+        <small>작성자: ${feed.username || "익명"} | ${new Date(feed.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</small>
     `;
                     feedList.prepend(feedItem); // 새로운 피드를 목록 맨 앞에 추가
                 }
