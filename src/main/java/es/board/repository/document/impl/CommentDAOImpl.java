@@ -29,6 +29,29 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
+    public double findUserCommentCount(String userId) {
+        try {
+
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .aggregations("commentCount", a -> a
+                                    .filter(f -> f
+                                            .term(t -> t
+                                                    .field("userId")
+                                                    .value(userId)))),
+                    Comment.class);
+
+            return response.aggregations()
+                    .get("commentCount")
+                    .filter()
+                    .docCount();
+        }catch (IOException e){
+            log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
+        }
+    }
+
+    @Override
     public String createCommentOne(String index, CommentCreateResponse dto) {
         dto.TimeNow();
         try {

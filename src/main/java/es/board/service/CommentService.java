@@ -17,6 +17,7 @@ public interface CommentService {
 
     List<Comment> getSearchComment(String text) ;
 
+    double getUserCommentCount(String userId);
     Comment editComment(String id, CommentUpdate eq) ;
 
     List<CommentRequest> getRecentComment() ;

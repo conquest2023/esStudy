@@ -75,21 +75,22 @@ public class LoginController {
     }
 
 
-    @PostMapping("/login/pass")
-    public String loginPass(Model model, LoginResponse response) {
-        if (!userService.login(response)) {
-            model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
-            return "basic/login/Login"; // 로그인 화면 렌더링
-        }
-        Authentication authentication = userService.authenticate(response);
-        JwtToken token = jwtTokenProvider.generateToken(authentication,response.getUserId());
-        log.info(token.toString());
-
-        feedMain(model); // 메인 화면 렌더링 메서드 호출
-        model.addAttribute("isLoggedIn", true);
-        model.addAttribute("accessToken", token.getAccessToken()); // 필요 시 토큰을 뷰로 전달
-        return "basic/feed/feedList"; // 메인 화면 렌더링
-    }
+//    @PostMapping("/login/pass")
+//    public String loginPass(Model model, LoginResponse response) {
+//        log.info("Gasdsadsa");
+//        if (!userService.login(response)) {
+//            model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");
+//            return "basic/login/Login"; // 로그인 화면 렌더링
+//        }
+//        log.info("Gasdsadsa");
+//        userService.updateVisitCount(response.getUserId());
+//        Authentication authentication = userService.authenticate(response);
+//        JwtToken token = jwtTokenProvider.generateToken(authentication,response.getUserId());
+//        feedMain(model);
+//        model.addAttribute("isLoggedIn", true);
+//        model.addAttribute("accessToken", token.getAccessToken()); // 필요 시 토큰을 뷰로 전달
+//        return "basic/feed/feedList"; // 메인 화면 렌더링
+//    }
 
 
 

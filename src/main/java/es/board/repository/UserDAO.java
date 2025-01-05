@@ -2,13 +2,16 @@ package es.board.repository;
 
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
-import es.board.repository.entity.EsUser;
+import es.board.repository.entity.User;
 
 public interface UserDAO {
 
-    SignUpResponse createUser(SignUpResponse sign);
-    Boolean checkUserId(SignUpResponse sign);
-    EsUser login(LoginResponse login);
+    void createUser(User sign);
 
+    Long findVisitCount(String userId);
+    Boolean checkUserId(SignUpResponse sign);
+    User login(LoginResponse login);
+
+    void modifyVisitCount(String userId);
     void signUp();
 }

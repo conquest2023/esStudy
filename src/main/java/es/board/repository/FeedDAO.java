@@ -23,23 +23,25 @@ public interface FeedDAO {
 
     List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;
 
+    List<Board> findAllFeed();
 
-    List<Board> findAllFeed()  ;
+    List<Board> findLikeCount();
 
-    List<Board> findLikeCount() ;
 
     List<Board> findPagingFeed(int page, int size) ;
 
-    List<Board> findRecentFeed() ;
+    List<Board> findRecentFeed();
 
-    List<Board> findCategoryAndContent(String category) ;
-    Board modifyFeed(String id, FeedUpdate eq) ;
-    Board findIdOne(String id)  ;
+    List<Board> findCategoryAndContent(String category);
+    Board modifyFeed(String id, FeedUpdate eq);
+    Board findIdOne(String id);
     List<Board> findSearchBoard(String text);
 
      double findSumLikeByPageOne(int page, int size);
       Board findPopularFeedOne();
 
+
+    double findUserFeedCount(String userId);
     void saveViewCounts(String id, Board view) ;
      List<Board> findMonthPopularFeed();
 

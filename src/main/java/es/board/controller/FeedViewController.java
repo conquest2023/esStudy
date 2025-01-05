@@ -45,14 +45,12 @@ public class FeedViewController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
+    private final  int page=0;
+    private final  int size=10;
 
     @GetMapping("/logout/user")
     public String logoutPage(Model model) {
-        int page = 0;
-        int size = 10;
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
-        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
-        basicSettingFeed(model, page, size, maxPage, totalPage);
+        basicSettingFeed(model, page, size);
         model.addAttribute("isLoggedIn", false);
         return "basic/feed/feedList";
     }
@@ -60,15 +58,10 @@ public class FeedViewController {
     @GetMapping("/")
     public String mainPage(Model model, HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info("token /={}", token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 이후의 토큰만 추출
         }
-        int page = 0;
-        int size = 10;
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
-        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
-        basicSettingFeed(model, page, size, maxPage, totalPage);
+        basicSettingFeed(model, page, size);
         if (token != null && jwtTokenProvider.validateToken(token)) {
             log.info(jwtTokenProvider.getAuthentication(token).getName());
             model.addAttribute("isLoggedIn", true);
@@ -134,10 +127,8 @@ public class FeedViewController {
     @GetMapping("/search/view/feed/list/popular")
     public String getPopularFeedDESC(Model model,
                                   @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size) throws IOException {
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
-        basicSettingFeed(model, page, size, maxPage, totalPage);
+                                  @RequestParam(defaultValue = "10") int size) {
+        basicSettingFeed(model, page, size);
         model.addAttribute("popular",feedService.getPopularFeedDESC(page,size));
         return "basic/feed/LikeFeed";
     }
@@ -164,9 +155,7 @@ public class FeedViewController {
     public String getFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
-        basicSettingFeed(model, page, size, maxPage, totalPage);
+        basicSettingFeed(model, page, size);
         return "basic/feed/feedList";
     }
 
@@ -174,9 +163,8 @@ public class FeedViewController {
     public String getMostViewFeed(Model model,
                           @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                           @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
-        basicSettingFeed(model, page, size, maxPage, totalPage);
+
+        basicSettingFeed(model, page, size);
         model.addAttribute("data",feedService.getMostViewFeed(page,size));
         return "basic/feed/MostViewFeed";
     }
@@ -208,23 +196,19 @@ public class FeedViewController {
         return "/basic/feed/RangeFeed";
     }
     @PostMapping("/search/view/feed/save")
-    public String saveFeed( Model model, @ModelAttribute FeedCreateResponse feedSaveDTO,
-                            @RequestHeader(value = "Authorization", required = false) String token){
-        log.info(feedSaveDTO.toString());
+    @ResponseBody
+    public Map<String, Object> saveFeed(Model model, @ModelAttribute FeedCreateResponse feedSaveDTO,
+                                        @RequestHeader(value = "Authorization", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
         if (token == null || !token.startsWith("Bearer ")) {
-            log.info(feedSaveDTO.toString());
-            // 비로그인 상태
             model.addAttribute("userId", null);
-            model.addAttribute("res", feedService.saveFeed(feedSaveDTO));
         } else {
-            // 로그인 상태
-            String userId = jwtTokenProvider.getUserId(token.substring(7)); // "Bearer " 이후의 토큰 추출
-            model.addAttribute("userId", userId);
-            model.addAttribute("res", feedService.saveFeed(feedSaveDTO));
+            model.addAttribute("userId",  jwtTokenProvider.getUserId(token.substring(7)));
         }
-        //        UploadFile attachFile=fileStore.storeFile(feedSaveDTO.getAttachFile());
-//        List<UploadFile> storeImageFiles=fileStore.storeFiles(feedSaveDTO.getImageFiles());
-        return "redirect:/search/view/feed?index=board";
+        response.put("success", true);
+        response.put("feed", feedService.saveFeed(feedSaveDTO));
+        response.put("redirectUrl", "/search/view/feed?index=board");
+        return response;
     }
 
 
@@ -262,10 +246,9 @@ public class FeedViewController {
         @GetMapping("/search/view/comment/desc")
         public  String  getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
                                        @RequestParam(defaultValue = "10") int size) throws  IOException{
-            int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-            int totalPage=(int) Math.ceil( feedService.getTotalFeed());
+
             model.addAttribute("commentDESC",commentService.getPagingCommentDESC(feedService.getfeedUIDList(page,size),page,size));
-            basicSettingFeed(model, page, size, maxPage, totalPage);
+            basicSettingFeed(model, page, size);
             return  "basic/comment/MostCommentDESC";
         }
 
@@ -284,12 +267,13 @@ public class FeedViewController {
         return "basic/feed/feedList?index=board";
     }
 
-    private void basicSettingFeed(Model model, int page, int size, int maxPage, int totalPage) {
+    private void basicSettingFeed(Model model, int page, int size) {
+
         model.addAttribute("viewCount",feedService.getViewCountAll());
         model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
         model.addAttribute("page", page);  // 현재 페이지 번호
-        model.addAttribute("maxPage", maxPage);
-        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("maxPage", (int) Math.ceil((double) feedService.getTotalPage(page, size) / size));
+        model.addAttribute("totalPage",  (int) Math.ceil(feedService.getTotalFeed()));
         model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
         model.addAttribute("month",feedService.getMonthPopularFeed());
     }

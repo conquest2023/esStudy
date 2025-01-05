@@ -41,6 +41,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public double getUserCommentCount(String userId) {
+        return commentDAO.findUserCommentCount(userId);
+    }
+
+    @Override
     public Comment editComment(String id, CommentUpdate eq) {
         Comment comment = new Comment();
         return commentDAO.modifyComment(id, comment.convertDtoToEntity(eq));

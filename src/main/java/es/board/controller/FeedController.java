@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.res.LoginResponse;
+import es.board.service.CommentService;
+import es.board.service.FeedService;
 import es.board.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,15 @@ public class FeedController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
+    private  final FeedService feedService;
+
+
+
+    private  final CommentService commentService;
+
     @GetMapping("/hello")
     @ResponseBody
     public ResponseEntity<String> sayHello() {
-        log.info("Hello endpoint 호출됨");
         return ResponseEntity.ok("Hello from RestController!");
     }
     @PostMapping("/authlogout")
@@ -53,13 +60,14 @@ public class FeedController {
     @GetMapping("/info")
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
-        log.info("호에에에ㅔ에엥");
         String token = request.getHeader("Authorization");
-        log.info("token={}",token);
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 이후의 토큰만 추출
+            token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
+                        "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
+                        "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
+                        "visitCount",userService.findVisitCount(jwtTokenProvider.getUserId(token)),
                         "userId",jwtTokenProvider.getUserId(token),
                         "username",jwtTokenProvider.getUsername(token),
                         "isLoggedIn", true));
@@ -78,12 +86,9 @@ public class FeedController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
         }
-//        String refreshToken = jwtTokenProvider.createRefreshToken(response.getUserId());
+        userService.updateVisitCount(response.getUserId());
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
-        log.info(token.toString());
-        log.info("refreshToken={}",token.getRefreshToken());
-        log.info("Feed-controller-Access Token 생성: {}", token);
         return ResponseEntity.ok(Map.of(
                 "accessToken", token.getAccessToken(),
                 "refreshToken", token.getRefreshToken(),
@@ -91,7 +96,6 @@ public class FeedController {
                 "isLoggedIn", true
         ));
     }
-
     @PostMapping("/auth/refresh")
     @ResponseBody
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {

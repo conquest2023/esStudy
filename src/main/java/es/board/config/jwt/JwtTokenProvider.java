@@ -1,8 +1,6 @@
 package es.board.config.jwt;
 
 import es.board.controller.model.jwt.JwtToken;
-import es.board.repository.entity.EsUser;
-import es.board.service.impl.CustomUserDetailServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -123,7 +121,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
 //                .getBody()
 //                .getSubject();
 
-//       UserDetails principal = new User(claims.getSubject(), "", Collections.emptyList());
+//       UserDetails principal = new EsUser(claims.getSubject(), "", Collections.emptyList());
 
     }
     public boolean blackListValidateToken(String token) {

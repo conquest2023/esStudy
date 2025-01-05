@@ -3,8 +3,10 @@ package es.board.service.impl;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
+import es.board.repository.FeedDAO;
+import es.board.repository.UserDAO;
 import es.board.repository.entity.entityrepository.UserRepository;
-import es.board.repository.entity.EsUser;
+import es.board.repository.entity.User;
 import es.board.service.UserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -33,16 +35,24 @@ public class UserServiceImpl implements UserService {
 
     private  final UserRepository userRepository;
 
+    private  final UserDAO userDAO;
+
     private  final PasswordEncoder passwordEncoder;
 
     @Override
     public void createUser(SignUpResponse sign) {
 
-        EsUser user=new EsUser();
+        User user=new User();
+
         String password=passwordEncoder.encode(sign.getPassword());
         userRepository.save(user.DtoToUser(sign, password));
-    }
+        userDAO.createUser(user.DtoToUser(sign,password));
 
+    }
+    @Override
+    public void updateVisitCount(String userId) {
+        userDAO.modifyVisitCount(userId);
+    }
     @Override
     @Transactional
     public boolean login(LoginResponse login) {
@@ -60,12 +70,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean checkId(SignUpResponse sign) {
-        log.info(sign.toString());
         if(userRepository.findByUserid(sign.getUserId())==null){
             return  true;
         }else {
             return  false;
         }
+    }
+
+    @Override
+    public Long findVisitCount(String userId) {
+        return  userDAO.findVisitCount(userId);
     }
 
     @Override
@@ -75,8 +89,6 @@ public class UserServiceImpl implements UserService {
 
         // 인증 수행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        log.info(authentication.toString());
-
         return authentication;
     }
 

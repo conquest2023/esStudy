@@ -9,7 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.controller.model.res.SignUpResponse;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Builder
-public class EsUser implements UserDetails {
+public class User implements UserDetails {
 
 
 
@@ -42,6 +41,9 @@ public class EsUser implements UserDetails {
 
 
     private  String category;
+
+    @Transient
+    private  int visitCount;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -96,12 +98,13 @@ public class EsUser implements UserDetails {
     public void updateLastLogin( LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
     }
-    public EsUser DtoToUser(SignUpResponse sign, String password){
-        Role defaultRole = new Role();
-        defaultRole.setName("ROLE_USER");
-        return  EsUser.builder()
+    public User DtoToUser(SignUpResponse sign, String password){
+//        Role defaultRole = new Role();
+//        defaultRole.setName("ROLE_USER");
+        return  User.builder()
                 .id(id)
                 .userId(sign.getUserId())
+//                .visitCount(0)
                 .username(sign.getUsername())
                 .password(password)
                 .age(sign.getAge())

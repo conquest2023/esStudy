@@ -390,16 +390,27 @@
 <!--    <div class="row">-->
         <!-- 사이드바 -->
         <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
-            <button id="logout-button" class="btn btn-secondary w-100 text-start" onclick="logout()">로그아웃</button>
-
-
-            <!--            <div id="message" class="notice-container"  th:attr="data-access-token=${accessToken}"></div>-->
-<!--                <div class="notice-container">-->
-
+<!--            <button id="logout-button" class="btn btn-secondary w-100 text-start" onclick="logout()">로그아웃</button>-->
+            <button id="logout-button" class="btn btn-secondary w-100 text-start" style="display: none;" onclick="logout()">
+                <span class="fa fa-sign-out-alt"></span> 로그아웃
+            </button>
+            <!-- 로그인 상태 메시지 -->
             <div id="auth-status">
                 <p id="login-message">서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.</p>
-                <p id="user-message" style="display: none;">안녕하세요, <span id="username"> </span>사용자님!</p>
+                <p id="user-message" style="display: none;">안녕하세요, <span id="username"></span> 사용자님!</p>
             </div>
+            <div id="profile-info" style="display: none;">
+                <ul>
+                    <li><strong>방문:</strong> <span id="visit-count">0회</span></li>
+                    <li><strong>내가 쓴 게시글:</strong> <span id="feed-count">0개</span></li>
+                    <li><strong>내가 쓴 댓글:</strong> <span id="comment-count">0개</span></li>
+                </ul>
+            </div>
+            <!-- 로그인 버튼 -->
+            <div class="vertical-menu">
+                <button id="login-button" class="btn btn-success w-100 text-start" onclick="window.location.href='/login';">
+                    <span class="fa fa-sign-in-alt"></span> 로그인
+                </button>
 
             <!--            <div class="login-container">-->
 <!--                <form action="/login" method="POST">-->
@@ -417,10 +428,6 @@
 <!--                    <p><a href="/signup">회원가입</a> | <a href="/reset-password">아이디/비밀번호 변경</a></p>-->
 <!--                </div>-->
 <!--            </div>-->
-            <div class="vertical-menu">
-                <button type="button" class="btn btn-success w-100 text-start">
-                    <span class="fa fa-home"></span> Home
-                </button>
                 <hr>
 <!--                <a href="/movie/list">-->
 <!--                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>-->
@@ -595,7 +602,7 @@
                     <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
                 <form action="/search/view/feed/Form" method="get">
                     <button type="submit" class="btn btn-secondary">
-                        <i class="fas fa-home"></i> 작성하기
+                        <i class="fas fa-pencil-alt"></i> 작성하기
                     </button>
                 </form>
             </div>
@@ -753,19 +760,14 @@
     document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("token");
 
+        const loginButton = document.getElementById("login-button");
+        const logoutButton = document.getElementById("logout-button");
+        const userMessage = document.getElementById("user-message");
+        const loginMessage = document.getElementById("login-message");
         if (token) {
-            const endpoint = "/info";
-            console.log(`[DEBUG] ${window.location.host}${endpoint}로 요청을 보냅니다.`);
-            console.log("현재 페이지:", window.location.href);
-            console.log("저장된 토큰 확인:", token);
-            console.log("현재 호스트:", window.location.host);
-            console.log("현재 프로토콜:", window.location.protocol);
-            console.log("현재 경로명:", window.location.pathname);
-
 
 
             fetch("/info", {
-                url: "/info",
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -782,29 +784,43 @@
                 .then(data => {
                     console.log("서버 응답 데이터:", data);
 
-                    const loginMessage = document.getElementById("login-message");
-                    const userMessage = document.getElementById("user-message");
-                    const usernameElement = document.getElementById("username");
 
                     if (data.isLoggedIn) {
                         // 로그인 상태 업데이트
-                        if (loginMessage) loginMessage.style.display = "none";
-                        if (userMessage) userMessage.style.display = "block";
-                        if (usernameElement) usernameElement.textContent = data.username;
+                        loginButton.style.display = "none";
+                        logoutButton.style.display = "block";
+                        loginMessage.style.display = "none";
+                        userMessage.style.display = "block";
+                        document.getElementById("username").textContent = data.username;
+                        document.getElementById("visit-count").textContent = `${data.visitCount}회`;
+                        document.getElementById("feed-count").textContent = `${data.feedCount}개`;
+                        document.getElementById("comment-count").textContent = `${data.commentCount}개`;
+                        document.getElementById("profile-info").style.display = "block";
                     } else {
-                        // 여기가 문제 부분이었는데, then(...) 쓸 이유가 전혀 없음
+                        loginButton.style.display = "block";
+                        logoutButton.style.display = "none";
+                        loginMessage.style.display = "block";
+                        userMessage.style.display = "none";
                         console.log("유저 정보:", data);
                         console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
                         // window.location.href = "/";
                     }
                 })
                 .catch(error => {
+                    loginButton.style.display = "block";
+                    logoutButton.style.display = "none";
+                    loginMessage.style.display = "block";
+                    userMessage.style.display = "none";
                     console.error("[DEBUG] 에러 발생:", error.message);
                     console.log("token", token);
                     localStorage.removeItem("accessToken");
                     // window.location.href = "/";
                 });
         } else {
+            loginButton.style.display = "block";
+            logoutButton.style.display = "none";
+            loginMessage.style.display = "block";
+            userMessage.style.display = "none";
             console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
             // window.location.href = "/login";
         }
@@ -822,8 +838,8 @@
         const token = localStorage.getItem("token");
         console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
 
-        fetch("https://zkrp.site/authlogout", {
-
+        fetch("/authlogout", {
+            // https://zkrp.site
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

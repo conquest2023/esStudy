@@ -31,7 +31,7 @@
 
                 <!-- 로그인 폼 시작 -->
                 <div class="mb-2">
-                    <form class="login-form" onsubmit="handleLogin(event)">
+                    <form class="login-form" id="loginForm">
                         <div th:if="${error}" class="error-message text-danger mb-3" th:text="${error}"></div>
                         <div class="form-group">
                             <label class="form-label text-white" for="userId">아이디</label>
@@ -41,8 +41,7 @@
                             <label class="form-label text-white" for="password">비밀번호</label>
                             <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력" required>
                         </div>
-                        <!-- 버튼 타입 변경: 엔터 키로도 로그인 가능 -->
-                        <button type="submit" id="loginButton" class="btn btn-primary">로그인</button>
+                        <button type="button" id="loginButton" class="btn btn-primary" onclick="handleLogin(event)">로그인</button>
                     </form>
 
                     <!-- 추가 버튼 -->
@@ -106,7 +105,7 @@
             .catch(error => {
                 if (error.response) {
                     console.error("로그인 실패:", error.response.data);
-                    alert(`로그인 실패: ${error.response.data}`);
+                    alert(`아이디와 비밀번호를 확인해주세요.`);
                 } else {
                     console.error("서버와의 연결에 문제가 있습니다.", error);
                     alert("서버와의 연결에 문제가 있습니다.");

@@ -39,6 +39,14 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
+    public double getUserFeedCount(String userId) {
+
+       return  feedDAO.findUserFeedCount(userId);
+    }
+
+
+
+    @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
 
         Post post=new Post();

@@ -550,6 +550,8 @@
                     const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
                     const usernameInput = document.getElementById("username");
                     const anonymousToggle = document.getElementById("anonymous-toggle");
+
+                    usernameInput.value = userData.username;
                     // 로그인한 사용자 ID와 게시글 작성자 ID 비교
                     if (userData.userId === postAuthorId) {
                         // 게시글 작성자일 경우 이름 입력 필드를 숨기고 "작성자" 표시

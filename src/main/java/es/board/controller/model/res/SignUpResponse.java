@@ -4,6 +4,7 @@ package es.board.controller.model.res;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Primary;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +21,8 @@ public class SignUpResponse {
 
 
     private  String category;
+
+    private  int visitCount;
 
     private  String  role;
 

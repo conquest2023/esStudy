@@ -3,16 +3,20 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.UserDAO;
-import es.board.repository.entity.EsUser;
+import es.board.repository.document.Board;
+import es.board.repository.document.EsUser;
+import es.board.repository.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Repository
 @Slf4j
@@ -20,22 +24,48 @@ import java.io.IOException;
 public class UserDAOImpl implements UserDAO {
 
     private final ElasticsearchClient client;
+
     @Override
-    public SignUpResponse createUser(SignUpResponse dto)  {
+    public void createUser(User dto) {
+        log.info(dto.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("user")
                     .document(dto));
-            return dto;
+            log.info(response.toString());
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the document", e); // 예외를 커스텀 예외로 던짐
         }
     }
+
     @Override
-    public EsUser login(LoginResponse login) {
+    public Long findVisitCount(String userId) {
+        log.info(userId);
         try {
             SearchResponse<EsUser> response = client.search(s -> s
+                            .index("user")
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("userId")
+                                            .value((userId))))
+                            .size(1),
+                    EsUser.class);
+            log.info(response.toString());
+            // 검색된 문서에서 visitCount 가져오기
+            return response.hits().hits().stream()
+                    .findFirst()
+                    .map(hit -> (long) hit.source().getVisitCount())  // Integer -> Long
+                    .orElse(0L);
+        } catch (IOException e) {
+            log.error("Error fetching VisitCount for userId {}: {}", userId, e.getMessage(), e);
+            throw new IndexException("Failed to fetch visit count for userId: " + userId, e);
+        }
+    }
+    @Override
+    public User login(LoginResponse login) {
+        try {
+            SearchResponse<User> response = client.search(s -> s
                             .index("user")
                             .query(q -> q.term(t->t
                                     .field("userId.keyword")
@@ -43,7 +73,7 @@ public class UserDAOImpl implements UserDAO {
                             .query(q->q.term(t->t
                                     .field("password.keyword")
                                     .value(login.getPassword()))),
-                    EsUser.class);
+                    User.class);
             if (response.hits().hits().isEmpty()) {
 
                 log.warn("아이디와 비밀번호가 일치하지않습니다");
@@ -57,6 +87,36 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    public void modifyVisitCount(String userId) {
+        try {
+            client.updateByQuery(u -> u
+                    .index("user")
+                    .query(q -> q
+                            .term(t -> t
+                                    .field("userId")
+                                    .value(userId)
+                            )
+                    )
+                    .script(s -> s
+                            .source("""
+                            if (ctx._source.visitCount == null) {
+                                ctx._source.visitCount = 0;
+                            }
+                            ctx._source.visitCount += params.increment;
+                        """)
+                            .params(Map.of("increment", JsonData.of(1)))  // 1씩 증가
+                    )
+                    .refresh(true)  // 즉시 업데이트 반영
+            );
+            log.info("방문 횟수 업데이트 성공");
+        } catch (IOException e) {
+            log.error("조회수 업데이트 실패: {}", e.getMessage());
+            throw new IndexException(e);
+        }
+    }
+
+
+    @Override
     public void signUp() {
 
     }
@@ -64,13 +124,13 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public Boolean checkUserId(SignUpResponse sign) {
         try {
-            SearchResponse<EsUser> response = client.search(s -> s
+            SearchResponse<User> response = client.search(s -> s
                             .index("user")
                             .query(q -> q.term(t -> t
                                     .field("userId") // keyword 필드 사용
                                     .value(sign.getUserId())
                             )),
-                    EsUser.class
+                    User.class
             );
             log.info(response.hits().hits().toString());
             if (response.hits().hits().isEmpty()) {

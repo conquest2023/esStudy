@@ -12,6 +12,9 @@ import java.util.List;
 @Service
 public interface FeedService {
 
+    double getUserFeedCount(String userId);
+
+
     FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO);
 
     List<FeedRequest> getCategoryFeed(String category);

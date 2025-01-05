@@ -171,6 +171,37 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+//    @Override
+//    public void  modifyVisitCount(String userId) {
+//        try {
+//            // Step 1: feedUID로 _id 검색
+//            SearchResponse<Board> searchResponse = client.search(s -> s
+//                    .index("board")
+//                    .query(q -> q
+//                            .term(t -> t
+//                                    .field("userId")
+//                                    .value(userId)
+//                            )
+//                    ), Board.class
+//            );
+//            log.info(searchResponse.toString());
+//            String documentId = searchResponse.hits().hits().get(0).id();
+//            client.update(u -> u
+//                    .index("board")
+//                    .id(documentId)
+//                    .refresh(Refresh.WaitFor)
+//                    .script(s -> s
+//                            .source("ctx._source.viewCount += params.increment")
+//                            .params(Map.of("increment", JsonData.of(increment)))
+//
+//                    ), Board.class
+//            );
+//        } catch (IOException e) {
+//            log.info("조회수 업데이트 실패");
+//            throw new IndexException(e);
+//        }
+//    }
+
     @Override
     public List<Board> findPagingFeed(int page, int size) {
         try {
@@ -488,6 +519,29 @@ public class FeedDAOImpl implements FeedDAO {
             return null;
         } catch (IOException e) {
             log.error("Error fetching popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
+        }
+    }
+
+    @Override
+    public double findUserFeedCount(String userId) {
+        try {
+
+            SearchResponse<Board> response = client.search(s -> s
+                    .index("board")
+                            .aggregations("feedCount", a -> a
+                                    .filter(f -> f
+                                            .term(t -> t
+                                                    .field("userId")
+                                                    .value(userId)))),
+                    Board.class);
+
+            return response.aggregations()
+                    .get("feedCount")
+                    .filter()
+                    .docCount();
+        }catch (IOException e){
+            log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }

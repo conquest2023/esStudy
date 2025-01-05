@@ -12,6 +12,8 @@ import java.util.Map;
 public interface CommentDAO {
 
 
+    double findUserCommentCount(String userId);
+
     String createCommentOne(String index, CommentCreateResponse dto);
 
     List<Comment> findRecentComment();
