@@ -39,7 +39,7 @@ public interface FeedDAO {
 
      double findSumLikeByPageOne(int page, int size);
       Board findPopularFeedOne();
-
+    Integer findUserLikeCount(String userId);
 
     double findUserFeedCount(String userId);
     void saveViewCounts(String id, Board view) ;

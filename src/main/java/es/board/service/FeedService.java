@@ -14,7 +14,7 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
-
+    Integer getUserLikeCount(String userId);
     FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO);
 
     List<FeedRequest> getCategoryFeed(String category);

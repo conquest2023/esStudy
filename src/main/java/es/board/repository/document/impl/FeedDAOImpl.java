@@ -171,6 +171,33 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+    @Override
+    public Integer findUserLikeCount(String userId) {
+
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("userId")
+                                            .value(userId)))
+                            .size(0) // 검색 결과는 제외하고 집계만 반환
+                            .aggregations("like_count", a -> a
+                                    .sum(d-> d
+                                            .field("likeCount"))), // "likes" 필드의 합산 집계
+                    Board.class);
+            // 집계 결과 가져오기
+           return (int) response.aggregations()
+                    .get("like_count")
+                    .sum()
+                    .value();
+
+        } catch (IOException e) {
+            log.error("Error fetching like count feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch like count feed", e); // 예외 처리
+        }
+    }
+
 //    @Override
 //    public void  modifyVisitCount(String userId) {
 //        try {

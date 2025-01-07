@@ -40,10 +40,13 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public double getUserFeedCount(String userId) {
-
-       return  feedDAO.findUserFeedCount(userId);
+       return  feedDAO.findUserLikeCount(userId);
     }
 
+    @Override
+    public Integer getUserLikeCount(String userId) {
+        return  feedDAO.findUserLikeCount(userId);
+    }
 
 
     @Override

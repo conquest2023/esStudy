@@ -50,6 +50,29 @@ public class LoginController {
         return "basic/login/SignUp";
     }
 
+    @GetMapping("/search/view/feed/mypage")
+    public  ResponseEntity<?> myPage(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.ok(Map.of(
+                        "like",feedService.getUserLikeCount(jwtTokenProvider.getUserId(token)),
+                        "feedCount", (int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
+                        "feedList",feedService.getFeedId(jwtTokenProvider.getUserId(token)),
+                        "commentCount", (int) commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
+                        "visitCount", userService.findVisitCount(jwtTokenProvider.getUserId(token)),
+                        "userId", jwtTokenProvider.getUserId(token),
+                        "username", jwtTokenProvider.getUsername(token),
+                        "isLoggedIn", true));
+            }
+
+//        return "basic/feed/Mypage";
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "세션이 만료되었습니다."
+        ));
+    }
 
     @PostMapping("/signup/pass")
     public String signIn(@ModelAttribute SignUpResponse sign, Model model) {

@@ -38,11 +38,7 @@ public class FeedController {
 
     private  final CommentService commentService;
 
-    @GetMapping("/hello")
-    @ResponseBody
-    public ResponseEntity<String> sayHello() {
-        return ResponseEntity.ok("Hello from RestController!");
-    }
+
     @PostMapping("/authlogout")
     @ResponseBody
     public ResponseEntity<?> logout(HttpServletRequest request) {
@@ -61,9 +57,13 @@ public class FeedController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+
         if (token != null && token.startsWith("Bearer ")) {
+
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
+                log.info(String.valueOf(feedService.getUserLikeCount(jwtTokenProvider.getUserId(token))));
+
                 return ResponseEntity.ok(Map.of(
                         "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
                         "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
