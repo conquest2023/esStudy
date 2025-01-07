@@ -75,10 +75,9 @@ public class FeedViewController {
 
 
     @GetMapping("/search/view/feed/update")
-    public String editFeed(@RequestParam("id") String id, @RequestParam("username") String username, Model model)  {
+    public String editFeed(@RequestParam("id") String id, Model model)  {
         model.addAttribute("feedUpdate",feedService.getFeedId(id));
-    //        model.addAttribute("id", id);
-//        model.addAttribute("username", username);
+        log.info(feedService.getFeedId(id).toString());
         return "basic/feed/EditFeed";
     }
 

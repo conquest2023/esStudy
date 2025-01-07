@@ -150,8 +150,8 @@
         .btn-link:hover {
             text-decoration: underline;
         }
-        .pagination {
-            justify-content: center;
+        .edit-btn, .delete-btn {
+            display: inline-block; /* 버튼을 표시 */
         }
         tr {
             margin-bottom: 20px;
@@ -168,9 +168,10 @@
     <tr th:each="board : ${data}">
         <!-- 수정하기 버튼을 별도 셀로 이동 -->
         <td style="text-align: right;">
-            <a th:href="@{/search/view/feed/update(id=${board.feedUID}, username=${board.username})}">
-                <button type="submit">
-                    <i class="fas fa-edit"></i>수정하기
+            <a th:href="@{/search/view/feed/update(id=${board.feedUID})}"
+               class="edit-btn" th:data-author-id="${board.userId}">
+                <button type="button" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> 수정하기
                 </button>
             </a>
         </td>
@@ -245,7 +246,7 @@
                 <tr th:each="comment : ${comment}">
                     <td class="comment-item" style="padding: 10px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div style="display: flex; gap: 10px;">
+                            <div style="display: flex; gap: 10px;" th:data-author-id="${comment.userId}">
                                 <!-- 작성자 표시 -->
                                 <span th:if="${comment.userId == data.userId}" style="font-weight: bold; color: #333;">작성자</span>
                                 <span th:if="${comment.userId != data.userId}" th:text="${comment.username}" style="font-weight: bold; color: #333;"></span>
@@ -270,44 +271,52 @@
                                 </li>
                             </ul>
                             <p th:if="${!#maps.containsKey(replies, comment.commentUID)}" style="font-size: 0.8rem; color: #888;">답글이 없습니다.</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <!-- 답글 달기 버튼 -->
+                                <div style="margin-top: 5px; font-size: 0.8rem; color: #333;">
+                                    <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">
+                                        답글 달기
+                                    </button>
+                                </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div style="margin-top: 5px; font-size: 0.8rem; color: #333;">
-                            <button class="btn btn-link btn-sm reply-toggle" th:data-comment-id="${comment.commentUID}" style="padding: 0;">
-                                답글 달기
+                                <!-- 답글 입력 폼 -->
+                                <div class="reply-form" th:id="'reply-form-' + ${comment.commentUID}" style="display: none; margin-top: 10px; font-size: 0.8rem; color: #333;">
+                                    <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:id="'reply-textarea-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
+                                    <input type="hidden" name="commentUID" th:value="${comment.commentUID}">
+                                    <input type="hidden" name="feedId" th:value="${feedId}">
+<!--                                    <input type="hidden" id="currentReplyUserId" name="userId">-->
+<!--                                    <input type="hidden" name="username" th:value="${comment.username}">-->
+                                    <button class="btn-submit-reply" th:data-comment-id="${comment.commentUID}" th:data-feed-id="${comment.feedUID}" th:data-username="${comment.username}">
+                                        답글 작성
+                                    </button>
+                                </div>
+                        <td style="text-align: right; vertical-align: top; padding: 10px;">
+                            <!-- 좋아요 버튼 -->
+                            <button class="like-btn" th:data-comment-id="${comment.commentUID}" style="background: none; border: none; padding: 0;">
+                                <i class="far fa-heart"></i>
                             </button>
+                            <span th:id="'like-count-comment-' + ${comment.commentUID}" th:text="${comment.likeCount}" style="margin-left: 10px;"></span>
+
+                            <!-- 토글 버튼 (수정/삭제 옵션 열기) -->
+                            <button class="btn btn-light btn-sm toggle-btn" th:attr="data-comment-id='options-' + ${comment.commentUID}">...</button>
+
+                            <!-- 수정/삭제 옵션 -->
+                            <div th:id="'options-' + ${comment.commentUID}" class="comment-options" style="display:none; margin-top: 5px;">
+                                <!-- 수정 버튼 -->
+                                <a th:href="@{/search/view/comment/update(commentUID=${comment.commentUID}, feedUID=${comment.feedUID})}"
+                                   class="btn btn-outline-secondary btn-sm edit-comment-btn" style="display: none;">
+                                    수정</a>
+<!--                                <input type="hidden" name="commentUID" th:value="${commentUID}">-->
+                                <form th:action="@{/search/view/comment/delete(id=${comment.commentUID}, feedUID=${comment.feedUID})}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm delete-comment-btn" style="display: none;">
+                                        삭제
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+
+                    </div>
                         </div>
-
-                        <div class="reply-form" th:id="'reply-form-' + ${comment.commentUID}" style="display: none; margin-top: 10px; font-size: 0.8rem; color: #333;">
-                            <textarea class="form-control" rows="3" placeholder="답글을 작성하세요..." th:id="'reply-textarea-' + ${comment.commentUID}" style="resize: none; width: 100%;"></textarea>
-                            <input type="hidden" name="commentUID" th:value="${comment.commentUID}">
-                            <input type="hidden" name="feedId" th:value="${feedId}">
-                            <input type="hidden" name="username" th:value="${comment.username}">
-                            <button class="btn-submit-reply" th:data-comment-id="${comment.commentUID}"
-                                    th:data-feed-id="${comment.feedUID}" th:data-username="${comment.username}">
-                                답글 작성
-                            </button>
-                        </div>
-                    <td style="text-align: right; vertical-align: top; padding: 10px;">
-                        <button class="like-btn" th:data-comment-id="${comment.commentUID}" style="background: none; border: none; padding: 0;">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        <span th:id="'like-count-comment-' + ${comment.commentUID}" th:text="${comment.likeCount}" style="margin-left: 10px;"></span>
-
-                        <button class="btn btn-light btn-sm toggle-btn" th:attr="data-id='options-' + ${comment.commentUID}">...</button>
-                        <div th:id="'options-' + ${comment.commentUID}" class="comment-options" style="display:none; margin-top: 5px;">
-                            <a th:href="@{/search/view/comment/update(commentUID=${comment.commentUID}, feedUID=${comment.feedUID})}" class="btn btn-outline-secondary btn-sm">수정</a>
-                            <input type="hidden" name="commentUID" value="${commentUID}">
-                            <form th:action="@{/search/view/comment/delete(id=${comment.commentUID}, feedUID=${comment.feedUID})}" method="post" style="display: inline;">
-
-                                <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
-                            </form>
-
-
-                        </div>
-                    </td>
-
-
                 </tr>
                 </tbody>
             </table>
@@ -318,7 +327,7 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
+        </div>thod
     </div>
                 <div class="write-comment bg-white p-3 border rounded shadow-sm">
                     <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
@@ -350,95 +359,97 @@
             <i class="fas fa-save"></i> 저장하기
         </button>
     </form>
-    <tr th:each="board : ${data}">
-        <td style="text-align: center;">
-            <form th:action="@{/search/view/feed/delete}" method="post">
-                <input type="hidden" name="id" th:value="${data.feedUID}" />
-                <input type="hidden" name="userId" th:value="${data.id}">
-                <button type="submit" class="btn btn-secondary">
-                    <i class="fas fa-trash"></i> 삭제
-                </button>
-                <input type="hidden" name="_method" value="DELETE" />
+                    <tr th:each="board : ${data}">
+                        <td>
+                            <form th:action="@{/search/view/feed/delete}" method="post">
+                                <input type="hidden" name="id" th:value="${data.feedUID}" />
 
-
-
+                                <!-- userId 값 -->
+                                <input type="hidden" name="userId" th:value="${data.id}" />
+<!--                               <input type="hidden" name="id" th:data-author-id="${data.userId}" />-->
+                                <button type="submit" class="delete-btn" th:data-post-id="${data.id}">
+                                    <i class="fas fa-trash"></i> 삭제
+                                </button>
+                                <input type="hidden" name="_method" value="DELETE">
+<!--                <a th:href="@{/search/view/feed/update(id=${board.feedUID})}" class="edit-btn" th:data-author-id="${board.userId}" style="display: none;">-->
+<!--                    <button type="button" class="btn btn-outline-primary">-->
+<!--                        <i class="fas fa-edit"></i> 수정하기-->
+<!--                    </button>-->
+<!--                </a>-->
     <div class="text-center mt-4">
         <a href="/search/view/feed?index=board" class="btn btn-secondary">
             <i class="fas fa-home"></i> 메인으로 돌아가기
         </a>
     </div>
-            </form>
+                            </form>
     </tr>
 </div>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // 답글 달기 버튼 클릭 시 답글 입력 폼 토글
-        document.querySelectorAll(".reply-toggle").forEach(button => {
-            button.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                const replyForm = document.getElementById(`reply-form-${commentId}`
-                );
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     // 답글 달기 버튼 클릭 시 답글 입력 폼 토글
+    //     document.querySelectorAll(".reply-toggle").forEach(button => {
+    //         button.addEventListener("click", function () {
+    //             const commentId = this.getAttribute("data-comment-id");
+    //             const replyForm = document.getElementById(`reply-form-${commentId}`
+    //             );
+    //
+    //             if (replyForm) {
+    //                 replyForm.style.display = (replyForm.style.display === "none" || replyForm.style.display === "") ? "block" : "none";
+    //             } else {
+    //                 console.warn(`답글 입력 폼을 찾을 수 없습니다. commentId: ${commentId}`);
+    //             }
+    //         });
+    //     });
+    //
+    //     // 답글 작성 버튼 클릭 시
+    //     document.querySelectorAll(".btn-submit-reply").forEach(button => {
+    //         button.addEventListener("click", function () {
+    //             const commentId = this.getAttribute("data-comment-id");
+    //             const feedId = this.getAttribute("data-feed-id"); // URL에서 feedUID를 직접 가져오는 대신 버튼에서 가져옵니다.
+    //             const replyContent = document.getElementById(`reply-textarea-${commentId}`).value;
+    //             const username = userData.username;
+    //             if (replyContent.trim() === "") {
+    //                 alert("답글 내용을 입력해 주세요.");
+    //                 return;
+    //             }
+    //             submitReply(commentId, replyContent, feedId,username);
+    //         });
+    //     });
+    // });
+    //
+    // // AJAX로 답글 전송
+    // function submitReply(commentId, replyContent, feedUID, username) {
+    //     const data = {
+    //         commentUID: commentId,
+    //         feedUID: feedUID,
+    //         content: replyContent,
+    //         username: username
+    //     };
 
-                if (replyForm) {
-                    // 답글 폼을 토글 (보이거나 숨기기)
-                    replyForm.style.display = (replyForm.style.display === "none" || replyForm.style.display === "") ? "block" : "none";
-                } else {
-                    console.warn(`답글 입력 폼을 찾을 수 없습니다. commentId: ${commentId}`);
-                }
-            });
-        });
-
-        // 답글 작성 버튼 클릭 시
-        document.querySelectorAll(".btn-submit-reply").forEach(button => {
-            button.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                const feedId = this.getAttribute("data-feed-id"); // URL에서 feedUID를 직접 가져오는 대신 버튼에서 가져옵니다.
-                const replyContent = document.getElementById(`reply-textarea-${commentId}`).value;
-                const username = this.getAttribute("data-username");
-                if (replyContent.trim() === "") {
-                    alert("답글 내용을 입력해 주세요.");
-                    return;
-                }
-
-                // submitReply 함수 호출
-                submitReply(commentId, replyContent, feedId,username);
-            });
-        });
-    });
-
-    // AJAX로 답글 전송
-    function submitReply(commentId, replyContent, feedUID, username) {
-        const data = {
-            commentUID: commentId,
-            feedUID: feedUID,
-            content: replyContent,
-            username: username
-        };
-
-        // fetch 요청 보내기
-        fetch('/search/view/reply/save', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text(); // 단순 문자열로 처리
-            })
-            .then(redirectUrl => {
-                console.log('리다이렉션 URL:', redirectUrl);
-                // 해당 URL로 이동
-                window.location.href = redirectUrl;
-            })
-            .catch(error => {
-                console.log(data);
-                console.error('답글 저장 중 오류 발생:', error);
-            });
-    }
+    //     // fetch 요청 보내기
+    //     fetch('/search/view/reply/save', {
+    //         method: 'POST',
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify(data)
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error(`HTTP error! status: ${response.status}`);
+    //             }
+    //             return response.text(); // 단순 문자열로 처리
+    //         })
+    //         .then(redirectUrl => {
+    //             console.log('리다이렉션 URL:', redirectUrl);
+    //             // 해당 URL로 이동
+    //             window.location.href = redirectUrl;
+    //         })
+    //         .catch(error => {
+    //             console.log(data);
+    //             console.error('답글 저장 중 오류 발생:', error);
+    //         });
+    // }
         // 댓글 좋아요 버튼 클릭 이벤트
         document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
             button.addEventListener("click", function () {
@@ -528,9 +539,20 @@
                 }
             });
         });
-    document.addEventListener("DOMContentLoaded", function () {
-        const token = localStorage.getItem("token");
 
+    document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("토큰이 없습니다. 기본 동작을 실행합니다.");
+                document.querySelectorAll(".toggle-btn").forEach(toggleButton => {
+                    toggleButton.style.display = "none"; // 버튼 숨기기
+                });
+                initializeButtonsWithoutToken();
+                return;
+            }
+            initializeButtons(token); // 토큰이 있을 때 실행되는 함수 호출
+        });
+        const token = localStorage.getItem("token");
         if (token) {
             // 사용자 정보 가져오기
             fetch("/info", {
@@ -541,45 +563,293 @@
                 },
             })
                 .then((response) => response.json())
-                .then((userData) => {
+                .then(userData => {
+                    localStorage.setItem("username", userData.username);
                     // 게시글 작성자 ID 가져오기
-                    const userIdInput = document.getElementById("currentUserId");
-                    if (userIdInput) {
-                        userIdInput.value = userData.userId;
-                    }
-                    const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
+                    const currentUserId = userData.userId;
                     const usernameInput = document.getElementById("username");
                     const anonymousToggle = document.getElementById("anonymous-toggle");
-
-                    usernameInput.value = userData.username;
-                    // 로그인한 사용자 ID와 게시글 작성자 ID 비교
-                    if (userData.userId === postAuthorId) {
-                        // 게시글 작성자일 경우 이름 입력 필드를 숨기고 "작성자" 표시
-                        document.getElementById("username-input").style.display = "none";
-                        document.getElementById("username-fixed").style.display = "block";
-                        usernameInput.value = "작성자";
-                        usernameInput.removeAttribute("required");  // required 제거
-                    }else {
-                        usernameInput.setAttribute("readonly", true); // required 추가
+                    const userIdInput = document.getElementById("currentUserId");
+                    if (userIdInput) {
+                        userIdInput.value = currentUserId;
                     }
-                    anonymousToggle.checked = false;
-                    anonymousToggle.addEventListener("change", function () {
-                        if (anonymousToggle.checked) {
-                            // 익명 작성 시
-                            usernameInput.value = "";
-                            usernameInput.removeAttribute("readonly");
-                        } else {
-                            // 로그인 사용자 이름으로 작성 시
-                            usernameInput.value = userData.username;
-                            usernameInput.setAttribute("readonly", true);
+                    // 사용자 이름 기본값 설정
+                    if (usernameInput) {
+                        usernameInput.value = userData.username;
+                        usernameInput.setAttribute("readonly", true);
+                    }
+                    const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
+                    // document.querySelectorAll(".comment-item").forEach(comment => {
+                    //     const commentDiv = comment.querySelector("[th\\:data-author-id], [data-author-id]");
+                    //     console.log("asdsads",commentDiv)
+                    //     const commentAuthorId = commentDiv ? commentDiv.getAttribute("data-author-id") : null;
+                    //     const editButton = comment.querySelector(".edit-comment-btn");
+                    //     const deleteButton = comment.querySelector(".delete-comment-btn");
+                    //     if (currentUserId ===  commentAuthorId) {
+                    //         toggleButton.style.display = "inline-block"; // 버튼 표시
+                    //     } else {
+                    //         console.log("asdsads",commentAuthorId)
+                    //         toggleButton.style.display = "none"; // 버튼 숨기기
+                    //     }
+                    //
+                    // });
+                    //     document.querySelectorAll(".comment-item").forEach(commentItem => {
+                    //         const authorDiv = commentItem.querySelector("[data-author-id]"); // data-author-id가 있는 <div>
+                    //         const commentAuthorId = authorDiv ? authorDiv.getAttribute("data-author-id") : null;
+                    //
+                    //
+                    //         console.log("작성자 ID:", commentAuthorId);
+                    //
+                    //         const toggleButton = commentItem.querySelector(".toggle-btn");
+                    //         if (!toggleButton) {
+                    //             console.warn("toggle-btn을 찾을 수 없습니다.");
+                    //             return;
+                    //         }
+                    //
+                    //         if (currentUserId === commentAuthorId) {
+                    //             toggleButton.style.display = "inline-block"; // 작성자일 경우 버튼 보이기
+                    //         } else {
+                    //             toggleButton.style.display = "none"; // 작성자가 아니면 버튼 숨기기
+                    //         }
+                    //     });
+                    //     // 모든 수정 버튼을 확인하여 현재 사용자와 게시글 작성자를 비교
+                    //     if (currentUserId === postAuthorId || currentUserId === "관리자") {
+                    //         // document.getElementById("username-input").style.display = "none";
+                    //         document.getElementById("username-fixed").style.display = "block";
+                    //         usernameInput.value = "작성자";
+                    //         usernameInput.removeAttribute("required");
+                    //     } else {
+                    //         usernameInput.setAttribute("readonly", true);
+                    //     } })
+                    // .catch(error => console.error("사용자 정보 가져오기 실패:", error));}
+                    document.querySelectorAll("tr").forEach(row => {
+                        const commentItem = row.querySelector(".comment-item"); // .comment-item 찾기
+                        if (!commentItem) return; // .comment-item이 없으면 건너뜀
+                        const authorDiv = commentItem.querySelector("[data-author-id]");
+                        if (!authorDiv) {
+                            console.warn("authorDiv를 찾을 수 없습니다.");
                         }
+                        const commentAuthorId = authorDiv.getAttribute("data-author-id");
+                        console.log("작성자 ID:", commentAuthorId);
+                        const toggleButton = row.querySelector(".toggle-btn");
+                        if (!toggleButton) {
+                            console.warn("toggle-btn을 찾을 수 없습니다.");
+                            return;
+                        }
+
+                        if (currentUserId === commentAuthorId) {
+                            toggleButton.style.display = "inline-block"; // 작성자일 경우 버튼 보이기
+                        } else {
+                            toggleButton.style.display = "none"; // 작성자가 아니면 버튼 숨기기
+                        }
+                        toggleButton.addEventListener("click", () => {
+                            const optionsDiv = row.querySelector(".comment-options"); // 수정/삭제 옵션 찾기
+                            if (!optionsDiv) {
+                                console.warn("comment-options를 찾을 수 없습니다.");
+                                return;
+                            }
+
+                            // display 상태 토글
+                            if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                                optionsDiv.style.display = "block"; // 보이기
+                            } else {
+                                optionsDiv.style.display = "none"; // 숨기기
+                            }
+
+                            // 수정/삭제 버튼 보이기 (옵션이 열릴 때만)
+                            const editButton = optionsDiv.querySelector(".edit-comment-btn");
+                            const deleteButton = optionsDiv.querySelector(".delete-comment-btn");
+
+                            if (editButton) editButton.style.display = "inline-block";
+                            if (deleteButton) deleteButton.style.display = "inline-block";
+                        });
                     });
-                })
-                .catch((error) => {
-                    console.error("사용자 정보를 가져오는 중 오류 발생:", error);
                 });
+            // anonymousToggle.addEventListener("change", function () {
+            //     if (anonymousToggle.checked) {
+            //         // 익명 모드 활성화
+            //         usernameInput.value = "";
+            //         usernameInput.removeAttribute("readonly");
+            //         usernameInput.required = true;
+            //     } else {
+            //         // 익명 모드 비활성화
+            //         usernameInput.value = userData.username;
+            //         usernameInput.setAttribute("readonly", true);
+            //         usernameInput.required = false;
+            //     }
+            // });
+            // 🔥 답글 버튼 클릭 이벤트 (이벤트 위임 적용)
+            document.addEventListener("click", function (event) {
+                if (event.target.classList.contains("reply-toggle")) {
+                    if (!localStorage.getItem("token")) {
+                        alert("로그인이 필요합니다."); // 간단한 경고창
+                        return;
+                    }
+                    if (event.target.classList.contains("reply-toggle")) {
+                        console.log("답글 토글 버튼 클릭됨"); // 로그 출력
+                        const commentId = event.target.getAttribute("data-comment-id");
+                        const replyForm = document.getElementById(`reply-form-${commentId}`);
+                        const replyContent = document.getElementById(`reply-textarea-${commentId}`).value.trim();
+                        if (replyForm) {
+                            replyForm.style.display =
+                                replyForm.style.display === "none" || replyForm.style.display === ""
+                                    ? "block"
+                                    : "none";
+                            // if (replyContent === "") {
+                            //     alert("답글 내용을 입력해 주세요.");
+                            //     return;
+                        } else {
+                            console.warn(`답글 입력 폼을 찾을 수 없습니다. commentId: ${commentId}`);
+                        }
+                    }
+                }
+            })
+
+            document.addEventListener("click", function (event) {
+                if (event.target.classList.contains("btn-submit-reply")) {
+                    if (!localStorage.getItem("token")) {
+                        alert("로그인이 필요합니다.");
+                        return;
+                    }
+                    const commentId = event.target.getAttribute("data-comment-id");
+                    console.log("asdsad", commentId)
+                    const feedId = event.target.getAttribute("data-feed-id");
+                    const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
+                    const replyContent = document.getElementById(`reply-textarea-${commentId}`).value.trim();
+                    const username = localStorage.getItem("username");
+                    const currentUserId = localStorage.getItem("userId");
+                    let replyAuthorName = localStorage.getItem("username"); // 기본적으로 로그인된 사용자 이름
+
+                    // 답글 내용이 비어 있는지 확인
+                    if (replyContent === "") {
+                        alert("답글 내용을 입력해 주세요.");
+                        return;
+                    }
+
+                    // 게시글 작성자인 경우 이름을 "작성자"로 고정
+                    let displayAuthorName = replyAuthorName; // 기본적으로 사용자 이름
+                    if (currentUserId === postAuthorId) {
+                        displayAuthorName = "작성자";
+                    }
+                    submitReply(commentId, replyContent, feedId, username)
+                        // .then(() => {
+                        //     // 화면에 답글 추가 (AJAX 요청 성공 시)
+                        //     addReplyToUI(commentId, replyContent, displayAuthorName);
+                        //
+                        // })
+                        .catch(error => console.error("Error:", error));
+                }
+            })
+
+            function submitReply(commentId, replyContent, feedId, username) {
+                const data = {
+                    commentUID: commentId,
+                    feedUID: feedId,
+                    content: replyContent,
+                    username: username
+                };
+
+
+                fetch('/search/view/reply/save', {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data),
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(redirectUrl => {
+                        window.location.href = redirectUrl;
+                    })
+                    .catch(error => {
+                        console.error('답글 저장 중 오류 발생:', error);
+                    });
+            }
+
+            function initializeButtons(token) {
+                document.querySelectorAll(".edit-btn").forEach(editButton => {
+                    const postAuthorId = editButton.getAttribute("data-author-id"); // 작성자 ID
+                    const postId = editButton.getAttribute("data-post-id"); // 게시글 ID (공통 식별자)
+                    const currentUserId = localStorage.getItem("userId"); // 현재 로그인된 사용자 ID
+                    // delete 버튼 찾기 (같은 postId를 가진 버튼)
+                    const deleteButton = document.querySelector(".delete-btn");
+                    if (!currentUserId) {
+                        if (deleteButton) deleteButton.style.display = "none";
+                        editButton.style.display = "none";
+                        return;
+                    }
+
+                    if (String(currentUserId) === String(postAuthorId)) {
+                        console.log("현재 사용자와 작성자가 동일합니다.");
+                        editButton.style.display = "inline-block";
+                        if (deleteButton) deleteButton.style.display = "inline-block"; // delete 버튼도 표시
+                    } else {
+                        console.log("현재 사용자와 작성자가 다릅니다.");
+                        editButton.style.display = "none";
+                        if (deleteButton) deleteButton.style.display = "none"; // delete 버튼도 숨김
+                    }
+                });
+            }
+
+            function initializeButtonsWithoutToken() {
+                document.querySelectorAll(".edit-btn").forEach(editButton => {
+                    console.log("토큰 없이 버튼 초기화 실행");
+                    // 토큰 없이 수행할 기본 동작 정의 (예: 버튼 숨기기, 제한된 기능 제공)
+                    editButton.style.display = "none";
+                });
+            }
         }
-    });
+
+    // function addReplyToUI(commentId, content, authorName) {
+    //     const replyContainer = document.getElementById(`reply-container-${commentId}`);
+    //
+    //     // 새로운 답글 요소 생성
+    //     const replyElement = document.createElement("div");
+    //
+    //     replyElement.classList.add("reply");
+    //
+    //     replyElement.innerHTML = `
+    //     <p><strong>${authorName}</strong>: ${content}</p>
+    // `;
+    //     // 답글 컨테이너에 추가
+    //     replyContainer.appendChild(replyElement);
+    //
+    //     // 입력 필드 초기화
+    //     document.getElementById(`reply-textarea-${commentId}`).value = "";
+    // }
+
+    //                 usernameInput.value = userData.username;
+    //                 // 로그인한 사용자 ID와 게시글 작성자 ID 비교
+    //                 if (userData.userId === postAuthorId) {
+    //                     // 게시글 작성자일 경우 이름 입력 필드를 숨기고 "작성자" 표시
+    //                     document.getElementById("username-input").style.display = "none";
+    //                     document.getElementById("username-fixed").style.display = "block";
+    //                     usernameInput.value = "작성자";
+    //                     usernameInput.removeAttribute("required");  // required 제거
+    //                 }else {
+    //                     usernameInput.setAttribute("readonly", true); // required 추가
+    //                 }
+    //                 anonymousToggle.checked = false;
+    //                 anonymousToggle.addEventListener("change", function () {
+    //                     if (anonymousToggle.checked) {
+    //                         // 익명 작성 시
+    //                         usernameInput.value = "";
+    //                         usernameInput.removeAttribute("readonly");
+    //                     } else {
+    //                         // 로그인 사용자 이름으로 작성 시
+    //                         usernameInput.value = userData.username;
+    //                         usernameInput.setAttribute("readonly", true);
+    //                     }
+    //                 });
+    //             })
+    //             .catch((error) => {
+    //                 console.error("사용자 정보를 가져오는 중 오류 발생:", error);
+    //             });
+    //     }
+    // });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </div>

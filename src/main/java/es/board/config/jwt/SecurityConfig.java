@@ -25,12 +25,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return  httpSecurity
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
-          .authorizeHttpRequests(authz -> authz
-//                  .requestMatchers("/", "/auth/logout", "/login", "/signup").permitAll()
-////                  .requestMatchers("/public/**","/login", "/login/pass").permitAll()
-////                               .requestMatchers( "/login").permitAll()
-////                 .requestMatchers("").permitAll() // 특정 엔드포인트 허용
-                   .anyRequest().permitAll())
+//          .authorizeHttpRequests(authz -> authz
+////                  .requestMatchers("/", "/auth/logout", "/login", "/signup").permitAll()
+//////                  .requestMatchers("/public/**","/login", "/login/pass").permitAll()
+//////                               .requestMatchers( "/login").permitAll()
+//////                 .requestMatchers("").permitAll() // 특정 엔드포인트 허용
+//                   .anyRequest().permitAll())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class) // JWT 인증 필터 추가
                 .build();
 

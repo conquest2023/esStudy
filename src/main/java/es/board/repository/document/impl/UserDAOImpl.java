@@ -41,7 +41,6 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Long findVisitCount(String userId) {
-        log.info(userId);
         try {
             SearchResponse<EsUser> response = client.search(s -> s
                             .index("user")
