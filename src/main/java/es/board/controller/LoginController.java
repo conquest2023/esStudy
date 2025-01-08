@@ -85,12 +85,14 @@ public class LoginController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
-                log.info(feedService.getUserRangeTimeFeed(userId).toString());
+                log.info(commentService.getUserRangeTimeComment(userId).toString()
+                );
                 Map<String, Object> response = Map.of(
                         "like", feedService.getUserLikeCount(userId),
                         "feedCount", feedService.getUserFeedCount(userId),
                         "commentList", commentService.getCommentId(userId),
                         "feedList",  feedService.getFeedUserList(userId),
+                        "RangeUserTimeComment",commentService.getUserRangeTimeComment(userId),
                         "RangeUserTimeFeed", feedService.getUserRangeTimeFeed(userId),
                         "commentAndFeed",commentService.getFeedAndComment(userId),
                         "commentCount", commentService.getUserCommentCount(userId),

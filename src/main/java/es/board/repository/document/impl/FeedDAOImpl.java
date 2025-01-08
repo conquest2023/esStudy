@@ -65,7 +65,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .must(m -> m.term(t -> t.field("userId").value(userId))) // 첫 번째 조건
                                     .must(m -> m.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 두 번째 조건
                             )
-                    ).size(5), Board.class);
+                    ).sort(so->so.field(f->f.field("createdAt").order(SortOrder.Desc))).size(5), Board.class);
             return response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());

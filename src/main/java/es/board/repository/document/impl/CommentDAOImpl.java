@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
 import es.board.controller.model.res.CommentCreateResponse;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -339,6 +342,46 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
 
+    @Override
+    public List<Comment> findUserRangeTimeComment(String userId) {
+
+        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        try {
+            SearchResponse<Board> boardResponse = client.search(s -> s
+                            .index("board")
+                            .query(q -> q.bool(b -> b
+                                  // 피드 소유자 조건
+                                    .filter(f -> f.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 날짜 범위 필터
+                                    .must(m -> m.term(t -> t.field("userId").value(userId))) // userId가 매칭되는 경우만
+                            ))
+                            .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))) // 최신순 정렬
+                    .source(a -> a.filter(f -> f.includes("feedUID"))),Board.class);
+            List<String> feedUIDs = boardResponse.hits().hits().stream()
+                    .map(hit -> hit.source().getFeedUID())
+                    .collect(Collectors.toList());
+            if (feedUIDs.isEmpty()) {
+                return Collections.emptyList(); // 피드가 없으면 빈 결과 반환   .terms(tf -> tf.value(fieldValues)
+            }
+            List<FieldValue> fieldValues = feedUIDs.stream()
+                    .map(FieldValue::of)
+                    .collect(Collectors.toList());
+            SearchResponse<Comment> commentResponse = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q.bool(b -> b
+                                    .must(m -> m.terms(t -> t.field("feedUID").terms(tf -> tf.value(fieldValues)))) // feedUID 조건 추가
+                                    .must(m -> m.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 날짜 범위 조건
+                                    .mustNot(m -> m.term(t -> t.field("userId.keyword").value(userId))) // 본인이 작성한 댓글 제외
+                            ))
+                            .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))) // 최신순 정렬
+                            .size(10),
+                    Comment.class);
+            return commentResponse.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error searching for comment by id", e);
+            throw new IndexException("Failed to find comment by ID", e);}}
 
 
     @Override
