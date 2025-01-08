@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @Controller
@@ -37,7 +38,6 @@ public class LoginController {
     private final JwtTokenProvider jwtTokenProvider;
 
 
-
     @GetMapping("/login")
     public String login() {
 
@@ -49,30 +49,85 @@ public class LoginController {
 
         return "basic/login/SignUp";
     }
+    @GetMapping("/search/view/feed/list/page")
+    public  String test(){
 
-    @GetMapping("/search/view/feed/mypage")
-    public  ResponseEntity<?> myPage(HttpServletRequest request) {
+        return "basic/feed/Mypage";
+    }
+//    @GetMapping("/search/view/feed/mypage")
+//    public String myPage(Model model, HttpServletRequest request) {
+//        log.info("Dsaasdasd");
+//        String token = request.getHeader("Authorization");
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//            if (jwtTokenProvider.validateToken(token)) {
+//                String userId = jwtTokenProvider.getUserId(token);
+//
+//                // 데이터 가져오기
+//                model.addAttribute("like", feedService.getUserLikeCount(userId));
+//                model.addAttribute("feedCount", feedService.getUserFeedCount(userId));
+//                model.addAttribute("feedList", feedService.getFeedId(userId));
+//                model.addAttribute("commentCount", commentService.getUserCommentCount(userId));
+//                model.addAttribute("visitCount", userService.findVisitCount(userId));
+//                model.addAttribute("userId", userId);
+//                model.addAttribute("username", jwtTokenProvider.getUsername(token));
+//                model.addAttribute("isLoggedIn", true);
+//
+//                return "basic/login/mypage"; // mypage.html 반환
+//            }
+//        }
+//        return "/basic/feed/eedList"; // 인증 실패 시 로그인 페이지로 리다이렉트
+//    }
+    @GetMapping("/mypage")
+    public ResponseEntity<?> getMyPage(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.ok(Map.of(
-                        "like",feedService.getUserLikeCount(jwtTokenProvider.getUserId(token)),
-                        "feedCount", (int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
-                        "feedList",feedService.getFeedId(jwtTokenProvider.getUserId(token)),
-                        "commentCount", (int) commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
-                        "visitCount", userService.findVisitCount(jwtTokenProvider.getUserId(token)),
-                        "userId", jwtTokenProvider.getUserId(token),
-                        "username", jwtTokenProvider.getUsername(token),
-                        "isLoggedIn", true));
-            }
+                String userId = jwtTokenProvider.getUserId(token);
+                log.info(feedService.getUserRangeTimeFeed(userId).toString());
+                Map<String, Object> response = Map.of(
+                        "like", feedService.getUserLikeCount(userId),
+                        "feedCount", feedService.getUserFeedCount(userId),
+                        "commentList", commentService.getCommentId(userId),
+                        "feedList",  feedService.getFeedUserList(userId),
+                        "RangeUserTimeFeed", feedService.getUserRangeTimeFeed(userId),
+                        "commentAndFeed",commentService.getFeedAndComment(userId),
+                        "commentCount", commentService.getUserCommentCount(userId),
+                        "visitCount", userService.findVisitCount(userId),
+                        "username", jwtTokenProvider.getUsername(token)
+                );
 
-//        return "basic/feed/Mypage";
+                return ResponseEntity.ok(response);
+            }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                "error", "세션이 만료되었습니다."
-        ));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
+
+//    @GetMapping("/mypage")
+//    @ResponseBody
+//    public ResponseEntity<?> myPage(HttpServletRequest request) {
+//        String token = request.getHeader("Authorization");
+//        log.info("Authorization Header: {}", token);
+//
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//            if (jwtTokenProvider.validateToken(token)) {
+//                log.info(feedService.getFeedId(jwtTokenProvider.getUserId(token)).toString());
+//                return ResponseEntity.ok(Map.of(
+//                        "like", feedService.getUserLikeCount(jwtTokenProvider.getUserId(token)),
+//                        "feedCount", (int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
+//                        "feedList", feedService.getFeedId(jwtTokenProvider.getUserId(token)),
+//                        "commentCount", (int) commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
+//                        "visitCount", userService.findVisitCount(jwtTokenProvider.getUserId(token)),
+//                        "userId", jwtTokenProvider.getUserId(token),
+//                        "username", jwtTokenProvider.getUsername(token),
+//                        "isLoggedIn", true));
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching data");
+//    }
+
 
     @PostMapping("/signup/pass")
     public String signIn(@ModelAttribute SignUpResponse sign, Model model) {

@@ -62,8 +62,6 @@ public class FeedController {
 
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                log.info(String.valueOf(feedService.getUserLikeCount(jwtTokenProvider.getUserId(token))));
-
                 return ResponseEntity.ok(Map.of(
                         "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
                         "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),

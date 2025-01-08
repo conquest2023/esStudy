@@ -2,6 +2,7 @@ package es.board.service.impl;
 
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
+import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
@@ -28,6 +29,13 @@ public class CommentServiceImpl implements CommentService {
     private  final LikeDAO likeDAO;
 
     private  final PostRepository postRepository;
+
+    @Override
+    public List<FeedRequest> getFeedAndComment(String userId) {
+        FeedRequest request=new FeedRequest();
+        return  request.BoardListToDTO(commentDAO.findFeedAndComment(userId));
+    }
+
     @Override
     public String saveDocument(String indexName, CommentCreateResponse dto) {
 
@@ -100,9 +108,9 @@ public class CommentServiceImpl implements CommentService {
         return commentRequest.changeCommentListDTO(commentDAO.findCommentAll());
     }
 
-    public CommentRequest getCommentOne(String commentUID){
+    public List<CommentRequest> getCommentOne(String commentUID){
         CommentRequest comment =new CommentRequest();
-        return  comment.changeCommentDTO(commentDAO.findCommentId(commentUID));
+        return  comment.changeCommentListDTO(commentDAO.findCommentId(commentUID));
     }
     @Override
     public List<Comment> getCommentId(String id) {

@@ -48,8 +48,6 @@ public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable Stri
         return "basic/commentList";
     }
 
-
-
     @GetMapping("/search/view/comment/text")
     public String getSearchCommentList(Model model, @RequestParam String text){
         log.info(commentService.getSearchComment(text).toString());
@@ -62,9 +60,6 @@ public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable Stri
           model.addAttribute("data",commentService.getLikeCount());
           return  "basic/commentLike";
     }
-//    @GetMapping("/search/view/comment/desc")
-//    public  String  getMostCommentDESC(Model model) throws  IOException{
-//    }
 
     @GetMapping("/search/view/comment/paging")
     public String getPagingCommentList(Model model, @RequestParam(defaultValue = "1") int num)  {

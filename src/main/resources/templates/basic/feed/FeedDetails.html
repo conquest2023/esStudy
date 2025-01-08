@@ -327,7 +327,7 @@
                 </tr>
                 </tbody>
             </table>
-        </div>thod
+        </div>
     </div>
                 <div class="write-comment bg-white p-3 border rounded shadow-sm">
                     <h5 style="margin-bottom: 15px; font-weight: bold; color: #333;">
@@ -365,9 +365,9 @@
                                 <input type="hidden" name="id" th:value="${data.feedUID}" />
 
                                 <!-- userId 값 -->
-                                <input type="hidden" name="userId" th:value="${data.id}" />
+                                <input type="hidden" name="userId" th:data-post-id="${data.userId}" />
 <!--                               <input type="hidden" name="id" th:data-author-id="${data.userId}" />-->
-                                <button type="submit" class="delete-btn" th:data-post-id="${data.id}">
+                                <button type="submit" class="delete-btn" th:value="${data.id}">
                                     <i class="fas fa-trash"></i> 삭제
                                 </button>
                                 <input type="hidden" name="_method" value="DELETE">
@@ -541,17 +541,16 @@
         });
 
     document.addEventListener("DOMContentLoaded", function () {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.warn("토큰이 없습니다. 기본 동작을 실행합니다.");
-                document.querySelectorAll(".toggle-btn").forEach(toggleButton => {
-                    toggleButton.style.display = "none"; // 버튼 숨기기
-                });
-                initializeButtonsWithoutToken();
-                return;
-            }
-            initializeButtons(token); // 토큰이 있을 때 실행되는 함수 호출
-        });
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.warn("토큰이 없습니다. 기본 동작을 실행합니다.");
+            document.querySelectorAll(".toggle-btn").forEach(toggleButton => {
+                toggleButton.style.display = "none"; // 버튼 숨기기
+            });
+            initializeButtonsWithoutToken();
+            return;
+        }
+    })
         const token = localStorage.getItem("token");
         if (token) {
             // 사용자 정보 가져오기
@@ -565,7 +564,6 @@
                 .then((response) => response.json())
                 .then(userData => {
                     localStorage.setItem("username", userData.username);
-                    // 게시글 작성자 ID 가져오기
                     const currentUserId = userData.userId;
                     const usernameInput = document.getElementById("username");
                     const anonymousToggle = document.getElementById("anonymous-toggle");
@@ -578,50 +576,25 @@
                         usernameInput.value = userData.username;
                         usernameInput.setAttribute("readonly", true);
                     }
+                    document.querySelectorAll(".edit-btn").forEach(editButton => {
+                        const postAuthorId = editButton.getAttribute("data-author-id"); // 작성자 ID
+                        const deleteButton = document.querySelector(".delete-btn");
+                        if (!currentUserId) {
+                            if (deleteButton) deleteButton.style.display = "none";
+                            editButton.style.display = "none";
+                            return;
+                        }
+
+                        if (String(currentUserId) === String(postAuthorId)) {
+                            editButton.style.display = "inline-block";
+                            if (deleteButton) deleteButton.style.display = "inline-block"; // delete 버튼도 표시
+                        } else {
+                            editButton.style.display = "none";
+                            if (deleteButton) deleteButton.style.display = "none"; // delete 버튼도 숨김
+                        }
+                    });// 토큰이 있을 때 실행되는 함수 호출
+                });
                     const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
-                    // document.querySelectorAll(".comment-item").forEach(comment => {
-                    //     const commentDiv = comment.querySelector("[th\\:data-author-id], [data-author-id]");
-                    //     console.log("asdsads",commentDiv)
-                    //     const commentAuthorId = commentDiv ? commentDiv.getAttribute("data-author-id") : null;
-                    //     const editButton = comment.querySelector(".edit-comment-btn");
-                    //     const deleteButton = comment.querySelector(".delete-comment-btn");
-                    //     if (currentUserId ===  commentAuthorId) {
-                    //         toggleButton.style.display = "inline-block"; // 버튼 표시
-                    //     } else {
-                    //         console.log("asdsads",commentAuthorId)
-                    //         toggleButton.style.display = "none"; // 버튼 숨기기
-                    //     }
-                    //
-                    // });
-                    //     document.querySelectorAll(".comment-item").forEach(commentItem => {
-                    //         const authorDiv = commentItem.querySelector("[data-author-id]"); // data-author-id가 있는 <div>
-                    //         const commentAuthorId = authorDiv ? authorDiv.getAttribute("data-author-id") : null;
-                    //
-                    //
-                    //         console.log("작성자 ID:", commentAuthorId);
-                    //
-                    //         const toggleButton = commentItem.querySelector(".toggle-btn");
-                    //         if (!toggleButton) {
-                    //             console.warn("toggle-btn을 찾을 수 없습니다.");
-                    //             return;
-                    //         }
-                    //
-                    //         if (currentUserId === commentAuthorId) {
-                    //             toggleButton.style.display = "inline-block"; // 작성자일 경우 버튼 보이기
-                    //         } else {
-                    //             toggleButton.style.display = "none"; // 작성자가 아니면 버튼 숨기기
-                    //         }
-                    //     });
-                    //     // 모든 수정 버튼을 확인하여 현재 사용자와 게시글 작성자를 비교
-                    //     if (currentUserId === postAuthorId || currentUserId === "관리자") {
-                    //         // document.getElementById("username-input").style.display = "none";
-                    //         document.getElementById("username-fixed").style.display = "block";
-                    //         usernameInput.value = "작성자";
-                    //         usernameInput.removeAttribute("required");
-                    //     } else {
-                    //         usernameInput.setAttribute("readonly", true);
-                    //     } })
-                    // .catch(error => console.error("사용자 정보 가져오기 실패:", error));}
                     document.querySelectorAll("tr").forEach(row => {
                         const commentItem = row.querySelector(".comment-item"); // .comment-item 찾기
                         if (!commentItem) return; // .comment-item이 없으면 건너뜀
@@ -630,7 +603,7 @@
                             console.warn("authorDiv를 찾을 수 없습니다.");
                         }
                         const commentAuthorId = authorDiv.getAttribute("data-author-id");
-                        console.log("작성자 ID:", commentAuthorId);
+
                         const toggleButton = row.querySelector(".toggle-btn");
                         if (!toggleButton) {
                             console.warn("toggle-btn을 찾을 수 없습니다.");
@@ -664,7 +637,7 @@
                             if (deleteButton) deleteButton.style.display = "inline-block";
                         });
                     });
-                });
+                }
             // anonymousToggle.addEventListener("change", function () {
             //     if (anonymousToggle.checked) {
             //         // 익명 모드 활성화
@@ -712,7 +685,6 @@
                         return;
                     }
                     const commentId = event.target.getAttribute("data-comment-id");
-                    console.log("asdsad", commentId)
                     const feedId = event.target.getAttribute("data-feed-id");
                     const postAuthorId = document.querySelector("input[name='feedAuthorId']").value;
                     const replyContent = document.getElementById(`reply-textarea-${commentId}`).value.trim();
@@ -769,30 +741,32 @@
                     });
             }
 
-            function initializeButtons(token) {
-                document.querySelectorAll(".edit-btn").forEach(editButton => {
-                    const postAuthorId = editButton.getAttribute("data-author-id"); // 작성자 ID
-                    const postId = editButton.getAttribute("data-post-id"); // 게시글 ID (공통 식별자)
-                    const currentUserId = localStorage.getItem("userId"); // 현재 로그인된 사용자 ID
-                    // delete 버튼 찾기 (같은 postId를 가진 버튼)
-                    const deleteButton = document.querySelector(".delete-btn");
-                    if (!currentUserId) {
-                        if (deleteButton) deleteButton.style.display = "none";
-                        editButton.style.display = "none";
-                        return;
-                    }
-
-                    if (String(currentUserId) === String(postAuthorId)) {
-                        console.log("현재 사용자와 작성자가 동일합니다.");
-                        editButton.style.display = "inline-block";
-                        if (deleteButton) deleteButton.style.display = "inline-block"; // delete 버튼도 표시
-                    } else {
-                        console.log("현재 사용자와 작성자가 다릅니다.");
-                        editButton.style.display = "none";
-                        if (deleteButton) deleteButton.style.display = "none"; // delete 버튼도 숨김
-                    }
-                });
-            }
+            // function initializeButtons(token) {
+            //     document.querySelectorAll(".edit-btn").forEach(editButton => {
+            //         const postAuthorId = editButton.getAttribute("data-author-id"); // 작성자 ID
+            //         // const postId = editButton.getAttribute("data-post-id"); // 게시글 ID (공통 식별자)
+            //         const currentUserId = localStorage.getItem("userId"); // 현재 로그인된 사용자 ID
+            //         // delete 버튼 찾기 (같은 postId를 가진 버튼)
+            //         console.log(currentUserId)
+            //         const deleteButton = document.querySelector(".delete-btn");
+            //         if (!currentUserId) {
+            //             if (deleteButton) deleteButton.style.display = "none";
+            //             editButton.style.display = "none";
+            //             return;
+            //         }
+            //
+            //         if (String(currentUserId) === String(postAuthorId)) {
+            //             console.log("현재 사용자와 작성자가 동일합니다.");
+            //             editButton.style.display = "inline-block";
+            //             if (deleteButton) deleteButton.style.display = "inline-block"; // delete 버튼도 표시
+            //         } else {
+            //             console.log("현재 사용자와 작성자가 다릅니다.");
+            //             console.log(postAuthorId);
+            //             editButton.style.display = "none";
+            //             if (deleteButton) deleteButton.style.display = "none"; // delete 버튼도 숨김
+            //         }
+            //     });
+            // }
 
             function initializeButtonsWithoutToken() {
                 document.querySelectorAll(".edit-btn").forEach(editButton => {
@@ -801,7 +775,7 @@
                     editButton.style.display = "none";
                 });
             }
-        }
+
 
     // function addReplyToUI(commentId, content, authorName) {
     //     const replyContainer = document.getElementById(`reply-container-${commentId}`);

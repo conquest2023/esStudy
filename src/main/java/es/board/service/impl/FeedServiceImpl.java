@@ -44,6 +44,12 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<FeedRequest> getUserRangeTimeFeed(String userId) {
+        FeedRequest  feedRequest=new FeedRequest();
+        return  feedRequest.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
+    }
+
+    @Override
     public Integer getUserLikeCount(String userId) {
         return  feedDAO.findUserLikeCount(userId);
     }
@@ -166,7 +172,11 @@ public class FeedServiceImpl implements FeedService {
         postRepository.deleteById(userId);
         feedDAO.deleteFeedOne(id);
     }
-
+    @Override
+    public List<FeedRequest> getFeedUserList(String userId){
+        FeedRequest feedRequest=new FeedRequest();
+        return feedRequest.BoardListToDTO(feedDAO.findUserBoardList(userId));
+    }
     @Override
     public FeedRequest getFeedId(String id) {
         FeedRequest request = new FeedRequest();

@@ -285,7 +285,7 @@ public class FeedViewController {
         model.addAttribute("replies", replyService.getRepliesGroupedByComment(id));
         model.addAttribute("count",commentService.getSumComment(id));
         model.addAttribute("data",feedService.getFeedId(id));
-        model.addAttribute("comment",commentService.getCommentId(id));
+        model.addAttribute("comment",commentService.getCommentOne(id));
         model.addAttribute("reply",replyService.getPartialReply(id));
         model.addAttribute("feedId", id);
     }

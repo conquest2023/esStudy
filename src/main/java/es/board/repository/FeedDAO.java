@@ -14,6 +14,7 @@ public interface FeedDAO {
 
    // Map<String, Object> search(String index)  throws IOException, ElasticsearchException;
 
+    List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;
 
     List<Board> saveBulkFeed(List<Board> pages) ;
@@ -40,6 +41,8 @@ public interface FeedDAO {
      double findSumLikeByPageOne(int page, int size);
       Board findPopularFeedOne();
     Integer findUserLikeCount(String userId);
+
+    List<Board> findUserBoardList(String userId);
 
     double findUserFeedCount(String userId);
     void saveViewCounts(String id, Board view) ;

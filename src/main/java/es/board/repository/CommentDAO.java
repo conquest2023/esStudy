@@ -1,6 +1,7 @@
 package es.board.repository;
 
 import es.board.controller.model.res.CommentCreateResponse;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,8 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
+
+    List<Board> findFeedAndComment(String userId);
 
     double findUserCommentCount(String userId);
 
@@ -42,6 +45,6 @@ public interface CommentDAO {
 
     List<Comment> findCommentAll();
 
-    Comment findCommentId(String commentUid);
+    List<Comment>  findCommentId(String commentUid);
 
 }

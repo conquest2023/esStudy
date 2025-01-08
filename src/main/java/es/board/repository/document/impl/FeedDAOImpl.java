@@ -11,6 +11,7 @@ import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
+import es.board.repository.document.Comment;
 import es.board.repository.entity.entityrepository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,29 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+
+    @Override
+    public List<Board> findUserRangeTimeFeed(String userId) {
+
+         String start =LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .bool(b -> b
+                                    .must(m -> m.term(t -> t.field("userId").value(userId))) // 첫 번째 조건
+                                    .must(m -> m.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 두 번째 조건
+                            )
+                    ).size(5), Board.class);
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error searching documents by date range: {}", e.getMessage(), e);
+            throw new IndexException("Failed to search feed by date range", e);
+        }
+    }
     @Override
     public List<Board> saveBulkFeed(List<Board> pages) {
         BulkRequest.Builder br = new BulkRequest.Builder();
@@ -198,6 +222,23 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
 
+    @Override
+    public List<Board> findUserBoardList(String userId) {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .term(t -> t.field("userId")
+                                    .value(userId))), Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error fetching like count feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch like count feed", e); // 예외 처리
+        }
+    }
+
 //    @Override
 //    public void  modifyVisitCount(String userId) {
 //        try {
@@ -290,6 +331,8 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch total page count", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }
+
+
 
     @Override
     @Transactional
@@ -472,17 +515,22 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board findIdOne(String id) {
+
         try {
             SearchResponse<Board> response = client.search(g -> g
                             .index("board")
                             .query(q -> q
-                                    .term(t -> t
-                                            .field("feedUID.keyword") //Keyword를 왜 썼을까?
-                                            .value(id))),
-                    Board.class);
-
+                                    .bool(b -> b
+                                            .should(
+                                                    s -> s.term(t -> t
+                                                            .field("feedUID.keyword")
+                                                            .value(id)))
+                                            .should(
+                                                    s -> s.term(t -> t
+                                                            .field("userId")
+                                                            .value(id))))), Board.class);
             if (response.hits().hits().isEmpty()) {
-                log.warn("Document not found for feedUID: {}", id);
+                log.warn("Document not found for ID: {}", id);
                 return null;
             }
             return response.hits().hits().get(0).source();

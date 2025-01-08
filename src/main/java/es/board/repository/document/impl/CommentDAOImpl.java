@@ -3,13 +3,16 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
 import es.board.controller.model.res.CommentCreateResponse;
-import es.board.repository.entity.entityrepository.CommentRepository;
 import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
+//import es.board.repository.entity.entityrepository.CommentRepository;
+import es.board.repository.entity.entityrepository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -207,6 +210,39 @@ public class CommentDAOImpl implements CommentDAO {
             throw new IndexException(e);
         }
     }
+    @Override
+    public List<Board> findFeedAndComment(String userId){
+        try{
+            SearchResponse<Comment> response=client.search(s->s
+                            .index("comment")
+                            .query(q->q
+                                    .term(t->t
+                                            .field("userId.keyword")
+                                            .value(userId)))
+                    ,Comment.class);
+         List<String> feedUIDS= response.hits().hits().stream()
+                    .map(hit -> hit.source().getFeedUID())
+                    .collect(Collectors.toList());
+            List<FieldValue> fieldValues = feedUIDS.stream()
+                    .map(FieldValue::of)
+                    .collect(Collectors.toList());
+            SearchResponse<Board> res = client.search(s -> s
+                            .index("board")
+                            .query(q -> q
+                                    .terms(t -> t
+                                            .field("feedUID.keyword")
+                                            .terms(tf -> tf.value(fieldValues)
+                                            ))), Board.class);
+
+            return  res.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+
+        }catch (IOException  e) {
+            log.error("Error fetching total page count: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch total page count", e); // 예외를 커스텀 예외로 감싸서 던짐
+        }
+    }
 
 
     @Override
@@ -214,14 +250,19 @@ public class CommentDAOImpl implements CommentDAO {
         try {
             SearchResponse<Comment> response = client.search(g -> g
                             .index("comment")
-                            .query(q -> q.match(t -> t.field("feedUID").query(id))),
-                    Comment.class
-            );
-
-            List<Comment> comments = response.hits().hits().stream()
+                    .query(q -> q
+                            .bool(b -> b
+                                    .should(
+                                            s -> s.term(t -> t
+                                                    .field("feedUID.keyword")
+                                                    .value(id)))
+                                    .should(
+                                            s -> s.term(t -> t
+                                                    .field("userId")
+                                                    .value(id))))), Comment.class);
+                return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-            return comments;
         } catch (IOException e) {
             log.error("Error searching for comment by id", e);
             throw new IndexException("Failed to find comment by ID", e);
@@ -301,20 +342,19 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public Comment findCommentId(String commentUid) {
+    public List<Comment> findCommentId(String commentUid) {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
-                            .query(q -> q.term(t -> t.field("commentUID").value(commentUid))),
+                            .query(q ->
+                                    q.term(t -> t.field("feedUID")
+                                            .value(commentUid))),
                     Comment.class);
-
-            // 첫 번째 hit의 source를 반환
-            if (!response.hits().hits().isEmpty()) {
-                return response.hits().hits().get(0).source(); // hits()에서 첫 번째 hit의 source를 가져옴
-            } else {
-                return null; // 결과가 없으면 null 반환
-            }
-        } catch (IOException e) {
+            log.info(response.toString());
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+          } catch (IOException e) {
             log.error("Error searching for comment by id", e);
             throw new IndexException("Failed to find comment by ID", e);
         }
@@ -326,7 +366,6 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public void deleteCommentId(String commentId)  {
         try {
-            // commentUID로 Elasticsearch에서 해당 댓글을 찾는 쿼리
             SearchResponse<Comment> searchResponse = client.search(s -> s
                             .index("comment")
                             .query(q -> q.term(t -> t.field("commentUID").value(commentId))),
@@ -338,7 +377,6 @@ public class CommentDAOImpl implements CommentDAO {
                 log.warn("No comment found with commentUID: " + commentId);
                 return;  // 결과가 없으면 삭제를 하지 않고 메서드를 종료
             }
-
             // 결과가 있을 경우 첫 번째 문서의 ID를 가져옴
             String documentId = searchResponse.hits().hits().get(0).id();
             commentRepository.deleteById(documentId);  // 댓글 삭제

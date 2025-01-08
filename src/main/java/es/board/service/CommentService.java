@@ -2,6 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
+import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.Map;
 @Service
 public interface CommentService {
 
-
+    List<FeedRequest>  getFeedAndComment(String userId);
     public String saveDocument(String indexName, CommentCreateResponse dto) ;
 
     List<Comment> getSearchComment(String text) ;
@@ -24,7 +25,7 @@ public interface CommentService {
 
     String indexComment(CommentCreateResponse dto) ;
 
-    CommentRequest getCommentOne(String commentUID);
+    List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);
     Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
     List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) ;

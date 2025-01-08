@@ -433,7 +433,7 @@
 <!--                    <i class="fas fa-film"></i><span>&nbsp; Movie</span>-->
 <!--                </a>-->
 
-                <a href="/search/view/feed/mypage">
+                <a href="/search/view/feed/list/page">
                     <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>
                 </a>
                 <a href="/search/view/feed/list/자유">
@@ -760,7 +760,6 @@
     })
     document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("token");
-
         const loginButton = document.getElementById("login-button");
         const logoutButton = document.getElementById("logout-button");
         const userMessage = document.getElementById("user-message");
@@ -835,6 +834,42 @@
         // href 속성을 동적으로 설정
         this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
     });
+    function myPage(){
+        const token = localStorage.getItem("token");
+        console.log("마이페이지, 저장된 토큰:", token);
+
+        fetch("/search/view/feed/mypage", {
+            // https://zkrp.site
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then((response) => {
+                console.log("[DEBUG] 서버 응답 상태 코드:", response.status);
+                if (!response.ok) {
+                    throw new Error("인증 실패: " + response.status);
+                }
+                return response.json(); // JSON 응답 파싱
+            })
+            .then((data) => {
+                console.log("[DEBUG] 서버 응답 데이터:", data);
+
+                if (data.isLoggedIn === true) { // 인증 성공 시 페이지 이동
+                    console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
+                    window.location.href = "/search/view/feed/mypage"; // 마이페이지로 리다이렉트
+                } else {
+                    console.error("[DEBUG] 인증 실패, 로그인 페이지로 이동");
+                    window.location.href = "/login"; // 인증 실패 시 로그인 페이지로 이동
+                }
+            })
+            .catch((error) => {
+                console.error("[DEBUG] 마이페이지 요청 중 에러 발생:", error);
+                alert("요청 중 문제가 발생했습니다. 다시 시도해주세요.");
+            });
+    }
+
     function logout() {
         const token = localStorage.getItem("token");
         console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
@@ -846,6 +881,7 @@
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             }
+
         })
             .then((response) => response.json())
             .then((data) => {
@@ -865,7 +901,55 @@
             });
 
     }
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("myPageLink").addEventListener("click", function (event) {
+            event.preventDefault(); // 기본 링크 이동 동작 막기
+
+            const token = localStorage.getItem("token");
+            console.log("[DEBUG] 마이페이지 요청 시작, 저장된 토큰:", token);
+            if (!token) {
+                window.location.href = "/"; // 토큰이 없으면 로그인 페이지로 이동
+                return;
+            }
+
+            fetch("/search/view/feed/mypage", { // 서버에 마이페이지 요청
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+                .then((response) => {
+                    console.log("[DEBUG] 서버 응답 상태 코드:", response.status);
+                    if (!response.ok) {
+                        throw new Error("인증 실패: " + response.status);
+                    }
+                    return response.json(); // JSON 응답 파싱
+                })
+                .then((data) => {
+                    console.log("[DEBUG] 서버 응답 데이터:", data);
+
+                    if (data.isLoggedIn === true) { // 인증 성공 시 페이지 이동
+                        console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
+                        console.log(token);
+                        setTimeout(() => {
+                            window.location.href = "/search/view/feed/mypage";
+                        }, 7000);
+                    } else {
+                        console.error("[DEBUG] 인증 실패, 로그인 페이지로 이동");
+                        alert("로그인이 필요합니다.");
+                        window.location.href = "/"; // 인증 실패 시 로그인 페이지로 이동
+                    }
+                })
+                .catch((error) => {
+                    console.error("[DEBUG] 마이페이지 요청 중 에러 발생:", error);
+                    alert("요청 중 문제가 발생했습니다. 다시 시도해주세요.");
+                });
+        });
+    });
     </script>
+
+
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"
 >-->

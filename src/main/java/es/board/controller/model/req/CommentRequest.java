@@ -18,6 +18,8 @@ public class CommentRequest {
 
     private String CommentUID;
 
+    private String feedUID;
+
     private String username;
 
     private  String userId;
@@ -40,6 +42,7 @@ public class CommentRequest {
 
         return comment.stream()
                 .map(comment1 -> CommentRequest.builder()
+                        .feedUID(comment1.getFeedUID())
                         .CommentUID(comment1.getCommentUID())
                         .userId(comment1.getCommentUID())
                         .username(comment1.getUsername())
