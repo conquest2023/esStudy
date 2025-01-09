@@ -1,12 +1,10 @@
 package es.board.repository.entity;
 
 
+import es.board.config.s3.S3Uploader;
 import es.board.controller.model.res.FeedCreateResponse;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,8 +14,9 @@ import java.util.UUID;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Post {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +38,9 @@ public class Post {
     @Column(name = "modified_at")
     private LocalDateTime modify_at;
 
+    @Column(name = "image_url")
+    private  String imageUrl;
+
 
     public Post PostToEntity(FeedCreateResponse feedSaveDTO) {
         return Post.builder()
@@ -46,6 +48,7 @@ public class Post {
                 .userId(feedSaveDTO.getUserId())
                 .username(feedSaveDTO.getUsername())
                 .title(feedSaveDTO.getTitle())
+                .imageUrl(feedSaveDTO.getImageURL())
                 .anonymous(feedSaveDTO.isAnonymous())
                 .createdAt(LocalDateTime.now())
                 .build();

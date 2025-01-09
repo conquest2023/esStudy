@@ -37,7 +37,7 @@ public class Board {
     private String username;
 
     @Field(type =FieldType.Text)
-    private  String image;
+    private  String imageURL;
 
 
     @Field(type =FieldType.Keyword)

@@ -205,8 +205,12 @@
 <!--                </div>-->
                 <!-- 내용 -->
                 <div class="description-box">
+                    <img th:src="${data.imageURL}" alt="이미지 설명" style="max-width: 100%; height: auto;" />
+                </div>
+                <div class="description-box">
                     <p th:text="${board.description}" style="margin: 0; white-space: pre-wrap;"></p>
                 </div>
+
             </td>
         </tr>
         <tr th:each="board : ${data}">

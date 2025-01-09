@@ -411,7 +411,7 @@
             li.innerHTML = `
             <div style="padding: 10px; border-bottom: 1px solid #ddd;">
                 <div><strong>댓글 내용:</strong> ${comment.content || "내용 없음"}</div>
-                <div><strong>게시물 제목:</strong> ${comment.postTitle || "제목 없음"}</div>
+<!--                <div><strong>게시물 제목:</strong> ${comment.title || "제목 없음"}</div>-->
                 <div><strong>작성일자:</strong> ${comment.createdAt ? new Date(comment.createdAt).toLocaleString() : "날짜 없음"}</div>
                 <div><strong>좋아요:</strong> ${comment.likeCount || 0}개</div>
             </div>

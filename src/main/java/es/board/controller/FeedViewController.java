@@ -1,6 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.config.s3.S3Uploader;
 import es.board.controller.model.file.FileStore;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.CommentCreateResponse;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -33,15 +35,13 @@ public class FeedViewController {
     @Value("%{file.dir}")
     private  String fileDir;
 
-    private  final UserService userService;
-
     private final ReplyService replyService;
 
     private final FeedService feedService;
 
     private  final CommentService commentService;
 
-    private  final FileStore fileStore;
+    private  final S3Uploader s3Uploader;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -194,11 +194,15 @@ public class FeedViewController {
         model.addAttribute("data",feedService.getRangeTimeFeed(startDate,endDate));
         return "/basic/feed/RangeFeed";
     }
+//    required = false,
     @PostMapping("/search/view/feed/save")
     @ResponseBody
-    public Map<String, Object> saveFeed(Model model, @ModelAttribute FeedCreateResponse feedSaveDTO,
-                                        @RequestHeader(value = "Authorization", required = false) String token) {
-        log.info(feedSaveDTO.toString());
+    public Map<String, Object> saveFeed(Model model,
+                                        @RequestParam(required = false,value ="imageFiles") MultipartFile file,
+                                        @ModelAttribute FeedCreateResponse feedSaveDTO,
+                                        @RequestHeader(value = "Authorization", required = false) String token) throws IOException {
+
+        feedSaveDTO.setImageURL(s3Uploader.upload(file,feedSaveDTO.getUserId()));
         Map<String, Object> response = new HashMap<>();
         if (token == null || !token.startsWith("Bearer ")) {
             model.addAttribute("userId", null);

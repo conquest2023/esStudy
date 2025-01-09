@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import es.board.config.s3.S3Uploader;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
@@ -30,6 +31,7 @@ public class FeedServiceImpl implements FeedService {
 //    private final RestClient client;
 
 //    private final ElasticsearchClient esClient;
+    private  final S3Uploader s3Uploader;
 
     private final FeedDAO feedDAO;
 
@@ -214,8 +216,10 @@ public class FeedServiceImpl implements FeedService {
         return boards;
     }
     private void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
+
         feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
         feedSaveDTO.setId(id);
+        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
     }
     private List<String> extractFeedUID(int page, int size) {
         List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()

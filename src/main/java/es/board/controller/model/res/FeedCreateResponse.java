@@ -2,6 +2,7 @@ package es.board.controller.model.res;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -11,8 +12,10 @@ import es.board.repository.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +31,7 @@ public class FeedCreateResponse {
 
     private  String userId;
 
-    private  String image;
+    private  String imageURL;
 
     private int  viewCount;
 
@@ -47,9 +50,10 @@ public class FeedCreateResponse {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
-//    private MultipartFile attachFile;
-//
-//    private List<MultipartFile> imageFiles;
+    @JsonIgnore
+    private MultipartFile attachFile;
+    @JsonIgnore
+    private List<MultipartFile> imageFiles;
 //
 //    private String attachFileBase64;
 //
