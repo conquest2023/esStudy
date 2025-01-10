@@ -201,8 +201,11 @@ public class FeedViewController {
                                         @RequestParam(required = false,value ="imageFiles") MultipartFile file,
                                         @ModelAttribute FeedCreateResponse feedSaveDTO,
                                         @RequestHeader(value = "Authorization", required = false) String token) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            log.info("File upload started");
+            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
+        }
 
-        feedSaveDTO.setImageURL(s3Uploader.upload(file,feedSaveDTO.getUserId()));
         Map<String, Object> response = new HashMap<>();
         if (token == null || !token.startsWith("Bearer ")) {
             model.addAttribute("userId", null);

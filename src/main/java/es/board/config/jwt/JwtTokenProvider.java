@@ -73,7 +73,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     public String  generateTokenId(String  userId) {
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 864000);
+        Date accessTokenExpiresIn = new Date(now + 864000000);
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(new Date())
