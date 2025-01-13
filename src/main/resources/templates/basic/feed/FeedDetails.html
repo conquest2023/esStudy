@@ -204,7 +204,7 @@
 <!--                    <img th:src="${board.image}" alt="게시글 이미지" style="max-width: 100%; height: auto; border-radius: 5px;">-->
 <!--                </div>-->
                 <!-- 내용 -->
-                <div class="description-box">
+                <div class="description-box" th:if="${data.imageURL != null}">
                     <img th:src="${data.imageURL}" alt="이미지 설명" style="max-width: 100%; height: auto;" />
                 </div>
                 <div class="description-box">

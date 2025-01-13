@@ -1,8 +1,6 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.jwt.JwtToken;
-import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
@@ -12,12 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @Controller
@@ -85,14 +81,12 @@ public class LoginController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
-                log.info(commentService.getUserRangeTimeComment(userId).toString()
-                );
                 Map<String, Object> response = Map.of(
                         "like", feedService.getUserLikeCount(userId),
                         "feedCount", feedService.getUserFeedCount(userId),
                         "commentList", commentService.getCommentId(userId),
                         "feedList",  feedService.getFeedUserList(userId),
-                        "RangeUserTimeComment",commentService.getUserRangeTimeComment(userId),
+                        "RangeUserTimeComment",commentService.getUserRangeTimeActive(userId),
                         "RangeUserTimeFeed", feedService.getUserRangeTimeFeed(userId),
                         "commentAndFeed",commentService.getFeedAndComment(userId),
                         "commentCount", commentService.getUserCommentCount(userId),

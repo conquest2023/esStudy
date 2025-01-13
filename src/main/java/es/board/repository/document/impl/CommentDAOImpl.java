@@ -343,7 +343,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public List<Comment> findUserRangeTimeComment(String userId) {
+    public List<Comment> findUserRangeActive(String userId) {
 
         String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
@@ -369,7 +369,9 @@ public class CommentDAOImpl implements CommentDAO {
             SearchResponse<Comment> commentResponse = client.search(s -> s
                             .index("comment")
                             .query(q -> q.bool(b -> b
-                                    .must(m -> m.terms(t -> t.field("feedUID").terms(tf -> tf.value(fieldValues)))) // feedUID 조건 추가
+                                    .must(m -> m.terms(
+                                            t -> t.field("feedUID")
+                                                    .terms(tf -> tf.value(fieldValues)))) // feedUID 조건 추가
                                     .must(m -> m.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 날짜 범위 조건
                                     .mustNot(m -> m.term(t -> t.field("userId.keyword").value(userId))) // 본인이 작성한 댓글 제외
                             ))

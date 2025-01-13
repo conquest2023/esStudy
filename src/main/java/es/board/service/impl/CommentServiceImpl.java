@@ -31,9 +31,9 @@ public class CommentServiceImpl implements CommentService {
     private  final PostRepository postRepository;
 
     @Override
-    public List<CommentRequest> getUserRangeTimeComment(String userId) {
+    public List<CommentRequest> getUserRangeTimeActive(String userId) {
         CommentRequest commentRequest=new CommentRequest();
-      return  commentRequest.changeCommentListDTO(commentDAO.findUserRangeTimeComment(userId));
+      return  commentRequest.changeCommentListDTO(commentDAO.findUserRangeActive(userId));
     }
 
     @Override

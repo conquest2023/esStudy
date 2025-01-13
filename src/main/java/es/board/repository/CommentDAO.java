@@ -12,7 +12,7 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
-    List<Comment> findUserRangeTimeComment(String userId);
+    List<Comment> findUserRangeActive(String userId);
 
     List<Board> findFeedAndComment(String userId);
 
