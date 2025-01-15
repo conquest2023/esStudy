@@ -17,5 +17,5 @@ public interface UserService {
     Long findVisitCount(String  userId);
 
     Authentication authenticate(LoginResponse login);
-    String findIdOne();
+    String getUsername(String userId);
 }

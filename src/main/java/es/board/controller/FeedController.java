@@ -1,7 +1,5 @@
 package es.board.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.res.LoginResponse;
@@ -17,9 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -57,9 +52,8 @@ public class FeedController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-
+        log.info("pass={}",token);
         if (token != null && token.startsWith("Bearer ")) {
-
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
@@ -74,6 +68,7 @@ public class FeedController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "error", "세션이 만료되었습니다."
         ));
+
     }
 
     @PostMapping("/authlogin")
@@ -98,16 +93,14 @@ public class FeedController {
     @ResponseBody
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
-
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 Refresh Token입니다.");
         }
         String userId = jwtTokenProvider.getUserId(refreshToken);
-        String newAccessToken = jwtTokenProvider.generateTokenId(userId);
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken
-        ));
+        String username=userService.getUsername(userId);
+        String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
+        log.info("newAccessToken=={}",newAccessToken);
+        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
 

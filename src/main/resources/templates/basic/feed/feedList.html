@@ -758,34 +758,67 @@
             });
         });
     })
+    function fetchUserInfo(token, refreshToken) {
+        return fetch("/info", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                console.log("서버 응답 상태 코드:", response.status);
+
+                // 먼저 401 상태 코드를 체크
+                if (response.status === 401) {
+                    console.warn("Access Token 만료됨. Refresh Token으로 새 Access Token 요청...");
+                    return fetch("/auth/refresh", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ refreshToken: refreshToken })
+                    })
+                        .then(refreshResponse => {
+                            if (!refreshResponse.ok) {
+                                throw new Error("토큰 재발급 실패");
+                            }
+                            return refreshResponse.json();
+                        })
+                        .then(refreshData => {
+                            if (refreshData.accessToken) {
+                                localStorage.setItem("token", refreshData.accessToken);
+                                console.log("새로운 Access Token:", refreshData.accessToken);
+                                token = refreshData.accessToken;
+
+                                // 새 토큰으로 다시 /info 요청
+                                return fetchUserInfo(refreshData.accessToken, refreshToken);
+                            } else {
+                                throw new Error("토큰 재발급 실패");
+                            }
+                        });
+                }
+
+                // 응답 상태 코드가 200~299일 경우에만 JSON 파싱
+                return response.json();
+            });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("token");
+        const refreshToken = localStorage.getItem("refreshToken");
+
         const loginButton = document.getElementById("login-button");
         const logoutButton = document.getElementById("logout-button");
         const userMessage = document.getElementById("user-message");
         const loginMessage = document.getElementById("login-message");
-        if (token) {
 
+        if (token && refreshToken) {
+            fetchUserInfo(token, refreshToken)
 
-            fetch("/info", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-                .then(response => {
-                    console.log("서버 응답 상태 코드:", response.status);
-                    console.log("[DEBUG] 저장된 토큰:", token);
-
-                    // if (!response.ok) throw new Error("인증 실패");
-                    return response.json();
-                })
                 .then(data => {
-                    console.log("서버 응답 데이터:", data);
-
-
-                    if (data.isLoggedIn) {
+                    if (data && data.isLoggedIn) {
+                        console.log(data)
                         // 로그인 상태 업데이트
                         loginButton.style.display = "none";
                         logoutButton.style.display = "block";
@@ -797,74 +830,72 @@
                         document.getElementById("comment-count").textContent = `${data.commentCount}개`;
                         document.getElementById("profile-info").style.display = "block";
                     } else {
+                        // 로그아웃 상태 처리
                         loginButton.style.display = "block";
                         logoutButton.style.display = "none";
                         loginMessage.style.display = "block";
                         userMessage.style.display = "none";
                         console.log("유저 정보:", data);
                         console.error("[DEBUG] 로그인되지 않음. 로그인 페이지로 이동.");
-                        // window.location.href = "/";
                     }
                 })
                 .catch(error => {
+                    // 에러 발생 시 로그아웃 처리
                     loginButton.style.display = "block";
                     logoutButton.style.display = "none";
                     loginMessage.style.display = "block";
                     userMessage.style.display = "none";
                     console.error("[DEBUG] 에러 발생:", error.message);
                     console.log("token", token);
-                    localStorage.removeItem("accessToken");
-                    // window.location.href = "/";
+                    localStorage.removeItem("token");
                 });
         } else {
+            // 로그인 정보가 없는 경우
             loginButton.style.display = "block";
             logoutButton.style.display = "none";
             loginMessage.style.display = "block";
             userMessage.style.display = "none";
             console.log("[DEBUG] 로그인 정보 없음. 로그인 페이지로 이동.");
-            // window.location.href = "/login";
         }
+
+        // 정렬 버튼 이벤트 리스너
+        document.getElementById('mostSortLink').addEventListener('click', function() {
+            var page = 1;
+            var size = 10;
+            this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
+        });
     });
 
-
-    document.getElementById('mostSortLink').addEventListener('click', function() {
-        var page = 1;  // 예시로 첫 페이지를 설정
-        var size = 10; // 예시로 10개의 항목을 설정
-
-        // href 속성을 동적으로 설정
-        this.href = "/search/view/feed/list/most?page=" + page + "&size=" + size;
-    });
-    function myPage(){
+    function myPage() {
         const token = localStorage.getItem("token");
         console.log("마이페이지, 저장된 토큰:", token);
 
         fetch("/search/view/feed/mypage", {
-            // https://zkrp.site
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             }
         })
-            .then((response) => {
+            .then(response => {
                 console.log("[DEBUG] 서버 응답 상태 코드:", response.status);
                 if (!response.ok) {
                     throw new Error("인증 실패: " + response.status);
                 }
-                return response.json(); // JSON 응답 파싱
+                return response.json();
             })
-            .then((data) => {
+            .then(data => {
                 console.log("[DEBUG] 서버 응답 데이터:", data);
 
-                if (data.isLoggedIn === true) { // 인증 성공 시 페이지 이동
+                if (data.isLoggedIn === true) {
                     console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
-                    window.location.href = "/search/view/feed/mypage"; // 마이페이지로 리다이렉트
+                    window.location.href = "/search/view/feed/mypage";
                 } else {
                     console.error("[DEBUG] 인증 실패, 로그인 페이지로 이동");
-                    window.location.href = "/login"; // 인증 실패 시 로그인 페이지로 이동
+                    window.location.href = "/login";
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error("[DEBUG] 마이페이지 요청 중 에러 발생:", error);
                 alert("요청 중 문제가 발생했습니다. 다시 시도해주세요.");
             });
@@ -875,32 +906,29 @@
         console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
 
         fetch("/authlogout", {
-            // https://zkrp.site
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             }
-
         })
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
                 console.log("[DEBUG] 서버 응답 데이터:", data);
                 if (data.isLoggedIn === false) {
                     console.log("[DEBUG] 로그아웃 성공");
-                    localStorage.removeItem("token"); // 토큰 삭제
-                    console.log("[DEBUG] localStorage 상태:", localStorage.getItem("token")); // 삭제 확인
-
-                        window.location.href = "/logout/user";
+                    localStorage.removeItem("token");
+                    console.log("[DEBUG] localStorage 상태:", localStorage.getItem("token"));
+                    window.location.href = "/logout/user";
                 } else {
                     console.error("[DEBUG] 로그아웃 실패, 서버에서 여전히 로그인 상태로 응답");
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error("[DEBUG] 로그아웃 중 에러 발생:", error);
             });
 
-    }
+
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("myPageLink").addEventListener("click", function (event) {
             event.preventDefault(); // 기본 링크 이동 동작 막기
@@ -946,7 +974,7 @@
                     alert("요청 중 문제가 발생했습니다. 다시 시도해주세요.");
                 });
         });
-    });
+    })}
     </script>
 
 

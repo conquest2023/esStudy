@@ -58,8 +58,11 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .signWith(key, SignatureAlgorithm.HS256) // 서명
                 .compact();
 
+        Date refreshTokenExpiresIn = new Date(now + 1000L * 60 * 60 * 24 * 30);
+
         String refreshToken= Jwts.builder()
-                .setExpiration(new Date(now + 864000000))
+                .setSubject(userId)
+                .setExpiration(refreshTokenExpiresIn)
                 .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
 
@@ -70,17 +73,20 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .build();
     }
 
-    public String  generateTokenId(String  userId) {
+    public String generateAccessToken(String authority, String  userId, String  username) {
         long now = (new Date()).getTime();
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 864000000);
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("username", username)
+                .claim("auth", authority)
                 .setIssuedAt(new Date())
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
     public String createRefreshToken(String userId) {
         Claims claims = Jwts.claims().setSubject(userId);
 
@@ -98,8 +104,11 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     }
 
     public  String getUserId(String token){
-        return  parseClaims(token).get("sub",String.class);
+
+        return  parseClaims(token).get(
+                "sub",String.class);
     }
+
 
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
@@ -141,27 +150,28 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                     .parseClaimsJws(token);
 
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-        } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+            log.info("Expired JWT Token");
+            return false;
+        } catch (Exception e) {
+            log.error("Invalid JWT Token", e);
+            return false;
         }
-        return false;
     }
     // accessToken
-    private Claims parseClaims(String accessToken) {
+    private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(accessToken)
+                    .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
+            // Access Token은 만료됐을 수 있으니 Claims 반환
             return e.getClaims();
+        } catch (JwtException e) {
+            // JWT 형식 자체가 잘못됐을 때
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
         }
     }
 

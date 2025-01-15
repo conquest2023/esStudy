@@ -13,6 +13,11 @@ import java.util.Optional;
 @Repository
 public interface UserRepository  extends  JpaRepository<User,Integer> {
 
+
+    @Query("select u.username from User u where u.userId = :id")
+    String findByUsername(@Param("id") String id);
+
+
     @Query("select u.userId from User u where u.userId = :id")
     String findByUserid(@Param("id") String id);
 

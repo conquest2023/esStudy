@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -44,8 +45,6 @@ public class UserServiceImpl implements UserService {
     public void createUser(SignUpResponse sign) {
 
         User user=new User();
-
-
         String password=passwordEncoder.encode(sign.getPassword());
         userRepository.save(user.DtoToUser(sign, password));
         userDAO.createUser(user.DtoToUser(sign,password));
@@ -84,19 +83,22 @@ public class UserServiceImpl implements UserService {
         return  userDAO.findVisitCount(userId);
     }
 
+
+
     @Override
     public Authentication authenticate(LoginResponse login) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
 
         // 인증 수행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         return authentication;
     }
 
+
     @Override
-    public String findIdOne() {
-        return null;
+    public String getUsername(String userId) {
+
+        return  userRepository.findByUsername(userId);
     }
 
 }
