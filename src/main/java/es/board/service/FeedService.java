@@ -52,7 +52,7 @@ public interface FeedService {
 
     List<FeedRequest> getPagingFeed(int page, int size);
 
-    void deleteFeed(String id,int userId);
+    void deleteFeed(String id,String userId);
 
     List<FeedRequest> getMostViewFeed(int page, int size);
 

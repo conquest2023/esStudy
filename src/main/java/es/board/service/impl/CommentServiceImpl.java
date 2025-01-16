@@ -1,5 +1,7 @@
 package es.board.service.impl;
 
+import es.board.controller.model.mapper.CommentMapper;
+import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
@@ -28,18 +30,22 @@ public class CommentServiceImpl implements CommentService {
 
     private  final LikeDAO likeDAO;
 
+    private  final CommentMapper commentMapper;
+
+    private  final FeedMapper feedMapper;
+
     private  final PostRepository postRepository;
 
     @Override
     public List<CommentRequest> getUserRangeTimeActive(String userId) {
-        CommentRequest commentRequest=new CommentRequest();
-      return  commentRequest.changeCommentListDTO(commentDAO.findUserRangeActive(userId));
+
+      return  commentMapper.changeCommentListDTO(commentDAO.findUserRangeActive(userId));
     }
 
     @Override
     public List<FeedRequest> getFeedAndComment(String userId) {
-        FeedRequest request=new FeedRequest();
-        return  request.BoardListToDTO(commentDAO.findFeedAndComment(userId));
+
+        return  feedMapper.BoardListToDTO(commentDAO.findFeedAndComment(userId));
     }
 
     @Override
@@ -67,8 +73,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentRequest> getRecentComment() {
-        CommentRequest commentDTO = new CommentRequest();
-        return commentDTO.changeCommentListDTO(commentDAO.findRecentComment());
+
+        return commentMapper.changeCommentListDTO(commentDAO.findRecentComment());
     }
 
     @Override
@@ -94,8 +100,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentRequest> getLikeCount() {
-        CommentRequest req = new CommentRequest();
-        return req.changeCommentListDTO(commentDAO.findLikeCount());
+
+        return commentMapper.changeCommentListDTO(commentDAO.findLikeCount());
     }
 
     @Override
@@ -110,13 +116,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentRequest> getComment() {
-        CommentRequest commentRequest = new CommentRequest();
-        return commentRequest.changeCommentListDTO(commentDAO.findCommentAll());
+
+        return commentMapper.changeCommentListDTO(commentDAO.findCommentAll());
     }
 
     public List<CommentRequest> getCommentOne(String commentUID){
-        CommentRequest comment =new CommentRequest();
-        return  comment.changeCommentListDTO(commentDAO.findCommentId(commentUID));
+
+        return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(commentUID));
     }
     @Override
     public List<Comment> getCommentId(String id) {

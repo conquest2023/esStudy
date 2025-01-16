@@ -79,9 +79,9 @@ public class FeedController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
         }
-        userService.updateVisitCount(response.getUserId());
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
+        userService.updateVisitCount(response.getUserId());
         return ResponseEntity.ok(Map.of(
                 "accessToken", token.getAccessToken(),
                 "refreshToken", token.getRefreshToken(),

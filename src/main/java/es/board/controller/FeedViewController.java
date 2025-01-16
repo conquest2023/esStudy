@@ -262,7 +262,7 @@ public class FeedViewController {
 
 
     @PostMapping("/search/view/feed/delete")
-    public  String deleteFeed(@RequestParam String id,int userId) {
+    public  String deleteFeed(@RequestParam String id, String userId) {
         log.info("userId:{}",userId);
         feedService.deleteFeed(id,userId);
         return "redirect:/search/view/feed?index=board";

@@ -1,6 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.s3.S3Uploader;
+import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
@@ -13,6 +14,8 @@ import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.ap.internal.model.Mapper;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +31,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
-//    private final RestClient client;
 
-//    private final ElasticsearchClient esClient;
+    private final FeedMapper feedMapper;
+
     private  final S3Uploader s3Uploader;
 
     private final FeedDAO feedDAO;
@@ -42,13 +45,13 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public double getUserFeedCount(String userId) {
-       return  feedDAO.findUserLikeCount(userId);
+
+        return  feedDAO.findUserLikeCount(userId);
     }
 
     @Override
     public List<FeedRequest> getUserRangeTimeFeed(String userId) {
-        FeedRequest  feedRequest=new FeedRequest();
-        return  feedRequest.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
+        return  feedMapper.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
     }
 
     @Override
@@ -74,26 +77,23 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getCategoryFeed(String category) {
-        FeedRequest feedRequest = new FeedRequest();
-        return feedRequest.BoardListToDTO(feedDAO.findCategoryAndContent(category));
+        return feedMapper.BoardListToDTO(feedDAO.findCategoryAndContent(category));
     }
 
     @Override
     public List<FeedRequest> getMonthPopularFeed() {
-        FeedRequest feedRequest = new FeedRequest();
-        return feedRequest.BoardListToDTO(feedDAO.findMonthPopularFeed());
+
+        return feedMapper.BoardListToDTO(feedDAO.findMonthPopularFeed());
     }
 
     @Override
     public List<FeedRequest> getPopularFeedDESC(int page, int size) {
-        FeedRequest feedRequest=new FeedRequest();
-        return  feedRequest.BoardListToDTO(feedDAO.findPopularFeedDESC(page,size));
+        return  feedMapper.BoardListToDTO(feedDAO.findPopularFeedDESC(page,size));
     }
 
     @Override
     public List<FeedRequest> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
-        FeedRequest reqFeedDTO = new FeedRequest();
-        return reqFeedDTO.BoardListToDTO(feedDAO.findRangeTimeFeed(startDate, endTime));
+        return feedMapper.BoardListToDTO(feedDAO.findRangeTimeFeed(startDate, endTime));
     }
 
     @Override
@@ -108,14 +108,14 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedRequest getPopularFeedOne() {
-        FeedRequest feedRequest = new FeedRequest();
-        return feedRequest.BoardToDTO(feedDAO.findPopularFeedOne());
+
+        return feedMapper.BoardToDTO(feedDAO.findPopularFeedOne());
     }
 
     @Override
     public List<FeedRequest> getRecentFeed() {
-        FeedRequest reqFeedDTO = new FeedRequest();
-        return reqFeedDTO.BoardListToDTO(feedDAO.findRecentFeed());
+
+        return feedMapper.BoardListToDTO(feedDAO.findRecentFeed());
     }
 
     @Override
@@ -136,8 +136,8 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getFeed() {
-        FeedRequest feedDTO = new FeedRequest();
-        return feedDTO.BoardListToDTO(feedDAO.findAllFeed());
+
+        return feedMapper.BoardListToDTO(feedDAO.findAllFeed());
     }
 
     @Override
@@ -147,20 +147,20 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getLikeCount() {
-        FeedRequest req = new FeedRequest();
-        return req.BoardListToDTO(feedDAO.findLikeCount());
+
+        return feedMapper.BoardListToDTO(feedDAO.findLikeCount());
     }
 
     @Override
     public List<FeedRequest> getPagingFeed(int page, int size) {
-        FeedRequest req = new FeedRequest();
-        return req.BoardListToDTO(feedDAO.findPagingFeed(page, size));
+
+        return feedMapper.BoardListToDTO(feedDAO.findPagingFeed(page, size));
     }
 
     @Override
     public List<FeedRequest> getMostViewFeed(int page, int size) {
-        FeedRequest req = new FeedRequest();
-        return req.BoardListToDTO(feedDAO.findMostViewFeed(page, size));
+
+        return feedMapper.BoardListToDTO(feedDAO.findMostViewFeed(page, size));
     }
 
     @Override
@@ -170,19 +170,18 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     @Transactional
-    public void deleteFeed(String id,int userId) {
+    public void deleteFeed(String id,String  userId) {
         postRepository.deleteById(userId);
         feedDAO.deleteFeedOne(id);
     }
     @Override
     public List<FeedRequest> getFeedUserList(String userId){
-        FeedRequest feedRequest=new FeedRequest();
-        return feedRequest.BoardListToDTO(feedDAO.findUserBoardList(userId));
+
+        return feedMapper.BoardListToDTO(feedDAO.findUserBoardList(userId));
     }
     @Override
     public FeedRequest getFeedId(String id) {
-        FeedRequest request = new FeedRequest();
-        return request.BoardToDTO(feedDAO.findIdOne(id));
+        return feedMapper.BoardToDTO(feedDAO.findIdOne(id));
     }
 
     @Override

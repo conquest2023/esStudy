@@ -50,38 +50,38 @@ public class FeedRequest {
 
 
 
-    public List<FeedRequest> BoardListToDTO(List<Board> boards) {
-        return boards.stream()
-                .map(board -> FeedRequest.builder()
-                        .feedUID(board.getFeedUID())
-                        .id(board.getId())
-                        .userId(board.getUserId())
-                        .username(board.getUsername())
-                        .imageURL(board.getImageURL())
-                        .title(board.getTitle())
-                        .description(board.getDescription())
-                        .likeCount(board.getLikeCount())
-                        .category(board.getCategory())
-                        .viewCount(board.getViewCount())
-                        .createdAt(board.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-
-    public FeedRequest BoardToDTO(Board board) {
-            return FeedRequest.builder()
-                    .feedUID(board.getFeedUID())
-                    .id(board.getId())
-                    .userId(board.getUserId())
-                    .username(board.getUsername())
-                    .imageURL(board.getImageURL())
-                    .title(board.getTitle())
-                    .description(board.getDescription())
-                    .category(board.getCategory())
-                    .viewCount(board.getViewCount())
-                    .likeCount(board.getLikeCount())
-                    .createdAt(board.getCreatedAt())
-                    .build();
-        }
+//    public List<FeedRequest> BoardListToDTO(List<Board> boards) {
+//        return boards.stream()
+//                .map(board -> FeedRequest.builder()
+//                        .feedUID(board.getFeedUID())
+//                        .id(board.getId())
+//                        .userId(board.getUserId())
+//                        .username(board.getUsername())
+//                        .imageURL(board.getImageURL())
+//                        .title(board.getTitle())
+//                        .description(board.getDescription())
+//                        .likeCount(board.getLikeCount())
+//                        .category(board.getCategory())
+//                        .viewCount(board.getViewCount())
+//                        .createdAt(board.getCreatedAt())
+//                        .build())
+//                .collect(Collectors.toList());
+//    }
+//
+//
+//    public FeedRequest BoardToDTO(Board board) {
+//            return FeedRequest.builder()
+//                    .feedUID(board.getFeedUID())
+//                    .id(board.getId())
+//                    .userId(board.getUserId())
+//                    .username(board.getUsername())
+//                    .imageURL(board.getImageURL())
+//                    .title(board.getTitle())
+//                    .description(board.getDescription())
+//                    .category(board.getCategory())
+//                    .viewCount(board.getViewCount())
+//                    .likeCount(board.getLikeCount())
+//                    .createdAt(board.getCreatedAt())
+//                    .build();
+//        }
 }
