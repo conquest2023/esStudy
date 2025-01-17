@@ -17,7 +17,7 @@ public class CommentMapper {
                 .map(comment1 -> CommentRequest.builder()
                         .feedUID(comment1.getFeedUID())
                         .CommentUID(comment1.getCommentUID())
-                        .userId(comment1.getCommentUID())
+                        .userId(comment1.getUserId())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
                         .LikeCount(comment1.getLikeCount())

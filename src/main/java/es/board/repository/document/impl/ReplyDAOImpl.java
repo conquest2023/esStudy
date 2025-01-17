@@ -22,8 +22,6 @@ public class ReplyDAOImpl implements ReplyDAO {
 
     private final ElasticsearchClient client;
 
-
-
     @Override
     public List<Reply> findPartialReply(String id){
         try {

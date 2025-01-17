@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.LoginResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
@@ -15,12 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-public class FeedController {
+public class AjaxController {
 
 
     private  final UserService userService;
@@ -87,6 +89,30 @@ public class FeedController {
                 "refreshToken", token.getRefreshToken(),
                 "username", authentication.getName(),
                 "isLoggedIn", true
+        ));
+    }
+    @GetMapping("/feeds")
+    public ResponseEntity<?> getFeeds(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        int viewCount = feedService.getViewCountAll();
+        Map<String,Long> countMap = commentService.getPagingComment(feedService.getfeedUIDList(page, size), page, size);
+        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
+        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
+        List<FeedRequest> data = feedService.getPagingFeed(page, size);
+        List<FeedRequest> month = feedService.getMonthPopularFeed();
+
+        // Java 9+ Map.of(...) 문법
+        // 만약 Java 8이라면, Map<String,Object> map = new HashMap<>(); map.put(...); 사용
+        return ResponseEntity.ok(Map.of(
+                "viewCount", viewCount,
+                "count", countMap,
+                "page", page,
+                "maxPage", maxPage,
+                "totalPage", totalPage,
+                "data", data,
+                "month", month
         ));
     }
     @PostMapping("/auth/refresh")

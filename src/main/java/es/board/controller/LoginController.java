@@ -50,30 +50,6 @@ public class LoginController {
 
         return "basic/feed/Mypage";
     }
-//    @GetMapping("/search/view/feed/mypage")
-//    public String myPage(Model model, HttpServletRequest request) {
-//        log.info("Dsaasdasd");
-//        String token = request.getHeader("Authorization");
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//            if (jwtTokenProvider.validateToken(token)) {
-//                String userId = jwtTokenProvider.getUserId(token);
-//
-//                // 데이터 가져오기
-//                model.addAttribute("like", feedService.getUserLikeCount(userId));
-//                model.addAttribute("feedCount", feedService.getUserFeedCount(userId));
-//                model.addAttribute("feedList", feedService.getFeedId(userId));
-//                model.addAttribute("commentCount", commentService.getUserCommentCount(userId));
-//                model.addAttribute("visitCount", userService.findVisitCount(userId));
-//                model.addAttribute("userId", userId);
-//                model.addAttribute("username", jwtTokenProvider.getUsername(token));
-//                model.addAttribute("isLoggedIn", true);
-//
-//                return "basic/login/mypage"; // mypage.html 반환
-//            }
-//        }
-//        return "/basic/feed/eedList"; // 인증 실패 시 로그인 페이지로 리다이렉트
-//    }
     @GetMapping("/mypage")
     public ResponseEntity<?> getMyPage(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
@@ -168,15 +144,4 @@ public class LoginController {
 
 
 
-    private void feedMain(Model model){
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page,size) / size);
-        int totalPage=(int) Math.ceil( feedService.getTotalFeed());
-        model.addAttribute("viewCount",feedService.getViewCountAll());
-        model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
-        model.addAttribute("page", page);  // 현재 페이지 번호
-        model.addAttribute("maxPage", maxPage);
-        model.addAttribute("totalPage", totalPage);
-        model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
-        model.addAttribute("month",feedService.getMonthPopularFeed());
-    }
 }

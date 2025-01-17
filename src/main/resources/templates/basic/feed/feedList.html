@@ -465,7 +465,7 @@
 
 
             <div class="mb-3 d-flex justify-content-end">
-                <p>조회수 : <span th:text="${viewCount}"></span></p> <!-- 조회수 출력 -->
+                <p>조회수 : <span id="viewCount"></span></p> <!-- 조회수 출력 -->
             </div>
                 <!-- 게시판 내용 -->
                 <div class="mb-4">
@@ -490,7 +490,7 @@
                         </div>
                     </div>
                         <!-- 게시글 리스트 -->
-                        <table class="table table-striped table-hover">
+                        <table id="feedTable"  class="table table-striped table-hover">
                             <thead>
                             <tr>
                                 <th>제목</th>
@@ -505,66 +505,39 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <!-- 게시글 데이터 반복 -->
-                            <tr th:each="board : ${data}">
-                                <!-- 제목 -->
-                                <td><a th:href="@{/search/view/feed/id(id=${board.feedUID})}" th:text="${board.title}"></a></td>
-                                <!-- 작성자 -->
+<!--                            &lt;!&ndash; 게시글 데이터 반복 &ndash;&gt;-->
+<!--                            <tr th:each="board : ${data}">-->
+<!--                                &lt;!&ndash; 제목 &ndash;&gt;-->
+<!--                                <td><a th:href="@{/search/view/feed/id(id=${board.feedUID})}" th:text="${board.title}"></a></td>-->
+<!--                                &lt;!&ndash; 작성자 &ndash;&gt;-->
 
-                                <!-- 내용과 댓글수 -->
-                                <td>
-                                    <a th:href="@{/search/view/feed/id(id=${board.feedUID})}" th:text="${board.description}"></a>
-<!--                                    <span th:text="${board.description}"></span>-->
-                                    <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
-                                    <span th:if="${count[board.feedUID] > 0}" style="color: red; font-weight: bold;">
-                    [<span th:text="${count[board.feedUID]}"></span>]
-                </span>
-                                </td>
-                                <td th:text="${board.username}"></td>
-                                <!-- 작성일 -->
-                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
+<!--                                &lt;!&ndash; 내용과 댓글수 &ndash;&gt;-->
+<!--                                <td>-->
+<!--                                    <a th:href="@{/search/view/feed/id(id=${board.feedUID})}" th:text="${board.description}"></a>-->
+<!--&lt;!&ndash;                                    <span th:text="${board.description}"></span>&ndash;&gt;-->
+<!--                                    &lt;!&ndash; 댓글수가 0보다 클 때만 [댓글수] 표시 &ndash;&gt;-->
+<!--                                    <span th:if="${count[board.feedUID] > 0}" style="color: red; font-weight: bold;">-->
+<!--                    [<span th:text="${count[board.feedUID]}"></span>]-->
+<!--                </span>-->
+<!--                                </td>-->
+<!--                                <td th:text="${board.username}"></td>-->
+<!--                                &lt;!&ndash; 작성일 &ndash;&gt;-->
+<!--                                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>-->
 
-                                <!-- 조회수 -->
-                                <td th:text="${board.viewCount}"></td>
-                            </tr>
+<!--                                &lt;!&ndash; 조회수 &ndash;&gt;-->
+<!--                                <td th:text="${board.viewCount}"></td>-->
+<!--                            </tr>-->
 
-                            <!-- 데이터가 없을 때 -->
-                            <tr th:if="${#lists.isEmpty(data)}">
-                                <td colspan="5" class="text-center">게시글이 없습니다.</td>
-                            </tr>
+<!--                            &lt;!&ndash; 데이터가 없을 때 &ndash;&gt;-->
+<!--                            <tr th:if="${#lists.isEmpty(data)}">-->
+<!--                                <td colspan="5" class="text-center">게시글이 없습니다.</td>-->
+<!--                            </tr>-->
                             </tbody>
                         </table>
-
-            <!-- 페이지네이션 -->
-                <nav style="text-align: center;">
-                    <ul class="pagination"
-                        th:with="start=${(page != null && maxPage != null && maxPage > 0) ? ((page / maxPage) * maxPage + 1) : 0},
-            end=${(start + maxPage - 1) < maxPage ? (start + maxPage - 1) : maxPage},
-            totalPages=${(maxPage != null && maxPage > 0) ? maxPage : 1}">
-
-                    <!-- 처음 페이지로 이동 -->
-                        <li th:if="${page > 0}" class="page-item">
-                            <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="'<'"></a>
-                        </li>
-                        <li th:each="p : ${#numbers.sequence(start, end)}" class="page-item"
-                            th:classappend="${p - 1 == page} ? 'active'">
-                            <a th:href="@{/search/view/feed(page=${p - 1})}" class="page-link" th:text="${p}"></a>
-                        </li>
-                        <li th:if="${page + 1 < maxPage}" class="page-item">
-                            <a th:href="@{/search/view/feed(page=${page + 1})}" class="page-link" th:text="'>'"></a>
-                        </li>
-                        <!-- 마지막 페이지로 이동 -->
-                        <li th:if="${end < totalPages}" class="page-item">
-                            <a th:href="@{/search/view/feed(page=${totalPages - 1})}" class="page-link" th:text="'>>'"></a>
-                        </li>
-                    </ul>
-                    <tr>
-                        <th>게시글 수</th>
-                    </tr>
-                    <tr th:each="board : ${totalPage}">
-                        <td th:text="${totalPage}"></td>
-                    </tr>
-                </nav>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="pagination">
+                        </ul>
+                    </nav>
                     <div class="mb-4">
                         <!-- 통합 검색 폼 -->
                         <form id="searchForm" method="get" class="d-flex align-items-center justify-content-center" style="width: 100%;">
@@ -584,13 +557,13 @@
 
                                 <!-- 날짜 선택 (기본적으로 숨김) -->
                                 <div id="dateFields" style="display: none; position: absolute; top: 40px; left: 0; z-index: 10; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>
-                                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"
-                                       style="width: 100px; margin-right: 10px;" />
-                                <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>
-                                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"
-                                       style="width: 100px;" />
-                            </div>
+                                    <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>
+                                    <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"
+                                           style="width: 100px; margin-right: 10px;" />
+                                    <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>
+                                    <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"
+                                           style="width: 100px;" />
+                                </div>
 
                                 <!-- 검색 버튼 -->
                                 <button id="searchId" type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">
@@ -599,6 +572,70 @@
                             </div>
                         </form>
                     </div>
+            <!-- 페이지네이션 -->
+<!--                <nav style="text-align: center;">-->
+<!--                    <ul class="pagination"-->
+<!--                        th:with="start=${(page != null && maxPage != null && maxPage > 0) ? ((page / maxPage) * maxPage + 1) : 0},-->
+<!--            end=${(start + maxPage - 1) < maxPage ? (start + maxPage - 1) : maxPage},-->
+<!--            totalPages=${(maxPage != null && maxPage > 0) ? maxPage : 1}">-->
+
+<!--                    &lt;!&ndash; 처음 페이지로 이동 &ndash;&gt;-->
+<!--                        <li th:if="${page > 0}" class="page-item">-->
+<!--                            <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="'<'"></a>-->
+<!--                        </li>-->
+<!--                        <li th:each="p : ${#numbers.sequence(start, end)}" class="page-item"-->
+<!--                            th:classappend="${p - 1 == page} ? 'active'">-->
+<!--                            <a th:href="@{/search/view/feed(page=${p - 1})}" class="page-link" th:text="${p}"></a>-->
+<!--                        </li>-->
+<!--                        <li th:if="${page + 1 < maxPage}" class="page-item">-->
+<!--                            <a th:href="@{/search/view/feed(page=${page + 1})}" class="page-link" th:text="'>'"></a>-->
+<!--                        </li>-->
+<!--                        &lt;!&ndash; 마지막 페이지로 이동 &ndash;&gt;-->
+<!--                        <li th:if="${end < totalPages}" class="page-item">-->
+<!--                            <a th:href="@{/search/view/feed(page=${totalPages - 1})}" class="page-link" th:text="'>>'"></a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                    <tr>-->
+<!--                        <th>게시글 수</th>-->
+<!--                    </tr>-->
+<!--                    <tr th:each="board : ${totalPage}">-->
+<!--                        <td th:text="${totalPage}"></td>-->
+<!--                    </tr>-->
+<!--                </nav>-->
+<!--                    <div class="mb-4">-->
+<!--                        &lt;!&ndash; 통합 검색 폼 &ndash;&gt;-->
+<!--                        <form id="searchForm" method="get" class="d-flex align-items-center justify-content-center" style="width: 100%;">-->
+<!--                            <div class="input-group input-group-sm" style="width: 80%; max-width: 800px;">-->
+<!--                                &lt;!&ndash; 검색 타입 선택 &ndash;&gt;-->
+<!--                                <select id="searchType" name="searchType" class="form-control form-control-sm"-->
+<!--                                        style="width: 10%; margin-right: 5px; background: #f8f9fa; border-radius: 5px;"-->
+<!--                                        onchange="toggleDateFields()">-->
+<!--                                    <option value="text">제목 + 내용</option>-->
+<!--                                    <option value="category">카테고리</option>-->
+<!--                                    <option value="date">날짜 검색</option>-->
+<!--                                </select>-->
+
+<!--                                &lt;!&ndash; 검색어 입력 &ndash;&gt;-->
+<!--                                <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요"-->
+<!--                                       class="form-control form-control-sm" style="width: 40%; margin-right: 5px;" />-->
+
+<!--                                &lt;!&ndash; 날짜 선택 (기본적으로 숨김) &ndash;&gt;-->
+<!--                                <div id="dateFields" style="display: none; position: absolute; top: 40px; left: 0; z-index: 10; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">-->
+<!--                                <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>-->
+<!--                                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"-->
+<!--                                       style="width: 100px; margin-right: 10px;" />-->
+<!--                                <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>-->
+<!--                                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"-->
+<!--                                       style="width: 100px;" />-->
+<!--                            </div>-->
+
+<!--                                &lt;!&ndash; 검색 버튼 &ndash;&gt;-->
+<!--                                <button id="searchId" type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">-->
+<!--                                    <i class="fas fa-search"></i> 검색-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                    </div>-->
 
                     <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
                 <form action="/search/view/feed/Form" method="get">
@@ -612,56 +649,55 @@
         </main>
 
     <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
-        <h3 class="fw-bold">인기 게시물</h3>
-        <div class="ranking-box">
-            <!-- 랭킹 게시물 반복 -->
-            <div th:each="board, iterStat : ${month}" class="ranking-item">
-                <!-- 순위와 게시물 내용 -->
-                <div class="d-flex align-items-center">
-                    <!-- 순위 -->
-                    <span class="rank-number" th:text="${iterStat.index + 1} + '.'"></span>
-
-                    <!-- 게시물 제목과 작성자 -->
-                    <div class="ms-2 me-auto">
-                        <a th:href="@{/search/view/feed/id(id=${board.feedUID})}" class="ranking-title"
-                           th:text="${board.title}"></a>
-                        <small class="text-muted d-block" th:text="'작성자: ' + ${board.username}"></small>
-                    </div>
-
-                    <!-- 보기 버튼 -->
-<!--                    <a th:href="@{/search/view/feed/id(id=${board.id})}" class="btn btn-outline-primary btn-sm">보기</a>-->
-                </div>
+        <div id="popularFeeds">
+            <h3 class="fw-bold">인기 게시물</h3>
+            <div class="ranking-box" id="monthFeedsList">
+                <!-- 인기 게시물 내용이 동적으로 추가됩니다 -->
             </div>
         </div>
+<!--                &lt;!&ndash; 순위와 게시물 내용 &ndash;&gt;-->
+<!--                <div class="d-flex align-items-center">-->
+<!--                    &lt;!&ndash; 순위 &ndash;&gt;-->
+<!--                    <span class="rank-number" th:text="${iterStat.index + 1} + '.'"></span>-->
 
+<!--                    &lt;!&ndash; 게시물 제목과 작성자 &ndash;&gt;-->
+<!--                    <div class="ms-2 me-auto">-->
+<!--                        <a th:href="@{/search/view/feed/id(id=${board.feedUID})}" class="ranking-title"-->
+<!--                           th:text="${board.title}"></a>-->
+<!--                        <small class="text-muted d-block" th:text="'작성자: ' + ${board.username}"></small>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; 보기 버튼 &ndash;&gt;-->
+<!--&lt;!&ndash;                    <a th:href="@{/search/view/feed/id(id=${board.id})}" class="btn btn-outline-primary btn-sm">보기</a>&ndash;&gt;-->
+<!--                </div>-->
     </aside>
 
         </div> <!-- row 끝 -->
 
 <!-- 중앙 정렬을 위한 div 추가 -->
 
-
+<!--        // 조건에 따라 URL에 파라미터 추가-->
 <script>
-    document.getElementById("searchId").addEventListener("click", function() {
-        console.log("검색 버튼 클릭됨");
-    });
-    function toggleDateFields() {
-        const searchType = document.getElementById('searchType').value;
-        const startDate = document.getElementById('startDate');
-        const endDate = document.getElementById('endDate');
-        const dateFields = document.getElementById('dateFields');
-        const searchInput = document.getElementById('searchInput');
-
-        if (searchType === 'date') {
-            // 날짜 검색 선택 시
-            dateFields.style.display = 'block'; // 날짜 폼 표시
-            searchInput.style.display = 'none'; // 검색어 입력 숨김
-        } else {
-            // 일반 검색 또는 카테고리 검색
-            dateFields.style.display = 'none'; // 날짜 폼 숨김
-            searchInput.style.display = 'block'; // 검색어 입력 표시
-        }
-    }
+    // document.getElementById("searchId").addEventListener("click", function() {
+    //     console.log("검색 버튼 클릭됨");
+    // });
+    // function toggleDateFields() {
+    //     const searchType = document.getElementById('searchType').value;
+    //     const startDate = document.getElementById('startDate');
+    //     const endDate = document.getElementById('endDate');
+    //     const dateFields = document.getElementById('dateFields');
+    //     const searchInput = document.getElementById('searchInput');
+    //
+    //     if (searchType === 'date') {
+    //         // 날짜 검색 선택 시
+    //         dateFields.style.display = 'block'; // 날짜 폼 표시
+    //         searchInput.style.display = 'none'; // 검색어 입력 숨김
+    //     } else {
+    //         // 일반 검색 또는 카테고리 검색
+    //         dateFields.style.display = 'none'; // 날짜 폼 숨김
+    //         searchInput.style.display = 'block'; // 검색어 입력 표시
+    //     }
+    // }
 
     function redirectSearch() {
         const form = document.getElementById('searchForm');
@@ -670,58 +706,304 @@
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
         // searchType 값에 따라 form.action 설정
-        if (searchType === "text") {
-            form.action = '/search/view/feed/text';
-        } else if (searchType === "category") {
-            form.action = '/search/view/feed/category';
-        } else if (searchType === 'date') {
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-    }
+        const url = `/search/content?text=${encodeURIComponent(searchText)}`;
 
 
-    // searchText를 쿼리 파라미터로 추가 (searchType은 제외)
-        if (searchText) {
-            form.action += `?text=${encodeURIComponent(searchText)}`;
+        history.pushState({ text: searchText }, '', url);
+        // Fetch API로 서버에 요청
+        if (!searchText.trim()) {
+            alert('검색어를 입력하세요!');
+            return;
         }
 
-        console.log('최종 form.action:', form.action);
+        // API 요청 URL
 
-        // 폼 제출
-        form.submit();
+        // Fetch API로 서버에 요청
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('검색 요청 실패');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('[debug] 검색 결과:', data);
+
+                if (data.data.length === 0) {
+                    alert('검색 결과가 없습니다.');
+                    return;
+                }
+                searchFeed(data, data.count);
+            })
+            .catch(error => {
+                console.error('검색 요청 중 오류 발생:', error);
+                alert('검색 중 오류가 발생했습니다.');
+            });
+    }
+
+    // 데이터 렌더링 함수
+    function searchFeed(jsonData, count) {
+        const feedTableBody = document.querySelector('#feedTable tbody');
+        feedTableBody.innerHTML = ''; // 기존 데이터 제거
+
+        jsonData.data.forEach(board => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td><a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a></td>
+            <td>
+                <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
+                ${
+                count && count[board.feedUID] > 0
+                    ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
+                    : ""
+            }
+            </td>
+            <td>${board.username}</td>
+            <td>${formatDate(board.createdAt)}</td>
+            <td>${board.viewCount}</td>`;
+            feedTableBody.appendChild(tr);
+        });
+    }
+    function toggleDateFields() {
+        const searchType = document.getElementById('searchType').value;
+        const dateFields = document.getElementById('dateFields');
+
+        if (searchType === 'date') {
+            dateFields.style.display = 'block'; // 날짜 입력 필드 표시
+        } else {
+            dateFields.style.display = 'none'; // 날짜 입력 필드 숨김
+        }
+    }
+    function loadPage(page) {
+        const size = 10; // 페이지 크기 (한 페이지당 항목 수)
+        // 서버에서 데이터를 가져오는 Fetch 요청
+        fetch(`/feeds?page=${page}&size=${size}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('데이터를 가져오는 데 실패했습니다.');
+                }
+                return response.json(); // JSON 데이터로 변환
+            })
+            .then(data => {
+                const count = data.count; // 댓글 수 맵
+                renderFeeds(data, count); // 받은 데이터로 화면 렌더링
+                // renderPagination(data.page, data.maxPage);
+            })
+            .catch(error => {
+                console.error('페이지 데이터를 로드하는 중 오류가 발생했습니다:', error);
+            });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // page, size는 URL 파라미터나 내부 변수로 관리
+        const page = 0;
+        const size = 10;
+
+        // fetch로 /api/feeds 호출
+        fetch(`/feeds?page=${page}&size=${size}`)
+
+            .then(response => response.json())
+            .then(data => {
+                // data = { viewCount, count, page, maxPage, totalPage, data, month }
+                console.log('[debug] 받은 데이터:', data);
+                const count = data.count;
+                renderFeeds(data,count);
+                renderPagination(data.page, data.maxPage);
+
+            })
+            .catch(error => {
+                console.error('[error]', error);
+            });
+    });
+    function renderPagination(currentPage, maxPage) {
+        const paginationDiv = document.getElementById('pagination');
+        paginationDiv.innerHTML = ''; // 초기화
+
+        // 이전 버튼
+        if (currentPage > 0) {
+            paginationDiv.innerHTML += `
+        <li class="page-item">
+            <a class="page-link" href="#" onclick="handlePageClick(${currentPage - 1}, this)">&lt;</a>
+        </li>`;
+        }
+
+        // 페이지 번호
+        for (let p = 0; p < maxPage; p++) {
+            paginationDiv.innerHTML += `
+        <li class="page-item ${p === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="handlePageClick(${p}, this)">${p + 1}</a>
+        </li>`;
+        }
+
+        // 다음 버튼
+        if (currentPage + 1 < maxPage) {
+            paginationDiv.innerHTML += `
+        <li class="page-item">
+            <a class="page-link" href="#" onclick="handlePageClick(${currentPage + 1}, this)">&gt;</a>
+        </li>`;
+        }
+    }
+
+    // 클릭 이벤트 처리 함수
+    function handlePageClick(page, element) {
+        // 버튼 누름 표시
+        const activeElement = document.querySelector('.pagination .active');
+        if (activeElement) {
+            activeElement.classList.remove('active'); // 기존 active 클래스 제거
+        }
+
+        const parentElement = element.closest('.page-item');
+        if (parentElement) {
+            parentElement.classList.add('active'); // 클릭한 버튼에 active 클래스 추가
+        }
+
+        // 0.5초 후 페이지 로드
+        // setTimeout(() => {
+            loadPage(page);
+        // }, );
+    }
+    function renderFeeds(jsonData,count) {
+        // const paginationDiv = document.getElementById('pagination');
+        // paginationDiv.innerHTML = '';
+        //
+        // // const currentPage = jsonData.page; // 현재 페이지
+        // // const maxPage = jsonData.maxPage; // 전체 페이지 수
+        // const currentPage = jsonData.page || 0;
+        // const maxPage = jsonData.maxPage || 1;
+        // console.log(maxPage)
+        // // 이전 버튼
+        // if (currentPage > 0) {
+        //     const prev = document.createElement('li');
+        //     prev.className = 'page-item';
+        //     prev.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${currentPage - 1})">&lt;</a>`;
+        //     paginationDiv.appendChild(prev);
+        // }
+        //
+        // // 페이지 번호 버튼
+        // for (let p = 0; p < maxPage; p++) {
+        //     const pageItem = document.createElement('li');
+        //     pageItem.className = `page-item ${p === currentPage ? 'active' : ''}`;
+        //     pageItem.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${p})">${p + 1}</a>`;
+        //     paginationDiv.appendChild(pageItem);
+        // }
+        //
+        // // 다음 버튼
+        // if (currentPage + 1 < maxPage) {
+        //     const next = document.createElement('li');
+        //     next.className = 'page-item';
+        //     next.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${currentPage + 1})">&gt;</a>`;
+        //     paginationDiv.appendChild(next);
+        // }
+
+        // 1. 조회수 표시
+        document.getElementById('viewCount').textContent = jsonData.viewCount;
+
+        // 2. 게시글 목록 테이블
+        const feedTableBody = document.querySelector('#feedTable tbody');
+
+        feedTableBody.innerHTML = '';  // 기존 행 제거
+        jsonData.data.forEach(board => {
+            // countMap에서 댓글 수 가져오기 (feedUID -> count)
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                  <td><a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a></td>
+                    <td>
+                        <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
+                     ${
+                count && count[board.feedUID] > 0
+                    ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
+                    : ""
+            }
+                    </td>
+                    <td>${board.username}</td>
+                    <td>${formatDate(board.createdAt)}</td>
+                    <td>${board.viewCount}</td> `;
+            feedTableBody.appendChild(tr);
+        });
+
+        // 3. 인기 게시물(month)
+        const monthFeedsList = document.getElementById('monthFeedsList');
+        monthFeedsList.innerHTML = ''; // 기존 내용을 초기화
+
+        jsonData.month.forEach((mBoard, index) => {
+            // 인기 게시물 아이템 생성
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'd-flex align-items-center ranking-item';
+
+            // 순위 표시
+            const rankSpan = document.createElement('span');
+            rankSpan.className = 'rank-number';
+            rankSpan.textContent = `${index + 1}.`;
+
+            // 게시물 정보
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'ms-2 me-auto';
+
+            // 게시물 제목
+            const titleLink = document.createElement('a');
+            titleLink.className = 'ranking-title';
+            titleLink.href = `/search/view/feed/id?id=${mBoard.feedUID}`;
+            titleLink.textContent = mBoard.title;
+
+            // 작성자 정보
+            const authorSmall = document.createElement('small');
+            authorSmall.className = 'text-muted d-block';
+            authorSmall.textContent = `작성자: ${mBoard.username}`;
+
+            // 게시물 제목과 작성자 추가
+            contentDiv.appendChild(titleLink);
+            contentDiv.appendChild(authorSmall);
+
+            // 구조 추가
+            itemDiv.appendChild(rankSpan);
+            itemDiv.appendChild(contentDiv);
+
+            // 부모 요소에 추가
+            monthFeedsList.appendChild(itemDiv);
+        });
+    }
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.text) {
+            // 검색 조건이 있을 경우 검색 재실행
+            const searchText = event.state.text;
+            const url = `/search/content?text=${encodeURIComponent(searchText)}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('검색 요청 실패');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('[debug] 검색 결과 (뒤로가기):', data);
+
+                    if (data.data.length === 0) {
+                        alert('검색 결과가 없습니다.');
+                        return;
+                    }
+
+                    renderFeeds(data, data.count); // 검색 결과 렌더링
+                })
+                .catch(error => {
+                    console.error('검색 요청 중 오류 발생:', error);
+                    alert('검색 중 오류가 발생했습니다.');
+                });
+        } else {
+            // 검색 조건이 없으면 첫 번째 페이지로 이동
+            loadPage(0);
+        }
+    });
+
+
+    // 날짜 포맷 (예시)
+    function formatDate(dateTimeString) {
+        if (!dateTimeString) return '';
+        const date = new Date(dateTimeString);
+        return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
     }
 </script>
-<!--<script>-->
-<!--    function redirectSearch() {-->
-<!--        const form = document.getElementById('searchForm');-->
-<!--        const searchType = document.getElementById('searchType').value;-->
-<!--        const searchText = document.getElementById('searchInput').value;-->
-<!--        const startDate = document.getElementById('startDate').value;-->
-<!--        const endDate = document.getElementById('endDate').value;-->
-
-<!--        // 기본 URL 설정-->
-<!--        let actionUrl = '/search/view/feed';-->
-
-<!--        // 조건에 따라 URL에 파라미터 추가-->
-<!--        const params = new URLSearchParams();-->
-
-<!--        if (searchType) params.append('searchType', searchType);-->
-<!--        if (searchText) params.append('text', searchText);-->
-<!--        if (startDate) params.append('startDate', startDate);-->
-<!--        if (endDate) params.append('endDate', endDate);-->
-
-<!--        // 최종 URL 설정-->
-<!--        form.action = `${actionUrl}?${params.toString()}`;-->
-
-<!--        console.log('최종 form.action:', form.action);-->
-
-<!--        // 폼 제출-->
-<!--        form.submit();-->
-<!--    }-->
-<!--</script>-->
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
     $(document).ready(function () {
         // 검색 폼 제출 시 AJAX로 요청 보내기
@@ -743,8 +1025,8 @@
                     response.data.forEach(function (board) {
                         var row = '<tr>' +
                             '<td><a href="/search/view/feed/id(id=' + board.id + ')">' + board.title + '</a></td>' +
+                            '<td><a href="/search/view/feed/id(id='+ board.id + ')">' + board.description + `</a></td>`
                             '<td>' + board.username + '</td>' +
-                            '<td>' + board.description + '</td>' +
                             '<td>' + board.commentCount + '</td>' +
                             '<td>' + new Date(feed.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) + '</td>' +
                             '<td>' + board.viewCount + '</td>' +
