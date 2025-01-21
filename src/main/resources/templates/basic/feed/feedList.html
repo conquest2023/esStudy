@@ -774,126 +774,141 @@
             dateFields.style.display = 'none'; // 날짜 입력 필드 숨김
         }
     }
-    function loadPage(page) {
-        const size = 10; // 페이지 크기 (한 페이지당 항목 수)
+    let isLoading = false;
+    async function loadPage(page) {
+        if (isLoading) return;  // 중복 호출 방지
+        isLoading = true;
+        try {
+            const size = 10; // 페이지 크기 (한 페이지당 항목 수)
+            const response = await fetch(`/feeds?page=${page}&size=${size}`);
+            const data = await response.json();
+
+            // console.log('[debug] 받은 데이터:', data);
+
+            // 데이터 로드 후 UI 업데이트
+            renderFeeds(data, data.count);
+            renderPagination(data.page, data.maxPage);
+        } catch (error) {
+            console.error('[error]', error);
+        } finally {
+            isLoading = false;
+        }
         // 서버에서 데이터를 가져오는 Fetch 요청
-        fetch(`/feeds?page=${page}&size=${size}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('데이터를 가져오는 데 실패했습니다.');
-                }
-                return response.json(); // JSON 데이터로 변환
-            })
-            .then(data => {
-                const count = data.count; // 댓글 수 맵
-                renderFeeds(data, count); // 받은 데이터로 화면 렌더링
-                // renderPagination(data.page, data.maxPage);
-            })
-            .catch(error => {
-                console.error('페이지 데이터를 로드하는 중 오류가 발생했습니다:', error);
-            });
+        // fetch(`/feeds?page=${page}&size=${size}`)
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('데이터를 가져오는 데 실패했습니다.');
+        //         }
+        //         return response.json(); // JSON 데이터로 변환
+        //     })
+        //     .then(data => {
+        //         const count = data.count; // 댓글 수 맵
+        //         renderFeeds(data, count); // 받은 데이터로 화면 렌더링
+        //         // renderPagination(data.page, data.maxPage);
+        //     })
+        //     .catch(error => {
+        //         console.error('페이지 데이터를 로드하는 중 오류가 발생했습니다:', error);
+        //     });
     }
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async  function() {
+        await loadPage(0);
         // page, size는 URL 파라미터나 내부 변수로 관리
-        const page = 0;
-        const size = 10;
-
-        // fetch로 /api/feeds 호출
-        fetch(`/feeds?page=${page}&size=${size}`)
-
-            .then(response => response.json())
-            .then(data => {
-                // data = { viewCount, count, page, maxPage, totalPage, data, month }
-                console.log('[debug] 받은 데이터:', data);
-                const count = data.count;
-                renderFeeds(data,count);
-                renderPagination(data.page, data.maxPage);
-
-            })
-            .catch(error => {
-                console.error('[error]', error);
-            });
+        // const page = 0;
+        // const size = 10;
+        // // fetch로 /api/feeds 호출
+        // fetch(`/feeds?page=${page}&size=${size}`)
+        //
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         // data = { viewCount, count, page, maxPage, totalPage, data, month }
+        //         console.log('[debug] 받은 데이터:', data);
+        //         const count = data.count;
+        //         renderFeeds(data,count);
+        //         renderPagination(data.page, data.maxPage);
+        //
+        //     })
+        //     .catch(error => {
+        //         console.error('[error]', error);
+        //     });
     });
-    function renderPagination(currentPage, maxPage) {
+     function renderPagination(currentPage, maxPage) {
+        console.log("maxpage",maxPage)
         const paginationDiv = document.getElementById('pagination');
         paginationDiv.innerHTML = ''; // 초기화
+         if (currentPage > 0) {
+             paginationDiv.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a>
+                </li>`;
+         }
 
+         // 페이지 번호 버튼 생성
+         for (let p = 0; p < maxPage; p++) {
+             paginationDiv.innerHTML += `
+                <li class="page-item ${p === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
+                </li>`;
+         }
+
+         // 다음 버튼
+         if (currentPage + 1 < maxPage) {
+             paginationDiv.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a>
+                </li>`;
+         }
+         document.getElementById('pagination').addEventListener('click', async function(event) {
+             if (event.target.classList.contains('page-link')) {
+                 event.preventDefault();
+                 const page = parseInt(event.target.dataset.page);
+                 await handlePageClick(page);
+             }
+         });
         // 이전 버튼
-        if (currentPage > 0) {
-            paginationDiv.innerHTML += `
-        <li class="page-item">
-            <a class="page-link" href="#" onclick="handlePageClick(${currentPage - 1}, this)">&lt;</a>
-        </li>`;
-        }
-
-        // 페이지 번호
-        for (let p = 0; p < maxPage; p++) {
-            paginationDiv.innerHTML += `
-        <li class="page-item ${p === currentPage ? 'active' : ''}">
-            <a class="page-link" href="#" onclick="handlePageClick(${p}, this)">${p + 1}</a>
-        </li>`;
-        }
-
-        // 다음 버튼
-        if (currentPage + 1 < maxPage) {
-            paginationDiv.innerHTML += `
-        <li class="page-item">
-            <a class="page-link" href="#" onclick="handlePageClick(${currentPage + 1}, this)">&gt;</a>
-        </li>`;
-        }
-    }
-
-    // 클릭 이벤트 처리 함수
-    function handlePageClick(page, element) {
-        // 버튼 누름 표시
-        const activeElement = document.querySelector('.pagination .active');
-        if (activeElement) {
-            activeElement.classList.remove('active'); // 기존 active 클래스 제거
-        }
-
-        const parentElement = element.closest('.page-item');
-        if (parentElement) {
-            parentElement.classList.add('active'); // 클릭한 버튼에 active 클래스 추가
-        }
-
-        // 0.5초 후 페이지 로드
-        // setTimeout(() => {
-            loadPage(page);
-        // }, );
-    }
-    function renderFeeds(jsonData,count) {
-        // const paginationDiv = document.getElementById('pagination');
-        // paginationDiv.innerHTML = '';
-        //
-        // // const currentPage = jsonData.page; // 현재 페이지
-        // // const maxPage = jsonData.maxPage; // 전체 페이지 수
-        // const currentPage = jsonData.page || 0;
-        // const maxPage = jsonData.maxPage || 1;
-        // console.log(maxPage)
-        // // 이전 버튼
         // if (currentPage > 0) {
-        //     const prev = document.createElement('li');
-        //     prev.className = 'page-item';
-        //     prev.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${currentPage - 1})">&lt;</a>`;
-        //     paginationDiv.appendChild(prev);
+        //     paginationDiv.innerHTML += `
+        // <li class="page-item">
+        //     <a class="page-link" href="#" onclick="handlePageClick(${currentPage - 1}, this)">&lt;</a>
+        // </li>`;
         // }
+        // console.log(currentPage)
         //
-        // // 페이지 번호 버튼
+        // // 페이지 번호
         // for (let p = 0; p < maxPage; p++) {
-        //     const pageItem = document.createElement('li');
-        //     pageItem.className = `page-item ${p === currentPage ? 'active' : ''}`;
-        //     pageItem.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${p})">${p + 1}</a>`;
-        //     paginationDiv.appendChild(pageItem);
+        //     paginationDiv.innerHTML += `
+        // <li class="page-item ${p === currentPage ? 'active' : ''}">
+        //     <a class="page-link" href="#" onclick="handlePageClick(${p}, this)">${p + 1}</a>
+        // </li>`;
         // }
         //
         // // 다음 버튼
         // if (currentPage + 1 < maxPage) {
-        //     const next = document.createElement('li');
-        //     next.className = 'page-item';
-        //     next.innerHTML = `<a class="page-link" href="#" onclick="loadPage(${currentPage + 1})">&gt;</a>`;
-        //     paginationDiv.appendChild(next);
+        //     paginationDiv.innerHTML += `
+        // <li class="page-item">
+        //     <a class="page-link" href="#" onclick="handlePageClick(${currentPage + 1}, this)">&gt;</a>
+        // </li>`;
         // }
+    }
 
+    // 클릭 이벤트 처리 함수
+    async  function handlePageClick(page, element) {
+            // 버튼 누름 표시
+            // const activeElement = document.querySelector('.pagination .active');
+            // if (activeElement) {
+            //     activeElement.classList.remove('active'); // 기존 active 클래스 제거
+            // }
+            //
+            // const parentElement = element.closest('.page-item');
+            // if (parentElement) {
+            //     parentElement.classList.add('active'); // 클릭한 버튼에 active 클래스 추가
+            // }
+
+        // 0.5초 후 페이지 로드
+        // setTimeout(() => {
+        await  loadPage(page);
+        // }, );
+    }
+    function renderFeeds(jsonData,count) {
         // 1. 조회수 표시
         document.getElementById('viewCount').textContent = jsonData.viewCount;
 

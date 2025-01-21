@@ -21,9 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final int page = 0;
 
-    private final int size = 10;
 
     private final FeedService feedService;
 
@@ -75,31 +73,6 @@ public class LoginController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
-
-//    @GetMapping("/mypage")
-//    @ResponseBody
-//    public ResponseEntity<?> myPage(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        log.info("Authorization Header: {}", token);
-//
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//            if (jwtTokenProvider.validateToken(token)) {
-//                log.info(feedService.getFeedId(jwtTokenProvider.getUserId(token)).toString());
-//                return ResponseEntity.ok(Map.of(
-//                        "like", feedService.getUserLikeCount(jwtTokenProvider.getUserId(token)),
-//                        "feedCount", (int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
-//                        "feedList", feedService.getFeedId(jwtTokenProvider.getUserId(token)),
-//                        "commentCount", (int) commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
-//                        "visitCount", userService.findVisitCount(jwtTokenProvider.getUserId(token)),
-//                        "userId", jwtTokenProvider.getUserId(token),
-//                        "username", jwtTokenProvider.getUsername(token),
-//                        "isLoggedIn", true));
-//            }
-//        }
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching data");
-//    }
-
 
     @PostMapping("/signup/pass")
     public String signIn(@ModelAttribute SignUpResponse sign, Model model) {
