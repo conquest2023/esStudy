@@ -494,7 +494,7 @@
                             <thead>
                             <tr>
                                 <th>제목</th>
-                                <th>내용</th>
+<!--                                <th>내용</th>-->
 
                                 <th>작성자</th>
 <!--                                <th>댓글수</th>-->
@@ -917,17 +917,17 @@
 
         feedTableBody.innerHTML = '';  // 기존 행 제거
         jsonData.data.forEach(board => {
+            // <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
             // countMap에서 댓글 수 가져오기 (feedUID -> count)
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                  <td><a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a></td>
+
                     <td>
-                        <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
+                    <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
                      ${
                 count && count[board.feedUID] > 0
                     ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
-                    : ""
-            }
+                    : ""}
                     </td>
                     <td>${board.username}</td>
                     <td>${formatDate(board.createdAt)}</td>
@@ -1037,10 +1037,11 @@
                     // 성공적으로 데이터를 받으면 해당 내용을 페이지에 업데이트
                     // 예: 게시글 리스트를 갱신
                     $('tbody').html('');
+                    // '<td><a href="/search/view/feed/id(id='+ board.id + ')">' + board.description + `</a></td>`
                     response.data.forEach(function (board) {
                         var row = '<tr>' +
                             '<td><a href="/search/view/feed/id(id=' + board.id + ')">' + board.title + '</a></td>' +
-                            '<td><a href="/search/view/feed/id(id='+ board.id + ')">' + board.description + `</a></td>`
+
                             '<td>' + board.username + '</td>' +
                             '<td>' + board.commentCount + '</td>' +
                             '<td>' + new Date(feed.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) + '</td>' +

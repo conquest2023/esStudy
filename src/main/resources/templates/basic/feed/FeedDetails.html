@@ -780,15 +780,20 @@
     document.addEventListener('DOMContentLoaded', function () {
         // 예: URL 파라미터 ?id=xxx 로 피드UID 가져오는 방식
         const urlParams = new URLSearchParams(window.location.search);
-        const feedId = urlParams.get('id');       // /detail.html?id=abcdef
-        const isView = true; // 들어올 때 조회수 증가
+        const feedId = urlParams.get('id');
 
         if (!feedId) {
             alert("피드 ID가 없습니다.");
             return;
         }
+        fetch('/increaseViewCount', {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            credentials: "include",
+            body: JSON.stringify({id: feedId })})
+
         // 서버에서 JSON 데이터 받아오기
-        fetch(`/detail?id=${feedId}&isView=${isView}`)
+        fetch(`/detail?id=${feedId}`)
             .then(res => res.json())
             .then(data => {
 
@@ -802,6 +807,29 @@
             .catch(error => {
                 console.error("피드 상세 조회 중 에러:", error);
             });});
+
+    // 쿠키 설정 함수
+    // function setCookie(name, value, minutes) {
+    //     let expires = "";
+    //     if (minutes) {
+    //         const date = new Date();
+    //         date.setTime(date.getTime() + (minutes * 60 * 1000));
+    //         expires = "; expires=" + date.toUTCString();
+    //     }
+    //     document.cookie = `${name}=${value}; path=/;${expires}`;
+    // }
+    //
+    // // 쿠키 가져오기 함수
+    // function getCookie(name) {
+    //     const cookies = document.cookie.split(';');
+    //     for (let i = 0; i < cookies.length; i++) {
+    //         const cookie = cookies[i].trim();
+    //         if (cookie.startsWith(name + "=")) {
+    //             return cookie.substring(name.length + 1);
+    //         }
+    //     }
+    //     return "";
+    // }
 
     // 좋아요 버튼 이벤트
     // const likeBtn = container.querySelector(`button[data-feed-uid="${board.feedUID}"]`);

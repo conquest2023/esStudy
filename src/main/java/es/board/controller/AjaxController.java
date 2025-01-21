@@ -54,7 +54,7 @@ public class AjaxController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info("pass={}",token);
+//        log.info("pass={}",token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -125,7 +125,7 @@ public class AjaxController {
         String userId = jwtTokenProvider.getUserId(refreshToken);
         String username=userService.getUsername(userId);
         String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
-        log.info("newAccessToken=={}",newAccessToken);
+//        log.info("newAccessToken=={}",newAccessToken);
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 

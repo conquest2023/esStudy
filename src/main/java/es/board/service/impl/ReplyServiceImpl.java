@@ -35,7 +35,6 @@ public class ReplyServiceImpl implements ReplyService {
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
 
         List<ReplyRequest> replies = getPartialReply(feedId);
-//        log.info(replies.toString());
         return replies.stream()
                 .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
     }

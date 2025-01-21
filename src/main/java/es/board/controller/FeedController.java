@@ -2,16 +2,15 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.file.FileStore;
-import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.CommentCreateResponse;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.ReplyService;
-import es.board.service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Controller
-public class FeedViewController {
+public class FeedController {
     @Value("%{file.dir}")
     private  String fileDir;
 
@@ -256,14 +257,31 @@ public class FeedViewController {
         model.addAttribute("data",feedService.getFeed());
         return "basic/feed/feedList?index=board";
     }
-    @GetMapping("/detail")
-    public ResponseEntity<?> getFeedDetail(@RequestParam String id,
-                                           @RequestParam(required = false, defaultValue = "false") boolean isView) {
 
-        // 조회수 증가
-        if (isView) {
+    @PostMapping("/increaseViewCount")
+    public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
+                                               @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
+        String id = request.get("id");
+
+        // 쿠키에서 해당 게시글 조회 여부 확인
+        if (!viewedFeeds.contains(id)) {
             feedService.saveViewCountFeed(id);
+
+            // 새 쿠키 설정 (30분 동안 유지)
+            String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
+            String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
+            Cookie cookie = new Cookie("viewedFeeds", encodedValue);
+            cookie.setHttpOnly(true);  // 클라이언트 스크립트에서 접근 방지
+            cookie.setSecure(false);    // HTTPS에서만 전송 (운영 환경 고려)
+            cookie.setPath("/");        // 전체 도메인에서 쿠키 유효
+            cookie.setMaxAge(60 * 30);  // 30분 유지
+            response.addCookie(cookie);
         }
+
+        return ResponseEntity.ok("조회수 증가 성공");
+    }
+    @GetMapping("/detail")
+    public ResponseEntity<?> getFeedDetail(@RequestParam String id) {
         // 필요한 데이터 조회
         Map<String, Object> response = new HashMap<>();
         response.put("replies", replyService.getRepliesGroupedByComment(id));
