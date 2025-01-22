@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인기 게시물</title>
+    <title>검색한 게시물</title>
 
     <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
@@ -37,76 +37,133 @@
 <body>
 
 <div class="container">
-    <h1 class="text-center">인기 게시물</h1>
+    <h1 class="text-center"><i class="fas fa-search"></i> 검색한 게시물</h1>
+
+    <!-- 검색 입력 -->
+    <div class="input-group mb-3">
+        <input type="text" id="searchQuery" class="form-control" placeholder="검색어 입력">
+        <button class="btn btn-primary" onclick="fetchFeeds(0)">
+            <i class="fas fa-search"></i> 검색
+        </button>
+    </div>
 
     <!-- 게시글 리스트 -->
-    <div class="mb-4">
-        <!-- 날짜 검색 폼 -->
-        <div class="mb-4">
-            <!-- 게시글 리스트 -->
-            <table class="table table-striped table-hover">
-                <thead>
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>카테고리</th>
+            <th>내용</th>
+            <th>좋아요 수</th>
+            <th>작성일자</th>
+        </tr>
+        </thead>
+        <tbody id="feedTableBody">
+        <tr>
+            <td colspan="6" class="text-center">게시글을 불러오는 중...</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 페이지네이션 -->
+    <nav>
+        <ul class="pagination" id="pagination">
+            <!-- 페이지네이션 버튼이 동적으로 추가됩니다. -->
+        </ul>
+    </nav>
+
+    <!-- 메인으로 돌아가기 버튼 -->
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    let currentPage = 0;
+    let pageSize = 10;
+
+    // 게시글 가져오기 함수
+    function fetchFeeds(page) {
+        currentPage = page;
+        const query = $('#searchQuery').val();  // 검색어 가져오기
+
+        $.ajax({
+            url: `/feeds?page=${page}&size=${pageSize}`,
+            type: 'GET',
+            success: function(response) {
+                renderTable(response.data);
+                renderPagination(response.page, response.maxPage);
+            },
+            error: function(error) {
+                console.error("게시글을 불러오는 중 오류 발생:", error);
+                $('#feedTableBody').html('<tr><td colspan="6" class="text-center text-danger">게시글을 불러오는 데 실패했습니다.</td></tr>');
+            }
+        });
+    }
+
+    // 테이블 렌더링 함수
+    function renderTable(feeds) {
+        const tableBody = $('#feedTableBody');
+        tableBody.empty();
+
+        if (feeds.length === 0) {
+            tableBody.append('<tr><td colspan="6" class="text-center text-warning">게시글이 없습니다.</td></tr>');
+            return;
+        }
+
+        feeds.forEach(board => {
+            const formattedDate = new Date(board.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+
+            const row = `
                 <tr>
-                    <th>제목</th>
-                    <th>내용</th>
-
-                    <th>작성자</th>
-                    <!--                                <th>댓글수</th>-->
-                    <!--<th>카테고리</th>-->
-                    <!--                                <th>좋아요 수</th>-->
-                    <th>작성일</th>
-                    <th>좋아요</th>
-                    <th>조회수</th>
+                    <td><a href="/search/view/feed/id?id=${board.id}">${board.title}</a></td>
+                    <td>${board.username}</td>
+                    <td>${board.category}</td>
+                    <td>${board.description}</td>
+                    <td><i class="fas fa-heart text-danger"></i> ${board.likeCount}</td>
+                    <td>${formattedDate}</td>
                 </tr>
-                </thead>
-                <tbody>
-                <!-- 게시글 데이터 반복 -->
-                <tr th:each="board : ${popular}">
-                    <!-- 제목 -->
-                    <td><a th:href="@{/search/view/feed/id(id=${board.id})}" th:text="${board.title}"></a></td>
-                    <!-- 작성자 -->
+            `;
+            tableBody.append(row);
+        });
+    }
 
-                    <!-- 내용과 댓글수 -->
-                    <td>
-                        <span th:text="${board.description}"></span>
-                        <!-- 댓글수가 0보다 클 때만 [댓글수] 표시 -->
-                        <span th:if="${count[board.feedUID] > 0}" style="color: #007bff; font-weight: bold;">
-                    [<span th:text="${count[board.feedUID]}"></span>]
-                </span>
-                    </td>
-                    <td th:text="${board.username}"></td>
-                    <!-- 작성일 -->
-                    <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd')}"></td>
+    // 페이지네이션 렌더링 함수
+    function renderPagination(currentPage, maxPage) {
+        const pagination = $('#pagination');
+        pagination.empty();
 
-                    <!-- 조회수 -->
-                    <td th:text="${board.likeCount}"></td>
-                    <td th:text="${board.viewCount}"></td>
+        // 이전 버튼
+        if (currentPage > 0) {
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" onclick="fetchFeeds(${currentPage - 1})">&laquo;</a></li>`);
+        }
 
-                </tr>
+        for (let i = 0; i < maxPage; i++) {
+            pagination.append(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="fetchFeeds(${i})">${i + 1}</a>
+                </li>
+            `);
+        }
 
-                <!-- 데이터가 없을 때 -->
-                <tr th:if="${#lists.isEmpty(data)}">
-                    <td colspan="5" class="text-center">게시글이 없습니다.</td>
-                </tr>
-                </tbody>
-            </table>
+        // 다음 버튼
+        if (currentPage < maxPage - 1) {
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" onclick="fetchFeeds(${currentPage + 1})">&raquo;</a></li>`);
+        }
+    }
 
-            <!-- 게시글이 없을 경우 -->
-            <tr th:if="${#lists.isEmpty(data)}">
-                <td colspan="5" class="text-center">게시글이 없습니다.</td>
-            </tr>
-            </tbody>
-            </table>
+    // 페이지 로드시 게시글 로드
+    $(document).ready(function () {
+        fetchFeeds(0);
+    });
+</script>
 
-            <!-- 메인으로 돌아가기 버튼 -->
-            <div class="text-center mt-4">
-                <a href="/static" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
-            </div>
-
-        </div>
-
-        <!-- Bootstrap JS (Optional) -->
-        <script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

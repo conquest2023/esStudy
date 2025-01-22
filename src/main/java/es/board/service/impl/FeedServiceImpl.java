@@ -9,20 +9,15 @@ import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
 import es.board.repository.entity.Post;
-import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.ap.internal.model.Mapper;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +33,8 @@ public class FeedServiceImpl implements FeedService {
 
     private final FeedDAO feedDAO;
 
-    private final PostRepository postRepository;
+    private final AsyncService asyncService;
+
 
     private  final LikeDAO likeDAO;
 
@@ -60,13 +56,12 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
+
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
-
         Post post=new Post();
-        Post savePost= postRepository.save((post.PostToEntity(feedSaveDTO)));
-
-        esSettingId(feedSaveDTO,savePost.getId());
+        post.esSettingId(feedSaveDTO);
+        asyncService.savePostAsync(feedSaveDTO);
         return feedDAO.indexSaveFeed(feedSaveDTO);
     }
 
@@ -169,10 +164,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    @Transactional
-    public void deleteFeed(String id,String  userId) {
-        postRepository.deleteById(userId);
+    public void deleteFeed(String id,String userId) {
         feedDAO.deleteFeedOne(id);
+        asyncService.deletePostAsync(userId);
     }
     @Override
     public List<FeedRequest> getFeedUserList(String userId){
@@ -196,6 +190,7 @@ public class FeedServiceImpl implements FeedService {
     }
     @Override
     public  void plusLike(String id) {
+
         likeDAO.saveLike(id);
     }
 
@@ -214,12 +209,7 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
-    private void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
 
-        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
-        feedSaveDTO.setId(id);
-        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
-    }
     private List<String> extractFeedUID(int page, int size) {
         List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()
                 .map(Board::getFeedUID)

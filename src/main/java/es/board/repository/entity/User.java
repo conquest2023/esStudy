@@ -70,19 +70,17 @@ public class User {
 
 
     public void updateLastLogin( LocalDateTime lastLogin) {
+
         this.lastLogin = lastLogin;
     }
     public User DtoToUser(SignUpResponse sign, String password){
-//        Role defaultRole = new Role();
-//        defaultRole.setName("ROLE_USER");
+
         return  User.builder()
                 .id(id)
                 .userId(sign.getUserId())
-//                .visitCount(0)
                 .username(sign.getUsername())
                 .password(password)
                 .age(sign.getAge())
-//                .roles(Set.of(defaultRole))
                 .createdAt(LocalDateTime.now())
                 .build();
     }

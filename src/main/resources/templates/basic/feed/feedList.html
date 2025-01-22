@@ -470,24 +470,24 @@
                 <!-- 게시판 내용 -->
                 <div class="mb-4">
                     <!-- 날짜 검색 폼 -->
-                    <div class="d-flex justify-content-end align-items-center mb-3">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Sorting options">
-                            <a href="/search/view/feed/latest">
-                                <button type="button">최신순</button>
-                            </a>
+<!--                    <div class="d-flex justify-content-end align-items-center mb-3">-->
+<!--                        <div class="btn-group btn-group-sm" role="group" aria-label="Sorting options">-->
+<!--                            <a href="/search/view/feed/latest">-->
+<!--                                <button type="button">최신순</button>-->
+<!--                            </a>-->
 
-                            <a href="/search/view/comment/desc" >
-                                <button type="button">댓글순</button>
-                            </a>
+<!--                            <a href="/search/view/comment/desc" >-->
+<!--                                <button type="button">댓글순</button>-->
+<!--                            </a>-->
 
-                            <a href="/search/view/feed/list/most" id="mostSortLink">
-                                <button type="button">조회순</button>
-                            </a>
+<!--                            <a href="/search/view/feed/list/most" id="mostSortLink">-->
+<!--                                <button type="button">조회순</button>-->
+<!--                            </a>-->
 
-                            <a href="/search/view/feed/list/popular">
-                                <button type="button">추천순</button>
-                            </a>
-                        </div>
+<!--                            <a href="/search/view/feed/list/popular">-->
+<!--                                <button type="button">추천순</button>-->
+<!--                            </a>-->
+<!--                        </div>-->
                     </div>
                         <!-- 게시글 리스트 -->
                         <table id="feedTable"  class="table table-striped table-hover">
@@ -500,6 +500,7 @@
 <!--                                <th>댓글수</th>-->
                                 <!--<th>카테고리</th>-->
 <!--                                <th>좋아요 수</th>-->
+<!--                                <th>카테고리</th>-->
                                 <th>작성일</th>
                                 <th>조회수</th>
                             </tr>
@@ -547,7 +548,7 @@
                                         style="width: 10%; margin-right: 5px; background: #f8f9fa; border-radius: 5px;"
                                         onchange="toggleDateFields()">
                                     <option value="text">제목 + 내용</option>
-                                    <option value="category">카테고리</option>
+<!--                                    <option value="category">카테고리</option>-->
                                     <option value="date">날짜 검색</option>
                                 </select>
 
@@ -572,70 +573,6 @@
                             </div>
                         </form>
                     </div>
-            <!-- 페이지네이션 -->
-<!--                <nav style="text-align: center;">-->
-<!--                    <ul class="pagination"-->
-<!--                        th:with="start=${(page != null && maxPage != null && maxPage > 0) ? ((page / maxPage) * maxPage + 1) : 0},-->
-<!--            end=${(start + maxPage - 1) < maxPage ? (start + maxPage - 1) : maxPage},-->
-<!--            totalPages=${(maxPage != null && maxPage > 0) ? maxPage : 1}">-->
-
-<!--                    &lt;!&ndash; 처음 페이지로 이동 &ndash;&gt;-->
-<!--                        <li th:if="${page > 0}" class="page-item">-->
-<!--                            <a th:href="@{/search/view/feed(page=${page - 1})}" class="page-link" th:text="'<'"></a>-->
-<!--                        </li>-->
-<!--                        <li th:each="p : ${#numbers.sequence(start, end)}" class="page-item"-->
-<!--                            th:classappend="${p - 1 == page} ? 'active'">-->
-<!--                            <a th:href="@{/search/view/feed(page=${p - 1})}" class="page-link" th:text="${p}"></a>-->
-<!--                        </li>-->
-<!--                        <li th:if="${page + 1 < maxPage}" class="page-item">-->
-<!--                            <a th:href="@{/search/view/feed(page=${page + 1})}" class="page-link" th:text="'>'"></a>-->
-<!--                        </li>-->
-<!--                        &lt;!&ndash; 마지막 페이지로 이동 &ndash;&gt;-->
-<!--                        <li th:if="${end < totalPages}" class="page-item">-->
-<!--                            <a th:href="@{/search/view/feed(page=${totalPages - 1})}" class="page-link" th:text="'>>'"></a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                    <tr>-->
-<!--                        <th>게시글 수</th>-->
-<!--                    </tr>-->
-<!--                    <tr th:each="board : ${totalPage}">-->
-<!--                        <td th:text="${totalPage}"></td>-->
-<!--                    </tr>-->
-<!--                </nav>-->
-<!--                    <div class="mb-4">-->
-<!--                        &lt;!&ndash; 통합 검색 폼 &ndash;&gt;-->
-<!--                        <form id="searchForm" method="get" class="d-flex align-items-center justify-content-center" style="width: 100%;">-->
-<!--                            <div class="input-group input-group-sm" style="width: 80%; max-width: 800px;">-->
-<!--                                &lt;!&ndash; 검색 타입 선택 &ndash;&gt;-->
-<!--                                <select id="searchType" name="searchType" class="form-control form-control-sm"-->
-<!--                                        style="width: 10%; margin-right: 5px; background: #f8f9fa; border-radius: 5px;"-->
-<!--                                        onchange="toggleDateFields()">-->
-<!--                                    <option value="text">제목 + 내용</option>-->
-<!--                                    <option value="category">카테고리</option>-->
-<!--                                    <option value="date">날짜 검색</option>-->
-<!--                                </select>-->
-
-<!--                                &lt;!&ndash; 검색어 입력 &ndash;&gt;-->
-<!--                                <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요"-->
-<!--                                       class="form-control form-control-sm" style="width: 40%; margin-right: 5px;" />-->
-
-<!--                                &lt;!&ndash; 날짜 선택 (기본적으로 숨김) &ndash;&gt;-->
-<!--                                <div id="dateFields" style="display: none; position: absolute; top: 40px; left: 0; z-index: 10; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">-->
-<!--                                <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>-->
-<!--                                <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"-->
-<!--                                       style="width: 100px; margin-right: 10px;" />-->
-<!--                                <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>-->
-<!--                                <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"-->
-<!--                                       style="width: 100px;" />-->
-<!--                            </div>-->
-
-<!--                                &lt;!&ndash; 검색 버튼 &ndash;&gt;-->
-<!--                                <button id="searchId" type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">-->
-<!--                                    <i class="fas fa-search"></i> 검색-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </form>-->
-<!--                    </div>-->
 
                     <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
                 <form action="/search/view/feed/Form" method="get">
@@ -644,7 +581,7 @@
                     </button>
                 </form>
             </div>
-            </div>
+<!--            </div>-->
 
         </main>
 
@@ -706,40 +643,42 @@
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
         // searchType 값에 따라 form.action 설정
-        const url = `/search/content?text=${encodeURIComponent(searchText)}`;
+        let url = '/search/content?';
 
-
-        history.pushState({ text: searchText }, '', url);
-        // Fetch API로 서버에 요청
-        if (!searchText.trim()) {
-            alert('검색어를 입력하세요!');
+        if (searchType === 'text') {
+            if (!searchText) {
+                alert('검색어를 입력하세요!');
+                return;
+            }
+            url += `text=${encodeURIComponent(searchText)}`;
+        } else if (searchType === 'date') {
+            if (!startDate || !endDate) {
+                alert('시작 및 종료 날짜를 입력하세요!');
+                return;
+            }
+            url += `startDate=${(startDate)}&endDate=${(endDate)}`;
+        } else {
+            alert('검색 유형을 선택하세요!');
             return;
         }
 
-        // API 요청 URL
+        history.pushState(null, '', url);
 
-        // Fetch API로 서버에 요청
         fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('검색 요청 실패');
                 }
+
                 return response.json();
             })
             .then(data => {
-                console.log('[debug] 검색 결과:', data);
-
                 if (data.data.length === 0) {
                     alert('검색 결과가 없습니다.');
                     return;
                 }
-                searchFeed(data, data.count);
-            })
-            .catch(error => {
-                console.error('검색 요청 중 오류 발생:', error);
-                alert('검색 중 오류가 발생했습니다.');
-            });
-    }
+                renderFeeds(data);
+            })}
 
     // 데이터 렌더링 함수
     function searchFeed(jsonData, count) {
@@ -759,6 +698,7 @@
             }
             </td>
             <td>${board.username}</td>
+
             <td>${formatDate(board.createdAt)}</td>
             <td>${board.viewCount}</td>`;
             feedTableBody.appendChild(tr);
@@ -782,12 +722,8 @@
             const size = 10; // 페이지 크기 (한 페이지당 항목 수)
             const response = await fetch(`/feeds?page=${page}&size=${size}`);
             const data = await response.json();
-
-            // console.log('[debug] 받은 데이터:', data);
-
-            // 데이터 로드 후 UI 업데이트
+            renderPagination(data.page,data.maxPage,data.totalPage);
             renderFeeds(data, data.count);
-            renderPagination(data.page, data.maxPage);
         } catch (error) {
             console.error('[error]', error);
         } finally {
@@ -812,26 +748,14 @@
     }
     document.addEventListener('DOMContentLoaded', async  function() {
         await loadPage(0);
-        // page, size는 URL 파라미터나 내부 변수로 관리
-        // const page = 0;
-        // const size = 10;
-        // // fetch로 /api/feeds 호출
-        // fetch(`/feeds?page=${page}&size=${size}`)
-        //
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         // data = { viewCount, count, page, maxPage, totalPage, data, month }
-        //         console.log('[debug] 받은 데이터:', data);
-        //         const count = data.count;
-        //         renderFeeds(data,count);
-        //         renderPagination(data.page, data.maxPage);
-        //
-        //     })
-        //     .catch(error => {
-        //         console.error('[error]', error);
-        //     });
+
     });
-     function renderPagination(currentPage, maxPage) {
+    function navigateTo(event, category) {
+        event.preventDefault();
+        const englishCategory = categoryMap[category] || category; // 기본적으로 영어 카테고리로 변환
+        window.location.href = `/search/view/feed/list/${encodeURIComponent(englishCategory)}`;
+    }
+     function renderPagination(currentPage, maxPage, totalCount) {
         console.log("maxpage",maxPage)
         const paginationDiv = document.getElementById('pagination');
         paginationDiv.innerHTML = ''; // 초기화
@@ -856,38 +780,29 @@
                 <li class="page-item">
                     <a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a>
                 </li>`;
+         }  // 총 게시글 수 추가
+         const totalPostsDiv = document.getElementById('totalPosts');
+         if (!totalPostsDiv) {
+             const newTotalPostsDiv = document.createElement('div');
+             newTotalPostsDiv.id = 'totalPosts';
+             newTotalPostsDiv.style.textAlign = 'center';
+             newTotalPostsDiv.style.fontWeight = 'bold';
+             newTotalPostsDiv.style.marginTop = '10px';
+             newTotalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
+             paginationDiv.insertAdjacentElement('afterend', newTotalPostsDiv);
+         } else {
+             totalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
          }
+
          document.getElementById('pagination').addEventListener('click', async function(event) {
              if (event.target.classList.contains('page-link')) {
                  event.preventDefault();
                  const page = parseInt(event.target.dataset.page);
                  await handlePageClick(page);
              }
+
          });
-        // 이전 버튼
-        // if (currentPage > 0) {
-        //     paginationDiv.innerHTML += `
-        // <li class="page-item">
-        //     <a class="page-link" href="#" onclick="handlePageClick(${currentPage - 1}, this)">&lt;</a>
-        // </li>`;
-        // }
-        // console.log(currentPage)
-        //
-        // // 페이지 번호
-        // for (let p = 0; p < maxPage; p++) {
-        //     paginationDiv.innerHTML += `
-        // <li class="page-item ${p === currentPage ? 'active' : ''}">
-        //     <a class="page-link" href="#" onclick="handlePageClick(${p}, this)">${p + 1}</a>
-        // </li>`;
-        // }
-        //
-        // // 다음 버튼
-        // if (currentPage + 1 < maxPage) {
-        //     paginationDiv.innerHTML += `
-        // <li class="page-item">
-        //     <a class="page-link" href="#" onclick="handlePageClick(${currentPage + 1}, this)">&gt;</a>
-        // </li>`;
-        // }
+
     }
 
     // 클릭 이벤트 처리 함수
@@ -930,6 +845,7 @@
                     : ""}
                     </td>
                     <td>${board.username}</td>
+
                     <td>${formatDate(board.createdAt)}</td>
                     <td>${board.viewCount}</td> `;
             feedTableBody.appendChild(tr);
@@ -1116,7 +1032,6 @@
 
                 .then(data => {
                     if (data && data.isLoggedIn) {
-                        console.log(data)
                         // 로그인 상태 업데이트
                         loginButton.style.display = "none";
                         logoutButton.style.display = "block";

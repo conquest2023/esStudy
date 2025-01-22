@@ -112,6 +112,7 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
+                    .id(String.valueOf(dto.getId()))
                     .document(dto));
             return dto;
         } catch (IOException e) {

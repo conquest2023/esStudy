@@ -1,11 +1,14 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.UserDAO;
 import es.board.repository.document.EsUser;
+import es.board.repository.entity.Post;
+import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.User;
 import es.board.service.UserService;
@@ -14,6 +17,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -33,11 +37,11 @@ public class UserServiceImpl implements UserService {
     private EntityManager entityManager;
     private  final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    private  final JwtTokenProvider jwtTokenProvider;
-
     private  final UserRepository userRepository;
 
     private  final UserDAO userDAO;
+
+    private  final  AsyncService asyncService;
 
     private  final PasswordEncoder passwordEncoder;
 
@@ -46,8 +50,8 @@ public class UserServiceImpl implements UserService {
 
         User user=new User();
         String password=passwordEncoder.encode(sign.getPassword());
+        asyncService.saveUserAsync(sign,password);
         userRepository.save(user.DtoToUser(sign, password));
-        userDAO.createUser(user.DtoToUser(sign,password));
 
     }
     @Override
@@ -58,25 +62,18 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public boolean login(LoginResponse login) {
 
-//        return userRepository.existsByUserIdAndPassword(login.getUserId(),login.getPassword());
-//        if(!userRepository.existsByUserIdAndPassword(login.getUserId(),login.getPassword())) {
-//            return  false;
-//        }else{
         userRepository.updateLastLogin(login.getUserId(),LocalDateTime.now());
         UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(login.getUserId(),login.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        return  true;
-        }
+        authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        return  true;}
 
 
     @Override
     public Boolean checkId(SignUpResponse sign) {
         if(userRepository.findByUserid(sign.getUserId())==null){
             return  true;
-        }else {
-            return  false;
         }
-    }
+            return  false;}
 
     @Override
     public Long findVisitCount(String userId) {

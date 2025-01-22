@@ -42,6 +42,7 @@ public class Post {
     private  String imageUrl;
 
 
+
     public Post PostToEntity(FeedCreateResponse feedSaveDTO) {
         return Post.builder()
                 .id(id)
@@ -53,8 +54,11 @@ public class Post {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+    public void esSettingId(FeedCreateResponse feedSaveDTO) {
 
-
-
+        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
+        feedSaveDTO.setId(id);
+        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
+    }
 
 }

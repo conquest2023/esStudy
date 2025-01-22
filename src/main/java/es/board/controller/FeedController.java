@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -86,8 +87,10 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/feed/category")
-    public String getCategory(Model model,@RequestParam String text)  {
-        model.addAttribute("data",feedService.getCategoryFeed(text));
+    public String getCategory(Model model, String text)  {
+
+        String decodedCategory = URLDecoder.decode(text, StandardCharsets.UTF_8);
+        model.addAttribute("data",feedService.getCategoryFeed(decodedCategory));
         return "basic/feed/CategoryFeed";
     }
 
@@ -118,50 +121,50 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/feed/list/popular")
-    public String getPopularFeedDESC(Model model,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size) {
-//        basicSettingFeed(model, page, size);
-        model.addAttribute("popular",feedService.getPopularFeedDESC(page,size));
-        return "basic/feed/LikeFeed";
+    @ResponseBody
+    public ResponseEntity<?> getPopularFeedDESC(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Double totalFeeds =  feedService.getTotalFeed();
+        int maxPage = (int) Math.ceil((double) totalFeeds / size);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data",  feedService.getPopularFeedDESC(page, size));
+        response.put("page", page);
+        response.put("maxPage", maxPage);
+        response.put("totalFeeds", totalFeeds);
+
+        return ResponseEntity.ok(response);
     }
 
-
-
-//    @GetMapping("/search/view/feed/feedAll")
-//    public String getFeedList(Model model, @RequestBody Map<String, String> request)  {
-//
-//        String feedUID = request.get("feedUID");
-//        if (feedUID != null) {
-//            feedService.saveViewCountFeed(feedUID);
-//        }
-//        model.addAttribute("data",feedService.getFeed());
-//        return "basic/feed/feedList?index=board";
-//    }
     @GetMapping("/search/content")
     @ResponseBody
-    public ResponseEntity<?> getSearchBoardList(Model model, @RequestParam String text)  {
-//        model.addAttribute("data",feedService.getSearchBoard(text));
-        return   ResponseEntity.ok(Map.of(
-                "data",feedService.getSearchBoard(text)
-                ));
+    public ResponseEntity<?> getSearchBoardList(@RequestParam(required = false) String text,
+                                                @RequestParam(required = false) LocalDateTime startDate,
+                                                @RequestParam(required = false) LocalDateTime endDate)  {
+        if (startDate != null && endDate != null) {
+
+            return   ResponseEntity.ok(Map.of(
+                    "data",  feedService.getRangeTimeFeed(startDate,endDate)));
+        }else{
+
+            return   ResponseEntity.ok(Map.of(
+                    "data",feedService.getSearchBoard(text)
+            ));
+        }
 //        return "basic/feed/SearchFeed";
     }
 
     @GetMapping("/search/view/feed")
-    public String getFeed(Model model,
-                          @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
-                          @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-//        basicSettingFeed(model, page, size);
+    public String getFeed(){ // 페이지 크기
         return "basic/feed/feedList";
     }
 
     @GetMapping("/search/view/feed/list/most")
     public String getMostViewFeed(Model model,
-                          @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
-                          @RequestParam(defaultValue = "10") int size) throws IOException { // 페이지 크기
-
-//        basicSettingFeed(model, page, size);
+                          @RequestParam(defaultValue = "0") int page,
+                          @RequestParam(defaultValue = "10") int size)  { // 페이지 크기
         model.addAttribute("data",feedService.getMostViewFeed(page,size));
         return "basic/feed/MostViewFeed";
     }
@@ -171,7 +174,7 @@ public class FeedController {
     @GetMapping("/search/view/feed/list/{category}")
     public String getCategoryListFeed(Model model, @PathVariable String category){
         model.addAttribute("data",feedService.getCategoryFeed(category));
-        return "/basic/feed/CategoryFeed";
+        return "basic/feed/CategoryFeed";
     }
 
     @GetMapping("/search/view/feed/latest")
@@ -214,8 +217,6 @@ public class FeedController {
     @GetMapping("/search/view/feed/Form")
     public String feedSaveForm( Model model,  @RequestHeader(value = "Authorization", required = false) String token) {
 
-//            model.addAttribute("userId", null);
-//            model.addAttribute("userName", "");
             return  "basic/feed/PostFeed";
     }
 
@@ -231,7 +232,6 @@ public class FeedController {
                                        @RequestParam(defaultValue = "10") int size) throws  IOException{
 
             model.addAttribute("commentDESC",commentService.getPagingCommentDESC(feedService.getfeedUIDList(page,size),page,size));
-//            basicSettingFeed(model, page, size);
             return  "basic/comment/MostCommentDESC";
         }
 
@@ -272,7 +272,7 @@ public class FeedController {
             String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("viewedFeeds", encodedValue);
             cookie.setHttpOnly(true);  // 클라이언트 스크립트에서 접근 방지
-            cookie.setSecure(false);    // HTTPS에서만 전송 (운영 환경 고려)
+            cookie.setSecure(true);    // HTTPS에서만 전송 (운영 환경 고려)
             cookie.setPath("/");        // 전체 도메인에서 쿠키 유효
             cookie.setMaxAge(60 * 30);  // 30분 유지
             response.addCookie(cookie);
@@ -295,17 +295,6 @@ public class FeedController {
     }
 
 
-//        public void feedDetailParts(Model model, String id, boolean isView) {
-//        if (isView) {
-//            feedService.saveViewCountFeed(id); // 조회수 증가
-//        }
-//        model.addAttribute("replies", replyService.getRepliesGroupedByComment(id));
-//        model.addAttribute("count",commentService.getSumComment(id));
-//        model.addAttribute("data",feedService.getFeedId(id));
-//        model.addAttribute("comment",commentService.getCommentOne(id));
-//        model.addAttribute("reply",replyService.getPartialReply(id));
-//        model.addAttribute("feedId", id);
-//    }
 
     private static void commentSetIds(String id, CommentCreateResponse commentSaveDTO) {
         commentSaveDTO.setFeedUID(id);
@@ -313,16 +302,6 @@ public class FeedController {
         commentSaveDTO.setCommentUID(UUID.randomUUID().toString());
     }
 }
-//    private void basicSettingFeed(Model model, int page, int size) {
-//
-//        model.addAttribute("viewCount",feedService.getViewCountAll());
-//        model.addAttribute("count",commentService.getPagingComment(feedService.getfeedUIDList(page,size),page,size));
-//        model.addAttribute("page", page);  // 현재 페이지 번호
-//        model.addAttribute("maxPage", (int) Math.ceil((double) feedService.getTotalPage(page, size) / size));
-//        model.addAttribute("totalPage",  (int) Math.ceil(feedService.getTotalFeed()));
-//        model.addAttribute("data", feedService.getPagingFeed(page, size)); // 서비스 호출 시 페이지와 크기 전달
-//        model.addAttribute("month",feedService.getMonthPopularFeed());
-//    }
 
 
 
