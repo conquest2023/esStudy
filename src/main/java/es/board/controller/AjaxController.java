@@ -97,7 +97,7 @@ public class AjaxController {
             @RequestParam(defaultValue = "10") int size) {
 
         int viewCount = feedService.getViewCountAll();
-        Map<String,Long> countMap = commentService.getPagingComment(feedService.getfeedUIDList(page, size), page, size);
+        Map<String,Double> countMap = commentService.getPagingComment(feedService.getfeedUIDList(page, size), page, size);
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
         int totalPage = (int) Math.ceil(feedService.getTotalFeed());
         List<FeedRequest> data = feedService.getPagingFeed(page, size);

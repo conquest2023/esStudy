@@ -215,7 +215,7 @@ public class FeedController {
 
 
     @GetMapping("/search/view/feed/Form")
-    public String feedSaveForm( Model model,  @RequestHeader(value = "Authorization", required = false) String token) {
+    public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token) {
 
             return  "basic/feed/PostFeed";
     }

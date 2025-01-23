@@ -91,21 +91,6 @@ public class CommentDAOImpl implements CommentDAO {
 
     @Override
     public List<Comment> findRecentComment() {
-//        SearchResponse<Comment> response = client.search(s -> s
-//                        .index("comment")
-//                        .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
-//                        .sort(sort -> sort.field(f -> f
-//                                .field("createdAt")
-//                                .order(SortOrder.Desc)// 내림차순 정렬
-//                        )),
-//                Comment.class   // 결과를 Comment 클래스 객체로 매핑
-//        );
-//
-//        List<Comment> comments = response.hits().hits().stream()
-//                .map(hit -> hit.source())
-//                // Elasticsearch 문서를 Comment 객체로 변환
-//                .collect(Collectors.toList());
-//        return comments;
         return null;
     }
 
@@ -272,22 +257,6 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
 
-//    @Override
-//    public Comment findCommentId(String id)  {
-//        try {
-//            SearchResponse<Comment> response = client.search(g -> g
-//                            .index("comment")
-//                            .query(q -> q.match(t -> t.field("feedUID").query(id))),
-//                    Comment.class
-//            );
-//
-//            // 검색된 결과를 Comment 객체로 변환
-//            return response.hits().hits().get(0).source();
-//        } catch (IOException e) {
-//            log.error("Error searching for comment by id", e);
-//            throw new IndexException("Failed to find comment by ID", e);
-//        }
-//    }
 
 
     @Override
@@ -329,12 +298,19 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public int findSumComment(String id) {
         try {
-            SearchResponse<Comment> response = client.search(s -> s
+            // Elasticsearch 검색 요청
+            SearchResponse<Void> response = client.search(s -> s
                             .index("comment")
-                            .query(q -> q.term(t -> t.field("feedUID").value(id))),
-                    Comment.class
+                            .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("feedUID").value(id)))))
+                            .aggregations("feedUID_count", a -> a.valueCount(vc -> vc.field("feedUID"))),
+                    Void.class // 검색 결과를 사용하지 않으므로 Void로 설정
             );
-            long commentCount = response.hits().total().value();
+
+            // 집계 결과에서 값 추출
+            double commentCount = response.aggregations()
+                    .get("feedUID_count") // 집계 이름
+                    .valueCount()         // ValueCount 집계 결과
+                    .value();             // 실제 값
             return (int) commentCount;
         } catch (IOException e) {
             log.error("Error searching for comment by id", e);
@@ -391,9 +367,10 @@ public class CommentDAOImpl implements CommentDAO {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
-                            .query(q ->
-                                    q.term(t -> t.field("feedUID")
-                                            .value(commentUid))),
+                            .query(q ->q.bool(t -> t.filter(f->
+                                            f.term(
+                                                    p->p.field("feedUID")
+                                            .value(commentUid))))),
                     Comment.class);
             log.info(response.toString());
             return response.hits().hits().stream()
@@ -434,41 +411,50 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size) {
-        try {
-            List<FieldValue> fieldValues = feedUIDs.stream()
-                    .map(FieldValue::of)
-                    .collect(Collectors.toList());
-
-            SearchResponse<Comment> response = client.search(s -> s
-                            .index("comment")
-                            .size(1000)
-                            .query(q -> q.terms(a -> a.field("feedUID").terms(v -> v.value(fieldValues))))
-                    ,
-                    Comment.class
-            );
-
-            List<Comment> comments = response.hits().hits().stream()
-                    .map(hit -> hit.source())
-                    .collect(Collectors.toList());
-            return aggregationCountComment(comments);
-        } catch (IOException e) {
-            log.error("Error finding paginated comments", e);
-            throw new IndexException("Failed to find paginated comments", e);
-        }
-    }
-    @Override
-    public Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size) {
+    public Map<String, Double> findPagingComment(List<String> feedUIDs, int page, int size) {
         List<FieldValue> fieldValues = feedUIDs.stream()
                 .map(FieldValue::of)
                 .collect(Collectors.toList());
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
-                            .size(1000)
                             .query(q -> q
-                                    .terms(a -> a.field("feedUID")
-                                            .terms(v -> v.value(fieldValues))))
+                                    .bool(b -> b.filter(f -> f.terms(
+                                            a -> a.field("feedUID")
+                                                    .terms(v -> v.value(fieldValues))))))
+                            .aggregations("feed_comment_count", a -> a
+                                    .terms(t -> t
+                                            .field("feedUID") // 게시글 ID별 댓글 수 집계
+                                            .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+                                    )
+                                    .aggregations("comment_count", ag -> ag
+                                            .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+                                    )), Comment.class);
+             return  response.aggregations()
+                    .get("feed_comment_count")
+                    .sterms()
+                    .buckets().array().stream()
+                    .collect(Collectors.toMap(
+                            bucket -> bucket.key().stringValue(),
+                            bucket -> bucket.aggregations()
+                                    .get("comment_count")         // 중첩된 value_count 집계 이름
+                                    .valueCount().value()));
+        }   catch (IOException e) {
+        log.error("Error searching for paginated comments in descending order", e);
+        throw new IndexException("Failed to find paginated comments in descending order", e);}
+    }
+    @Override
+    public Map<String, Double> findPagingCommentDESC(List<String> feedUIDs, int page, int size) {
+        List<FieldValue> fieldValues = feedUIDs.stream()
+                .map(FieldValue::of)
+                .collect(Collectors.toList());
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q
+                                    .bool(b->b.filter(f->f.terms(
+                                            a -> a.field("feedUID")
+                                                    .terms(v -> v.value(fieldValues))))))
                             .aggregations("feed_comment_count", a -> a
                                     .terms(t -> t
                                             .field("feedUID.keyword") // 게시글 ID별 댓글 수 집계
@@ -480,11 +466,15 @@ public class CommentDAOImpl implements CommentDAO {
                             ),
                     Comment.class);
 
-            List<Comment> comments = response.hits().hits().stream()
-                    .map(hit -> hit.source())
-                    .collect(Collectors.toList());
-
-            return countCommentDESC(comments);
+            return response.aggregations()
+                    .get("feed_comment_count") // 상위 terms 집계 이름
+                    .sterms()                  // String Terms 집계로 변환
+                    .buckets().array().stream() // 버킷 리스트 스트림 생성
+                    .collect(Collectors.toMap(
+                            bucket -> bucket.key().stringValue(), // feedUID 값 (키)
+                            bucket -> bucket.aggregations()
+                                    .get("comment_count")         // 중첩된 value_count 집계 이름
+                                    .valueCount().value()));
         } catch (IOException e) {
             log.error("Error searching for paginated comments in descending order", e);
             throw new IndexException("Failed to find paginated comments in descending order", e);

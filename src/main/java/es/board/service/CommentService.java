@@ -28,7 +28,7 @@ public interface CommentService {
 
     List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);
-    Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
+    Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
     List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) ;
 
 
@@ -36,7 +36,7 @@ public interface CommentService {
 
     List<CommentRequest> getLikeCount() ;
 
-    Map<String, Long> getPagingComment(List<String> feedUIDs , int num, int size) ;
+    Map<String, Double> getPagingComment(List<String> feedUIDs , int num, int size) ;
 
 
     List<CommentRequest> getComment() ;

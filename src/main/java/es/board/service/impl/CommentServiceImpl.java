@@ -105,12 +105,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Map<String, Long> getPagingComment(List<String> feedUIDs, int num, int size) {
+    public Map<String, Double> getPagingComment(List<String> feedUIDs, int num, int size) {
         return commentDAO.findPagingComment(feedUIDs, num, size);
     }
 
     @Override
-    public Map<String, Long> getPagingCommentDESC(List<String> feedUIDs, int num, int size) {
+    public Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) {
         return commentDAO.findPagingCommentDESC(feedUIDs, num, size);
     }
 

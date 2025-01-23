@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -24,13 +26,16 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public void savePostAsync(FeedCreateResponse feedSaveDTO) {
+    public CompletableFuture<Integer> savePostAsync(FeedCreateResponse feedSaveDTO) {
         log.info("비동기 작업 시작 - 스레드: {}", Thread.currentThread().getName());
+
         Post post = new Post();
         Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
-        log.info("MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
-    }
 
+        log.info("MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
+        // 올바른 ID 반환
+        return CompletableFuture.completedFuture(savedPost.getId());
+    }
 
 
     @Async("taskExecutor")

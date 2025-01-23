@@ -32,7 +32,7 @@ public interface CommentDAO {
 
     List<Comment> findPagingComment(int num);
 
-    Map<String, Long> findPagingCommentDESC(List<String> feedUIDs, int page, int size);
+    Map<String, Double> findPagingCommentDESC(List<String> feedUIDs, int page, int size);
 
     void deleteCommentId(String id);
 
@@ -40,7 +40,7 @@ public interface CommentDAO {
 
     List<Comment> findDetailComment(String id);
 
-    Map<String, Long> findPagingComment(List<String> feedUIDs, int page, int size);
+    Map<String,Double> findPagingComment(List<String> feedUIDs, int page, int size);
 
     Comment modifyComment(String id, Comment comment) ;
 

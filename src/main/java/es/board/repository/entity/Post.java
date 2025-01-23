@@ -5,6 +5,7 @@ import es.board.config.s3.S3Uploader;
 import es.board.controller.model.res.FeedCreateResponse;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name = "post")
 @Data
 @Builder
+@Slf4j
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Post {
@@ -53,12 +55,6 @@ public class Post {
                 .anonymous(feedSaveDTO.isAnonymous())
                 .createdAt(LocalDateTime.now())
                 .build();
-    }
-    public void esSettingId(FeedCreateResponse feedSaveDTO) {
-
-        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
-        feedSaveDTO.setId(id);
-        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
     }
 
 }

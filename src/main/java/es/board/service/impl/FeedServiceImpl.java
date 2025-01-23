@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,10 +62,16 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
-        Post post=new Post();
-        post.esSettingId(feedSaveDTO);
-        asyncService.savePostAsync(feedSaveDTO);
-        return feedDAO.indexSaveFeed(feedSaveDTO);
+        CompletableFuture<Integer> future =  asyncService.savePostAsync(feedSaveDTO);
+        future.thenAccept(savedPost -> {
+            try {
+                esSettingId(feedSaveDTO,future.get());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            feedDAO.indexSaveFeed(feedSaveDTO);
+        });
+        return  feedSaveDTO;
     }
 
     @Override
@@ -216,6 +225,12 @@ public class FeedServiceImpl implements FeedService {
                 .collect(Collectors.toList());
         return feedUIDs;
     }
+    public void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
+
+        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
+        feedSaveDTO.setId(id);
+        log.info(String.valueOf(id));
+        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());}
 
 }
 

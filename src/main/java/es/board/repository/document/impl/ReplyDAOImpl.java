@@ -28,9 +28,9 @@ public class ReplyDAOImpl implements ReplyDAO {
             SearchResponse<Reply> response = client.search(s -> s
                     .index("reply")
                     .query(q -> q
-                            .term(t->t
-                                    .field("feedUID")
-                                    .value(id)))
+                            .bool(b->b
+                                    .filter(f->f.term(t->t.field("feedUID")
+                                    .value(id)))))
             ,Reply.class);
             log.info(response.toString());
             return  response.hits().hits().stream()

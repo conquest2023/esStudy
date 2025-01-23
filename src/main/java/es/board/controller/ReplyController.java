@@ -21,16 +21,15 @@ public class ReplyController {
 
     @GetMapping("/search/view/reply")
     public List<ReplyRequest> getReplyAll(@RequestParam String id) {
+
         return replyService.getPartialReply(id);
     }
 
     @PostMapping("/search/view/reply/save")
     public ResponseEntity<String> postReply(@RequestBody ReplyCreateResponse replyCreateDTO) {
 
-        log.info(replyCreateDTO.toString());
-        // 답글 저장 서비스 호출
         replyService.saveReply(replyCreateDTO);
-        // 리다이렉션 URL만 반환
+
         return ResponseEntity.ok("/search/view/feed/id?id=" + replyCreateDTO.getFeedUID());
     }
 }

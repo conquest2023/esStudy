@@ -114,6 +114,7 @@ public class FeedDAOImpl implements FeedDAO {
                     .index("board")
                     .id(String.valueOf(dto.getId()))
                     .document(dto));
+            log.info(response.toString());
             return dto;
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
@@ -524,13 +525,9 @@ public class FeedDAOImpl implements FeedDAO {
                             .index("board")
                             .query(q -> q
                                     .bool(b -> b
-                                            .should(
+                                            .filter(
                                                     s -> s.term(t -> t
                                                             .field("feedUID.keyword")
-                                                            .value(id)))
-                                            .should(
-                                                    s -> s.term(t -> t
-                                                            .field("userId")
                                                             .value(id))))), Board.class);
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
