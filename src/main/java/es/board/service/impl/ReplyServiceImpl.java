@@ -30,14 +30,10 @@ public class ReplyServiceImpl implements ReplyService {
 
         replyDAO.saveReply(response);
     }
-
-
-
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
 
         List<ReplyRequest> replies = getPartialReply(feedId);
         return replies.stream()
                 .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
     }
-
 }

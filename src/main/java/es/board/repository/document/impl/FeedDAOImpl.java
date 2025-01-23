@@ -145,16 +145,11 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to search feed by date range", e);
         }
 
-        //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-//        LocalDateTime inputTime = LocalDateTime.parse(time, formatter);
-//        LocalDateTime timePlusOneDay = inputTime.plus(1, ChronoUnit.DAYS);
-//        String endtime = timePlusOneDay.format(formatter);
     }
 
 
     @Override
     public List<Board> findAllFeed() {
-
 
         try {
             SearchResponse<Board> response = client.search(s -> s
@@ -242,38 +237,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch like count feed", e); // 예외 처리
         }
     }
-
-//    @Override
-//    public void  modifyVisitCount(String userId) {
-//        try {
-//            // Step 1: feedUID로 _id 검색
-//            SearchResponse<Board> searchResponse = client.search(s -> s
-//                    .index("board")
-//                    .query(q -> q
-//                            .term(t -> t
-//                                    .field("userId")
-//                                    .value(userId)
-//                            )
-//                    ), Board.class
-//            );
-//            log.info(searchResponse.toString());
-//            String documentId = searchResponse.hits().hits().get(0).id();
-//            client.update(u -> u
-//                    .index("board")
-//                    .id(documentId)
-//                    .refresh(Refresh.WaitFor)
-//                    .script(s -> s
-//                            .source("ctx._source.viewCount += params.increment")
-//                            .params(Map.of("increment", JsonData.of(increment)))
-//
-//                    ), Board.class
-//            );
-//        } catch (IOException e) {
-//            log.info("조회수 업데이트 실패");
-//            throw new IndexException(e);
-//        }
-//    }
-
     @Override
     public List<Board> findPagingFeed(int page, int size) {
         try {
@@ -328,8 +291,7 @@ public class FeedDAOImpl implements FeedDAO {
                             .size(size)
                             .query(q -> q.matchAll(t -> t)),
                     Board.class);
-            long totalHits = response.hits().total().value();
-            return totalHits;
+           return response.hits().total().value();
         } catch (IOException  e) {
             log.error("Error fetching total page count: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch total page count", e); // 예외를 커스텀 예외로 감싸서 던짐
@@ -418,7 +380,6 @@ public class FeedDAOImpl implements FeedDAO {
                             .size(size)
                             .aggregations("totalLikes", a -> a.sum(sum -> sum.field("likeCount"))),
                     Board.class);
-
             return response.aggregations()
                     .get("totalLikes")
                     .sum()
@@ -436,15 +397,14 @@ public class FeedDAOImpl implements FeedDAO {
             // Elasticsearch 검색 및 집계 요청
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .aggregations("feedCount", a -> a.valueCount(vc -> vc.field("feedUID.keyword"))),
+                            .aggregations("feedCount",
+                                    a -> a.valueCount(vc -> vc.field("feedUID.keyword"))),
                     Board.class);
-
-            Double feedCount = response.aggregations()
+            log.info("내가쓴 게시글={}",response.toString());
+            return    response.aggregations()
                     .get("feedCount")
                     .valueCount()
                     .value();
-
-            return feedCount;
         } catch (IOException  e) {
             log.error("Error fetching sum of feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch sum of feed", e); // 예외를 커스텀 예외로 감싸서 던짐
@@ -541,30 +501,19 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public void saveViewCounts(String feedUID, Board view) {
+    public void saveViewCounts(String feedUID) {
         try {
             // Step 1: feedUID로 _id 검색
-            SearchResponse<Board> searchResponse = client.search(s -> s
+            client.updateByQuery(u -> u
                     .index("board")
-                    .query(q -> q
-                            .term(t -> t
-                                    .field("feedUID.keyword")
-                                    .value(feedUID)
-                            )
-                    ), Board.class
-            );
-            log.info(searchResponse.toString());
-            String documentId = searchResponse.hits().hits().get(0).id();
-            client.update(u -> u
-                    .index("board")
-                    .id(documentId) // _id 사용
-                    .refresh(Refresh.WaitFor)
                     .script(s -> s
                             .source("ctx._source.viewCount += params.increment")
                             .params(Map.of("increment", JsonData.of(increment)))
-
-                    ), Board.class
-            );
+                    )
+                    .query(q -> q
+                            .term(t -> t
+                                    .field("feedUID.keyword")
+                                    .value(feedUID))));
         } catch (IOException e) {
             log.info("조회수 업데이트 실패");
             throw new IndexException(e);
@@ -575,7 +524,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public Board findPopularFeedOne()  {
         try {
-            // Elasticsearch 검색 및 집계 요청
+
             SearchResponse<Board> response = client.search(s -> s
                             .query(q -> q.matchAll(t -> t))
                             .index("board")
@@ -585,7 +534,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .query("totalLikes"))),
                     Board.class);
 
-            // 검색된 문서 리스트 가져오기
+
             double maxLikes = response.aggregations()
                     .get("totalLikes")
                     .max()
@@ -610,7 +559,6 @@ public class FeedDAOImpl implements FeedDAO {
                                                     .field("userId")
                                                     .value(userId)))),
                     Board.class);
-
             return response.aggregations()
                     .get("feedCount")
                     .filter()
@@ -667,7 +615,9 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                     .index("board")
-                            .aggregations("totalViews", a -> a.sum(sum -> sum.field("viewCount"))),
+                            .aggregations("totalViews",
+                                    a -> a.sum(sum ->
+                                            sum.field("viewCount"))),
                     Board.class);
 
             return (int) searchResponse.aggregations()

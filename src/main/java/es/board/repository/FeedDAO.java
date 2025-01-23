@@ -45,7 +45,7 @@ public interface FeedDAO {
     List<Board> findUserBoardList(String userId);
 
     double findUserFeedCount(String userId);
-    void saveViewCounts(String id, Board view) ;
+    void saveViewCounts(String id) ;
      List<Board> findMonthPopularFeed();
 
     int findAllViewCount();

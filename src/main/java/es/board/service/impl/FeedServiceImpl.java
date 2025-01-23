@@ -189,8 +189,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public void saveViewCountFeed(String id) {
-        Board view = feedDAO.findIdOne(id);
-        feedDAO.saveViewCounts(id, view);
+        feedDAO.saveViewCounts(id);
     }
     @Override
     public FeedUpdate updateFeed(String id, FeedUpdate update) {

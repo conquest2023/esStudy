@@ -46,7 +46,7 @@ public class CommentDAOImpl implements CommentDAO {
                                                     .field("userId")
                                                     .value(userId)))),
                     Comment.class);
-
+             log.info("내가 쓴 댓글:{}",response.toString());
             return response.aggregations()
                     .get("commentCount")
                     .filter()

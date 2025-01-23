@@ -288,9 +288,8 @@ public class FeedController {
         response.put("count", commentService.getSumComment(id));
         response.put("data", feedService.getFeedId(id));       // 단일 피드 데이터
         response.put("comment", commentService.getCommentOne(id)); // 댓글 리스트
-        response.put("reply", replyService.getPartialReply(id));   // 추가 정보(필요시)
+//        response.put("reply", replyService.getPartialReply(id));   // 추가 정보(필요시)
         response.put("feedId", id);
-
         return ResponseEntity.ok(response);
     }
 

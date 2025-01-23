@@ -3,6 +3,7 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import es.board.controller.model.req.ReplyRequest;
 import es.board.ex.IndexException;
 import es.board.controller.model.res.ReplyCreateResponse;
 import es.board.repository.ReplyDAO;
@@ -12,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class ReplyDAOImpl implements ReplyDAO {
                             .bool(b->b
                                     .filter(f->f.term(t->t.field("feedUID")
                                     .value(id)))))
+
             ,Reply.class);
             log.info(response.toString());
             return  response.hits().hits().stream()
@@ -44,15 +48,15 @@ public class ReplyDAOImpl implements ReplyDAO {
 
     @Override
     public void saveReply(ReplyCreateResponse dto) {
+//        dto.TimePush();
         try{
-
             IndexResponse response=client.index(i->i
                     .index("reply")
+                    .id(dto.getFeedUID())
                     .document(dto));
-
         }catch (IOException e){
             log.error("존재하지 않는 인덱스입니다");
             throw  new IndexException("존재하지 않는 인덱스입니다");
         }
     }
-}
+    }

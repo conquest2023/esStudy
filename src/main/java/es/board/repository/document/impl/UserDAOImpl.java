@@ -45,16 +45,14 @@ public class UserDAOImpl implements UserDAO {
             SearchResponse<EsUser> response = client.search(s -> s
                             .index("user")
                             .query(q -> q
-                                    .term(t -> t
+                                    .bool(b->b.filter(f->f.term(t -> t
                                             .field("userId")
-                                            .value((userId))))
-                            .size(1),
-                    EsUser.class);
-            log.info(response.toString());
-            // 검색된 문서에서 visitCount 가져오기
+                                            .value((userId))))))
+                    .source(a->a.filter(f->f.includes("visitCount"))).size(1),EsUser.class);
+            log.info("findVisitCount={}",response.toString());
             return response.hits().hits().stream()
                     .findFirst()
-                    .map(hit -> (long) hit.source().getVisitCount())  // Integer -> Long
+                    .map(hit -> (long) hit.source().getVisitCount())
                     .orElse(0L);
         } catch (IOException e) {
             log.error("Error fetching VisitCount for userId {}: {}", userId, e.getMessage(), e);
@@ -91,22 +89,18 @@ public class UserDAOImpl implements UserDAO {
             client.updateByQuery(u -> u
                     .index("user")
                     .query(q -> q
-                            .term(t -> t
-                                    .field("userId")
-                                    .value(userId)
-                            )
-                    )
-                    .script(s -> s
+                            .bool(b->b.filter(f->f.term(t ->t
+                                            .field("userId")
+                                            .value(userId)))
+
+                            )).script(s -> s
                             .source("""
                             if (ctx._source.visitCount == null) {
                                 ctx._source.visitCount = 0;
                             }
                             ctx._source.visitCount += params.increment;
                         """)
-                            .params(Map.of("increment", JsonData.of(1)))  // 1씩 증가
-                    )
-                    .refresh(true)  // 즉시 업데이트 반영
-            );
+                            .params(Map.of("increment", JsonData.of(1)))).refresh(true));
             log.info("방문 횟수 업데이트 성공");
         } catch (IOException e) {
             log.error("조회수 업데이트 실패: {}", e.getMessage());

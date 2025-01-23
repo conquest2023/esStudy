@@ -52,7 +52,7 @@ public class ReplyRequest {
                         .username(reply1.getUsername())
                         .content(reply1.getContent())
                         .likeCount(reply1.getLikeCount())
-                        .createdAt(reply1.getCreatedAt())
+//                        .createdAt(reply1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
