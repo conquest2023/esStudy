@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private  final Key key;
+
+    private final long ACCESS_TOKEN_EXPIRY = 24 * 60 * 60 * 1000;
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
@@ -49,12 +52,13 @@ private final Set<String> blacklistedTokens = new HashSet<>();
         long now = (new Date()).getTime();
 
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 864000);
         String accessToken = Jwts.builder()
                 .setSubject(userId) // "sub"에 userId 저장
                 .claim("username", authentication.getName()) // "username" 클레임에 이름 저장
                 .claim("auth", authorities) // 권한 정보 저장
-                .setExpiration(accessTokenExpiresIn) // 만료 시간 설정
+                .claim("created_at", LocalDate.now().toString()) // 발급 일자 추가
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))
                 .signWith(key, SignatureAlgorithm.HS256) // 서명
                 .compact();
 

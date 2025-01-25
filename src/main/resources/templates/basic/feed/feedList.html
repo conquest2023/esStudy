@@ -222,6 +222,30 @@
             font-weight:bold;
             color:#333333;
         }
+        .visitor-stats {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .visitor-item {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #555;
+        }
+
+        .stat-value {
+            color: #007bff;
+            font-weight: bold;
+        }
+
         .main-content {
             flex-grow: 1;
             width: 70%; /* Adjusted width for better balance */
@@ -586,6 +610,7 @@
         </main>
 
     <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
+        <div id="visitorStats" class="visitor-stats mb-3"></div>
         <div id="popularFeeds">
             <h3 class="fw-bold">인기 게시물</h3>
             <div class="ranking-box" id="monthFeedsList">
@@ -615,26 +640,36 @@
 
 <!--        // 조건에 따라 URL에 파라미터 추가-->
 <script>
-    // document.getElementById("searchId").addEventListener("click", function() {
-    //     console.log("검색 버튼 클릭됨");
-    // });
-    // function toggleDateFields() {
-    //     const searchType = document.getElementById('searchType').value;
-    //     const startDate = document.getElementById('startDate');
-    //     const endDate = document.getElementById('endDate');
-    //     const dateFields = document.getElementById('dateFields');
-    //     const searchInput = document.getElementById('searchInput');
-    //
-    //     if (searchType === 'date') {
-    //         // 날짜 검색 선택 시
-    //         dateFields.style.display = 'block'; // 날짜 폼 표시
-    //         searchInput.style.display = 'none'; // 검색어 입력 숨김
-    //     } else {
-    //         // 일반 검색 또는 카테고리 검색
-    //         dateFields.style.display = 'none'; // 날짜 폼 숨김
-    //         searchInput.style.display = 'block'; // 검색어 입력 표시
-    //     }
-    // }
+
+    async function loadVisitorStats() {
+        try {
+            const response = await fetch('/get-ip');
+            if (!response.ok) {
+                throw new Error('Failed to fetch visitor stats');
+            }
+
+            const data = await response.json();
+
+            // 방문자 수 표시할 DOM 요소 가져오기
+            const visitorStatsDiv = document.getElementById('visitorStats');
+            visitorStatsDiv.innerHTML = `
+            <div class="d-flex align-items-center visitor-item">
+                <span class="stat-label">현재 접속자:</span>
+                <span class="stat-value">${data.currentVisitors}</span>
+            </div>
+            <div class="d-flex align-items-center visitor-item">
+                <span class="stat-label">오늘 방문자:</span>
+                <span class="stat-value">${data.todayVisitors}</span>
+            </div>
+            <div class="d-flex align-items-center visitor-item">
+                <span class="stat-label">누적 방문자:</span>
+                <span class="stat-value">${data.totalVisitors}</span>
+            </div>
+        `;
+        } catch (error) {
+            console.error('Error fetching visitor data:', error);
+        }
+    }
 
     function redirectSearch() {
         const form = document.getElementById('searchForm');
@@ -729,22 +764,6 @@
         } finally {
             isLoading = false;
         }
-        // 서버에서 데이터를 가져오는 Fetch 요청
-        // fetch(`/feeds?page=${page}&size=${size}`)
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('데이터를 가져오는 데 실패했습니다.');
-        //         }
-        //         return response.json(); // JSON 데이터로 변환
-        //     })
-        //     .then(data => {
-        //         const count = data.count; // 댓글 수 맵
-        //         renderFeeds(data, count); // 받은 데이터로 화면 렌더링
-        //         // renderPagination(data.page, data.maxPage);
-        //     })
-        //     .catch(error => {
-        //         console.error('페이지 데이터를 로드하는 중 오류가 발생했습니다:', error);
-        //     });
     }
     document.addEventListener('DOMContentLoaded', async  function() {
         await loadPage(0);
@@ -807,17 +826,6 @@
 
     // 클릭 이벤트 처리 함수
     async  function handlePageClick(page, element) {
-            // 버튼 누름 표시
-            // const activeElement = document.querySelector('.pagination .active');
-            // if (activeElement) {
-            //     activeElement.classList.remove('active'); // 기존 active 클래스 제거
-            // }
-            //
-            // const parentElement = element.closest('.page-item');
-            // if (parentElement) {
-            //     parentElement.classList.add('active'); // 클릭한 버튼에 active 클래스 추가
-            // }
-
         // 0.5초 후 페이지 로드
         // setTimeout(() => {
         await  loadPage(page);
@@ -826,6 +834,7 @@
     function renderFeeds(jsonData,count) {
         // 1. 조회수 표시
         document.getElementById('viewCount').textContent = jsonData.viewCount;
+        loadVisitorStats();
 
         // 2. 게시글 목록 테이블
         const feedTableBody = document.querySelector('#feedTable tbody');

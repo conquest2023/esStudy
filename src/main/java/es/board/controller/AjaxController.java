@@ -7,7 +7,10 @@ import es.board.controller.model.res.LoginResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.UserService;
+import es.board.service.VisitorService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -29,13 +34,39 @@ public class AjaxController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
+    private  final VisitorService visitService;
+
     private  final FeedService feedService;
-
-
 
     private  final CommentService commentService;
 
+    @GetMapping("/get-ip")
+    @ResponseBody
+    public Map<String, Long> getClientIp() {
+        return visitService.getStats();
+    }
+    @PostMapping("/tracking/increaseViewCount")
+    public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
+                                               @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
+        String id = request.get("id");
 
+        // 쿠키에서 해당 게시글 조회 여부 확인
+        if (!viewedFeeds.contains(id)) {
+            feedService.saveViewCountFeed(id);
+
+            // 새 쿠키 설정 (30분 동안 유지)
+            String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
+            String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
+            Cookie cookie = new Cookie("viewedFeeds", encodedValue);
+            cookie.setHttpOnly(true);  // 클라이언트 스크립트에서 접근 방지
+            cookie.setSecure(true);    // HTTPS에서만 전송 (운영 환경 고려)
+            cookie.setPath("/");        // 전체 도메인에서 쿠키 유효
+            cookie.setMaxAge(60 * 30);  // 30분 유지
+            response.addCookie(cookie);
+        }
+
+        return ResponseEntity.ok("조회수 증가 성공");
+    }
     @PostMapping("/authlogout")
     @ResponseBody
     public ResponseEntity<?> logout(HttpServletRequest request) {
@@ -72,7 +103,6 @@ public class AjaxController {
         ));
 
     }
-
     @PostMapping("/authlogin")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
@@ -125,11 +155,8 @@ public class AjaxController {
         String userId = jwtTokenProvider.getUserId(refreshToken);
         String username=userService.getUsername(userId);
         String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
-//        log.info("newAccessToken=={}",newAccessToken);
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
-
-
 
 
 }

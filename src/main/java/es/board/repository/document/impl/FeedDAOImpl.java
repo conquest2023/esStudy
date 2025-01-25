@@ -394,13 +394,12 @@ public class FeedDAOImpl implements FeedDAO {
     public double findSumFeed()  {
 
         try {
-            // Elasticsearch 검색 및 집계 요청
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
                             .aggregations("feedCount",
                                     a -> a.valueCount(vc -> vc.field("feedUID.keyword"))),
                     Board.class);
-            log.info("내가쓴 게시글={}",response.toString());
+//            log.info("내가쓴 게시글={}",response.toString());
             return    response.aggregations()
                     .get("feedCount")
                     .valueCount()
