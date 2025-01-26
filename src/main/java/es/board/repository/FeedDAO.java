@@ -35,7 +35,7 @@ public interface FeedDAO {
 
     List<Board> findCategoryAndContent(String category);
     Board modifyFeed(String id, FeedUpdate eq);
-    Board findIdOne(String id);
+    Board findFeedDetail(String id);
     List<Board> findSearchBoard(String text);
 
      double findSumLikeByPageOne(int page, int size);

@@ -2,7 +2,7 @@ package es.board.controller;
 
 
 import es.board.controller.model.req.ReplyRequest;
-import es.board.controller.model.res.ReplyCreateResponse;
+import es.board.controller.model.res.ReplyCreate;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class ReplyController {
     }
 
     @PostMapping("/search/view/reply/save")
-    public ResponseEntity<String> postReply(@RequestBody ReplyCreateResponse replyCreateDTO) {
+    public ResponseEntity<String> postReply(@RequestBody ReplyCreate replyCreateDTO) {
 
         replyService.saveReply(replyCreateDTO);
 

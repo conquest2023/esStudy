@@ -1,8 +1,10 @@
 package es.board.controller;
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreate;
 import es.board.service.CommentService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,31 +24,32 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    private  final JwtTokenProvider jwtTokenProvider;
+
 
 //    @PostMapping("/search/view/feed/id")
 ////    @ResponseBody
 //    public String saveCommentId(@RequestParam String id,
-//                                @ModelAttribute CommentCreateResponse commentSaveDTO,
+//                                @ModelAttribute CommentCreate response,
 //                                Model model)  {
-//        commentSaveDTO.commentBasicSetting(id);
-//        commentService.indexComment(commentSaveDTO);
-//        model.addAttribute("push",commentSaveDTO);
+//        response.commentBasicSetting(id);
+//        commentService.indexComment(response);
+//        model.addAttribute("push",response);
 //        return "redirect:/search/view/feed/id?id=" + id;
 //    }
     @PostMapping("/search/view/comment/id")
     @ResponseBody
     public ResponseEntity<?> saveCommentId(
-            @RequestParam("feedUID") String id, // URL 쿼리 매개변수 feedUID
-            @RequestBody CommentCreateResponse commentSaveDTO) {
+            @RequestParam("feedUID") String id,
+            @RequestBody CommentCreate response, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String userId = extractUserIdFromToken(token);
+        response.commentBasicSetting(id, userId);
+        commentService.indexComment(response);
+        Map<String, String> res = new HashMap<>();
+        res.put("redirectUrl", "/search/view/feed/id?id=" + id);
 
-        log.info(commentSaveDTO.toString());
-        // 댓글 기본 설정 및 저장
-        commentSaveDTO.commentBasicSetting(id);
-        commentService.indexComment(commentSaveDTO);
-        // 리다이렉트 URL 반환
-        Map<String, String> response = new HashMap<>();
-        response.put("redirectUrl", "/search/view/feed/id?id=" + id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("comment/update/get")
@@ -93,14 +96,21 @@ public class CommentController {
                     .body("댓글 삭제 중 오류가 발생했습니다.");
         }
     }
-
-
-
     @PostMapping("/search/view/comment/increase-like/{commentUID}")
     public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String commentUID) {
         commentService.plusCommentLike(commentUID);
         Map<String, Integer> response = new HashMap<>();
         return ResponseEntity.ok(response);
+    }
+
+    private String extractUserIdFromToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                return jwtTokenProvider.getUserId(token);
+            }
+        }
+        return "익명"; // 인증되지 않은 사용자는 익명으로 처리
     }
 }
 //    @GetMapping("/search/view/comment/time")
@@ -112,7 +122,7 @@ public class CommentController {
 //
 //    @GetMapping("/search/view/comment")
 //    public String getCommentMainPage(@RequestParam String index, Model model) {
-//        model.addAttribute("CommentCreateResponse", new CommentCreateResponse());
+//        model.addAttribute("CommentCreate", new CommentCreate());
 //
 //        model.addAttribute("data",commentService.getComment());
 //        return "basic/commentList";

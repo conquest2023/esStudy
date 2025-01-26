@@ -3,14 +3,12 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.ReplyService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -72,7 +69,7 @@ public class FeedController {
 
     @GetMapping("/search/view/feed/update")
     public String editFeed(@RequestParam("id") String id, Model model) {
-        model.addAttribute("feedUpdate", feedService.getFeedId(id));
+        model.addAttribute("feedUpdate", feedService.getFeedDetail(id));
         return "basic/feed/EditFeed";
     }
 
@@ -93,9 +90,8 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/feed/id")
-    public String getFeedDetail(Model model, @RequestParam String id) {
+    public String getFeedDetail(@RequestParam String id) {
 
-//        feedDetailParts(model, id, true);
         return "basic/feed/FeedDetails";
     }
 
@@ -244,21 +240,20 @@ public class FeedController {
         return "basic/feed/feedList?index=board";
     }
 
-    @GetMapping("/detail")
-    public ResponseEntity<?> getFeedDetail(@RequestParam String id) {
-        // 필요한 데이터 조회
-        Map<String, Object> response = new HashMap<>();
-        response.put("replies", replyService.getRepliesGroupedByComment(id));
-        response.put("count", commentService.getSumComment(id));
-        response.put("data", feedService.getFeedId(id));       // 단일 피드 데이터
-        response.put("comment", commentService.getCommentOne(id)); // 댓글 리스트
-//        response.put("reply", replyService.getPartialReply(id));   // 추가 정보(필요시)
-        response.put("feedId", id);
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("/detail")
+//    public ResponseEntity<?> getFeedDetail(@RequestParam String id) {
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("replies", replyService.getRepliesGroupedByComment(id));
+//        response.put("count", commentService.getSumComment(id));
+//        response.put("data", feedService.getFeedDetail(id));
+//        response.put("comment", commentService.getCommentOne(id));
+//        response.put("feedId", id);
+//        return ResponseEntity.ok(response);
+//    }
 
 
-    private static void commentSetIds(String id, CommentCreateResponse commentSaveDTO) {
+    private static void commentSetIds(String id, CommentCreate commentSaveDTO) {
         commentSaveDTO.setFeedUID(id);
         commentSaveDTO.TimeNow();
         commentSaveDTO.setCommentUID(UUID.randomUUID().toString());

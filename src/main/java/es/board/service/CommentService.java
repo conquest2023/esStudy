@@ -3,7 +3,7 @@ package es.board.service;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreate;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public interface CommentService {
 
     List<CommentRequest> getUserRangeTimeActive(String userId);
     List<FeedRequest>  getFeedAndComment(String userId);
-    public String saveDocument(String indexName, CommentCreateResponse dto) ;
+    public String saveDocument(String indexName, CommentCreate dto) ;
 
     List<Comment> getSearchComment(String text) ;
 
@@ -24,12 +24,12 @@ public interface CommentService {
 
     List<CommentRequest> getRecentComment() ;
 
-    String indexComment(CommentCreateResponse dto) ;
+    String indexComment(CommentCreate dto) ;
 
     List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);
     Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
-    List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) ;
+    List<CommentCreate> createBulkComment(List<CommentCreate> comments) ;
 
 
     int getSumComment(String id);

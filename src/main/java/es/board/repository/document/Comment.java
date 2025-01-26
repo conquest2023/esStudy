@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,7 +62,7 @@ public class Comment{
 
 
 
-    public Comment CommentToEntity(CommentCreateResponse commentSaveDTO) {
+    public Comment CommentToEntity(CommentCreate commentSaveDTO) {
         return Comment.builder()
                 .commentUID(commentSaveDTO.getCommentUID())
                 .username(commentSaveDTO.getUsername())

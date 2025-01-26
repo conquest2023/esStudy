@@ -62,5 +62,5 @@ public interface FeedService {
 
     FeedUpdate updateFeed(String id, FeedUpdate update);
 
-    FeedRequest getFeedId(String id);
+    FeedRequest getFeedDetail(String id);
 }

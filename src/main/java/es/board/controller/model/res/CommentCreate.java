@@ -6,37 +6,52 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class ReplyCreateResponse {
-
-
-    private String id;
+@AllArgsConstructor
+public class CommentCreate {
 
     private String commentUID;
 
-    private String feedUID;
+    private  String userId;
+
+    private  String feedUID;
 
     private String username;
 
+
     private String content;
 
+    private  int likeCount;
 
-    private int likeCount;
+    private  boolean anonymous;
+
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime  createdAt;
+    private LocalDateTime createdAt;
 
-    public void TimePush(){
+
+    public void TimeNow() {
         this.createdAt=LocalDateTime.now();
     }
+
+    public void commentBasicSetting(String id,String userId) {
+        this.feedUID=id;
+        this.userId=userId;
+        this.createdAt=LocalDateTime.now();
+        this.commentUID=UUID.randomUUID().toString();
+    }
+
+    public  void commentOwnerId(String userId){
+        this.userId=userId;
+    }
+
 }

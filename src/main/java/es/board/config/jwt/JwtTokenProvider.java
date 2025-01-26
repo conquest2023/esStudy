@@ -114,6 +114,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     }
 
 
+
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
         if (claims.get("auth")==null) {

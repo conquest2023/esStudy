@@ -38,7 +38,6 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         String ipAddress = getClientIpAddress(request);
         String sessionId = request.getSession().getId();
         String userAgent = request.getHeader("User-Agent");
-
         // 로그인 여부 확인 (토큰 유무)
         String userId = (token != null && token.startsWith("Bearer "))
                 ? jwtTokenProvider.getUserId(token.substring(7))
@@ -58,20 +57,16 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         } else {
             log.info("중복 방문 방지 - {}", uniqueKey);
         }
-
-
         return true;
         }
 
         private String getClientIpAddress(HttpServletRequest request) {
             String ip = request.getHeader("CF-Connecting-IP");
-            log.info("CF-Connecting-IP : " + ip);
 
             if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
 
-            log.info("Result : IP Address : " + ip);
             return ip;
         }
 

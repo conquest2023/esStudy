@@ -3,12 +3,9 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.JsonData;
+import es.board.controller.model.res.CommentCreate;
 import es.board.ex.IndexException;
-import es.board.controller.model.res.CommentCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -58,7 +55,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public String createCommentOne(String index, CommentCreateResponse dto) {
+    public String createCommentOne(String index, CommentCreate dto) {
         dto.TimeNow();
         try {
             IndexResponse response = client.index(i -> i
@@ -74,13 +71,12 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public String indexCommentSave(CommentCreateResponse dto) {
+    public String indexCommentSave(CommentCreate dto) {
 
         try {
             IndexResponse response = client.index(i -> i
                     .index("comment")
                     .document(dto));
-            log.info("hekkio");
             // 성공적으로 문서가 저장되면, 문서 ID를 반환.
             return response.id();
         } catch (IOException e) {

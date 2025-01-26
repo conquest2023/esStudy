@@ -4,10 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.LoginResponse;
-import es.board.service.CommentService;
-import es.board.service.FeedService;
-import es.board.service.UserService;
-import es.board.service.VisitorService;
+import es.board.service.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +36,8 @@ public class AjaxController {
 
     private  final FeedService feedService;
 
+    private  final ReplyService replyService;
+
     private  final CommentService commentService;
 
     @GetMapping("/get-ip")
@@ -45,7 +45,7 @@ public class AjaxController {
     public Map<String, Long> getClientIp() {
         return visitService.getStats();
     }
-    @PostMapping("/tracking/increaseViewCount")
+    @PostMapping("/increaseViewCount")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
                                                @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
         String id = request.get("id");
@@ -85,7 +85,6 @@ public class AjaxController {
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-//        log.info("pass={}",token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -100,9 +99,25 @@ public class AjaxController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "error", "세션이 만료되었습니다."
-        ));
-
+        ));}
+    @GetMapping("/detail")
+    public ResponseEntity<?> getDetailInfo(HttpServletRequest request,
+    @RequestParam(value = "id") String feedUID) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
+        response.put("count", commentService.getSumComment(feedUID));
+        FeedRequest req=feedService.getFeedDetail(feedUID);
+        response.put("data", req);
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                return handleAuthenticatedRequest(jwtTokenProvider.getUserId(token),req.getUserId(),feedUID, response, token);
+            }
+        }
+        return handleUnauthenticatedRequest(feedUID, response);
     }
+
     @PostMapping("/authlogin")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
@@ -132,9 +147,6 @@ public class AjaxController {
         int totalPage = (int) Math.ceil(feedService.getTotalFeed());
         List<FeedRequest> data = feedService.getPagingFeed(page, size);
         List<FeedRequest> month = feedService.getMonthPopularFeed();
-
-        // Java 9+ Map.of(...) 문법
-        // 만약 Java 8이라면, Map<String,Object> map = new HashMap<>(); map.put(...); 사용
         return ResponseEntity.ok(Map.of(
                 "viewCount", viewCount,
                 "count", countMap,
@@ -158,5 +170,18 @@ public class AjaxController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
+        response.put("Owner", jwtTokenProvider.getUsername(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
+        response.put("username", jwtTokenProvider.getUsername(token));
+        response.put("comment", userService.getCommentOwnerList(commentOwner,feedUID,userId));
+        response.put("isLoggedIn", true);
+        return ResponseEntity.ok(response);
+    }
 
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(String feedUID, Map<String, Object> response) {
+        response.put("comment", commentService.getCommentOne(feedUID));
+        response.put("Owner", false);
+        response.put("isLoggedIn", false);
+        return ResponseEntity.ok(response);
+    }
 }

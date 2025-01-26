@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.controller.model.req.ReplyRequest;
-import es.board.controller.model.res.ReplyCreateResponse;
+import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.ReplyDAO;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class ReplyServiceImpl implements ReplyService {
         return request.ReplyListToDTO(replyDAO.findPartialReply(id));
     }
     @Override
-    public  void  saveReply(ReplyCreateResponse response){
+    public  void  saveReply(ReplyCreate response){
 
         replyDAO.saveReply(response);
     }

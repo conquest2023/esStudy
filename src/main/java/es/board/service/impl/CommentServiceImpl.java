@@ -5,7 +5,7 @@ import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.res.CommentCreateResponse;
+import es.board.controller.model.res.CommentCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
@@ -49,7 +49,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String saveDocument(String indexName, CommentCreateResponse dto) {
+    public String saveDocument(String indexName, CommentCreate dto) {
 
 
         return commentDAO.createCommentOne(indexName, dto);
@@ -78,9 +78,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String indexComment(CommentCreateResponse dto) {
+    public String indexComment(CommentCreate dto) {
         return commentDAO.indexCommentSave(dto);
     }
+
+
 
     @Override
     public void plusCommentLike(String id) {
@@ -88,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentCreateResponse> createBulkComment(List<CommentCreateResponse> comments) {
+    public List<CommentCreate> createBulkComment(List<CommentCreate> comments) {
         commentDAO.CreateManyComment(BulkToEntity(comments));
         return comments;
     }
@@ -120,10 +122,12 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.changeCommentListDTO(commentDAO.findCommentAll());
     }
 
+    @Override
     public List<CommentRequest> getCommentOne(String commentUID){
 
         return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(commentUID));
     }
+
     @Override
     public List<Comment> getCommentId(String id) {
 
@@ -146,9 +150,9 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
-    public List<Comment> BulkToEntity(List<CommentCreateResponse> res) {
+    public List<Comment> BulkToEntity(List<CommentCreate> res) {
         List<Comment> comments = new ArrayList<>();
-        for (CommentCreateResponse dto : res) {
+        for (CommentCreate dto : res) {
             // 빌더 패턴을 사용해 Comment 객체 생성
             Comment comment = Comment.builder()
                     .commentUID(dto.getCommentUID())

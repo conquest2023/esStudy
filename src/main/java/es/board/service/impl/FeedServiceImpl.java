@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.FeedRequest;
@@ -8,7 +9,6 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
-import es.board.repository.entity.Post;
 import es.board.service.FeedService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +32,8 @@ public class FeedServiceImpl implements FeedService {
     private final FeedMapper feedMapper;
 
     private  final S3Uploader s3Uploader;
+
+    private  final JwtTokenProvider jwtTokenProvider;
 
     private final FeedDAO feedDAO;
 
@@ -183,11 +184,6 @@ public class FeedServiceImpl implements FeedService {
         return feedMapper.BoardListToDTO(feedDAO.findUserBoardList(userId));
     }
     @Override
-    public FeedRequest getFeedId(String id) {
-        return feedMapper.BoardToDTO(feedDAO.findIdOne(id));
-    }
-
-    @Override
     public void saveViewCountFeed(String id) {
         feedDAO.saveViewCounts(id);
     }
@@ -201,6 +197,15 @@ public class FeedServiceImpl implements FeedService {
 
         likeDAO.saveLike(id);
     }
+
+    @Override
+    public FeedRequest getFeedDetail(String id) {
+
+        return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
+    }
+
+
+
 
 
     public List<Board> bulkToEntity(List<FeedCreateResponse> res) {

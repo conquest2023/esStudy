@@ -14,7 +14,7 @@ public class FeedMapper {
                 .map(board -> FeedRequest.builder()
                         .feedUID(board.getFeedUID())
                         .id(board.getId())
-                        .userId(board.getUserId())
+//                        .userId(board.getUserId())
                         .username(board.getUsername())
                         .imageURL(board.getImageURL())
                         .title(board.getTitle())
@@ -25,6 +25,24 @@ public class FeedMapper {
                         .createdAt(board.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+
+    public FeedRequest isAuthorList(Board board, Boolean isAuthor) {
+        return      FeedRequest.builder()
+                        .feedUID(board.getFeedUID())
+                        .id(board.getId())
+                        .userId(board.getUserId())
+                        .username(board.getUsername())
+                        .imageURL(board.getImageURL())
+                        .title(board.getTitle())
+                        .description(board.getDescription())
+                        .likeCount(board.getLikeCount())
+                        .category(board.getCategory())
+                        .viewCount(board.getViewCount())
+                        .isAuthor(isAuthor)
+                        .createdAt(board.getCreatedAt())
+                        .build();
     }
 
 

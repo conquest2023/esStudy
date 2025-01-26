@@ -29,13 +29,14 @@ public class CommentRequest {
 
     private  int LikeCount;
 
+    private  boolean isAuthor;
+
+    private  boolean  isCommentOwner;
+
     private  boolean anonymous;
 
+
     private LocalDateTime createdAt;
-
-
-
-
 
 
 

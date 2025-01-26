@@ -1,9 +1,13 @@
 package es.board.service;
 
+import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import org.springframework.security.core.Authentication;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -14,8 +18,8 @@ public interface UserService {
     boolean login(LoginResponse login);
 
     Boolean checkId(SignUpResponse sign);
-
-
+    List<CommentRequest> getCommentOwnerList(String commentOwner, String  feedUID,String userId);
+    boolean checkFeedOwner(String token,String feedUID) ;
     Long findVisitCount(String  userId);
 
     Authentication authenticate(LoginResponse login);

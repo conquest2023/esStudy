@@ -3,9 +3,8 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import es.board.controller.model.req.ReplyRequest;
 import es.board.ex.IndexException;
-import es.board.controller.model.res.ReplyCreateResponse;
+import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Reply;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -47,7 +44,7 @@ public class ReplyDAOImpl implements ReplyDAO {
     }
 
     @Override
-    public void saveReply(ReplyCreateResponse dto) {
+    public void saveReply(ReplyCreate dto) {
 //        dto.TimePush();
         try{
             IndexResponse response=client.index(i->i

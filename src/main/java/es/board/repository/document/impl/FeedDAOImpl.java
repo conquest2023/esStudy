@@ -477,7 +477,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public Board findIdOne(String id) {
+    public Board findFeedDetail(String id) {
 
         try {
             SearchResponse<Board> response = client.search(g -> g

@@ -42,6 +42,8 @@ public class FeedRequest {
 
     private  int viewCount;
 
+    private  boolean isAuthor;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
