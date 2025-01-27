@@ -63,6 +63,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
+        validateUsername(feedSaveDTO.getUsername());
         CompletableFuture<Integer> future =  asyncService.savePostAsync(feedSaveDTO);
         future.thenAccept(savedPost -> {
             try {
@@ -204,7 +205,14 @@ public class FeedServiceImpl implements FeedService {
         return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
     }
 
-
+    private void validateUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("유저 이름을 입력해주세요.");
+        }
+        if (!username.matches("^[a-zA-Z0-9가-힣]+$")) {  // 영문, 한글, 숫자만 허용
+            throw new IllegalArgumentException("유저 이름에는 특수문자를 사용할 수 없습니다.");
+        }
+    }
 
 
 

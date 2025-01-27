@@ -779,7 +779,7 @@
           `;
         comments.forEach(cmt => {
             // const isAuthor = cmt.userId === currentUserId;
-            const displayedUsername = cmt.author ? `<strong style="color:#888;">작성자</strong>` : `<strong>${cmt.username}</strong>`;
+            const displayedUsername = cmt.author  ? `<strong style="color:#888;">작성자</strong>` : `<strong>${cmt.username}</strong>`;
             html += `
                    <tr id="comment-${cmt.commentUID}">
             <td class="comment-item">

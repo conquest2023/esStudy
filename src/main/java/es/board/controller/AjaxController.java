@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.LoginResponse;
 import es.board.service.*;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -107,15 +109,14 @@ public class AjaxController {
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count", commentService.getSumComment(feedUID));
         FeedRequest req=feedService.getFeedDetail(feedUID);
-        response.put("data", req);
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                return handleAuthenticatedRequest(jwtTokenProvider.getUserId(token),req.getUserId(),feedUID, response, token);
+                return handleAuthenticatedRequest(req, jwtTokenProvider.getUserId(token),req.getUserId(),feedUID, response, token);
             }
         }
-        return handleUnauthenticatedRequest(feedUID, response);
+        return handleUnauthenticatedRequest(req, feedUID, response);
     }
 
     @PostMapping("/authlogin")
@@ -157,6 +158,25 @@ public class AjaxController {
                 "month", month
         ));
     }
+    @GetMapping("/auth/status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAuthStatus(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        Map<String, Object> response = new HashMap<>();
+
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+
+                if (jwtTokenProvider.validateToken(token)) {
+                    response.put("isLoggedIn", true);
+                    response.put("userId",jwtTokenProvider.getUserId(token));
+                    response.put("username", jwtTokenProvider.getUsername(token));
+                    return ResponseEntity.ok(response);
+                }
+            }
+            response.put("isLoggedIn", false);
+            return ResponseEntity.ok(response);
+        }
     @PostMapping("/auth/refresh")
     @ResponseBody
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
@@ -170,18 +190,30 @@ public class AjaxController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
-    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest req, String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
         response.put("Owner", jwtTokenProvider.getUsername(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
         response.put("comment", userService.getCommentOwnerList(commentOwner,feedUID,userId));
         response.put("isLoggedIn", true);
+        response.put("data", req);
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(String feedUID, Map<String, Object> response) {
-        response.put("comment", commentService.getCommentOne(feedUID));
-        response.put("Owner", false);
+
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(FeedRequest req, String feedUID, Map<String, Object> response) {
+        String postOwnerId = req.getUserId();
+
+       List<CommentRequest> requests=  commentService.getCommentOne(feedUID)
+                    .stream()
+                    .peek(comment -> {
+                        // 댓글 작성자가 게시글 작성자인지 여부 확인
+                        comment.setAuthor(postOwnerId.equals(comment.getUserId()));
+                    })
+                    .collect(Collectors.toList());
+        response.put("comment",requests);
+        response.put("Owner", req.getUserId());
         response.put("isLoggedIn", false);
+        response.put("data", req);
         return ResponseEntity.ok(response);
     }
 }

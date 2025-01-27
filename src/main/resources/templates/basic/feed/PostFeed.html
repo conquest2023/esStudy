@@ -44,33 +44,23 @@
         <!-- 번호 -->
         <div class="container">
             <h1 class="text-center">작성하기</h1>
-            <!-- 데이터 삽입 폼 -->
 
-                <!-- 번호 -->
-<!--                <div class="form-group">-->
-<!--                    <label for="feedUID">번호:</label>-->
-<!--                    <input type="text" id="feedUID" name="id" class="form-control" required/>-->
-<!--                </div>-->
-                <!-- 제목 -->
-                <div class="form-group" id="name-input-group" style="display: none;">
-                    <label for="username">이름:</label>
-                    <input type="text" id="username" name="username" class="form-control" />
-                </div>
-                <input type="hidden" id="hiddenUsername" name="username" />
+<!--                <input type="hidden" id="hiddenUsername" name="hiddenUsername" />-->
                 <!-- 익명 여부 -->
-                <div class="form-group form-check">
-                    <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input" />
-                    <label class="form-check-label" for="anonymous">익명</label>
+                <div id="anonymous-info" style="display: none; color: gray;">
+                    익명으로 자동 처리됩니다.
                 </div>
+                <div id="anonymous-section">
+                    <input type="checkbox" id="anonymous">
+                    <label for="anonymous">익명으로 작성하기</label>
+                </div>
+                <!-- 사용자 이름 입력 필드 -->
+                <div id="name-input-group">
+                    <input type="text" id="username" name="username" placeholder="이름을 입력하세요." />
+                </div>
+                    <!-- 사용자 ID (숨겨진 필드) -->
+                <input type="hidden" id="userId" name="userId" th:value="${userId}" />
 
-                <!-- 사용자 ID (숨겨진 필드) -->
-                <input type="hidden" id="userId" name="userId" />
-
-<!--                &lt;!&ndash; 익명 여부 &ndash;&gt;-->
-<!--                <div class="form-group form-check">-->
-<!--                    <input type="checkbox" id="anonymous" name="anonymous" class="form-check-input" />-->
-<!--                    <label class="form-check-label" for="anonymous">익명</label>-->
-<!--                </div>-->
                 <div class="form-group">
                     <label for="title">제목:</label>
                     <textarea id="title" name="title"  class="form-control" required></textarea>
@@ -78,11 +68,11 @@
 <!--            <div class="form-group">-->
 <!--                <label for="attachFile">첨부파일 :</label>-->
 <!--                <input type="file" id="attachFile" multiple="multiple" name="attachFile" class="form-control" accept="image/*" />-->
-<!--            </div>-->
-            <div class="form-group">
-                <label for="imageFiles">이미지 파일들:</label>
-                <input type="file" id="imageFiles" name="imageFiles" class="form-control" accept="image/*" multiple />
-            </div>
+<!--            </div>--><div class="form-group">
+            <label for="imageFiles">이미지 파일들:</label>
+            <input type="file" id="imageFiles" name="imageFiles" class="form-control" accept="image/*" multiple />
+        </div>
+
 
                 <div class="form-group">
                     <label for="category"> </label>
@@ -118,6 +108,8 @@
 <!--                </div>-->
                 <!-- 저장 버튼 -->
                 <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
+
+        </div>
             </form>
             <div id="feedList"></div>
         </div>
@@ -127,232 +119,261 @@
         </div>
     </form>
 </div>
-<!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
-
-<!-- Bootstrap JS -->
-<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
-<!-- Bootstrap JS (Optional) -->
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
-
 </body>
 
 
 <script>
-    document.querySelector("form").addEventListener("submit", (e) => {
+    document.addEventListener("DOMContentLoaded", () => {
         const anonymousCheckbox = document.getElementById("anonymous");
         const usernameInput = document.getElementById("username");
-
-        // 익명 모드가 아닌 경우 이름 입력 여부 검사
-        if (!anonymousCheckbox.checked && (!usernameInput.value || usernameInput.value.trim() === "")) {
-            e.preventDefault(); // 폼 제출 중단
-            alert("이름을 입력해주세요.");
-            usernameInput.style.border = "2px solid red"; // 입력 필드 강조
-            usernameInput.focus(); // 이름 입력 필드에 포커스
-            return;
-        }
-
-        // 익명 모드일 경우 '익명' 값 설정
-        if (anonymousCheckbox.checked) {
-            usernameInput.value = "익명";
-        }
-    });
+        const userIdInput = document.getElementById("userId");
+        const token = localStorage.getItem("token");
+        fetch("/auth/status", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    usernameInput.value = data.username;
+                    anonymousCheckbox.checked = false;
+                    userIdInput.value = data.userId;
+                } else {
+                    anonymousCheckbox.checked = true;
+                    anonymousCheckbox.style.display = "none"; // 체크박스 숨김
+                    usernameInput.value = "익명";
+                }
+            })
+        })
         document.addEventListener("DOMContentLoaded", function () {
             const feedForm = document.getElementById("feedForm");
+            const anonymousCheckbox = document.getElementById("anonymous");
+            const usernameInput = document.getElementById("username");
+            // const hiddenUsernameInput = document.getElementById("hiddenUsername");
+            const fileInput = document.getElementById("imageFiles");
 
             if (feedForm) {
                 let isSubmitting = false;
-
                 feedForm.addEventListener("submit", async function (event) {
                     event.preventDefault();
-
                     if (isSubmitting) return;
                     isSubmitting = true;
-
-                    const formData = new FormData(feedForm);
-
-                    try {
-                        const response = await fetch("/search/view/feed/save", {
-                            method: "POST",
-                            body: formData
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`서버 응답 상태: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-
-                        if (data.success && data.feed) {
-                            console.log("새 피드를 화면에 추가합니다...");
-                            addFeedToList(data.feed);
-                            feedForm.reset();
-                            setTimeout(() => {
-                                window.location.href = data.redirectUrl;
-                            }, 1000);
-                        } else {
-                            alert("피드 작성에 실패했습니다.");
-                        }
-                    } catch (error) {
-                        console.error("피드 작성 중 오류 발생:", error);
-                        alert("오류가 발생했습니다.");
-                    } finally {
+                    if (!anonymousCheckbox.checked && (!usernameInput.value || usernameInput.value.trim() === "")) {
+                        alert("로그인 후 이용해 주세요.");
                         isSubmitting = false;
+                        return;
                     }
-                });
-            }
-        });
+                    const formData = new FormData(feedForm);
+                    if (anonymousCheckbox.checked) {
+                        formData.set("username", "익명");
+                    } else {
+                        formData.set("username", usernameInput.value);
+                    }
 
-        function addFeedToList(feed) {
-            const feedList = document.getElementById("feedList");
+                    // 로그인 사용자 이름 자동 설정
+                    if (!anonymousCheckbox.checked) {
+                        // hiddenUsernameInput 값이 없으면 로그인 상태가 아님
+                        if (!usernameInput.value || usernameInput.value.trim() === "") {
+                            alert("로그인 후 이용해 주세요.");
+                            isSubmitting = false;
+                            return;
+                        }
+                        //     // 사용자가 이름을 입력하지 않았을 경우 hiddenUsername 값 적용
+                        //     if (!usernameInput.value || usernameInput.value.trim() === "") {
+                        //         usernameInput.value = usernameInput.value;
+                        //     }
+                        // } else {
+                        //     // 익명 체크박스가 체크된 경우 기본 익명 설정
+                        //     usernameInput.value = "익명";
+                        // }
 
-            if (!feedList) return;
-            // const createdAt = new Date(feed.createdAt);
-            // const formattedDate = createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-            // 피드 항목 생성
-            const feedItem = document.createElement("div");
-            feedItem.classList.add("feed-item", "p-3", "border", "rounded", "mb-3");
+                        try {
+                            const response = await fetch("/search/view/feed/save", {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+                                }
+                            });
+                            console.log(response)
+                            if (!response.ok) {
+                                throw new Error(`서버 응답 상태: ${response.status}`);
+                            }
 
-            feedItem.innerHTML = `
+                            const data = await response.json();
+
+                            if (data.success) {
+                                console.log(data)
+                                console.log("새 피드를 화면에 추가합니다...");
+                                addFeedToList(data);
+                                alert("게시글이 성공적으로 저장되었습니다.");
+                                feedForm.reset();
+                                setTimeout(() => {
+                                    window.location.href = data.redirectUrl;
+                                }, 1000);
+                            } else {
+                                throw new Error(data.error || "피드 저장 실패");
+                            }
+                        } catch (error) {
+                            console.error("오류 발생:", error);
+                            alert(error.message);
+                        } finally {
+                            isSubmitting = false;
+                        }
+                    }
+                })
+            }}
+        )
+
+    function addFeedToList(feed) {
+                        const feedList = document.getElementById("feedList");
+
+                        if (!feedList) return;
+                        // const createdAt = new Date(feed.createdAt);
+                        // const formattedDate = createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+                        // 피드 항목 생성
+                        const feedItem = document.createElement("div");
+                        feedItem.classList.add("feed-item", "p-3", "border", "rounded", "mb-3");
+
+                        feedItem.innerHTML = `
         <h5>${feed.title}</h5>
         <p>${feed.description}</p>
         <small>작성자: ${feed.username || "익명"} | ${new Date(feed.createdAt).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})}</small>
     `;
-            console.log(new Date(feed.createdAt)); // Date 객체 확인
-            feedList.prepend(feedItem); // 새로운 피드를 목록 맨 앞에 추가
-        }
-
-
-        function selectCategory(category) {
-            // 드롭다운 버튼의 텍스트를 선택한 카테고리로 변경
-            document.getElementById('categoryDropdown').innerText = category;
-
-            // 선택된 카테고리를 숨겨진 input 필드에 설정
-            document.getElementById('category').value = category;
-
-            console.log('선택된 카테고리:', category); // 디버깅용 로그
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const token = localStorage.getItem("token"); // 저장된 토큰 가져오기
-            const anonymousCheckbox = document.getElementById("anonymous");
-            const usernameInputGroup = document.getElementById("name-input-group");
-            const usernameInput = document.getElementById("username");
-            const hiddenUsernameInput = document.getElementById("hiddenUsername");
-            const userIdInput = document.getElementById("userId");
-
-            // 초기 상태 설정
-            if (token) {
-                // 토큰이 있는 경우: 로그인 상태
-                fetch("/info", {
-                    url: "info",
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        console.log(new Date(feed.createdAt)); // Date 객체 확인
+                        feedList.prepend(feedItem); // 새로운 피드를 목록 맨 앞에 추가
                     }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.isLoggedIn) {
-                            console.log("로그인된 사용자:", data.username);
-                            console.log("사용자 ID:", data.userId);
 
-                            // 숨겨진 필드에 사용자 정보 저장
-                            userIdInput.value = data.userId;
-                            hiddenUsernameInput.value = data.username;
-                            usernameInput.value = data.username;
 
-                            // 기본적으로 이름 입력 필드 숨김
-                            usernameInputGroup.style.display = "none";
+                    function selectCategory(category) {
+                        // 드롭다운 버튼의 텍스트를 선택한 카테고리로 변경
+                        document.getElementById('categoryDropdown').innerText = category;
 
-                            // 익명 체크박스 상태 변경 이벤트
-                            anonymousCheckbox.addEventListener("change", () => {
-                                if (anonymousCheckbox.checked) {
-                                    usernameInputGroup.style.display = "block";
-                                    usernameInput.value = ""; // 초기화
-                                    usernameInput.required = true; // 필수 설정
-                                } else {
-                                    // 익명 모드 해제: 이름 입력 필드 숨기기
-                                    usernameInputGroup.style.display = "none";
-                                    hiddenUsernameInput.value = data.username;
-                                    usernameInput.value = data.username; // 서버에서 가져온 이름 복원
-                                    usernameInput.required = false; // 필수 제거
-                                }
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error("요청 처리 중 오류 발생:", error);
+                        // 선택된 카테고리를 숨겨진 input 필드에 설정
+                        document.getElementById('category').value = category;
+
+                        console.log('선택된 카테고리:', category); // 디버깅용 로그
+                    }
+
+                    // document.addEventListener("DOMContentLoaded", () => {
+                    //     const token = localStorage.getItem("token"); // 저장된 토큰 가져오기
+                    //     const anonymousSection = document.getElementById("anonymous-section");
+                    //     const anonymousInfo = document.getElementById("anonymous-info");
+                    //     const anonymousCheckbox = document.getElementById("anonymous");
+                    //     const usernameInputGroup = document.getElementById("name-input-group");
+                    //     const usernameInput = document.getElementById("username");
+                    //     const hiddenUsernameInput = document.getElementById("hiddenUsername");
+                    //     if (!token) {
+                    //         // 로그아웃 상태 - 체크박스 숨기고 안내 문구 표시
+                    //         anonymousSection.style.display = "none";
+                    //         anonymousInfo.style.display = "block";
+                    //     }
+                    //     // 초기 상태 설정
+                    //     if (token) {
+                    //         // 토큰이 있는 경우: 로그인 상태
+                    //         fetch("/info", {
+                    //             method: "GET",
+                    //             headers: {
+                    //                 "Content-Type": "application/json",
+                    //                 "Authorization": `Bearer ${token}`
+                    //             }
+                    //         })
+                    //             .then(response => response.json())
+                    //             .then(data => {
+                    //                 if (data.id) {
+                    //                     userIdInput.value = data.userId;
+                    //                     hiddenUsernameInput.value = data.username;
+                    //                     usernameInput.value = data.username;
+                    //                     usernameInputGroup.style.display = "none";
+                    //
+                    //
+                    //
+                    //                     anonymousCheckbox.addEventListener("change", () => {
+                    //                         if (anonymousCheckbox.checked) {
+                    //                             usernameInputGroup.style.display = "block";
+                    //                             usernameInput.value = ""; // 초기화
+                    //                             usernameInput.required = true; // 필수 설정
+                    //                         } else {
+                    //                             // 익명 모드 해제: 이름 입력 필드 숨기기
+                    //                             usernameInputGroup.style.display = "none";
+                    //                             usernameInput.value = data.username;
+                    //                             usernameInput.required = false;
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             })
+                    //             .catch(error => {
+                    //                 console.error("요청 처리 중 오류 발생:", error);
+                    //             });
+                    //     } else {
+                    //         // 토큰이 없는 경우: 로그아웃 상태
+                    //         anonymousCheckbox.checked = true;
+                    //         anonymousCheckbox.disabled = true;
+                    //         usernameInputGroup.style.display = "none";
+                    //         usernameInput.required = false;
+                    //         hiddenUsernameInput.value = "익명"; // 숨겨진 필드에 '익명' 값 설정
+                    //     }
+                    // });
+
+
+                    // document.querySelector("form").addEventListener("submit", (e) => {
+                    //     const usernameInput = document.getElementById("username");
+                    //
+                    //     // 필드가 숨겨져 있거나 비활성화된 경우 required 제거
+                    //     if (usernameInput.disabled || usernameInput.style.display === "none") {
+                    //         usernameInput.required = false;
+                    //     }
+                    // });
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const anonymousCheckbox = document.getElementById("anonymous");
+                        const usernameInput = document.getElementById("username");
+                        const usernameInputGroup = document.getElementById("name-input-group");
+
+                        // 초기 상태 설정
+                        usernameInputGroup.style.display = "none"; // 기본적으로 숨김
+                        usernameInput.disabled = true;
+                        usernameInput.required = false;
+
+                        // 익명 체크박스 상태 변경 이벤트
+                        anonymousCheckbox.addEventListener("change", () => {
+                            if (anonymousCheckbox.checked) {
+                                // 익명 모드 활성화
+                                usernameInputGroup.style.display = "block";
+                                usernameInput.disabled = false;
+                                usernameInput.required = true;
+                                usernameInput.value = ""; // 초기화
+                            } else {
+                                // 익명 모드 해제
+                                usernameInputGroup.style.display = "none";
+                                usernameInput.disabled = true;
+                                usernameInput.required = false;
+                            }
+                        });
                     });
-            } else {
-                // 토큰이 없는 경우: 로그아웃 상태
-                anonymousCheckbox.checked = true;
-                anonymousCheckbox.disabled = true;
-                usernameInputGroup.style.display = "block"; // 이름 입력 필드 기본 표시
-                usernameInput.required = true; // 입력 필수
-                usernameInputGroup.style.display = "none";
-
-                // 숨겨진 필드에 '익명' 값 설정
-                hiddenUsernameInput.value = "익명";
-                // 익명 체크박스 상태 변경 이벤트
-                //     anonymousCheckbox.addEventListener("change", () => {
-                //         if (anonymousCheckbox.checked) {
-                //             usernameInput.value = ""; // 초기화
-                //         }
-                //     });
-            }
-        });
-        document.querySelector("form").addEventListener("submit", (e) => {
-            const usernameInput = document.getElementById("username");
-
-            // 필드가 숨겨져 있거나 비활성화된 경우 required 제거
-            if (usernameInput.disabled || usernameInput.style.display === "none") {
-                usernameInput.required = false;
-            }
-        });
-        document.addEventListener("DOMContentLoaded", () => {
-            const anonymousCheckbox = document.getElementById("anonymous");
-            const usernameInput = document.getElementById("username");
-            const usernameInputGroup = document.getElementById("name-input-group");
-
-            // 초기 상태 설정
-            usernameInputGroup.style.display = "none"; // 기본적으로 숨김
-            usernameInput.disabled = true;
-            usernameInput.required = false;
-
-            // 익명 체크박스 상태 변경 이벤트
-            anonymousCheckbox.addEventListener("change", () => {
-                if (anonymousCheckbox.checked) {
-                    // 익명 모드 활성화
-                    usernameInputGroup.style.display = "block";
-                    usernameInput.disabled = false;
-                    usernameInput.required = true;
-                    usernameInput.value = ""; // 초기화
-                } else {
-                    // 익명 모드 해제
-                    usernameInputGroup.style.display = "none";
-                    usernameInput.disabled = true;
-                    usernameInput.required = false;
-                }
-            });
-
-            // 폼 제출 시 숨겨진 필드의 required 속성 제거
-            document.querySelector("form").addEventListener("submit", (e) => {
-                if (usernameInput.disabled || usernameInput.style.display === "none") {
-                    usernameInput.required = false;
-                }
-            });
-        });
-        document.querySelector("form").addEventListener("submit", (e) => {
-            const hiddenUsername = document.getElementById("hiddenUsername");
-            const usernameInput = document.getElementById("username");
-            // `username` 값을 숨겨진 필드에 동기화
-            if (usernameInput.style.display === "none") {
-                hiddenUsername.value = usernameInput.value; // 숨겨진 필드에 사용자 이름 저장
-            }
-
-
-    });
+            // document.querySelector("form").addEventListener("submit", (e) => {
+            //     const anonymousCheckbox = document.getElementById("anonymous");
+            //     const usernameInput = document.getElementById("username");
+            //     const hiddenUsernameInput = document.getElementById("hiddenUsername");
+            //
+            //     // 익명 모드일 경우 숨겨진 필드 값 설정
+            //     if (anonymousCheckbox.checked) {
+            //         hiddenUsernameInput.value = "익명";
+            //     } else {
+            //         hiddenUsernameInput.value = usernameInput.value.trim();
+            //     }
+            //
+            //     // 이름이 비어있을 경우 경고 및 입력 필드 강조
+            //     if (!anonymousCheckbox.checked && (!usernameInput.value || usernameInput.value.trim() === "")) {
+            //         e.preventDefault();
+            //         alert("이름을 입력해주세요.");
+            //         usernameInput.style.border = "2px solid red";
+            //         usernameInput.focus();
+            //         return;
+            //     }
+            // });
     // // 익명 체크박스 상태 변경 이벤트
     // anonymousCheckbox.addEventListener("change", () => {
     //     if (anonymousCheckbox.checked) {

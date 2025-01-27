@@ -1,5 +1,6 @@
 package es.board.controller.model.req;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import es.board.repository.document.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class CommentRequest {
 
     private String username;
 
+    @JsonIgnore
     private  String userId;
 
 

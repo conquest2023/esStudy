@@ -1,6 +1,7 @@
 package es.board.controller.model.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -23,6 +24,7 @@ public class FeedRequest {
 
     private int id;
 
+    @JsonIgnore
     private  String userId;
 
     private String feedUID;

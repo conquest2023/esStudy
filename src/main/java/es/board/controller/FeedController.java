@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,7 +45,6 @@ public class FeedController {
     private final S3Uploader s3Uploader;
 
     private final JwtTokenProvider jwtTokenProvider;
-
 
 
     @GetMapping("/logout/user")
@@ -174,31 +174,35 @@ public class FeedController {
     //    required = false,
     @PostMapping("/search/view/feed/save")
     @ResponseBody
-    public Map<String, Object> saveFeed(Model model,
-                                        @RequestParam(required = false, value = "imageFiles") MultipartFile file,
-                                        @ModelAttribute FeedCreateResponse feedSaveDTO,
-                                        @RequestHeader(value = "Authorization", required = false) String token) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            log.info("File upload started");
-            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
-        }
-
+    public ResponseEntity<Map<String, Object>> saveFeed(
+                                                        @RequestParam(required = false, value = "imageFiles") MultipartFile file,
+                                                        @ModelAttribute FeedCreateResponse res,
+                                                        @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
-        if (token == null || !token.startsWith("Bearer ")) {
-            model.addAttribute("userId", null);
-        } else {
-            model.addAttribute("userId", jwtTokenProvider.getUserId(token.substring(7)));
+        try {
+            processFileUpload(file, res);
+            log.info(res.toString());
+            extractUserIdFromToken(token,res.getUserId());
+            response.put("feed", feedService.saveFeed(res));
+            response.put("success", true);
+            response.put("redirectUrl", "/search/view/feed?index=board");
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            log.error("Invalid feed data: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error occurred: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "error", "요청 처리 중 오류가 발생했습니다."));
+          }
         }
-        response.put("success", true);
-        response.put("feed", feedService.saveFeed(feedSaveDTO));
-        response.put("redirectUrl", "/search/view/feed?index=board");
-        return response;
-    }
 
 
     @GetMapping("/search/view/feed/Form")
-    public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token) {
-
+    public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token,
+    Model model) {
+        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
         return "basic/feed/PostFeed";
     }
 
@@ -239,50 +243,24 @@ public class FeedController {
         model.addAttribute("data", feedService.getFeed());
         return "basic/feed/feedList?index=board";
     }
-
-//    @GetMapping("/detail")
-//    public ResponseEntity<?> getFeedDetail(@RequestParam String id) {
-//
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("replies", replyService.getRepliesGroupedByComment(id));
-//        response.put("count", commentService.getSumComment(id));
-//        response.put("data", feedService.getFeedDetail(id));
-//        response.put("comment", commentService.getCommentOne(id));
-//        response.put("feedId", id);
-//        return ResponseEntity.ok(response);
-//    }
-
-
-    private static void commentSetIds(String id, CommentCreate commentSaveDTO) {
-        commentSaveDTO.setFeedUID(id);
-        commentSaveDTO.TimeNow();
-        commentSaveDTO.setCommentUID(UUID.randomUUID().toString());
+    private String extractUserIdFromToken(String token,String userId) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return "익명";
+        }
+        token = token.substring(7);
+        if (jwtTokenProvider.validateToken(token) || jwtTokenProvider.getUserId(token).equals(userId)) {
+            return jwtTokenProvider.getUserId(token);
+        } else {
+            throw new IllegalStateException("유효하지 않은 토큰입니다.");
+        }
     }
 
-
+    private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
+        if (file != null && !file.isEmpty()) {
+            log.info("File upload started");
+            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
+        }
+    }
 }
 
 
-
-
-
-
-
-
-//        String imageName =request.getParameter(feedSaveDTO.getImage());
-//        Collection<Part> parts =request.getParts();
-//        for (Part part : parts) {
-//            log.info("name={}",part.getName());
-//
-//            Collection<String> headerNames=part.getHeaderNames();
-//
-//            for (String headerName : headerNames) {
-//                log.info("header {}:{}",headerName,part.getHeader(headerName));
-//            }
-//            log.info("submittedFileName={}",part.getSubmittedFileName());
-//            log.info("size={}",part.getSize());
-//
-//            InputStream inputStream=part.getInputStream();
-//            String fullPath="/fileSave"+part.getSubmittedFileName();
-//            part.write(fullPath);
-//        }

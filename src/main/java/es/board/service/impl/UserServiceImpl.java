@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<CommentRequest> getCommentOwnerList(String commentOwner,String feedUID, String userId) {
-        return commentMapper.changeCommentListDTO(commentDAO.findCommentId(feedUID))
+        return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(feedUID))
                 .stream()
                 .peek(comment -> {
                     comment.setAuthor(comment.getUserId().equals(userId));
