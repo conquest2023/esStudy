@@ -9,19 +9,14 @@ import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.FeedDAO;
 import es.board.repository.UserDAO;
-import es.board.repository.document.EsUser;
-import es.board.repository.entity.Post;
-import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.User;
-import es.board.service.FeedService;
-import es.board.service.UserService;
+import es.board.service.AuthService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -36,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class AuthServiceImpl implements AuthService {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -108,7 +103,19 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String extractUserIdFromToken(String token, FeedCreateResponse response) {
+            if (token == null || !token.startsWith("Bearer ") || token.length() < 8) {
+                response.setUsername("익명");
+                return "익명";
+            }
+            token = token.substring(7);
 
+            if (!jwtTokenProvider.validateToken(token)) {
+                throw new IllegalStateException("유효하지 않은 토큰입니다.");
+            }
+            throw new IllegalStateException("유효하지 않은 토큰입니다.");
+        }
 
     @Override
     public Long findVisitCount(String userId) {

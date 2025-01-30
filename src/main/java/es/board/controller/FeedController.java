@@ -5,6 +5,7 @@ import es.board.config.s3.S3Uploader;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
+import es.board.service.AuthService;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.ReplyService;
@@ -36,7 +37,7 @@ public class FeedController {
     @Value("%{file.dir}")
     private String fileDir;
 
-    private final ReplyService replyService;
+    private final AuthService authService;
 
     private final FeedService feedService;
 
@@ -140,6 +141,7 @@ public class FeedController {
 
     @GetMapping("/search/view/feed")
     public String getFeed() { // 페이지 크기
+
         return "basic/feed/feedList";
     }
 
@@ -175,14 +177,14 @@ public class FeedController {
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
-                                                        @RequestParam(required = false, value = "imageFiles") MultipartFile file,
-                                                        @ModelAttribute FeedCreateResponse res,
-                                                        @RequestHeader(value = "Authorization", required = false) String token) {
+            @RequestParam(required = false, value = "imageFiles") MultipartFile file,
+            @ModelAttribute FeedCreateResponse res,
+            @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             processFileUpload(file, res);
             log.info(res.toString());
-            extractUserIdFromToken(token,res.getUserId());
+            authService.extractUserIdFromToken(token,res);
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);
             response.put("redirectUrl", "/search/view/feed?index=board");
@@ -195,13 +197,13 @@ public class FeedController {
             log.error("Unexpected error occurred: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "error", "요청 처리 중 오류가 발생했습니다."));
-          }
         }
+    }
 
 
     @GetMapping("/search/view/feed/Form")
     public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token,
-    Model model) {
+                               Model model) {
         model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
         return "basic/feed/PostFeed";
     }
@@ -237,23 +239,13 @@ public class FeedController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search/view/feed/reload")
-    public String reloadViewCount(Model model) {
+        @GetMapping("/search/view/feed/reload")
+        public String reloadViewCount(Model model) {
 
-        model.addAttribute("data", feedService.getFeed());
-        return "basic/feed/feedList?index=board";
-    }
-    private String extractUserIdFromToken(String token,String userId) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return "익명";
+            model.addAttribute("data", feedService.getFeed());
+            return "basic/feed/feedList?index=board";
         }
-        token = token.substring(7);
-        if (jwtTokenProvider.validateToken(token) || jwtTokenProvider.getUserId(token).equals(userId)) {
-            return jwtTokenProvider.getUserId(token);
-        } else {
-            throw new IllegalStateException("유효하지 않은 토큰입니다.");
-        }
-    }
+
 
     private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
         if (file != null && !file.isEmpty()) {

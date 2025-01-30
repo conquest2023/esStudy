@@ -45,9 +45,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            return bearerToken.substring(7);
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            return null; // 토큰이 없거나 잘못된 경우 처리
         }
-        return null;
+
+        if (bearerToken.length() < 8) { // "Bearer " 포함 최소 길이 검사
+            return null;
+        }
+
+        return bearerToken.substring(7); // "Bearer " 제거 후 토큰 반환
     }
 }

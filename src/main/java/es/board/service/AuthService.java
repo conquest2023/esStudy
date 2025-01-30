@@ -1,6 +1,5 @@
 package es.board.service;
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LoginResponse;
@@ -9,7 +8,11 @@ import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
-public interface UserService {
+public interface AuthService {
+
+
+
+    String extractUserIdFromToken(String token, FeedCreateResponse response);
 
 
     void updateVisitCount(String userId);

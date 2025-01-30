@@ -4,7 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
-import es.board.service.UserService;
+import es.board.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class LoginController {
 
     private final CommentService commentService;
 
-    private final UserService userService;
+    private final AuthService userService;
 
     private final JwtTokenProvider jwtTokenProvider;
 

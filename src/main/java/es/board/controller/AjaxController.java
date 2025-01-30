@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class AjaxController {
 
 
-    private  final UserService userService;
+    private  final AuthService userService;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
