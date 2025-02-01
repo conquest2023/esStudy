@@ -61,7 +61,9 @@ public class VisitDAOImpl implements VisitDAO {
                                                 .range(r -> r
                                                         .date(d -> d
                                                                 .field("visitedAt")
-                                                                .gte("now-5m")
+                                                                .gte("now-20m")
+                                                                .lte("now")
+                                                                .format("epoch_millis")
                                                                 .timeZone("Asia/Seoul"))))
                                         .aggregations("unique_current_users", agg -> agg
                                                 .cardinality(c -> c.field("ipAddress.keyword"))))

@@ -191,6 +191,7 @@ public class AjaxController {
     }
 
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest req, String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
+        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedUID));
         response.put("Owner", jwtTokenProvider.getUsername(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
         response.put("comment", userService.getCommentOwnerList(commentOwner,feedUID,userId));
@@ -202,7 +203,6 @@ public class AjaxController {
 
     private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(FeedRequest req, String feedUID, Map<String, Object> response) {
         String postOwnerId = req.getUserId();
-
        List<CommentRequest> requests=  commentService.getCommentOne(feedUID)
                     .stream()
                     .peek(comment -> {
@@ -210,6 +210,7 @@ public class AjaxController {
                         comment.setAuthor(postOwnerId.equals(comment.getUserId()));
                     })
                     .collect(Collectors.toList());
+        response.put("isLiked",false);
         response.put("comment",requests);
         response.put("Owner", req.getUserId());
         response.put("isLoggedIn", false);

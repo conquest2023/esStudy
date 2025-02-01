@@ -9,11 +9,16 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.entityrepository.LikeRepository;
 import es.board.service.FeedService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,6 +33,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
+    @PersistenceContext
+    private final EntityManager entityManager;
+
 
     private final FeedMapper feedMapper;
 
@@ -41,6 +49,8 @@ public class FeedServiceImpl implements FeedService {
 
 
     private  final LikeDAO likeDAO;
+
+    private  final LikeRepository likeRepository;
 
 
     @Override
@@ -186,6 +196,7 @@ public class FeedServiceImpl implements FeedService {
     }
     @Override
     public void saveViewCountFeed(String id) {
+
         feedDAO.saveViewCounts(id);
     }
     @Override
@@ -194,15 +205,37 @@ public class FeedServiceImpl implements FeedService {
         return update;
     }
     @Override
-    public  void plusLike(String id) {
-
+    public  void plusLike(String id,String userId) {
+        if (isAlreadyLiked(id,userId)){
+            throw new IllegalStateException("이미 좋아요를 누른 상태입니다.");
+        }
+        likeRepository.save(feedMapper.LikeToEntity(id,userId));
         likeDAO.saveLike(id);
     }
+
+    @Override
+    @Transactional
+    public  void cancelLike(String userId,String feedId) {
+
+        if (isAlreadyLiked(userId,feedId)){
+            likeRepository.deleteByUserIdAndFeedUID(userId,feedId);
+            likeDAO.cancelLike(feedId);
+        }else {
+            throw new IllegalStateException("좋아요를 누른 상태가 아닙니다.");
+        }
+    }
+
+
 
     @Override
     public FeedRequest getFeedDetail(String id) {
 
         return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
+    }
+
+    @Override
+    public boolean isAlreadyLiked(String userId,String id) {
+        return likeRepository.existsByUserIdAndFeedUID(userId,id); // 존재하면 이미 좋아요 눌렀음
     }
 
     private void validateUsername(String username) {
@@ -213,7 +246,6 @@ public class FeedServiceImpl implements FeedService {
             throw new IllegalArgumentException("유저 이름에는 특수문자를 사용할 수 없습니다.");
         }
     }
-
 
 
     public List<Board> bulkToEntity(List<FeedCreateResponse> res) {

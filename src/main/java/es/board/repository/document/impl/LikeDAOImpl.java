@@ -68,13 +68,15 @@ public class LikeDAOImpl implements LikeDAO {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                     .index("board")
-                    .query(q -> q
-                            .term(t -> t
-                                    .field("feedUID.keyword")
-                                    .value(feedUID)
-                            )
+                    .query(q -> q.bool(
+                            f->f.filter(a->a
+                                    .term(t -> t
+                                            .field("feedUID.keyword")
+                                            .value(feedUID)
+                                    )))
                     ), Board.class
             );
+            log.info(searchResponse.toString());
             String documentId = searchResponse.hits().hits().get(0).id();
             client.update(u -> u
                     .index("board")
@@ -95,7 +97,36 @@ public class LikeDAOImpl implements LikeDAO {
 
 
     @Override
-    public int cancelLike(String id) {
+    public int cancelLike(String feedUID) {
+        try {
+            SearchResponse<Board> searchResponse = client.search(s -> s
+                    .index("board")
+                    .query(q -> q.bool(
+                            f->f.filter(a->a
+                                    .term(t -> t
+                                    .field("feedUID.keyword")
+                                    .value(feedUID)
+                            )))
+                    ), Board.class
+            );
+            log.info(searchResponse.toString());
+            String documentId = searchResponse.hits().hits().get(0).id();
+            client.update(u -> u
+                    .index("board")
+                    .id(documentId)
+                    .refresh(Refresh.WaitFor)
+                    .script(s -> s
+                            .source("ctx._source.likeCount -= params.increment")
+                            .params(Map.of("increment", JsonData.of(increment)))
+                    ), Board.class
+            );
+
+        } catch (IOException e) {
+            log.info("좋아요 업데이트 실패");
+            throw new IndexException(e);
+        }
         return 0;
     }
+
+
 }

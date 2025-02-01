@@ -1,9 +1,12 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
+import es.board.repository.entity.Likes;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 @Component
@@ -59,6 +62,14 @@ public class FeedMapper {
                 .viewCount(board.getViewCount())
                 .likeCount(board.getLikeCount())
                 .createdAt(board.getCreatedAt())
+                .build();
+    }
+
+    public Likes LikeToEntity(String feedUID, String userId) {
+        return Likes.builder()
+                .feedUID(feedUID)
+                .userId(userId)
+                .created_at(LocalDateTime.now()) // 현재 시간 저장
                 .build();
     }
 }

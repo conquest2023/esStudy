@@ -97,11 +97,43 @@ public class FeedController {
     }
 
     @PostMapping("/search/view/feed/increase-like/{feedUID}")
-    public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String feedUID) {
-        feedService.plusLike(feedUID);
+    public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String feedUID,
+                                                                  @RequestHeader("Authorization") String token) {
+
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        // ✅ JWT에서 userId 추출
+        String userId = jwtTokenProvider.getUserId(token);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        feedService.plusLike(feedUID, userId);
+
         Map<String, Integer> response = new HashMap<>();
+
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/search/view/feed/cancel-like/{feedUID}")
+    public ResponseEntity<Map<String, Integer>>  cancelLikeCount(@PathVariable String feedUID,
+                                                                 @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        String userId = jwtTokenProvider.getUserId(token);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        feedService.cancelLike(userId,feedUID);
+
+        Map<String, Integer> response = new HashMap<>();
+
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/search/view/feed/list/popular")
     @ResponseBody

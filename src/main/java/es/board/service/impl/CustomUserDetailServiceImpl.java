@@ -38,12 +38,6 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
         );
     }
 
-    public   String createUserDetails(String username){
-        String user=userRepository.findByUserIdOne(username);
-
-        return user;
-    }
-
 
     private  UserDetails createUserDetails(User user){
         return org.springframework.security.core.userdetails.User.builder()

@@ -49,7 +49,6 @@ public class ReplyDAOImpl implements ReplyDAO {
         try{
             IndexResponse response=client.index(i->i
                     .index("reply")
-                    .id(dto.getFeedUID())
                     .document(dto));
         }catch (IOException e){
             log.error("존재하지 않는 인덱스입니다");

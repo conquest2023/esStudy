@@ -45,13 +45,13 @@ public class IpLimitInterceptor implements HandlerInterceptor {
 
         // 중복 검사 키 (IP + userId 기준)
         String uniqueKey = userId.equals("guest")
-                ? "guest:" + ipAddress  // 익명 사용자는 IP 기준으로 캐시 처리
-                : userId + ":" + sessionId;  // 로그인 사용자는 sessionId 포함
+                ? ipAddress + ":" + userAgent // 익명 사용자는 IP + User-Agent 조합
+                : userId + ":" + ipAddress;   // 로그인 사용자는 userId + IP 조합
+
 
         // 방문 여부 확인 (1일 동안 캐싱)
         if (visitCache.getIfPresent(uniqueKey) == null) {
             visitCache.put(uniqueKey, LocalDateTime.now());
-            // 비동기 처리를 통한 IP 저장 (속도 최적화)
             CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, sessionId, userAgent));
             log.info("새로운 방문자 기록 - {}", uniqueKey);
         } else {

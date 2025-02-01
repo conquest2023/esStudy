@@ -21,13 +21,11 @@ public class ReplyController {
 
     @GetMapping("/search/view/reply")
     public List<ReplyRequest> getReplyAll(@RequestParam String id) {
-
         return replyService.getPartialReply(id);
     }
 
     @PostMapping("/search/view/reply/save")
     public ResponseEntity<String> postReply(@RequestBody ReplyCreate replyCreateDTO) {
-
         replyService.saveReply(replyCreateDTO);
 
         return ResponseEntity.ok("/search/view/feed/id?id=" + replyCreateDTO.getFeedUID());

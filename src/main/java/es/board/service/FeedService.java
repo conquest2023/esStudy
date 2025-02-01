@@ -14,7 +14,6 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
-
     List<FeedRequest> getUserRangeTimeFeed(String userId);
     List<FeedRequest> getFeedUserList(String userId);
     Integer getUserLikeCount(String userId);
@@ -31,10 +30,15 @@ public interface FeedService {
 
     int getViewCountAll();
 
-     void plusLike(String id);
+     void plusLike(String id,String userId);
+
+    void cancelLike(String id,String userId);
+
     void saveViewCountFeed(String id);
 
     FeedRequest getPopularFeedOne();
+
+     boolean isAlreadyLiked(String userId,String id);
 
     List<FeedRequest> getRecentFeed();
 
