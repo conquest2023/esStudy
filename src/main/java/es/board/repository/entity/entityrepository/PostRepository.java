@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
 public interface PostRepository  extends JpaRepository<Post,Integer> {
 
@@ -16,4 +18,8 @@ public interface PostRepository  extends JpaRepository<Post,Integer> {
     @Query("delete  from Post p where p.userId=:userId")
     void deleteById(@Param("userId") String userId);
 
+
+
+    @Query(" select p.userId from Post p where p.feedUID=:id")
+    String findByFeedUID(@Param("id") String id);
 }

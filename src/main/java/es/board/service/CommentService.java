@@ -24,7 +24,7 @@ public interface CommentService {
 
     List<CommentRequest> getRecentComment() ;
 
-    String indexComment(CommentCreate dto) ;
+    void indexComment(CommentCreate dto) ;
 
     List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);

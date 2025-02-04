@@ -12,7 +12,7 @@ public interface AuthService {
 
 
 
-    String extractUserIdFromToken(String token, FeedCreateResponse response);
+    Boolean extractUserIdFromToken(String token, FeedCreateResponse response);
 
 
     void updateVisitCount(String userId);

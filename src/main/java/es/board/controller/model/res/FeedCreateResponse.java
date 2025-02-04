@@ -25,11 +25,12 @@ public class FeedCreateResponse {
 
     private  int id;
 
+    private  String userId;
+
+
     private String feedUID;
 
     private String username;
-
-    private  String userId;
 
     private  String imageURL;
 
@@ -54,17 +55,6 @@ public class FeedCreateResponse {
     private MultipartFile attachFile;
     @JsonIgnore
     private List<MultipartFile> imageFiles;
-//
-//    private String attachFileBase64;
-//
-//    private List<String> base64ImageFiles;
-
-
-
-
-
-
-
 
 
     public void TimePush(){

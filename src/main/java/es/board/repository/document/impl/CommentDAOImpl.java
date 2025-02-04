@@ -71,14 +71,14 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public String indexCommentSave(CommentCreate dto) {
+    public void saveCommentIndex(CommentCreate dto) {
 
         try {
             IndexResponse response = client.index(i -> i
                     .index("comment")
                     .document(dto));
             // 성공적으로 문서가 저장되면, 문서 ID를 반환.
-            return response.id();
+//            return response.id();
         } catch (IOException e) {
             log.error("Error indexing document: " + e.getMessage(), e);
             throw new IndexException("Failed to index the comment", e);
@@ -377,8 +377,6 @@ public class CommentDAOImpl implements CommentDAO {
             throw new IndexException("Failed to find comment by ID", e);
         }
     }
-//        log.info(commentUid);
-
 
 
     @Override

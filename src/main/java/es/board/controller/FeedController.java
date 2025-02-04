@@ -34,8 +34,7 @@ import java.util.UUID;
 @Slf4j
 @Controller
 public class FeedController {
-    @Value("%{file.dir}")
-    private String fileDir;
+
 
     private final AuthService authService;
 

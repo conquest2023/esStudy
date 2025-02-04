@@ -24,14 +24,17 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "user_id")
+    private String userId;
+
+    @Column(name = "feed_id")
+    private  String feedUID;
+
     private  String username;
 
     private  String title;
 
     private  boolean anonymous;
-
-    @Column(name = "user_id")
-    private String userId;
 
 
     @Column(name = "created_at")
@@ -49,6 +52,7 @@ public class Post {
         return Post.builder()
                 .id(id)
                 .userId(feedSaveDTO.getUserId())
+                .feedUID(feedSaveDTO.getFeedUID())
                 .username(feedSaveDTO.getUsername())
                 .title(feedSaveDTO.getTitle())
                 .imageUrl(feedSaveDTO.getImageURL())

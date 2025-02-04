@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 
+import java.time.LocalDateTime;
+
 
 @Document(indexName = "Like")
 @NoArgsConstructor
@@ -16,10 +18,12 @@ import org.springframework.data.elasticsearch.annotations.Field;
 @Builder
 public class Like {
 
-    @Id
-    private String likeID;
+
+    private String userId;
 
     private String feedUID;
 
+
+    private LocalDateTime createdAt;
 
 }

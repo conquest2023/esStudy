@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
@@ -11,6 +12,7 @@ import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
+import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -35,6 +38,11 @@ public class CommentServiceImpl implements CommentService {
     private  final FeedMapper feedMapper;
 
     private  final PostRepository postRepository;
+
+    private  final JwtTokenProvider jwtTokenProvider;
+
+
+    private  final NotificationService notificationService;
 
     @Override
     public List<CommentRequest> getUserRangeTimeActive(String userId) {
@@ -78,8 +86,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String indexComment(CommentCreate dto) {
-        return commentDAO.indexCommentSave(dto);
+    public void indexComment(CommentCreate dto) {
+
+         commentDAO.saveCommentIndex(dto);
+         String userId = postRepository.findByFeedUID(dto.getFeedUID());
+         if (!userId.equals(dto.getUserId())) {
+
+            notificationService.sendNotification(userId, "새 댓글이 달렸습니다: " + dto.getContent());
+        }
     }
 
 

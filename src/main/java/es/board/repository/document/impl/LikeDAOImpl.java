@@ -4,6 +4,8 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateByQueryResponse;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
 import es.board.repository.LikeDAO;
@@ -37,7 +39,6 @@ public class LikeDAOImpl implements LikeDAO {
                     ), Comment.class
             );
 
-            // 결과가 없으면 예외 처리
             if (searchResponse.hits().hits().isEmpty()) {
                 throw new IndexException("No documents found for commentUID: " + id);  // 결과가 없으면 예외 처리
             }
@@ -66,26 +67,19 @@ public class LikeDAOImpl implements LikeDAO {
     @Override
     public int saveLike(String feedUID) {
         try {
-            SearchResponse<Board> searchResponse = client.search(s -> s
+            UpdateByQueryResponse updateResponse = client.updateByQuery(u -> u
                     .index("board")
-                    .query(q -> q.bool(
-                            f->f.filter(a->a
-                                    .term(t -> t
-                                            .field("feedUID.keyword")
-                                            .value(feedUID)
-                                    )))
-                    ), Board.class
-            );
-            log.info(searchResponse.toString());
-            String documentId = searchResponse.hits().hits().get(0).id();
-            client.update(u -> u
-                    .index("board")
-                    .id(documentId)
-                    .refresh(Refresh.WaitFor)
+                    .query(q -> q
+                            .term(t -> t
+                                    .field("feedUID.keyword")
+                                    .value(feedUID)
+                            )
+                    )
                     .script(s -> s
                             .source("ctx._source.likeCount += params.increment")
                             .params(Map.of("increment", JsonData.of(increment)))
-                    ), Board.class
+                    )
+                    .refresh(true) // ✅ Boolean 값으로 설정
             );
 
         } catch (IOException e) {
@@ -99,28 +93,20 @@ public class LikeDAOImpl implements LikeDAO {
     @Override
     public int cancelLike(String feedUID) {
         try {
-            SearchResponse<Board> searchResponse = client.search(s -> s
-                    .index("board")
-                    .query(q -> q.bool(
-                            f->f.filter(a->a
-                                    .term(t -> t
-                                    .field("feedUID.keyword")
-                                    .value(feedUID)
-                            )))
-                    ), Board.class
-            );
-            log.info(searchResponse.toString());
-            String documentId = searchResponse.hits().hits().get(0).id();
-            client.update(u -> u
-                    .index("board")
-                    .id(documentId)
-                    .refresh(Refresh.WaitFor)
-                    .script(s -> s
-                            .source("ctx._source.likeCount -= params.increment")
-                            .params(Map.of("increment", JsonData.of(increment)))
-                    ), Board.class
-            );
-
+                UpdateByQueryResponse updateResponse = client.updateByQuery(u -> u
+                        .index("board")
+                        .query(q -> q
+                                .term(t -> t
+                                        .field("feedUID.keyword")
+                                        .value(feedUID)
+                                )
+                        )
+                        .script(s -> s
+                                .source("ctx._source.likeCount -= params.increment")
+                                .params(Map.of("increment", JsonData.of(increment)))
+                        )
+                        .refresh(true) // ✅ Boolean 값으로 설정
+                );
         } catch (IOException e) {
             log.info("좋아요 업데이트 실패");
             throw new IndexException(e);

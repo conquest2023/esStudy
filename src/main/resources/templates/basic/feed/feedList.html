@@ -476,6 +476,70 @@
         .row {
             height: 100%;
         }
+        /* 🔔 알림 아이콘 컨테이너 */
+        .notification-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 🔔 알림 아이콘 */
+        .notification-icon {
+            cursor: pointer;
+            font-size: 22px;
+            user-select: none;
+            padding-right: 10px; /* 조회수와 간격 조정 */
+        }
+
+        /* 🔴 새 알림 배지 */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 📩 알림 드롭다운 */
+        .notification-dropdown {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 250px;
+            background-color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-dropdown li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .notification-dropdown li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-dropdown li:hover {
+            background-color: #f5f5f5;
+        }
 
 
     </style>
@@ -541,7 +605,21 @@
             <!-- 메인 콘텐츠 -->
         <main class="main-content col-md-7">
                 <h1 class="text-center">전체글보기</h1>
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <!-- 조회수 출력 -->
+<!--                <p style="margin: 0;">조회수 : <span id="viewCount"></span></p>-->
 
+                <!-- 🔔 알림 아이콘 추가 -->
+                <div class="notification-container">
+                    <div class="notification-icon" id="notificationIcon" style="cursor: pointer;">
+                        🔔
+                        <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
+                        <ul id="notificationList"></ul>
+                    </div>
+                </div>
+            </div>
 
             <div class="mb-3 d-flex justify-content-end">
                 <p>조회수 : <span id="viewCount"></span></p> <!-- 조회수 출력 -->
@@ -717,12 +795,12 @@
         jsonData.data.forEach(board => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-            <td><a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a></td>
+            <td><a href="/search/view/feed/id?id=${board.id}">${board.title}</a></td>
             <td>
-                <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
+                <a href="/search/view/feed/id?id=${board.id}">${board.description}</a>
                 ${
-                count && count[board.feedUID] > 0
-                    ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
+                count && count[board.id] > 0
+                    ? `<span style="color: red; font-weight: bold;">[${count[board.id]}]</span>`
                     : ""
             }
             </td>
@@ -760,6 +838,7 @@
         }
     }
     document.addEventListener('DOMContentLoaded', async  function() {
+        connectSSE();
         await loadPage(0);
 
     });
@@ -769,7 +848,6 @@
         window.location.href = `/search/view/feed/list/${encodeURIComponent(englishCategory)}`;
     }
      function renderPagination(currentPage, maxPage, totalCount) {
-        console.log("maxpage",maxPage)
         const paginationDiv = document.getElementById('pagination');
         paginationDiv.innerHTML = ''; // 초기화
          if (currentPage > 0) {
@@ -984,7 +1062,6 @@
             }
         })
             .then(response => {
-                console.log("서버 응답 상태 코드:", response.status);
 
                 // 먼저 401 상태 코드를 체크
                 if (response.status === 401) {
@@ -1191,6 +1268,75 @@
                 });
         });
     })}
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const notificationIcon = document.getElementById("notificationIcon");
+        const notificationBadge = document.getElementById("notificationBadge");
+        const notificationDropdown = document.getElementById("notificationDropdown");
+        const notificationList = document.getElementById("notificationList");
+
+
+        notificationIcon.addEventListener("click", () => {
+            const isVisible = notificationDropdown.style.display === "block";
+            notificationDropdown.style.display = isVisible ? "none" : "block";
+
+            // 새 알림 확인 시 배지 숨김
+            if (!isVisible) {
+                notificationBadge.style.display = "none";
+            }
+        });
+        document.addEventListener("click", (event) => {
+            if (!notificationIcon.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                notificationDropdown.style.display = "none";
+            }
+        });
+    });
+
+            function connectSSE() {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.warn("⚠️ SSE 연결 실패: 토큰이 없습니다.");
+                    return;
+                }
+                let eventSource = new EventSource(`/subscribe?token=${encodeURIComponent(token)}`);
+                eventSource.onopen = function () {
+                    console.log("✅ SSE 연결이 열렸습니다!");
+                };
+
+            eventSource.addEventListener("comment-notification", (event) => {
+                console.log("✅ comment-notification 이벤트 수신:", event.data);
+                addNotification(event.data);
+            });
+
+            // SSE 자동 재연결
+            eventSource.onerror = function () {
+                console.error("❌ SSE 연결이 끊어졌습니다. 3초 후 재연결 시도 중...");
+                eventSource.close();
+                setTimeout(connectSSE, 3000);
+            };
+        }
+
+        // 새 알림 추가
+    function addNotification(message) {
+        const notificationList = document.getElementById("notificationList");
+        const notificationBadge = document.getElementById("notificationBadge");
+
+        if (!notificationList || !notificationBadge) {
+            console.error("❌ 알림을 표시할 요소가 존재하지 않습니다!");
+            return;
+        }
+
+        const li = document.createElement("li");
+        li.textContent = message;
+        notificationList.prepend(li);
+
+        // 🔴 새 알림 표시 (배지 보이기)
+        notificationBadge.style.display = "flex";
+        notificationBadge.textContent = parseInt(notificationBadge.textContent || "0") + 1;
+    }
+
+        // 페이지 외부 클릭 시 드롭다운 닫기
+
     </script>
 
 

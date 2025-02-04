@@ -22,7 +22,7 @@ public interface CommentDAO {
 
     List<Comment> findRecentComment();
 
-    String indexCommentSave(CommentCreate dto);
+    void saveCommentIndex(CommentCreate dto);
 
     List<Comment> CreateManyComment(List<Comment> pages);
 

@@ -104,17 +104,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String extractUserIdFromToken(String token, FeedCreateResponse response) {
+    public Boolean extractUserIdFromToken(String token, FeedCreateResponse response) {
             if (token == null || !token.startsWith("Bearer ") || token.length() < 8) {
                 response.setUsername("익명");
-                return "익명";
+                return  true;
             }
             token = token.substring(7);
-
+            log.info(token);
             if (!jwtTokenProvider.validateToken(token)) {
                 throw new IllegalStateException("유효하지 않은 토큰입니다.");
             }
-            throw new IllegalStateException("유효하지 않은 토큰입니다.");
+            response.setUserId(jwtTokenProvider.getUserId(token));
+            return  true;
         }
 
     @Override

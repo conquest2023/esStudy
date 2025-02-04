@@ -9,7 +9,9 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.Post;
 import es.board.repository.entity.entityrepository.LikeRepository;
+import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,6 +19,7 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +45,8 @@ public class FeedServiceImpl implements FeedService {
     private  final S3Uploader s3Uploader;
 
     private  final JwtTokenProvider jwtTokenProvider;
+
+    private  final PostRepository postRepository;
 
     private final FeedDAO feedDAO;
 
@@ -71,19 +76,31 @@ public class FeedServiceImpl implements FeedService {
 
 
 
+//    @Override
+//    public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
+//        validateUsername(feedSaveDTO.getUsername());
+//        CompletableFuture<Integer> future =  asyncService.savePostAsync(feedSaveDTO);
+//        future.thenAccept(savedPost -> {
+//            try {
+//                esSettingId(feedSaveDTO,future.get());
+//
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//            feedDAO.indexSaveFeed(feedSaveDTO);
+//        });
+//        return  feedSaveDTO;
+//    }
+
     @Override
     public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
-        validateUsername(feedSaveDTO.getUsername());
-        CompletableFuture<Integer> future =  asyncService.savePostAsync(feedSaveDTO);
-        future.thenAccept(savedPost -> {
-            try {
-                esSettingId(feedSaveDTO,future.get());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            feedDAO.indexSaveFeed(feedSaveDTO);
-        });
-        return  feedSaveDTO;
+        // ✅ MySQL에 동기 저장
+            int savedPostId = savePost(feedSaveDTO);
+            esSettingId(feedSaveDTO, savedPostId);
+
+            asyncService.savePostAsync(feedSaveDTO);
+
+            return feedSaveDTO;
     }
 
     @Override
@@ -210,7 +227,7 @@ public class FeedServiceImpl implements FeedService {
             throw new IllegalStateException("이미 좋아요를 누른 상태입니다.");
         }
         likeRepository.save(feedMapper.LikeToEntity(id,userId));
-        likeDAO.saveLike(id);
+        asyncService.postLike(userId,id);
     }
 
     @Override
@@ -219,7 +236,7 @@ public class FeedServiceImpl implements FeedService {
 
         if (isAlreadyLiked(userId,feedId)){
             likeRepository.deleteByUserIdAndFeedUID(userId,feedId);
-            likeDAO.cancelLike(feedId);
+            asyncService.cancelLike(userId,feedId);
         }else {
             throw new IllegalStateException("좋아요를 누른 상태가 아닙니다.");
         }
@@ -262,7 +279,16 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
+        private int savePost(FeedCreateResponse feedSaveDTO) {
+    //        log.info("동기 MySQL 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
+            Post post = new Post();
+            feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
+            Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
+
+    //        log.info("동기 MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
+            return savedPost.getId();
+        }
     private List<String> extractFeedUID(int page, int size) {
         List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()
                 .map(Board::getFeedUID)
@@ -271,7 +297,6 @@ public class FeedServiceImpl implements FeedService {
     }
     public void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
 
-        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
         feedSaveDTO.setId(id);
         log.info(String.valueOf(id));
         feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());}

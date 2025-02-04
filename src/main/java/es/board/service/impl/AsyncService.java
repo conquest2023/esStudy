@@ -3,6 +3,8 @@ package es.board.service.impl;
 
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.SignUpResponse;
+import es.board.repository.FeedDAO;
+import es.board.repository.LikeDAO;
 import es.board.repository.UserDAO;
 import es.board.repository.entity.Post;
 import es.board.repository.entity.User;
@@ -24,18 +26,35 @@ public class AsyncService {
 
     private  final UserDAO userDAO;
 
+    private  final LikeDAO likeDAO;
 
+    private  final FeedDAO feedDAO;
+
+//    @Async("taskExecutor")
+//    public CompletableFuture<Integer> savePostAsync(FeedCreateResponse feedSaveDTO) {
+//        log.info("비동기 작업 시작 - 스레드: {}", Thread.currentThread().getName());
+//
+//        Post post = new Post();
+//        Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
+//
+//        log.info("MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
+//        // 올바른 ID 반환
+//        return CompletableFuture.completedFuture(savedPost.getId());
+//    }
     @Async("taskExecutor")
-    public CompletableFuture<Integer> savePostAsync(FeedCreateResponse feedSaveDTO) {
-        log.info("비동기 작업 시작 - 스레드: {}", Thread.currentThread().getName());
+    public CompletableFuture<Void> savePostAsync(FeedCreateResponse feedSaveDTO) {
+        log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
-        Post post = new Post();
-        Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
+        try {
+            feedDAO.indexSaveFeed(feedSaveDTO); // Elasticsearch 저장
+            log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
 
-        log.info("MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
-        // 올바른 ID 반환
-        return CompletableFuture.completedFuture(savedPost.getId());
-    }
+        return CompletableFuture.completedFuture(null);
+}
+
 
 
     @Async("taskExecutor")
@@ -44,6 +63,21 @@ public class AsyncService {
         log.info("비동기 삭제 작업 시작 - 스레드: {}", Thread.currentThread().getName());
         postRepository.deleteById(userId);
         log.info("MySQL 삭제 완료 - ID: {}, 스레드: {}",userId, Thread.currentThread().getName());
+    }
+
+    @Async("taskExecutor")
+    @Transactional
+    public void cancelLike(String userId,String  feedId) {
+
+        likeDAO.cancelLike(feedId);
+        log.info("좋아요 삭제 완료 - ID: {}, 스레드: {}",userId, Thread.currentThread().getName());
+    }
+
+    @Async("taskExecutor")
+    @Transactional
+    public void  postLike(String userId,String feedId) {
+        likeDAO.saveLike(feedId);
+        log.info("좋아요 저장 완료 - ID: {}, 스레드: {}",userId, Thread.currentThread().getName());
     }
 
 
