@@ -92,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
          String userId = postRepository.findByFeedUID(dto.getFeedUID());
          if (!userId.equals(dto.getUserId())) {
 
-            notificationService.sendNotification(userId, "새 댓글이 달렸습니다: " + dto.getContent());
+            notificationService.sendNotification(userId,dto.getFeedUID(),dto.getUsername()+"님이"+"댓글이 작성하였습니다: " + dto.getContent());
         }
     }
 

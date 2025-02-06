@@ -37,8 +37,6 @@ public class NotificationController {
 
             String userId = jwtTokenProvider.getUserId(token);
             SseEmitter emitter = notificationService.subscribe(userId);
-            log.info("SSE={}",emitter);
-
             return new ResponseEntity<>(emitter, HttpStatus.OK);
         }
 
