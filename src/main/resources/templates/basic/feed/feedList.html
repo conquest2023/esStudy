@@ -15,89 +15,172 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 
     <style>
+        .menu-toggle {
+            display: none; /* 데스크톱에서는 숨김 */
+        }
+        /* ✅ 모바일에서만 적용되는 스타일 */
         @media (max-width: 768px) {
-            .left-sidebar {
+            /* ✅ 모바일에서는 사이드바 숨기고, 메뉴 버튼 사용 */
+            .left-sidebar, .right-sidebar {
+                display: none;
+            }
+
+            /* ✅ 모바일에서 메뉴 버튼 보이게 */
+            .menu-toggle {
                 display: flex;
-                justify-content: center;
                 align-items: center;
-                width: 100%;
-                height: auto;
-                padding: 20px;
+                justify-content: center;
                 position: fixed;
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: white;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-                z-index: 9999;
+                top: 15px;
+                left: 15px;
+                width: 65px;
+                height: 45px;
+                background: #007bff;
+                color: white;
+                font-size: 15px;
+                font-weight: bold;
+                border: none;
                 border-radius: 8px;
+                cursor: pointer;
+                z-index: 9999;
+            }
+            .menu-toggle span {
+                margin-left: 5px;
+                font-size: 14px;
             }
 
-            /* ✅ 로그인 창만 보이게 하고 나머지는 숨기기 */
-            .left-sidebar > *:not(.login-container) {
-                display: none !important;
+            /* ✅ 모바일에서 메뉴(사이드바)를 기본적으로 숨기고 버튼 클릭 시 보이게 */
+            #profile-info {
+                text-align: center;
+                margin-top: 10px;
             }
 
-            /* 📌 메인 콘텐츠 전체 너비 차지 */
-            .main-content {
-                width: 100%;
+            /* ✅ 로그인 후 카테고리 정렬 */
+            .vertical-menu {
                 padding: 10px;
+                display: flex;
+                flex-direction: column;
+                /*gap: 8px; !* 각 항목 간 간격 추가 *!*/
             }
 
-            /* 📌 페이지네이션 모바일 최적화 */
-            .pagination {
-                overflow-x: auto; /* 가로 스크롤 가능하게 */
-                white-space: nowrap; /* 줄바꿈 방지 */
-                justify-content: flex-start;
+
+            .vertical-menu a {
+                display: flex;
+                align-items: center;
+                padding: 8px;
+                color: #333;
+                text-decoration: none;
+                font-size: 14px;
+                border-bottom: 1px solid #ddd;
             }
 
-            .pagination .page-link {
-                padding: 6px 10px;
-                font-size: 12px;
+            .vertical-menu a i {
+                margin-right: 6px;
             }
 
-            /* 📌 게시판 테이블 모바일에서 가로 스크롤 적용 */
-            .table {
+            .vertical-menu a:last-child {
+                border-bottom: none;
+            }
+            .left-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 22vw;
+                min-width: 200px;
+                max-width: 280px;
+                height: 100vh;
+                background: white;
+                box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+                padding: 15px;
+                z-index: 9998;
+                overflow-y: auto;
+                transform: translateX(-100%); /* 기본적으로 화면 밖으로 이동 */
+                transition: transform 0.3s ease-in-out;
+            }
+            .left-sidebar.active {
+                transform: translateX(0); /* 왼쪽에서 나타남 */
+            }
+            .left-sidebar.active ~ .main-content {
+                margin-left: 22vw;
+                width: calc(100% - 22vw);
+            }
+
+            /* 📌 메뉴 버튼 클릭 시 보이게 설정 */
+            .left-sidebar.active {
                 display: block;
-                overflow-x: auto;
-                width: 100%;
             }
 
-            /* 📌 검색창 크기 조정 */
+            /* ✅ 버튼 클릭 시 메뉴가 나타나도록 */
+
+            /* ✅ 모바일에서 메인 콘텐츠 전체 너비 차지 */
+            .main-content {
+                margin-left: 22vw; /* 사이드바 너비만큼 이동 */
+                width: calc(100% - 22vw); /* 너비 자동 조정 */
+                transition: margin-left 0.3s ease-in-out;
+            }
+
+            /* ✅ 검색창 너비 조정 */
             #searchForm {
-                max-width: 100%;
+                flex-direction: column;
+                align-items: center;
             }
 
             #searchInput {
                 width: 100%;
             }
 
-            /* 📌 로그인 UI 모바일에서 화면 상단에 고정 */
+            /* ✅ 로그인 컨테이너 고정 */
+            /*.login-container {*/
+            /*    width: 90%;*/
+            /*    max-width: 350px;*/
+            /*    position: fixed;*/
+            /*    top: 60px; !* 메뉴 버튼 아래로 이동 *!*/
+            /*    left: 50%;*/
+            /*    transform: translateX(-50%);*/
+            /*    background-color: white;*/
+            /*    padding: 15px;*/
+            /*    border-radius: 8px;*/
+            /*    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);*/
+            /*    z-index: 9998;*/
+            /*}*/
             .login-container {
-                position: fixed !important;
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 90%;
-                max-width: 350px;
+                width: 100%;
+                max-width: 230px; /* 사이드바에 맞게 너비 제한 */
                 background-color: white;
                 padding: 15px;
                 border-radius: 8px;
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-                z-index: 9999;
-                display: block !important;  /* ✅ 강제 표시 */
+                margin-bottom: 20px;
             }
 
-            /* 📌 모바일 검색 필터 숨김 (검색 버튼 누를 때만 보이게 가능) */
+            /* ✅ 모바일에서 버튼 크기 조정 */
+            .btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+
+            /* ✅ 모바일에서 검색 필터 숨기기 */
             #dateFields {
                 display: none;
             }
-        }
-        @media (max-width: 768px) {
-            .hide-sidebar {
-                display: none !important;
+
+            /* ✅ 모바일에서 페이지네이션 숫자 깨짐 방지 */
+            .pagination {
+                overflow-x: auto;  /* 가로 스크롤 가능하게 */
+                white-space: nowrap; /* 줄바꿈 방지 */
+                justify-content: center;
+                padding: 10px;
+                width: 100%;
+            }
+
+            .pagination .page-link {
+                padding: 8px 12px;
+                font-size: 14px; /* 숫자 크게 보이게 */
+                min-width: 40px; /* 최소 크기 설정 */
+                text-align: center;
             }
         }
+
         #searchForm {
             max-width: 600px; /* 검색 폼 전체 너비 제한 */
             margin: 0 auto;  /* 폼 중앙 정렬 */
@@ -262,6 +345,19 @@
             background-color: #f8f9fa;
             border-right: 1px solid #ddd;
         }
+        /*.left-sidebar {*/
+        /*    position: fixed;*/
+        /*    top: 0;*/
+        /*    left: 0;*/
+        /*    width: 250px; !* 웹에서는 고정 크기 *!*/
+        /*    height: 100vh;*/
+        /*    background: white;*/
+        /*    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);*/
+        /*    padding: 15px;*/
+        /*    z-index: 9998;*/
+        /*    overflow-y: auto;*/
+        /*    transition: transform 0.3s ease-in-out;*/
+        /*}*/
         .right-sidebar {
             flex-shrink: 0;
             top: 50%; /* 화면의 중간 위치 */
@@ -546,6 +642,9 @@
     </div>
 </head>
 <div class="container-fluid">
+    <button id="menuToggle" class="menu-toggle">
+        ☰ <span>메뉴</span>
+    </button>
 <!--    <div class="row">-->
         <!-- 사이드바 -->
         <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
@@ -567,6 +666,8 @@
                     <li><strong>내가 쓴 댓글:</strong> <span id="comment-count">0개</span></li>
                 </ul>
             </div>
+
+
             <!-- 로그인 버튼 -->
             <div class="vertical-menu">
                 <button id="login-button" class="btn btn-success w-100 text-start" onclick="window.location.href='/login';">
@@ -1097,6 +1198,62 @@
                 return response.json();
             });
     }
+    document.addEventListener("DOMContentLoaded", () => {
+        const menuToggle = document.getElementById("menuToggle");
+        const leftSidebar = document.querySelector(".left-sidebar");
+        const mainContent = document.querySelector(".main-content");
+
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        function initMobile() {
+            console.log("모바일 레이아웃 적용");
+            // 사이드바 숨김 상태로 시작
+            leftSidebar.style.transform = "translateX(-100%)";
+            leftSidebar.style.display = "none";
+            mainContent.style.marginLeft = "0";
+
+            menuToggle.addEventListener("click", () => {
+                if (leftSidebar.style.transform === "translateX(-100%)") {
+                    // 열기
+                    leftSidebar.style.transform = "translateX(0)";
+                    leftSidebar.style.display = "block";
+                    mainContent.style.marginLeft = "70vw"; // 모바일에서 열렸을 때
+                } else {
+                    // 닫기
+                    leftSidebar.style.transform = "translateX(-100%)";
+                    leftSidebar.style.display = "none";
+                    mainContent.style.marginLeft = "0";
+                }
+            });
+        }
+
+        function initDesktop() {
+            console.log("데스크톱(웹) 레이아웃 적용");
+            eftSidebar.style.transform = "translateX(0)";
+            leftSidebar.style.display = "block";
+
+            // ⚠️ 문제 발생 가능성: margin-left 적용이 안될 수도 있음
+            mainContent.style.marginLeft = "250px";
+            mainContent.style.width = "calc(100% - 250px)";
+        }
+
+        function applyLayout() {
+            if (isMobile()) {
+                initMobile();
+            } else {
+                initDesktop();
+            }
+        }
+
+        // 처음 한번 적용
+        applyLayout();
+
+        // 화면 크기 변경 시 재적용
+        window.addEventListener("resize", applyLayout);
+    });
+
 
     document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("token");

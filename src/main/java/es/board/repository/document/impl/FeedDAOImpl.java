@@ -1,7 +1,6 @@
 package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
-import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -11,7 +10,6 @@ import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
-import es.board.repository.document.Comment;
 import es.board.repository.entity.entityrepository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
