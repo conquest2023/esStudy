@@ -255,13 +255,11 @@
                 </tr>
                 <tr>
                   <td style="padding:20px;">
-                    <div class="description-box">
-                      ${
-                board.imageURL
-                    ? `<img src="${board.imageURL}" alt="이미지" style="max-width:100%; height:auto;" />`
-                    : ``
-            }
-                    </div>
+                           ${board.imageURL && board.imageURL.trim() !== "" ? `
+            <div class="description-box">
+                <img src="${board.imageURL}" alt="이미지" style="max-width:100%; height:auto;" />
+            </div>
+        ` : ''}
                     <div class="description-box">
                       <p style="white-space:pre-wrap;">${board.description || ''}</p>
                     </div>
@@ -418,50 +416,6 @@
                 alert("Failed to fetch comment details");
             });
     }
-    //             const targetElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-    //             // const targetElement = document.querySelector(`#comment-${commentId}`); // 댓글 요소 찾기
-    //             if (!targetElement) {
-    //                 console.error(`Error: Target element #comment-${commentId} not found.`);
-    //                 return; // 요소가 없으면 함수 종료
-    //             }
-    //
-    //             // 기존 수정 폼 제거 (중복 생성 방지)
-    //             const existingForm = document.querySelector(`#edit-comment-form-${commentId}`);
-    //             if (existingForm) {
-    //                 existingForm.remove();
-    //             }
-    //             console.log(`Found element: #comment-${commentId}`);
-    //
-    //             // Render edit form dynamically below the comment
-    //             const editFormHtml = `
-    //             <div id="edit-comment-form-${commentId}" class="edit-comment-form">
-    //                 <textarea id="edit-comment-content-${commentId}" class="edit-comment-textarea">${data.content}</textarea>
-    //                 <div class="edit-comment-buttons">
-    //                     <button id="save-comment-btn-${commentId}" class="save-comment-btn" data-comment-id="${data.commentUID}" data-feed-id="${data.feedUID}">
-    //                         Save
-    //                     </button>
-    //                     <button id="cancel-edit-btn-${commentId}" class="cancel-edit-btn">
-    //                         Cancel
-    //                     </button>
-    //                 </div>
-    //             </div>
-    //         `;
-    //
-    //             targetElement.insertAdjacentHTML("afterend", editFormHtml);
-    //
-    //             document.querySelector(`#comment-${commentId}`).insertAdjacentHTML("afterend", editFormHtml);
-    //
-    //             // Add event listeners for save and cancel buttons
-    //             document.getElementById(`save-comment-btn-${commentId}`).addEventListener("click", saveEditedComment);
-    //             document.getElementById(`cancel-edit-btn-${commentId}`).addEventListener("click", () => {
-    //                 document.getElementById(`edit-comment-form-${commentId}`).remove();
-    //             });
-    //         })
-    //         .catch(error => {
-    //             console.error("Error fetching comment details:", error);
-    //             alert("Failed to fetch comment details");
-    //         });
-    // }
     function saveEditedComment(event) {
         const button = event.target;
         const commentId = button.getAttribute("data-comment-id");
