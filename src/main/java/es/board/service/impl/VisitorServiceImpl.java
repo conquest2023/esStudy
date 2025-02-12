@@ -21,8 +21,8 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
     @Override
-    public void saveIP(String userId, String ip,String sessionId,String userAgent) {
-            visitDAO.saveIp(userId,ip,sessionId,userAgent);
+    public void saveIP(String userId, String ip,String userAgent) {
+            visitDAO.saveIp(userId,ip,userAgent);
 
     }
 }

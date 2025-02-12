@@ -52,7 +52,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         // 방문 여부 확인 (1일 동안 캐싱)
         if (visitCache.getIfPresent(uniqueKey) == null) {
             visitCache.put(uniqueKey, LocalDateTime.now());
-            CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, sessionId, userAgent));
+            CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, userAgent));
             log.info("새로운 방문자 기록 - {}", uniqueKey);
         } else {
             log.info("중복 방문 방지 - {}", uniqueKey);

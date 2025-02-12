@@ -23,15 +23,14 @@ public class VisitDAOImpl implements VisitDAO {
 
         @Override
         @Async("taskExecutor")
-        public CompletableFuture<Void> saveIp(String userId, String ip, String sessionId, String userAgent) {
+        public CompletableFuture<Void> saveIp(String userId, String ip, String userAgent) {
             try {
                 client.index(i -> i
                         .index("visitor_tracking")
-                        .id(userId + "_" + ip + "_" + sessionId)
+                        .id(userId + "_" + ip)
                         .document(Map.of(
                                 "userId", userId,
                                 "ipAddress", ip,
-                                "sessionId", sessionId,
                                 "userAgent", userAgent,
                                 "visitedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))));
                 log.info("Visitor log saved asynchronously for: {}", ip);
@@ -52,8 +51,8 @@ public class VisitDAOImpl implements VisitDAO {
                                                 .range(r -> r
                                                         .date(d -> d
                                                                 .field("visitedAt")
-                                                                .gte("now/d")
-                                                                .lt("now+1d/d"))))
+                                                                .gte("now/d+9h")
+                                                                .lt("now+1d/d+9h"))))
                                         .aggregations("unique_today_users", agg -> agg
                                                 .cardinality(c -> c.field("ipAddress.keyword"))))
                                 .aggregations("current_visitors", a -> a
@@ -61,16 +60,15 @@ public class VisitDAOImpl implements VisitDAO {
                                                 .range(r -> r
                                                         .date(d -> d
                                                                 .field("visitedAt")
-                                                                .gte("now-20m")
-                                                                .lte("now")
-                                                                .format("epoch_millis")
-                                                                .timeZone("Asia/Seoul"))))
+                                                                .gte("now-5m+9h")
+                                                                .lte("now+9h")
+                                                                .format("epoch_millis"))))
                                         .aggregations("unique_current_users", agg -> agg
                                                 .cardinality(c -> c.field("ipAddress.keyword"))))
                                 .aggregations("total_visitors", a -> a
                                         .cardinality(c -> c.field("ipAddress.keyword"))),
                         Void.class);
-
+//.timeZone("Asia/Seoul")
                 log.info("Elasticsearch Response: {}", response.toString());
 
                 // 집계 결과 가져오기

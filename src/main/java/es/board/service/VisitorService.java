@@ -6,5 +6,5 @@ public interface VisitorService {
 
 
     Map<String,Long> getStats();
-    void saveIP(String userId, String ip,String sessionId,String userAgent);
+    void saveIP(String userId, String ip,String userAgent);
 }
