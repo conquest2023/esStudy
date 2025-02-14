@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -31,6 +33,8 @@ public class AjaxController {
 
 
     private  final AuthService userService;
+
+    private  final RedisTemplate<String, Object> redisTemplate;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -43,9 +47,12 @@ public class AjaxController {
     private  final CommentService commentService;
 
     @GetMapping("/get-ip")
-    @ResponseBody
-    public Map<String, Long> getClientIp() {
-        return visitService.getStats();
+    public ResponseEntity<?> getClientIp() {
+
+        Set<String> activeUsers = redisTemplate.keys("online_users:*");
+        return ResponseEntity.ok(Map.of(
+                "activeUsers", activeUsers.size(),
+                "data", visitService.getStats()));
     }
     @PostMapping("/increaseViewCount")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,

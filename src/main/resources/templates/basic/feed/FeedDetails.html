@@ -597,63 +597,70 @@
     })
 
 
-    function submitComment() {
-        // 댓글 데이터를 가져옴
-        const content = document.getElementById("content").value.trim();
-        const username = document.getElementById("username").value.trim();
-        const token = localStorage.getItem("token");
-        const isAnonymous = document.getElementById("anonymous-toggle").checked;
-        if (!content) {
-            alert("댓글 내용을 입력하세요!");
-            return;
-        }
-        const finalUsername = isAnonymous ? "익명" : username || "익명";
-        const urlParams = new URLSearchParams(window.location.search);
-        const feedUID = urlParams.get('id');
-        fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
-            method: "POST",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                content: content,
-                username: finalUsername,
-                // userId: userId || "익명",
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("댓글 저장 실패: " + response.status);
-                }
-                return response.json(); // JSON 응답을 파싱
-            })
-            .then((data) => {
-                const redirectUrl = data.redirectUrl; // 서버에서 받은 리다이렉트 URL
-                if (redirectUrl) {
-                    setTimeout(() => {
-                        window.location.href = redirectUrl; // 리다이렉트 실행
-                    }, 1000);
+    let debounceTimeout; // 디바운스 타이머
 
-                } else {
-                    console.error("리다이렉트 URL이 없습니다.");
+        function submitComment() {
+            if (debounceTimeout) clearTimeout(debounceTimeout); // 기존 타이머 제거
+
+            debounceTimeout = setTimeout(() => {
+                const content = document.getElementById("content").value.trim();
+                const username = document.getElementById("username").value.trim();
+                const token = localStorage.getItem("token");
+                const isAnonymous = document.getElementById("anonymous-toggle").checked;
+
+                if (!content) {
+                    alert("댓글 내용을 입력하세요!");
+                    return;
                 }
-            })
-            .catch((error) => {
-                console.error("댓글 저장 중 오류 발생:", error);
-                alert("댓글 저장 중 문제가 발생했습니다.");
-            });
-    }
-    function checkTokenAndUserInfo() {
-        const token = localStorage.getItem("token");
-        const urlParams = new URLSearchParams(window.location.search);
-        const feedUID = urlParams.get('id'); // URL에서 id 파라미터 값을 가져옴
-        if (!token) {
-            // document.querySelector(".edit-btn").style.display = "none";
-            // document.querySelector(".delete-btn").style.display = "none";
-            return;
+
+                const finalUsername = isAnonymous ? "익명" : username || "익명";
+                const urlParams = new URLSearchParams(window.location.search);
+                const feedUID = urlParams.get('id');
+
+                fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": token ? `Bearer ${token}` : "",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        username: finalUsername,
+                    }),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("댓글 저장 실패: " + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const redirectUrl = data.redirectUrl;
+                        if (redirectUrl) {
+                            setTimeout(() => {
+                                window.location.href = redirectUrl;
+                            }, 1000);
+                        } else {
+                            console.error("리다이렉트 URL이 없습니다.");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("댓글 저장 중 오류 발생:", error);
+                        alert("댓글 저장 중 문제가 발생했습니다.");
+                    });
+            }, 1000); // 1초 동안 중복 요청 방지
+         }
+
+        function checkTokenAndUserInfo() {
+            const token = localStorage.getItem("token");
+            const urlParams = new URLSearchParams(window.location.search);
+            const feedUID = urlParams.get('id'); // URL에서 id 파라미터 값을 가져옴
+            if (!token) {
+                // document.querySelector(".edit-btn").style.display = "none";
+                // document.querySelector(".delete-btn").style.display = "none";
+                return;
+            }
         }
-    }
 
         function checkFeedAuthorPermission(Owner) {
                     const editBtn = document.querySelector(".edit-btn");

@@ -826,17 +826,17 @@
             // 방문자 수 표시할 DOM 요소 가져오기
             const visitorStatsDiv = document.getElementById('visitorStats');
             visitorStatsDiv.innerHTML = `
-            <div class="d-flex align-items-center visitor-item">
+                <div class="d-flex align-items-center visitor-item">
                 <span class="stat-label">현재 접속자:</span>
-                <span class="stat-value">${data.currentVisitors}</span>
+                <span class="stat-value">${data.activeUsers}</span>
             </div>
             <div class="d-flex align-items-center visitor-item">
                 <span class="stat-label">오늘 방문자:</span>
-                <span class="stat-value">${data.todayVisitors}</span>
+                <span class="stat-value">${data.data.todayVisitors}</span>
             </div>
             <div class="d-flex align-items-center visitor-item">
                 <span class="stat-label">누적 방문자:</span>
-                <span class="stat-value">${data.totalVisitors}</span>
+                <span class="stat-value">${data.data.totalVisitors}</span>
             </div>
         `;
         } catch (error) {
