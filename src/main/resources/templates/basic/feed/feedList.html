@@ -18,7 +18,7 @@
         .menu-toggle {
             display: none; /* 데스크톱에서는 숨김 */
         }
-        /* ✅ 모바일에서만 적용되는 스타일 */
+               /* ✅ 모바일에서만 적용되는 스타일 */
         @media (max-width: 768px) {
             /* ✅ 모바일에서는 사이드바 숨기고, 메뉴 버튼 사용 */
             .left-sidebar, .right-sidebar {
@@ -33,6 +33,24 @@
                 position: fixed;
                 top: 15px;
                 left: 15px;
+                width: 65px;
+                height: 45px;
+                background: #007bff;
+                color: white;
+                font-size: 15px;
+                font-weight: bold;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 9999;
+            }
+            .right-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 15px;
+                right: 15px; /* ← 왼쪽 버튼과 동일하게, 단 right 적용 */
                 width: 65px;
                 height: 45px;
                 background: #007bff;
@@ -97,6 +115,24 @@
                 transform: translateX(-100%); /* 기본적으로 화면 밖으로 이동 */
                 transition: transform 0.3s ease-in-out;
             }
+
+
+            .right-sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 22vw;
+                min-width: 200px;
+                max-width: 280px;
+                height: 100vh;
+                background: white;
+                box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+                padding: 15px;
+                z-index: 9998;
+                overflow-y: auto;
+                transform: translateX(100%); /* 기본적으로 화면 밖으로 이동 */
+                transition: transform 0.3s ease-in-out;
+            }
             .left-sidebar.active {
                 transform: translateX(0); /* 왼쪽에서 나타남 */
             }
@@ -107,6 +143,27 @@
 
             /* 📌 메뉴 버튼 클릭 시 보이게 설정 */
             .left-sidebar.active {
+                display: block;
+            }
+
+            .right-sidebar.active {
+                transform: translateX(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            /*.left-sidebar.active ~ .main-content {*/
+            /*    margin-left: 22vw;*/
+            /*    width: calc(100% - 22vw);*/
+            /*}*/
+
+            .right-sidebar.active ~ .main-content {
+                margin-left: 22vw;
+                width: calc(100% - 22vw);
+                /*transition: margin-right 0.3s ease-in-out;*/
+            }
+
+            /* 📌 메뉴 버튼 클릭 시 보이게 설정 */
+            .right-sidebar.active {
                 display: block;
             }
 
@@ -345,19 +402,6 @@
             background-color: #f8f9fa;
             border-right: 1px solid #ddd;
         }
-        /*.left-sidebar {*/
-        /*    position: fixed;*/
-        /*    top: 0;*/
-        /*    left: 0;*/
-        /*    width: 250px; !* 웹에서는 고정 크기 *!*/
-        /*    height: 100vh;*/
-        /*    background: white;*/
-        /*    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);*/
-        /*    padding: 15px;*/
-        /*    z-index: 9998;*/
-        /*    overflow-y: auto;*/
-        /*    transition: transform 0.3s ease-in-out;*/
-        /*}*/
         .right-sidebar {
             flex-shrink: 0;
             top: 50%; /* 화면의 중간 위치 */
@@ -365,7 +409,6 @@
             background-color: #f8f9fa;
             border-left: 1px solid #ddd;
             padding: 20px;
-
             /*overflow-y: auto; !* Allow vertical scrolling if needed *!*/
         }
 
@@ -521,6 +564,9 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        /*#rightMenuToggle {*/
+        /*    display: none !important;*/
+        /*}*/
 
         /* 버튼 스타일 */
         .login-btn {
@@ -645,7 +691,9 @@
     <button id="menuToggle" class="menu-toggle">
         ☰ <span>메뉴</span>
     </button>
-<!--    <div class="row">-->
+    <button id="rightMenuToggle" class="right-menu-toggle">
+        ☰ <span>오른쪽</span>
+    </button>
         <!-- 사이드바 -->
         <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
 <!--            <button id="logout-button" class="btn btn-secondary w-100 text-start" onclick="logout()">로그아웃</button>-->
@@ -798,6 +846,7 @@
 <!--            </div>-->
 
         </main>
+<!--    <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">-->
 
     <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
         <div id="visitorStats" class="visitor-stats mb-3"></div>
@@ -1199,8 +1248,10 @@
             });
     }
     document.addEventListener("DOMContentLoaded", () => {
-        const menuToggle = document.getElementById("menuToggle");
+        const menuToggle = document.getElementById("menuToggle");  // 왼쪽 토글 버튼
+        const rightMenuToggle = document.getElementById("rightMenuToggle"); // 오른쪽 토글 버튼
         const leftSidebar = document.querySelector(".left-sidebar");
+        const rightSidebar = document.querySelector(".right-sidebar");
         const mainContent = document.querySelector(".main-content");
 
         function isMobile() {
@@ -1208,35 +1259,66 @@
         }
 
         function initMobile() {
-            console.log("모바일 레이아웃 적용");
-            // 사이드바 숨김 상태로 시작
+            console.log("📱 모바일 레이아웃 적용");
+            rightMenuToggle.style.display = "flex";
+
+            // 좌우 사이드바 기본적으로 숨김
             leftSidebar.style.transform = "translateX(-100%)";
             leftSidebar.style.display = "none";
-            mainContent.style.marginLeft = "0";
 
+            rightSidebar.style.transform = "translateX(100%)"; // ✅ 오른쪽에서 숨김
+            rightSidebar.style.display = "none";
+
+            // 메인 컨텐츠 전체 화면 사용
+            mainContent.style.marginLeft = "0";
+            mainContent.style.marginRight = "0";
+            mainContent.style.width = "100%";
+
+            // 📌 왼쪽 사이드바 토글
             menuToggle.addEventListener("click", () => {
                 if (leftSidebar.style.transform === "translateX(-100%)") {
-                    // 열기
                     leftSidebar.style.transform = "translateX(0)";
                     leftSidebar.style.display = "block";
-                    mainContent.style.marginLeft = "70vw"; // 모바일에서 열렸을 때
+                    mainContent.style.marginLeft = "70vw"; // 살짝 밀림 효과
+                    mainContent.style.width = "calc(100% - 70vw)";
                 } else {
-                    // 닫기
                     leftSidebar.style.transform = "translateX(-100%)";
                     leftSidebar.style.display = "none";
                     mainContent.style.marginLeft = "0";
+                    mainContent.style.width = "100%";
+                }
+            });
+
+            // 📌 오른쪽 사이드바 토글
+            rightMenuToggle.addEventListener("click", () => {
+                if (rightSidebar.style.transform === "translateX(100%)") { // ✅ 오른쪽에서 나옴
+                    rightSidebar.style.transform = "translateX(0)";
+                    rightSidebar.style.display = "block";
+                    mainContent.style.marginRight = "70vw"; // ✅ 오른쪽으로 이동
+                    mainContent.style.width = "calc(100% - 70vw)";
+                } else {
+                    rightSidebar.style.transform = "translateX(100%)"; // ✅ 다시 오른쪽으로 숨김
+                    rightSidebar.style.display = "none";
+                    mainContent.style.marginRight = "0";
+                    mainContent.style.width = "100%";
                 }
             });
         }
 
         function initDesktop() {
-            console.log("데스크톱(웹) 레이아웃 적용");
-            eftSidebar.style.transform = "translateX(0)";
-            leftSidebar.style.display = "block";
+            console.log("🖥️ 데스크톱 레이아웃 적용");
 
-            // ⚠️ 문제 발생 가능성: margin-left 적용이 안될 수도 있음
-            mainContent.style.marginLeft = "250px";
-            mainContent.style.width = "calc(100% - 250px)";
+            // 사이드바 항상 표시
+            // leftSidebar.style.transform = "translateX(0)";
+            // leftSidebar.style.display = "block";
+            //
+            // rightSidebar.style.transform = "translateX(0)";
+            // rightSidebar.style.display = "block";
+            //
+            // // 메인 컨텐츠 조정
+            // mainContent.style.marginLeft = "250px";
+            // mainContent.style.marginRight = "250px";
+            // mainContent.style.width = "calc(100% - 500px)";
         }
 
         function applyLayout() {
@@ -1244,15 +1326,17 @@
                 initMobile();
             } else {
                 initDesktop();
+                rightMenuToggle.style.display = "none";
             }
         }
 
-        // 처음 한번 적용
+        // 처음 한 번 적용
         applyLayout();
 
-        // 화면 크기 변경 시 재적용
+        // 화면 크기 변경 시 자동 조정
         window.addEventListener("resize", applyLayout);
     });
+
 
 
     document.addEventListener("DOMContentLoaded", () => {
