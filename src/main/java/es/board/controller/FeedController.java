@@ -231,6 +231,11 @@ public class FeedController {
         }
     }
 
+    @GetMapping("/search/view/feed/list/job")
+    public String getProgrammersList() {
+        return  "/basic/feed/ItCrawlingFeed";
+    }
+
 
     @GetMapping("/search/view/feed/Form")
     public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token,

@@ -627,10 +627,12 @@
 
         /* 🔔 알림 아이콘 */
         .notification-icon {
+            position: relative;
+            font-size: 24px;  /* 아이콘 크기 조정 */
+            color: #007bff; /* 아이콘 색상 */
             cursor: pointer;
-            font-size: 22px;
-            user-select: none;
-            padding-right: 10px; /* 조회수와 간격 조정 */
+            padding-right: 10px;
+            transition: transform 0.2s ease-in-out;
         }
 
         /* 🔴 새 알림 배지 */
@@ -682,6 +684,81 @@
         .notification-dropdown li:hover {
             background-color: #f5f5f5;
         }
+        ./* 🔍 사이드바 검색창 스타일 (마이페이지와 동일한 크기) */
+        .sidebar-search {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+        }
+
+        /* 검색 입력 필드 */
+        .sidebar-search input {
+            flex: 1;
+            padding: 6px 10px; /* 높이 줄이기 */
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%; /* 가로 크기 조정 */
+            height: 36px; /* 버튼과 같은 높이 */
+        }
+
+        /* 검색 버튼 */
+        .sidebar-search button {
+            padding: 6px 8px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px; /* 입력창과 동일한 높이 */
+            min-width: 36px; /* 버튼 크기 축소 */
+        }
+
+        /* 버튼 호버 효과 */
+        .sidebar-search button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 검색 아이콘 크기 조정 */
+        .sidebar-search button i {
+            font-size: 16px;
+        }
+        /* 아코디언 메뉴 스타일 */
+        .menu-category {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+
+        .menu-toggle-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-subitems {
+            display: none;
+            flex-direction: column;
+            padding-left: 15px;
+        }
+
+        .menu-subitems a {
+            padding: 8px 10px;
+            display: block;
+            text-decoration: none;
+            color: #333;
+        }
 
 
     </style>
@@ -721,31 +798,47 @@
                 <button id="login-button" class="btn btn-success w-100 text-start" onclick="window.location.href='/login';">
                     <span class="fa fa-sign-in-alt"></span> 로그인
                 </button>
-
-
                 <hr>
-
                 <a href="/search/view/feed/list/page">
                     <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>
                 </a>
-                <a href="/search/view/feed/list/자유">
-                    <i class="fas fa-comments"></i><span>&nbsp; 자유</span>
-                </a>
-                <a href="/search/view/feed/list/스포츠">
-                    <i class="fas fa-football-ball"></i><span>&nbsp; 스포츠</span>
-                </a>
-                <a href="/search/view/feed/list/경제">
-                    <i class="fas fa-chart-line"></i><span>&nbsp; 경제</span>
-                </a>
-                <a href="/search/view/feed/list/기술">
-                    <i class="fas fa-laptop-code"></i><span>&nbsp;IT정보</span>
-                </a>
-                <a href="/search/view/feed/list/게임">
-                    <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>
-                </a>
-                <a href="/search/view/feed/list/공부">
-                    <i class="fas fa-laptop-code"></i><span> 공부</span>
-                </a>
+                <div class="sidebar-search">
+                    <div class="input-group">
+                        <input type="text" id="sidebarSearchInput" class="form-control" placeholder="검색어 입력">
+                        <button id="sidebarSearchBtn" class="btn btn-primary" onclick="redirectSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="menu-category">
+                    <button class="menu-toggle-btn">
+                        📂 게시판
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="menu-subitems">
+                        <a href="/search/view/feed/list/자유">
+                            <i class="fas fa-comments"></i><span>&nbsp; 자유</span>
+                        </a>
+                        <a href="/search/view/feed/list/스포츠">
+                            <i class="fas fa-football-ball"></i><span>&nbsp; 스포츠</span>
+                        </a>
+                        <a href="/search/view/feed/list/경제">
+                            <i class="fas fa-chart-line"></i><span>&nbsp; 경제</span>
+                        </a>
+                        <a href="/search/view/feed/list/기술">
+                            <i class="fas fa-laptop-code"></i><span>&nbsp;IT정보</span>
+                        </a>
+                        <a href="/search/view/feed/list/게임">
+                            <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>
+                        </a>
+                        <a href="/search/view/feed/list/공부">
+                            <i class="fas fa-laptop-code"></i><span> 공부</span>
+                        </a>
+                    </div>
+                    <a href="/search/view/feed/list/job">
+                        <i class="fas fa-laptop-code"></i><span>&nbsp;IT취업정보</span>
+                    </a>
+                </div>
             </div>
         </aside>
 
@@ -761,7 +854,7 @@
                 <!-- 🔔 알림 아이콘 추가 -->
                 <div class="notification-container">
                     <div class="notification-icon" id="notificationIcon" style="cursor: pointer;">
-                        🔔
+                        <i class="fas fa-bell"></i>
                         <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
                     </div>
                     <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
@@ -782,15 +875,10 @@
                             <thead>
                             <tr>
                                 <th>제목</th>
-<!--                                <th>내용</th>-->
-
-                                <th>작성자</th>
-<!--                                <th>댓글수</th>-->
-                                <!--<th>카테고리</th>-->
-<!--                                <th>좋아요 수</th>-->
-<!--                                <th>카테고리</th>-->
+                                <th>글쓴이</th>
                                 <th>작성일</th>
-                                <th>조회수</th>
+                                <th>조회</th>
+                                <th>추천</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -894,26 +982,32 @@
     }
 
     function redirectSearch() {
-        const form = document.getElementById('searchForm');
-        const searchType = document.getElementById('searchType').value;
-        const searchText = document.getElementById('searchInput').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        // searchType 값에 따라 form.action 설정
+        const searchType = document.getElementById('searchType')?.value;
+        const searchText = document.getElementById('searchInput')?.value.trim();
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
+
+        // 🔍 사이드바 검색 입력값 추가
+        const sidebarSearchText = document.getElementById('sidebarSearchInput')?.value.trim();
+
         let url = '/search/content?';
 
-        if (searchType === 'text') {
-            if (!searchText) {
-                alert('검색어를 입력하세요!');
-                return;
-            }
-            url += `text=${encodeURIComponent(searchText)}`;
+        // ✅ 검색어가 입력된 곳을 우선 적용
+        let finalSearchText = searchText || sidebarSearchText;
+
+        if (!finalSearchText) {
+            alert('검색어를 입력하세요!');
+            return;
+        }
+
+        if (searchType === 'text' || !searchType) {
+            url += `text=${encodeURIComponent(finalSearchText)}`;
         } else if (searchType === 'date') {
             if (!startDate || !endDate) {
                 alert('시작 및 종료 날짜를 입력하세요!');
                 return;
             }
-            url += `startDate=${(startDate)}&endDate=${(endDate)}`;
+            url += `startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
         } else {
             alert('검색 유형을 선택하세요!');
             return;
@@ -926,7 +1020,6 @@
                 if (!response.ok) {
                     throw new Error('검색 요청 실패');
                 }
-
                 return response.json();
             })
             .then(data => {
@@ -935,7 +1028,12 @@
                     return;
                 }
                 renderFeeds(data);
-            })}
+            });
+    }
+    document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
+        const submenu = document.querySelector(".menu-subitems");
+        submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+    });
 
     // 데이터 렌더링 함수
     function searchFeed(jsonData, count) {
@@ -1078,7 +1176,9 @@
                     <td>${board.username}</td>
 
                     <td>${formatDate(board.createdAt)}</td>
-                    <td>${board.viewCount}</td> `;
+                    <td>${board.viewCount}</td>
+                    <td>${board.likeCount}</td>
+        `;
             feedTableBody.appendChild(tr);
         });
 
@@ -1158,10 +1258,32 @@
 
 
     // 날짜 포맷 (예시)
+    // function formatDate(dateTimeString) {
+    //     if (!dateTimeString) return '';
+    //     const date = new Date(dateTimeString);
+    //     return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+    // }
     function formatDate(dateTimeString) {
         if (!dateTimeString) return '';
+
         const date = new Date(dateTimeString);
-        return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+
+        // ✅ 년, 월, 일, 시간, 분 추출
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 +1
+        const day = date.getDate();
+        let hour = date.getHours();
+        const minute = date.getMinutes();
+
+        // ✅ 오전/오후 설정
+        const period = hour >= 12 ? '오후' : '오전';
+        hour = hour % 12 || 12; // 12시간제 변환
+
+        // ✅ 10분 이하일 경우 앞에 0 추가 (예: 4:05)
+        const formattedMinute = minute < 10 ? `0${minute}` : minute;
+
+        // ✅ 최종 포맷
+        return `${year}. ${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
     }
 </script>
 

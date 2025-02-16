@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        .job-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            text-decoration: none;  /* 링크 밑줄 제거 */
+            color: inherit;  /* 부모 색상 유지 */
+            display: block;  /* a 태그가 block 형태로 표시되도록 설정 */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+            text-decoration: none;  /* h3 내부의 링크에도 밑줄 제거 */
+        }
+        .company-name {
+            font-size: 16px;
+            color: #666;
+        }
+        .location {
+            font-size: 14px;
+            color: #888;
+        }
+        .tech-stack {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tech-tag {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .apply-button {
+            display: none; /* 지원 버튼 제거 */
+        }
+        .no-data {
+            font-size: 16px;
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>점핏 & 프로그래머스 채용 공고</h1>
+
+<div class="container">
+    <!-- 점핏 섹션 -->
+    <div class="section">
+        <div class="section-title">🔥 점핏 채용 공고</div>
+        <div class="job-list" id="jumpitContainer">
+            <p class="no-data">로딩 중...</p>
+        </div>
+    </div>
+
+    <!-- 프로그래머스 섹션 -->
+    <div class="section">
+        <div class="section-title">🚀 프로그래머스 채용 공고</div>
+        <div class="job-list" id="programmersContainer">
+            <p class="no-data">로딩 중...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchJobData() {
+        try {
+            // 점핏 & 프로그래머스 데이터 요청
+            const [jumpitResponse, programmersResponse] = await Promise.all([
+                fetch("/jumpit").then(res => res.json()),
+                fetch("/programmers").then(res => res.json())
+            ]);
+
+            // 데이터 변환 (공통 형식으로)
+            const jumpitJobs = Array.isArray(jumpitResponse) ? jumpitResponse.map(job => ({
+                title: job.title,
+                companyName: job.companyName,
+                location: job.locations ? job.locations.join(", ") : "위치 정보 없음",
+                techStacks: job.techStacks || [],
+                applyAvailable: job.applyAvailable,
+                url: `https://www.jumpit.co.kr/jobs/${job.id}`
+            })) : [];
+
+            const programmersJobs = Array.isArray(programmersResponse) ? programmersResponse.map(job => ({
+                title: job.title,
+                companyName: job.companyName,
+                location: job.address || "위치 정보 없음",
+                techStacks: job.technicalTags || [],
+                applyAvailable: job.applyAvailable,
+                url: `https://career.programmers.co.kr/job_positions/${job.id}`
+            })) : [];
+
+            // 각각의 섹션에 렌더링
+            renderJobCards(jumpitJobs, "jumpitContainer");
+            renderJobCards(programmersJobs, "programmersContainer");
+        } catch (error) {
+            console.error("데이터를 불러오는 중 오류 발생:", error);
+        }
+    }
+
+    function renderJobCards(jobs, containerId) {
+        const jobContainer = document.getElementById(containerId);
+        jobContainer.innerHTML = "";
+
+        if (jobs.length === 0) {
+            jobContainer.innerHTML = `<p class="no-data">채용 공고가 없습니다.</p>`;
+            return;
+        }
+
+        jobs.forEach(job => {
+            const jobCard = document.createElement("a");
+            jobCard.href = job.url;
+            jobCard.target = "_blank";  // 새 탭에서 열기
+            jobCard.className = "card";
+            jobCard.innerHTML = `
+                <h3 class="job-title">${job.title}</h3>
+                <p class="company-name">${job.companyName}</p>
+                <p class="location">📍 ${job.location}</p>
+                ${job.techStacks.length > 0 ? `<div class="tech-stack">${job.techStacks.map(stack => `<span class="tech-tag">${stack}</span>`).join("")}</div>` : ""}
+            `;
+            jobContainer.appendChild(jobCard);
+        });
+    }
+
+    fetchJobData();
+</script>
+
+</body>
+</html>
