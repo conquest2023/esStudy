@@ -233,7 +233,7 @@ public class FeedController {
 
     @GetMapping("/search/view/feed/list/job")
     public String getProgrammersList() {
-        return  "/basic/feed/ItCrawlingFeed";
+        return  "basic/feed/ItCrawlingFeed";
     }
 
 

@@ -131,7 +131,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
                 // ✅ 기술 스택 추출
                 List<String> techStackList = new ArrayList<>();
-                for (JsonNode techTag : position.path("tags")) {
+                for (JsonNode techTag : position.path("technicalTags")) {
                     techStackList.add(techTag.path("name").asText());
                 }
                 jobInfo.put("technicalTags", techStackList);

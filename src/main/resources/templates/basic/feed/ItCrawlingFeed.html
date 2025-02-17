@@ -81,7 +81,7 @@
 </head>
 <body>
 
-<h1>점핏 & 프로그래머스 채용 공고</h1>
+<h1>IT 채용 공고 </h1>
 
 <div class="container">
     <!-- 점핏 섹션 -->
@@ -117,7 +117,7 @@
                 location: job.locations ? job.locations.join(", ") : "위치 정보 없음",
                 techStacks: job.techStacks || [],
                 applyAvailable: job.applyAvailable,
-                url: `https://www.jumpit.co.kr/jobs/${job.id}`
+                url: `https://www.jumpit.co.kr/position/${job.id}`
             })) : [];
 
             const programmersJobs = Array.isArray(programmersResponse) ? programmersResponse.map(job => ({
