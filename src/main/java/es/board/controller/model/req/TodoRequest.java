@@ -18,7 +18,10 @@ import java.util.Date;
 @Builder
 public class TodoRequest {
 
-    private String userId;          // 해당 Todo가 어느 사용자의 것인지
+    private Long todo_id;
+
+
+//    private String userId;          // 해당 Todo가 어느 사용자의 것인지
 
     private String title;
     private String description;

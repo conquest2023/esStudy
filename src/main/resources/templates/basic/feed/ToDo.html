@@ -9,25 +9,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        /* 추가 커스터마이징 */
         .badge-status {
             font-size: 0.85rem;
             font-weight: 600;
         }
-        .badge-status[data-status="TODO"] {
-            background-color: #6c757d;
-        }
-        .badge-status[data-status="IN_PROGRESS"] {
-            background-color: #0d6efd;
-        }
-        .badge-status[data-status="DONE"] {
-            background-color: #198754;
-        }
+        .badge-status[data-status="TODO"] { background-color: #6c757d; }
+        .badge-status[data-status="IN_PROGRESS"] { background-color: #0d6efd; }
+        .badge-status[data-status="DONE"] { background-color: #198754; }
     </style>
 </head>
 <body>
 
-<!-- 상단 네비게이션 -->
+<!-- 네비게이션 -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Todo App</a>
@@ -63,24 +56,24 @@
                 </table>
             </div>
         </div>
-    </div><!-- /.card -->
-</div><!-- /.container -->
+    </div>
+</div>
 
-<!-- JavaScript로 JSON 데이터 불러오기 -->
+<!-- JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const token = localStorage.getItem('token'); // ✅ 로컬 스토리지에서 JWT 토큰 가져오기
+        const token = localStorage.getItem('token');
 
         if (!token) {
             alert("🚨 로그인 후 이용해주세요.");
-            window.location.href = "/login"; // ✅ 로그인 페이지로 이동 (필요하면 변경)
+            window.location.href = "/login";
             return;
         }
 
         fetch('/search/todo', {
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + token, // ✅ JWT 토큰 추가
+                'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
             }
         })
@@ -93,7 +86,6 @@
             .then(data => {
                 console.log("📌 불러온 Todo 데이터:", data);
                 const tableBody = document.getElementById('todo-table-body');
-
                 tableBody.innerHTML = ""; // 기존 목록 초기화
 
                 if (data.length === 0) {
@@ -114,26 +106,89 @@
                     <td>${new Date(todo.dueDate).toLocaleString()}</td>
                     <td>${todo.priority}</td>
                     <td class="text-end">
-                        <a href="/todo/${todo.id}/edit" class="btn btn-sm btn-outline-secondary">
+                        <button class="btn btn-sm btn-outline-secondary edit-btn" data-id="${todo.todo_id}" data-status="${todo.status}">
                             <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="/todo/${todo.id}/delete" class="btn btn-sm btn-outline-danger" onclick="return confirm('정말 삭제하시겠습니까?');">
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${todo.todo_id}">
                             <i class="fas fa-trash-alt"></i>
-                        </a>
+                        </button>
                     </td>
                 `;
 
                         tableBody.appendChild(row);
+                    });
+
+                    // ✅ Edit 버튼 이벤트 추가 (IN_PROGRESS → DONE)
+                    document.querySelectorAll('.edit-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const todoId = this.getAttribute('data-id');
+                            const status = this.getAttribute('data-status');
+
+                            if (status !== "IN_PROGRESS") {
+                                alert("🚨 진행 중인 Todo만 완료할 수 있습니다.");
+                                return;
+                            }
+
+                            fetch(`/todo/status/${todoId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token,
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("🚨 상태 변경 실패");
+                                    }
+                                    return response.json();
+                                })
+                                .then(() => {
+                                    alert("✅ Todo가 완료되었습니다!");
+                                    location.reload(); // ✅ 상태 변경 후 새로고침
+                                })
+                                .catch(error => {
+                                    alert("🚨 오류 발생: " + error.message);
+                                });
+                        });
+                    });
+
+                    // ✅ Delete 버튼 이벤트 추가
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const todoId = this.getAttribute('data-id');
+
+                            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+                            fetch(`/todo/delete/${todoId}`, {
+                                method: 'POST',
+                                headers: {
+                                    // 'Authorization': 'Bearer ' + token,
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("🚨 삭제 실패");
+                                    }
+                                    return response.text().then(() => {});
+                                })
+                                .then(() => {
+                                    alert("✅ Todo가 삭제되었습니다!");
+                                    location.reload();
+                                })
+                                .catch(error => {
+                                    alert("🚨 오류 발생: " + error.message);
+                                });
+                        });
                     });
                 }
             })
             .catch(error => {
                 console.error("🚨 Todo 데이터 불러오기 실패:", error);
                 alert("🚨 Todo 데이터를 불러올 수 없습니다.");
-                window.location.href = "/todo"; // ✅ 로그인 페이지로 이동
+                window.location.href = "/todo";
             });
     });
-
 </script>
 
 <!-- Bootstrap JS -->

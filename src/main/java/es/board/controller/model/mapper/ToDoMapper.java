@@ -34,7 +34,8 @@ public class ToDoMapper {
     public List<TodoRequest> EntityToTodo(List<Todo> todo) {
         return todo.stream()
                 .map(todo1 -> TodoRequest.builder()
-                        .userId(todo1.getUserId())
+                        .todo_id(todo1.getTodo_id())
+//                        .userId(todo1.getUserId())
                         .title(todo1.getTitle())
                         .description(todo1.getDescription())
                         .priority(todo1.getPriority())

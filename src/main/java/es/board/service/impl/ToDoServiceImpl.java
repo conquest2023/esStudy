@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.ToDoMapper;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
+import es.board.repository.entity.TodoStatus;
 import es.board.repository.entity.entityrepository.TodoRepository;
 import es.board.service.ToDoService;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,15 @@ public class ToDoServiceImpl implements ToDoService {
     public void saveUserToDo(String token, TodoResponse todoResponse) {
 
         todoRepository.save(toDoMapper.TodoToEntity(jwtTokenProvider.getUserId(token), todoResponse));
+    }
+
+    @Override
+    public void deleteToDo(Long id) {
+        todoRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateStatus(Long id) {
+        todoRepository.updateStatus(TodoStatus.DONE,id);
     }
 }

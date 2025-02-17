@@ -12,4 +12,9 @@ public interface ToDoService {
 
     void saveUserToDo(String token, TodoResponse todoResponse);
 
+    void  deleteToDo(Long id);
+
+
+    void updateStatus(Long id);
+
 }

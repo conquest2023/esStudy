@@ -72,5 +72,27 @@ public class CalendarController {
 //        return todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Todo Not Found"));
     }
 
+    @PostMapping("/todo/delete/{id}")
+    public void deleteTodo(@PathVariable Long id) {
+            toDoService.deleteToDo(id);
+        }
 
-}
+    @PutMapping("/todo/status/{id}")
+    public ResponseEntity<?> updateTodoStatus(
+            @PathVariable Long id,
+            @RequestHeader(value = "Authorization") String token) {
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        toDoService.updateStatus(id);
+        return ResponseEntity.ok(Map.of("message", "Todo 상태가 DONE으로 변경되었습니다."));
+        }
+    }
+
+
