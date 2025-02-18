@@ -90,6 +90,21 @@ public class AjaxController {
                 "message", "로그아웃되었습니다.",
                 "isLoggedIn", false));
     }
+
+    @GetMapping("/user/id")
+    public ResponseEntity<Map<String, String>> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        String userId = jwtTokenProvider.getUserId(token);
+        return ResponseEntity.ok(Map.of("userId", userId));
+    }
     @GetMapping("/info")
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
