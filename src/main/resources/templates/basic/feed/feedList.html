@@ -838,6 +838,9 @@
                     <a href="/search/view/feed/list/job">
                         <i class="fas fa-laptop-code"></i><span>&nbsp;IT취업정보</span>
                     </a>
+                    <a href="/todo">
+                        <i class="fas fa-chevron-down"></i><span>&nbsp;Todo리스트</span>
+                    </a>
                 </div>
             </div>
         </aside>
@@ -1631,6 +1634,22 @@
                 });
         });
     })}
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+
+        fetch('/todo/remaining', {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.remainingCount !== undefined) {
+                    document.getElementById("todo-alert").innerText = `📌 오늘 해야 할 일이 ${data.remainingCount}개 남았습니다!`;
+                }
+            })
+            .catch(error => console.error("🚨 Todo 개수 불러오기 실패:", error));
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
 
         const notificationIcon = document.getElementById("notificationIcon");
@@ -1670,6 +1689,13 @@
                 console.log("✅ comment-notification 이벤트 수신:", event.data);
                 addNotification(event.data);
             });
+            eventSource.addEventListener("todo-notification", (event) => {
+                console.log("✅ Todo 알림 수신:", event.data);
+                addNotification(event.data);
+
+                // 남은 Todo 개수 업데이트
+                pdateTodoAlert(event.data);
+                });
 
             // SSE 자동 재연결
             eventSource.onerror = function () {
@@ -1678,7 +1704,12 @@
                 setTimeout(connectSSE, 3000);
             };
         }
-
+    function updateTodoAlert(message) {
+        const todoAlert = document.getElementById("todo-alert");
+        if (todoAlert) {
+            todoAlert.innerText = message;
+        }
+    }
         // 새 알림 추가
     function addNotification(message) {
         const notificationList = document.getElementById("notificationList");

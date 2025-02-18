@@ -16,6 +16,7 @@
         .badge-status[data-status="TODO"] { background-color: #6c757d; }
         .badge-status[data-status="IN_PROGRESS"] { background-color: #0d6efd; }
         .badge-status[data-status="DONE"] { background-color: #198754; }
+        .kibana-chart { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -34,6 +35,9 @@
             <i class="fas fa-plus"></i> 새 Todo 추가
         </a>
     </div>
+    <div class="alert alert-success" id="completed-todo-count">
+        완료된 일: 0개
+    </div>
 
     <!-- Todo 목록 -->
     <div class="card shadow-sm">
@@ -45,7 +49,7 @@
                     <tr>
                         <th style="width: 40%;">제목</th>
                         <th>상태</th>
-                        <th>마감일</th>
+<!--                        <th>마감일</th>-->
                         <th>우선순위</th>
                         <th class="text-end">액션</th>
                     </tr>
@@ -58,9 +62,25 @@
         </div>
     </div>
 </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center shadow-lg p-4">
+                <h4 class="mb-3">📊 Todo 완료율 분석</h4>
+                <iframe class="rounded border"
+                        src="https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=84096079-8960-4e0d-a98c-6a5fd89ff035&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-1w,to:now))&_a=(filters:!(),linked:!f,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(emptyAsNull:!f),schema:metric,type:count),(enabled:!t,id:'2',params:(drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:createdAt,interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-15m,to:now),useNormalizedEsInterval:!t,used_interval:'30s'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:Count),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:Count),type:value))),title:'',type:line))"
+                        height="500" width="100%" frameborder="0">
+                </iframe>
+                <p class="mt-3 text-muted">최근 1주일 동안 완료된 Todo 추이</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- JavaScript -->
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
         const token = localStorage.getItem('token');
 
@@ -72,10 +92,7 @@
 
         fetch('/search/todo', {
             method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
         })
             .then(response => {
                 if (!response.ok) {
@@ -85,10 +102,14 @@
             })
             .then(data => {
                 console.log("📌 불러온 Todo 데이터:", data);
+
+                // ✅ 완료된 Todo 개수 업데이트
+                document.getElementById("completed-todo-count").innerText = `완료된  일: ${data.completedCount}개`;
+
                 const tableBody = document.getElementById('todo-table-body');
                 tableBody.innerHTML = ""; // 기존 목록 초기화
 
-                if (data.length === 0) {
+                if (data.todos.length === 0) {
                     tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="text-center text-muted py-4">
@@ -97,26 +118,38 @@
                 </tr>
             `;
                 } else {
-                    data.forEach(todo => {
+                    data.todos.forEach(todo => {
                         const row = document.createElement('tr');
-
                         row.innerHTML = `
-                    <td>${todo.title}</td>
-                    <td><span class="badge badge-status" data-status="${todo.status}">${todo.status}</span></td>
-                    <td>${new Date(todo.dueDate).toLocaleString()}</td>
-                    <td>${todo.priority}</td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-outline-secondary edit-btn" data-id="${todo.todo_id}" data-status="${todo.status}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${todo.todo_id}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                `;
+                <td>
+                    <a href="#" class="todo-title" data-id="${todo.todo_id}">${todo.title}</a>
+                </td>
+                <td><span class="badge badge-status" data-status="${todo.status}">${todo.status}</span></td>
+                <td>${todo.priority}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary edit-btn" data-id="${todo.todo_id}" data-status="${todo.status}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${todo.todo_id}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
 
                         tableBody.appendChild(row);
+                        const detailRow = document.createElement('tr');
+                        detailRow.classList.add('todo-details');
+                        detailRow.style.display = 'none';
+                        detailRow.innerHTML = `
+                <td colspan="5" class="p-3 bg-light">
+                    <strong>설명:</strong> ${todo.description || "설명 없음"}<br>
+                    <strong>우선순위:</strong> ${todo.priority}
+                </td>
+            `;
+
+                        tableBody.appendChild(detailRow);
                     });
+
 
                     // ✅ Edit 버튼 이벤트 추가 (IN_PROGRESS → DONE)
                     document.querySelectorAll('.edit-btn').forEach(button => {
@@ -151,6 +184,21 @@
                                 });
                         });
                     });
+                    document.querySelectorAll('.todo-title').forEach(title => {
+                        title.addEventListener('click', function (event) {
+                            event.preventDefault(); // 링크 이동 방지
+
+                            const todoId = this.dataset.id;
+                            const detailRow = this.parentElement.parentElement.nextElementSibling;
+
+                            // ✅ 이미 열려 있으면 닫기, 닫혀 있으면 열기
+                            if (detailRow.style.display === 'none') {
+                                detailRow.style.display = 'table-row';
+                            } else {
+                                detailRow.style.display = 'none';
+                            }
+                        });
+                    });
 
                     // ✅ Delete 버튼 이벤트 추가
                     document.querySelectorAll('.delete-btn').forEach(button => {
@@ -161,9 +209,8 @@
 
                             fetch(`/todo/delete/${todoId}`, {
                                 method: 'POST',
-                                headers: {
-                                    // 'Authorization': 'Bearer ' + token,
-                                    'Content-Type': 'application/json'
+                                headers: { 'Content-Type': 'application/json',
+                                           'Authorization': 'Bearer ' + token,
                                 }
                             })
                                 .then(response => {
@@ -189,6 +236,7 @@
                 window.location.href = "/todo";
             });
     });
+    //상세버튼
 </script>
 
 <!-- Bootstrap JS -->

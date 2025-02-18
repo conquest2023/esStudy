@@ -10,11 +10,16 @@ public interface ToDoService {
 
     List<TodoRequest> getUserToDo(String userId);
 
-    void saveUserToDo(String token, TodoResponse todoResponse);
-
-    void  deleteToDo(Long id);
+    void addToDo(String token, TodoResponse todoResponse);
 
 
-    void updateStatus(Long id);
+    Object getRemainingTodos(String userId);
+    void  deleteToDo(Long id,String token);
+
+    void updateTodoCache(String userId) ;
+
+        void completeTodo(String token, Long id);
+
+    Long getDoneTodo(String userId);
 
 }

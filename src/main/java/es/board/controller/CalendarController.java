@@ -55,8 +55,33 @@ public class CalendarController {
         }
 
         List<TodoRequest> todos = toDoService.getUserToDo(jwtTokenProvider.getUserId(token));
-        return ResponseEntity.ok(todos);
+        Long completedCount = toDoService.getDoneTodo(jwtTokenProvider.getUserId(token));
+
+        // ✅ JSON 형식으로 반환 (Todo 목록 + 완료 개수)
+        Map<String, Object> response = new HashMap<>();
+        response.put("todos", todos);
+        response.put("completedCount", completedCount);
+
+        return ResponseEntity.ok(response);
     }
+    @GetMapping("/todo/remaining")
+    @ResponseBody
+    public ResponseEntity<?> getRemainingTodos(@RequestHeader("Authorization") String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        String userId = jwtTokenProvider.getUserId(token);
+        Object remainingCount = toDoService.getRemainingTodos(userId);
+
+        return ResponseEntity.ok(Map.of("remainingCount", remainingCount));
+    }
+
 
 
     @PostMapping("/save/todo")
@@ -66,16 +91,21 @@ public class CalendarController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                toDoService.saveUserToDo(token,todoResponse);
+                toDoService.addToDo(token,todoResponse);
             }
         }
 //        return todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Todo Not Found"));
     }
 
     @PostMapping("/todo/delete/{id}")
-    public void deleteTodo(@PathVariable Long id) {
-            toDoService.deleteToDo(id);
+    public void deleteTodo(@PathVariable Long id,@RequestHeader(value = "Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                toDoService.deleteToDo(id,token);
+            }
         }
+    }
 
     @PutMapping("/todo/status/{id}")
     public ResponseEntity<?> updateTodoStatus(
@@ -90,7 +120,7 @@ public class CalendarController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        toDoService.updateStatus(id);
+        toDoService.completeTodo(token,id);
         return ResponseEntity.ok(Map.of("message", "Todo 상태가 DONE으로 변경되었습니다."));
         }
     }

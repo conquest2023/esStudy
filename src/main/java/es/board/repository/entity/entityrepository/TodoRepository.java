@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,5 +27,17 @@ public interface TodoRepository  extends JpaRepository<Todo,Long> {
     @Query("UPDATE Todo u SET u.status = :status WHERE u.todo_id = :todo_id")
     void updateStatus(@Param("status") TodoStatus status, @Param("todo_id") Long todo_id);
 
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.createdAt) = :today AND t.status = 'DONE'")
+    Long countByUserId(@Param("userId") String userId, @Param("today") LocalDate today);
 
+
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND DATE(t.createdAt) = :today")
+    List<Todo> findTodayTodos(@Param("userId") String userId, @Param("today") LocalDate today);
+
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS'")
+    Long countByUserIdAndStatus(@Param("userId") String userId);
+
+
+    @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'")
+    List<String> findAllUserIds();
 }

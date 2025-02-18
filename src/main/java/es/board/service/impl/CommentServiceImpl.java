@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -92,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
          String userId = postRepository.findByFeedUID(dto.getFeedUID());
          if (!userId.equals(dto.getUserId())) {
 
-            notificationService.sendNotification(userId,dto.getFeedUID(),dto.getUsername()+"님이"+"댓글이 작성하였습니다: " + dto.getContent());
+            notificationService.sendCommentNotification(userId,dto.getFeedUID(),dto.getUsername()+"님이"+"댓글이 작성하였습니다: " + dto.getContent());
         }
     }
 

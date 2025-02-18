@@ -38,13 +38,13 @@
       <textarea class="form-control" id="description" rows="3"></textarea>
     </div>
 
-    <div class="mb-3">
-      <label for="dueDate" class="form-label">마감일</label>
-      <input type="datetime-local" class="form-control" id="dueDate" required>
-    </div>
+<!--    <div class="mb-3">-->
+<!--      <label for="dueDate" class="form-label">마감일</label>-->
+<!--      <input type="datetime-local" class="form-control" id="dueDate" required>-->
+<!--    </div>-->
 
     <div class="mb-3">
-      <label for="priority" class="form-label">우선순위</label>
+<!--      <label for="priority" class="form-label">우선순위</label>-->
       <select class="form-select" id="priority">
         <option value="1">1 - 높음</option>
         <option value="2">2</option>
@@ -65,13 +65,13 @@
 
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
-    const dueDate = document.getElementById('dueDate').value;
+    // const dueDate = document.getElementById('dueDate').value;
     const priority = document.getElementById('priority').value;
 
     const todoData = {
       title: title,
       description: description,
-      dueDate: dueDate,
+      // dueDate: dueDate,
       priority: parseInt(priority),
       status: "IN_PROGRESS"
     };
