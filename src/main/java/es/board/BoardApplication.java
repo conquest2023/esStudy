@@ -10,10 +10,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "es.board.repository.entity.entityrepository") // JPA Repository로만 설정
 @EnableRedisRepositories(basePackages = "es.board.config.redis")
+@EnableScheduling
 public class BoardApplication {
 	private final ElasticsearchClient client;
 	@Autowired

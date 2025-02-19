@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -113,11 +114,11 @@ public class ToDoServiceImpl implements ToDoService {
         }
     }
 
-        @Scheduled(cron = "0 0 0 * * *")  // 매일 00시 실행
+        @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")  // 매일 00시 실행
         public void calculateAndStoreCompletionRates() {
             log.info("🚀 Todo 완료율 계산 시작...");
 
-            List<String> userIds = todoRepository.findAllUserIds(); // 모든 사용자 ID 조회
+            Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now()); // 모든 사용자 ID 조회
             List<Todo> completionRates = new ArrayList<>();
 
             for (String userId : userIds) {

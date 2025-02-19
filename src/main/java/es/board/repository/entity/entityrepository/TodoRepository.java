@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 
 @Repository
@@ -40,6 +41,12 @@ public interface TodoRepository  extends JpaRepository<Todo,Long> {
     Long countByUserIdAndStatusYetToDo(@Param("userId") String userId);
 
 
-    @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'")
+    @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'" )
     List<String> findAllUserIds();
+
+    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.createdAt) = :today")
+    List<String> findAllTodoUserTodayIds(LocalDate today);
+
+    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.createdAt) = :today")
+    Set<String> findSETAllTodoUserTodayIds(LocalDate today);
 }
