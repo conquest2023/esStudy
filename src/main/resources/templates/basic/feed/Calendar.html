@@ -122,7 +122,16 @@
                 <input type="text" id="eventTitle" class="form-control">
                 <label class="mt-2">날짜</label>
                 <input type="date" id="eventEndDate" class="form-control">
-
+                <div class="mb-3">
+                    <label for="eventCategory" class="form-label">카테고리</label>
+                    <select class="form-select" id="eventCategory">
+                        <option value="운동">🏋️ 운동</option>
+                        <option value="약속">📅 약속</option>
+                        <option value="공부">📖 공부</option>
+                        <option value="데이트">💑 데이트</option>
+                        <option value="기타" selected>📝 기타</option>
+                    </select>
+                </div>
                 <label class="mt-2">내용</label>
                 <textarea id="eventDescription" class="form-control"></textarea>
             </div>
@@ -145,6 +154,7 @@
             <div class="modal-body">
                 <p><strong>제목:</strong> <span id="modalEventTitle"></span></p>
                 <p><strong>날짜:</strong> <span id="modalEventDate"></span></p>
+                <p><strong>카테고리:</strong> <span id="modalEventCategory"></span></p>
                 <p><strong>내용:</strong> <span id="modalEventDescription"></span></p>
             </div>
             <div class="modal-footer">
@@ -197,9 +207,6 @@
                     }).then(response => response.json())
                 ])
                     .then(([todoData, scheduleData]) => {
-                        console.log("📌 불러온 Todo 데이터:", todoData);
-                        console.log("📌 불러온 일정 데이터:", scheduleData);
-
                         let todoEvents = [];
                         let scheduleEvents = [];
 
@@ -212,6 +219,7 @@
                                     title: `[TODO] ${todo.title}`,
                                     description: todo.description,
                                     start: todo.dueDate,
+                                    category:todo.category,
                                     extendedProps: { status: todo.status },
                                     backgroundColor: backgroundColor,
                                     borderColor: borderColor,
@@ -229,6 +237,7 @@
                                     // description: schedule.description,
                                     start: schedule.endDatetime, // ✅ 종료 시간을 시작으로 설정 (마감 일정 기준)
                                     allDay: true, // ✅ 하루 종일 일정 처리
+                                    category:schedule.category,
                                     extendedProps: {
                                         location: schedule.location,
                                         description: schedule.description
@@ -254,6 +263,7 @@
                 selectedEventId = info.event.id;
                 document.getElementById("modalEventTitle").innerText = info.event.title;
                 document.getElementById("modalEventDate").innerText = info.event.start.toLocaleDateString();
+                document.getElementById("modalEventCategory").innerText = info.event.extendedProps.category || "미지정";
 
                 // ✅ description 가져올 때 extendedProps에서 불러오기
                 document.getElementById("modalEventDescription").innerText = info.event.extendedProps.description || "없음";
@@ -284,6 +294,7 @@
                 location: document.getElementById('eventLocation')?.value || "",
                 endDatetime: document.getElementById('eventEndDate').value ?
                     document.getElementById('eventEndDate').value + "T23:59:59" : null, // 종료 날짜 (없으면 null)
+                category: document.getElementById('eventCategory')?.value || "" ,
                 description: document.getElementById('eventDescription')?.value || ""
             };
 

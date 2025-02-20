@@ -42,6 +42,17 @@
 <!--      <label for="dueDate" class="form-label">마감일</label>-->
 <!--      <input type="datetime-local" class="form-control" id="dueDate" required>-->
 <!--    </div>-->
+    <div class="mb-3">
+      <label for="category" class="form-label">카테고리</label>
+      <select class="form-select" id="category">
+        <option value="운동">🏋️ 운동</option>
+        <option value="약속">📅 약속</option>
+        <option value="공부">📖 공부</option>
+        <option value="데이트">💑 데이트</option>
+        <option value="기타" selected>📝 기타</option>
+      </select>
+    </div>
+
 
     <div class="mb-3">
 <!--      <label for="priority" class="form-label">우선순위</label>-->
@@ -65,14 +76,14 @@
 
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
-    // const dueDate = document.getElementById('dueDate').value;
     const priority = document.getElementById('priority').value;
+    const category = document.getElementById('category').value; // ✅ 카테고리 추가
 
     const todoData = {
       title: title,
       description: description,
-      // dueDate: dueDate,
       priority: parseInt(priority),
+      category: category, // ✅ 백엔드로 전송
       status: "IN_PROGRESS"
     };
 

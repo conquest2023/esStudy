@@ -25,6 +25,8 @@ public class TodoResponse {
 
     private String description;
 
+    private  String category;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date dueDate;         // 마감일
 
