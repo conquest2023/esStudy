@@ -43,9 +43,16 @@ public class ToDoServiceImpl implements ToDoService {
 
     private final String REDIS_TODO_COUNT_KEY = "todo_count:";
 
+
+
     @Override
     public List<TodoRequest> getUserToDo(String userId) {
         return toDoMapper.EntityToTodo(todoRepository.findTodayTodos(userId,LocalDate.now()));
+    }
+
+    @Override
+    public List<TodoRequest> getUserAllToDo(String userId) {
+        return  toDoMapper.EntityToTodo(todoRepository.findAllByTodos(userId));
     }
 
     @Override

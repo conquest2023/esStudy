@@ -10,6 +10,8 @@ public interface ToDoService {
 
     List<TodoRequest> getUserToDo(String userId);
 
+    List<TodoRequest> getUserAllToDo(String userId);
+
     void addToDo(String token, TodoResponse todoResponse);
 
 

@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class CalendarController {
+public class ToDoController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -56,11 +56,33 @@ public class CalendarController {
 
         List<TodoRequest> todos = toDoService.getUserToDo(jwtTokenProvider.getUserId(token));
         Long completedCount = toDoService.getDoneTodo(jwtTokenProvider.getUserId(token));
+        log.info("asdas");
 
         // ✅ JSON 형식으로 반환 (Todo 목록 + 완료 개수)
         Map<String, Object> response = new HashMap<>();
         response.put("todos", todos);
         response.put("completedCount", completedCount);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search/alltodo")
+    @ResponseBody
+    public ResponseEntity<?> getTodoAll(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        List<TodoRequest> todos = toDoService.getUserAllToDo(jwtTokenProvider.getUserId(token));
+
+        // ✅ JSON 형식으로 반환 (Todo 목록 + 완료 개수)
+        Map<String, Object> response = new HashMap<>();
+        response.put("todos", todos);
 
         return ResponseEntity.ok(response);
     }
@@ -75,7 +97,6 @@ public class CalendarController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-
         String userId = jwtTokenProvider.getUserId(token);
         Object remainingCount = toDoService.getRemainingTodos(userId);
 

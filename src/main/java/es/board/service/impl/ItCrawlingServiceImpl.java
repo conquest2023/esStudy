@@ -195,8 +195,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     .timeout(5000)
                     .get();
             Elements jobCards= doc.select("div.JobList_JobList__contentWrapper__3wwft");
-            log.info("Found job cards: " + jobCards.size());
-            log.info(jobCards.toString());
+            log.info(doc.data());
             for (Element jobElement : jobCards) {
                 Element jobLink = jobElement.selectFirst("a[data-attribute-id=position__click]");
                 if (jobLink != null) {

@@ -2,9 +2,11 @@ package es.board.controller.model.mapper;
 
 
 import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.ScheduleDTO;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.repository.document.Board;
+import es.board.repository.entity.Schedule;
 import es.board.repository.entity.Todo;
 import es.board.repository.entity.TodoStatus;
 import lombok.Data;
@@ -43,5 +45,34 @@ public class ToDoMapper {
                         .dueDate(todo1.getDueDate())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+
+    public  List<ScheduleDTO> fromSchedule(List<Schedule> schedule) {
+        return schedule.stream()
+                .map(schedule1 -> ScheduleDTO.builder()
+                        .scheduleId(schedule1.getScheduleId())
+                        .userId(schedule1.getUserId())
+                        .title(schedule1.getTitle())
+                        .description(schedule1.getDescription())
+                        .allDay(schedule1.getAllDay())
+                        .location(schedule1.getLocation())
+                        .startDatetime(schedule1.getStartDatetime())
+                        .endDatetime(schedule1.getEndDatetime())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // DTO -> 엔터티 변환 메서드
+    public Schedule toSchedule(String userId,ScheduleDTO scheduleDTO) {
+        return Schedule.builder()
+                .userId(userId)
+                .title(scheduleDTO.getTitle())
+                .startDatetime(LocalDateTime.now())
+                .endDatetime(scheduleDTO.getEndDatetime())
+                .allDay(scheduleDTO.getAllDay())
+                .location(scheduleDTO.getLocation())
+                .description(scheduleDTO.getDescription())
+                .build();
     }
 }

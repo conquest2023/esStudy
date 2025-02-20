@@ -18,7 +18,7 @@ import java.util.List;
 public class CrawlingController {
 
 
-    private  final ItCrawlingService crawlingService;
+    private final ItCrawlingService crawlingService;
 
     @GetMapping("/jumpit")
     public ResponseEntity<List<Map<String, Object>>> getJumPitList() {
@@ -39,16 +39,17 @@ public class CrawlingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-}
-//    @GetMapping("/jobplanet")
+
+    //    @GetMapping("/jobplanet")
 //    public List<JobListing> getJobPlanetList() {
 //        return crawlingService.jobPlanetList();
 //    }
 //
 //
-//    @GetMapping("/wanted")
-//    public List<WantedJobData> getWantedList() {
-//
-//        return crawlingService.wantedList();
-//    }
+    @GetMapping("/wanted")
+    public List<WantedJobData> getWantedList() {
+
+        return crawlingService.wantedList();
+    }
+}
 
