@@ -28,6 +28,11 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     @Override
+    public void deleteSchedule(Long id, String token) {
+        scheduleRepository.deleteById(id);
+    }
+
+    @Override
     public List<ScheduleDTO> getSchedule(String token) {
         return toDoMapper.fromSchedule(scheduleRepository.findAllBySchedule(jwtTokenProvider.getUserId(token)));
     }

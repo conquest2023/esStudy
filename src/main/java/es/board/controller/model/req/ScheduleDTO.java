@@ -21,6 +21,8 @@ public class ScheduleDTO {
     private Boolean allDay;
     private String location;
 
+    private  String category;
+
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

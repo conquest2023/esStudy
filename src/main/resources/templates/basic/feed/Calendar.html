@@ -89,6 +89,16 @@
         </div>
     </div>
 </nav>
+<!--<div class="container mt-4">-->
+<!--    <h3>📋 일정 목록</h3>-->
+<!--    <div id="scheduleListContainer" class="d-none">-->
+<!--        <div id="scheduleList" class="list-group">-->
+<!--            &lt;!&ndash; 동적으로 일정 추가 &ndash;&gt;-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
 
 <div class="container py-4">
     <h2>📆 일정 관리 캘린더</h2>
@@ -113,7 +123,7 @@
                 <label class="mt-2">날짜</label>
                 <input type="date" id="eventEndDate" class="form-control">
 
-                <label class="mt-2">설명</label>
+                <label class="mt-2">내용</label>
                 <textarea id="eventDescription" class="form-control"></textarea>
             </div>
             <div class="modal-footer">
@@ -135,6 +145,7 @@
             <div class="modal-body">
                 <p><strong>제목:</strong> <span id="modalEventTitle"></span></p>
                 <p><strong>날짜:</strong> <span id="modalEventDate"></span></p>
+                <p><strong>내용:</strong> <span id="modalEventDescription"></span></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="deleteEventBtn">삭제</button>
@@ -146,19 +157,24 @@
 
 <!-- FullCalendar 스크립트 -->
 <script>
-    // ✅ Todo 상태에 따른 색상 설정 함수
-    document.addEventListener('DOMContentLoaded', function () {
-        const token = localStorage.getItem("token");
+    var calendar;
 
+    // ✅ Todo 상태에 따른 색상 설정 함수
+    document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
         if (!token) {
             alert("🚨 로그인 후 이용해주세요.");
             return;
         }
 
-        var calendarEl = document.getElementById('calendar');
-        var selectedEventId = null; // 선택된 일정 ID
+        var calendarEl = document.getElementById("calendar");
+        var scheduleListContainer = document.getElementById("scheduleListContainer");
+        var scheduleListEl = document.getElementById("scheduleList");
+        var selectedFilter = "all"; // 기본값: 전체 보기
+        var isListVisible = false; // 🔹 리스트가 보이는지 여부
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ko',
             height: 700,
@@ -194,6 +210,7 @@
                                 return {
                                     id: todo.todo_id,
                                     title: `[TODO] ${todo.title}`,
+                                    description: todo.description,
                                     start: todo.dueDate,
                                     extendedProps: { status: todo.status },
                                     backgroundColor: backgroundColor,
@@ -209,6 +226,7 @@
                                 return {
                                     id: schedule.scheduleId,
                                     title: `[캘린더] ${schedule.title}`,
+                                    // description: schedule.description,
                                     start: schedule.endDatetime, // ✅ 종료 시간을 시작으로 설정 (마감 일정 기준)
                                     allDay: true, // ✅ 하루 종일 일정 처리
                                     extendedProps: {
@@ -236,8 +254,10 @@
                 selectedEventId = info.event.id;
                 document.getElementById("modalEventTitle").innerText = info.event.title;
                 document.getElementById("modalEventDate").innerText = info.event.start.toLocaleDateString();
-                // document.getElementById("modalEventLocation").innerText = info.event.extendedProps.location || "없음";
-                // document.getElementById("modalEventDescription").innerText = info.event.extendedProps.description || "없음";
+
+                // ✅ description 가져올 때 extendedProps에서 불러오기
+                document.getElementById("modalEventDescription").innerText = info.event.extendedProps.description || "없음";
+                document.getElementById("deleteEventBtn").setAttribute("data-event-id", info.event.id);
                 new bootstrap.Modal(document.getElementById('eventDetailModal')).show();
             },
 
@@ -286,6 +306,74 @@
         });
 
     });
+        document.querySelectorAll(".filter-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+
+                selectedFilter = this.getAttribute("data-filter");
+                calendar.refetchEvents(); // 🔄 필터 적용 후 다시 불러오기
+
+                // 🔹 리스트 UI 토글 기능
+                if (isListVisible && selectedFilter === this.getAttribute("data-filter")) {
+                    scheduleListContainer.classList.add("d-none"); // 리스트 숨김
+                    isListVisible = false;
+                } else {
+                    scheduleListContainer.classList.remove("d-none"); // 리스트 표시
+                    isListVisible = true;
+                }
+            });
+        });
+        function applyFilter(events, filter) {
+            if (filter === "all") return events;
+            return events.filter(event => {
+                if (filter === "completed") return event.extendedProps?.status === "DONE";
+                if (filter === "pending") return event.extendedProps?.status === "IN_PROGRESS";
+                return true;
+            });
+        }
+
+    document.getElementById("deleteEventBtn").addEventListener("click", function () {
+        const eventId = this.getAttribute("data-event-id");
+        const token = localStorage.getItem("token");
+
+        if (!eventId || !token) {
+            alert("❌ 삭제할 이벤트 ID 또는 인증 토큰이 없습니다.");
+            return;
+        }
+
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        fetch(`/schedule/delete/${eventId}`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("🚨 일정 삭제 실패!");
+                }
+                return response.text().then(() => {});
+            })
+            .then(() => {
+                alert("✅ 일정이 삭제되었습니다!");
+
+                // ✅ 삭제할 이벤트 찾아서 제거
+                let eventToRemove = calendar.getEventById(eventId);
+                if (eventToRemove) {
+                    eventToRemove.remove();  // ✅ 삭제 반영
+                }
+                calendar.refetchEvents();
+                // ✅ 모달 닫기
+                bootstrap.Modal.getInstance(document.getElementById('eventDetailModal')).hide();
+            })
+            .catch(error => {
+                console.error("❌ 일정 삭제 중 오류 발생:", error);
+                alert("🚨 삭제 중 오류가 발생했습니다.");
+            });
+    });
 
     // ✅ 📌 상태별 색상 반환 함수 (Todo의 상태에 따라 색상 변경)
     function getStatusColor(status) {
@@ -300,12 +388,6 @@
                 return { backgroundColor: "#adb5bd", borderColor: "#868e96" }; // 기본 회색
         }
     }
-
-
-
-
-
-
 </script>
 
 </body>

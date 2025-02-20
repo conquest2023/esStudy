@@ -73,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService {
         sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
     }
 
-    // ✅ SSE 알림 전송 (공통 메서드)
+    // SSE 알림 전송 (공통 메서드)
     private void sendNotification(String userId, String redisKeyPrefix, String eventType, String message) {
         String redisKey = redisKeyPrefix + userId;
 

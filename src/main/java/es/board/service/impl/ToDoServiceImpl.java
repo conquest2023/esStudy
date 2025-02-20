@@ -68,17 +68,15 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     public Object getRemainingTodos(String userId) {
         String redisKey = REDIS_TODO_COUNT_KEY + userId;
-
         Object cachedCount = redisTemplate.opsForValue().get(redisKey);
         if (cachedCount != null) {
             return cachedCount;
         }
-        Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId);
-        redisTemplate.opsForValue().set(redisKey, remainingCount, Duration.ofSeconds(60));
-
-        notificationService.sendTodoNotification(userId, " 남은 Todo: " + remainingCount + "개");
-
-
+        Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
+        if(remainingCount>0) {
+            redisTemplate.opsForValue().set(redisKey, remainingCount, Duration.ofSeconds(60));
+            notificationService.sendTodoNotification(userId, " 남은 Todo: " + remainingCount + "개");
+        }
         return remainingCount;
     }
 
@@ -92,13 +90,12 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     public void updateTodoCache(String userId) {
         String redisKey = REDIS_TODO_COUNT_KEY + userId;
-        Long newCount = todoRepository.countByUserIdAndStatusYetToDo(userId);
+        Long newCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
         redisTemplate.opsForValue().set(redisKey, newCount, Duration.ofSeconds(60));
     }
 
     @Override
     public void completeTodo(String token, Long id) {
-
         todoRepository.updateStatus(TodoStatus.DONE,id);
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().decrement(redisKey);
@@ -114,9 +111,10 @@ public class ToDoServiceImpl implements ToDoService {
     }
     @Scheduled(fixedRate = 600000) // 10분마다 실행
     public void syncRedisWithDatabase() {
-        List<String> allUserIds = todoRepository.findAllUserIds();
+        Set<String> allUserIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now());
+        log.info(allUserIds.toString());
         for (String userId : allUserIds) {
-            Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId);
+            Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
             redisTemplate.opsForValue().set(REDIS_TODO_COUNT_KEY + userId, remainingCount, Duration.ofSeconds(60));
         }
     }

@@ -27,20 +27,22 @@ public class Schedule {
     private String title; // 일정 제목
 
     @Column(nullable = false)
-    private LocalDateTime startDatetime; // 시작 시간
+    private LocalDateTime startDatetime;
 
-    private LocalDateTime endDatetime; // 종료 시간 (옵션)
+    private LocalDateTime endDatetime;
 
     @Column(nullable = false)
     private Boolean allDay; // 하루 종일 여부
 
-    private String location; // 장소 (옵션)
+    private String location;
+
+    private  String category;
 
     @Column(columnDefinition = "TEXT")
-    private String description; // 설명 (옵션)
+    private String description;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt; // 생성일
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt; // 수정일

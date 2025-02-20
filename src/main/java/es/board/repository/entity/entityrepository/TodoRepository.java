@@ -40,8 +40,8 @@ public interface TodoRepository  extends JpaRepository<Todo,Long> {
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId")
     List<Todo> findAllByTodos(@Param("userId") String userId);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS'")
-    Long countByUserIdAndStatusYetToDo(@Param("userId") String userId);
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS' AND DATE(t.createdAt) = :today")
+    Long countByUserIdAndStatusYetToDo(@Param("userId") String userId, LocalDate today);
 
 
     @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'" )

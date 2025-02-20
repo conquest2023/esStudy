@@ -32,6 +32,8 @@ public class TodoRequest {
     @Enumerated(EnumType.STRING)
     private TodoStatus status;    // 예: TODO, IN_PROGRESS, DONE
 
+    private  String category;
+
     private Integer priority;     // 우선순위 (1 높음, 5 낮음 등)
 
     private Date createdAt;

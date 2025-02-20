@@ -54,4 +54,14 @@ public class CalenderController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/schedule/delete/{id}")
+    public void deleteTodo(@PathVariable Long id,@RequestHeader(value = "Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                calenderService.deleteSchedule(id,token);
+            }
+        }
+    }
 }
