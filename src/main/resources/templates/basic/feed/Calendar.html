@@ -73,6 +73,41 @@
         .filter-btn {
             margin: 5px;
         }
+        /* 검색 UI 정리 */
+        #searchType,
+        #sortType {
+            min-width: 120px; /* 선택창 크기 조절 */
+        }
+
+        #searchInput {
+            max-width: 250px; /* 검색 입력창 크기 조절 */
+        }
+
+        /* 버튼 스타일 개선 */
+        #searchBtn {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            transition: 0.2s;
+        }
+
+        #searchBtn:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        #resetBtn {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            transition: 0.2s;
+        }
+
+        #resetBtn:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
     </style>
 </head>
 <body>
@@ -85,10 +120,21 @@
             <button class="btn btn-primary filter-btn" data-filter="all">📌 전체 보기</button>
             <button class="btn btn-success filter-btn" data-filter="completed">✅ 완료된 일정</button>
             <button class="btn btn-warning filter-btn" data-filter="pending">⏳ 미완료 일정</button>
+            <button id="toggleGraphBtn" class="btn btn-info">📊 통계 보기</button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">+ 일정 추가</button>
         </div>
+
     </div>
 </nav>
+<div id="kibanaGraphContainer" style="display: none; text-align: center;">
+    <iframe id="kibana-chart" height="600" width="100%"
+            style="max-width: 800px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+    </iframe>
+    <p class="mt-3 text-muted fst-italic">📅 최근 한달동안 활동 기록</p>
+
+</div>
+
+
 <!--<div class="container mt-4">-->
 <!--    <h3>📋 일정 목록</h3>-->
 <!--    <div id="scheduleListContainer" class="d-none">-->
@@ -102,7 +148,27 @@
 
 <div class="container py-4">
     <h2>📆 일정 관리 캘린더</h2>
+    <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+        <select id="searchType" class="form-select w-auto">
+            <option value="title">제목</option>
+            <option value="description">내용</option>
+            <option value="category">카테고리</option>
+        </select>
 
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="검색어 입력">
+
+<!--        <select id="sortType" class="form-select w-auto">-->
+<!--            <option value="soonest">빠른 일정 순</option>-->
+<!--            <option value="latest">늦은 일정 순</option>-->
+<!--        </select>-->
+
+        <button class="btn btn-primary d-flex align-items-center" id="searchBtn">
+            🔍 검색
+        </button>
+        <button class="btn btn-outline-secondary d-flex align-items-center" id="resetBtn">
+            🔄 초기화
+        </button>
+    </div>
     <!-- 캘린더 컨테이너 -->
     <div id="calendar-container">
         <div id="calendar"></div>
@@ -165,10 +231,166 @@
         </div>
     </div>
 </div>
+<!--<iframe id="kibana-chart" width="800" height="600"></iframe>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rison/0.1.1/rison.min.js"></script>
 
 <!-- FullCalendar 스크립트 -->
 <script>
+
     var calendar;
+    document.addEventListener("DOMContentLoaded", async function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        try {
+            // ✅ 서버에서 userId 가져오기
+            const response = await fetch("/user/id", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("유저 정보를 가져올 수 없습니다.");
+            }
+
+            const data = await response.json();
+            const userId = data.userId;
+            if (!userId) {
+                alert("유저 정보를 불러올 수 없습니다.");
+                return;
+            }
+
+            // ✅ Kibana의 Global Time 필터 설정
+            const gObj = {
+                filters: [],
+                refreshInterval: { pause: true, value: 0 },
+                time: { from: "now-7d", to: "now" }  // 최근 7일간 데이터
+            };
+
+            // ✅ Kibana의 시각화 설정
+            const aObj = {
+                dataView: "9766ed94-3782-4050-b2d1-9d1f6f418b76", // 자신의 Kibana Index Pattern ID 사용
+                filters: [
+                    {
+                        "$state": { store: "appState" },
+                        meta: {
+                            alias: null,
+                            disabled: false,
+                            index: "9766ed94-3782-4050-b2d1-9d1f6f418b76",
+                            key: "userId.keyword",
+                            negate: false,
+                            type: "phrase",
+                            value: userId
+                        },
+                        query: {
+                            match_phrase: {
+                                "userId.keyword": userId
+                            }
+                        }
+                    }
+                ],
+                query: {
+                    language: "kuery",
+                    query: `userId.keyword : "${userId}"`
+                },
+                linked: false,
+                uiState: {},
+                vis: {
+                    aggs: [
+                        {
+                            enabled: true,
+                            id: "1",
+                            params: {},
+                            schema: "metric",
+                            type: "count"
+                        },
+                        {
+                            enabled: true,
+                            id: "2",
+                            params: {
+                                field: "category",
+                                order: "desc",
+                                orderBy: "1",
+                                size: 10
+                            },
+                            schema: "segment",
+                            type: "terms"
+                        }
+                    ],
+                    params: {
+                        addLegend: true,
+                        addTooltip: true,
+                        categoryAxes: [
+                            {
+                                id: "CategoryAxis-1",
+                                labels: { filter: true, show: true, truncate: 100 },
+                                position: "left",
+                                scale: { type: "linear" },
+                                show: true,
+                                title: { text: "카테고리" }  // ✅ title 추가
+                            }
+                        ],
+                        grid: { categoryLines: true },
+                        legendPosition: "right",
+                        maxLegendLines: 5,
+                        palette: { name: "default", type: "palette" },
+                        seriesParams: [
+                            {
+                                data: { id: "1", label: "Count" },
+                                drawLinesBetweenPoints: true,
+                                interpolate: "linear",
+                                lineWidth: 2,
+                                mode: "normal",
+                                show: true,
+                                showCircles: false,
+                                type: "histogram",
+                                valueAxis: "ValueAxis-1"
+                            }
+                        ],
+                        truncateLegend: true,
+                        type: "horizontal_bar",
+                        valueAxes: [
+                            {
+                                id: "ValueAxis-1",
+                                labels: { filter: true, rotate: 0, show: true, truncate: 100 },
+                                name: "LeftAxis-1",
+                                position: "bottom",
+                                scale: { type: "linear" },
+                                show: true,
+                                title: { text: "카테고리 개수" }  // ✅ 타이틀 명시적으로 설정
+                            }
+                        ]
+                    },
+                    title: "사용자별 카테고리 활동",
+                    type: "horizontal_bar"
+                }
+            };
+
+            // ✅ Rison 인코딩
+            const gRison = rison.encode(gObj);
+            const aRison = rison.encode(aObj);
+
+            // ✅ 최종 Kibana URL 생성
+            const kibanaUrl = `https://kibana.montkim.com/app/visualize#/create?embed=true&type=horizontal_bar&indexPattern=9766ed94-3782-4050-b2d1-9d1f6f418b76&_g=${encodeURIComponent(gRison)}&_a=${encodeURIComponent(aRison)}`.trim();
+
+            // ✅ iframe에 적용
+            const iframe = document.getElementById("kibana-chart");
+            if (iframe) {
+                iframe.src = kibanaUrl;
+            }
+
+        } catch (error) {
+            console.error("🚨 유저 정보를 가져오는 중 오류 발생:", error);
+            alert("유저 정보를 불러올 수 없습니다.");
+        }
+    });
+
     function formatToISO(dateString) {
         return dateString.includes(" ") ? dateString.replace(" ", "T") : dateString;
     }
@@ -452,6 +674,81 @@
                 alert("🚨 삭제 중 오류가 발생했습니다.");
             });
     });
+
+    function loadEvents(query, searchType, successCallback, failureCallback) {
+        const token = localStorage.getItem("token");
+
+        fetch(`/elastic/schedule?query=${encodeURIComponent(query)}&type=${searchType}`, {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("📌 검색된 일정 데이터:", data);
+                // console.log(query,searchType,sortType)
+                let scheduleEvents = [];
+
+                if (data.todos && Array.isArray(data.todos)) {
+                    scheduleEvents = data.todos.map(schedule => ({
+                        id: schedule.scheduleId,
+                        title: `[📅] ${schedule.title}`,
+                        description: schedule.description,
+                        start: schedule.startDatetime,
+                        end: schedule.endDatetime,
+                        allDay: schedule.allDay,
+                        extendedProps: {
+                            location: schedule.location,
+                            category: schedule.category
+                        },
+                        backgroundColor: query ? "#ffc107" : "#0d6efd", // ✅ 검색된 이벤트는 노란색
+                        borderColor: query ? "#ff9800" : "#0a58ca",
+                        textColor: "#000000"
+                    }));
+                }
+
+                successCallback(scheduleEvents);
+            })
+            .catch(error => {
+                console.error("🚨 일정 검색 실패:", error);
+                failureCallback(error);
+            });
+    }
+
+    // ✅ 검색 버튼 클릭 시 AJAX 요청
+    document.getElementById('searchBtn').addEventListener('click', function () {
+        const searchQuery = document.getElementById('searchInput').value.trim();
+        const searchType = document.getElementById('searchType').value;
+        // const sortType = document.getElementById('sortType').value;
+
+        if (!searchQuery) {
+            alert("🔎 검색어를 입력해주세요!");
+            return;
+        }
+
+        calendar.removeAllEvents();  // ✅ 기존 이벤트 제거
+        calendar.refetchEvents();   // ✅ 새로운 검색 결과 반영
+        loadEvents(searchQuery, searchType, events => calendar.addEventSource(events), error => console.error(error));
+    });
+
+    // ✅ 초기화 버튼 클릭 시 전체 일정 다시 로드
+    document.getElementById('resetBtn').addEventListener('click', function () {
+        document.getElementById('searchInput').value = "";
+        document.getElementById('searchType').value = "title";
+        // document.getElementById('sortType').value = "soonest";
+        calendar.removeAllEvents();
+        calendar.refetchEvents();
+        loadEvents("", "title", "soonest", events => calendar.addEventSource(events), error => console.error(error));
+    });
+    document.getElementById("toggleGraphBtn").addEventListener("click", function() {
+        const graphContainer = document.getElementById("kibanaGraphContainer");
+        if (graphContainer.style.display === "none") {
+            graphContainer.style.display = "block";
+        } else {
+            graphContainer.style.display = "none";
+        }
+    });
+</script>
+
 
 
 </script>

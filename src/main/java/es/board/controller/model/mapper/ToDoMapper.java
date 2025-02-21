@@ -1,11 +1,9 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.ScheduleDTO;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
-import es.board.repository.document.Board;
 import es.board.repository.entity.Schedule;
 import es.board.repository.entity.Todo;
 import es.board.repository.entity.TodoStatus;
@@ -68,7 +66,7 @@ public class ToDoMapper {
     }
 
     // DTO -> 엔터티 변환 메서드
-    public Schedule toSchedule(String userId,ScheduleDTO scheduleDTO) {
+    public Schedule toScheduleEntity(String userId, ScheduleDTO scheduleDTO) {
         return Schedule.builder()
                 .userId(userId)
                 .title(scheduleDTO.getTitle())
@@ -79,5 +77,36 @@ public class ToDoMapper {
                 .location(scheduleDTO.getLocation())
                 .description(scheduleDTO.getDescription())
                 .build();
+    }
+
+
+    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleDTO scheduleDTO,Long id) {
+        return es.board.repository.document.Schedule.builder()
+                .scheduleId(id)
+                .userId(userId)
+                .title(scheduleDTO.getTitle())
+                .startDatetime(LocalDateTime.now())
+                .category(scheduleDTO.getCategory())
+                .endDatetime(scheduleDTO.getEndDatetime())
+                .allDay(scheduleDTO.getAllDay())
+                .location(scheduleDTO.getLocation())
+                .description(scheduleDTO.getDescription())
+                .build();
+    }
+
+
+    public  List<ScheduleDTO> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
+        return schedule.stream()
+                .map(schedule1 -> ScheduleDTO.builder()
+                        .scheduleId(schedule1.getScheduleId())
+                        .userId(schedule1.getUserId())
+                        .title(schedule1.getTitle())
+                        .category(schedule1.getCategory())
+                        .description(schedule1.getDescription())
+                        .location(schedule1.getLocation())
+                        .startDatetime(schedule1.getStartDatetime())
+                        .endDatetime(schedule1.getEndDatetime())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

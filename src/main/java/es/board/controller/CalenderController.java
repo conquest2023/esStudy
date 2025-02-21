@@ -54,7 +54,36 @@ public class CalenderController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/elastic/schedule")
+    @ResponseBody
+    public ResponseEntity<?> searchSchedule(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "type", required = false) String searchType,
+            @RequestParam(value = "sort", required = false) String sortType) {
+        log.info(query);
+        log.info(searchType);
+        log.info(sortType);
 
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+
+        // ✅ 검색 수행
+        List<ScheduleDTO> scheduleDTOS = calenderService.searchSchedule(token, query, searchType, sortType);
+
+        // ✅ 응답 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("schedules", scheduleDTOS);  // ✅ "todos" → "schedules" 변경
+
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("/schedule/delete/{id}")
     public void deleteTodo(@PathVariable Long id,@RequestHeader(value = "Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {

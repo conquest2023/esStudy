@@ -93,14 +93,13 @@ public class FeedServiceImpl implements FeedService {
 //    }
 
     @Override
-    public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
-        // ✅ MySQL에 동기 저장
-            int savedPostId = savePost(feedSaveDTO);
-            esSettingId(feedSaveDTO, savedPostId);
-
-            asyncService.savePostAsync(feedSaveDTO);
-
+    public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
+        return CompletableFuture.supplyAsync(() -> {
+            int savedPostId = savePost(feedSaveDTO); // ✅ MySQL 저장 (동기적 수행)
+            esSettingId(feedSaveDTO, savedPostId);  // ✅ Elasticsearch ID 세팅
+            asyncService.savePostAsync(feedSaveDTO); // ✅ 비동기적으로 ES 저장 실행
             return feedSaveDTO;
+        });
     }
 
     @Override

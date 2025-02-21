@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface FeedService {
@@ -17,7 +18,7 @@ public interface FeedService {
     List<FeedRequest> getUserRangeTimeFeed(String userId);
     List<FeedRequest> getFeedUserList(String userId);
     Integer getUserLikeCount(String userId);
-    FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO);
+    CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO);
 
     List<FeedRequest> getCategoryFeed(String category);
 
