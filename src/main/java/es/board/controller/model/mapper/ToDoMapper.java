@@ -45,6 +45,7 @@ public class ToDoMapper {
                         .priority(todo1.getPriority())
                         .status(todo1.getStatus())
                         .dueDate(todo1.getDueDate())
+                        .createdAt(todo1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

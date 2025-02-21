@@ -18,7 +18,22 @@
         .menu-toggle {
             display: none; /* 데스크톱에서는 숨김 */
         }
-               /* ✅ 모바일에서만 적용되는 스타일 */
+        /* 게시판 */
+        #feedTable thead th {
+            background-color: #f8f9fa;
+        }
+        #feedTable tr:hover {
+            background-color: #f1f3f5;
+            cursor: pointer;
+        }
+        .badge-view {
+            background-color: #6c757d; /* secondary */
+        }
+        .badge-like {
+            background-color: #198754; /* success */
+        }
+
+        /* ✅ 모바일에서만 적용되는 스타일 */
         @media (max-width: 768px) {
             /* ✅ 모바일에서는 사이드바 숨기고, 메뉴 버튼 사용 */
             .left-sidebar, .right-sidebar {
@@ -341,6 +356,16 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 15px;
         }
+        .rank-number {
+            font-weight: bold;
+        }
+        .ranking-title {
+            font-weight: bold;
+        }
+        .ranking-box .ranking-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
         .ranking-title:hover {
             text-decoration: underline;
         }
@@ -354,29 +379,12 @@
         .ranking-item .btn {
             margin-left: auto;
         }
-
-        /* 각 랭킹 아이템 스타일 */
-        .ranking-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
         .ranking-item:last-child {
             border-bottom: none;
         }
+        /* 각 랭킹 아이템 스타일 */
 
-        .rank-circle {
-            width: 40px;
-            height: 40px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+
         .input-group-sm input {
             max-width: 130px; /* 입력 필드의 최대 너비 */
             margin-right: 5px; /* 필드 간 간격 */
@@ -564,9 +572,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        /*#rightMenuToggle {*/
-        /*    display: none !important;*/
-        /*}*/
+
 
         /* 버튼 스타일 */
         .login-btn {
@@ -732,6 +738,18 @@
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
         }
+        .section-header {
+            /* 이미 inline style로 그라디언트 배경을 썼다면 굳이 안 써도 됨 */
+            border-radius: 8px;
+            /* flex, wrap 등은 inline style이나 Bootstrap 클래스로 이미 적용 */
+        }
+        .section-header h3 {
+            display: flex;
+            align-items: center;
+        }
+        .section-header .fas.fa-clipboard-list {
+            margin-right: 6px;
+        }
 
         .menu-toggle-btn {
             background: none;
@@ -759,6 +777,12 @@
             text-decoration: none;
             color: #333;
         }
+        .table tbody tr:hover {
+            background-color: #f1f3f5; /* Bootstrap gray-100 색상 */
+            cursor: pointer;
+        }
+
+
 
 
     </style>
@@ -853,19 +877,28 @@
 <!--        <div class="row">-->
             <!-- 메인 콘텐츠 -->
         <main class="main-content col-md-7">
-                <h1 class="text-center">전체글보기</h1>
-            <div class="mb-3 d-flex justify-content-between align-items-center">
-                <!-- 조회수 출력 -->
-<!--                <p style="margin: 0;">조회수 : <span id="viewCount"></span></p>-->
+<!--                <h1 class="text-center">전체글보기</h1>-->
+            <div class="section-header d-flex flex-wrap align-items-center justify-content-between py-3 px-4 mb-3 text-white rounded"
+                 style="background: linear-gradient(45deg, #007bff, #6610f2);">
+                <div class="d-flex flex-wrap align-items-center">
+                    <!-- 제목 + 서브텍스트 -->
+                    <h3 class="fw-bold mb-0 me-2">
+                        <i class="fas fa-clipboard-list"></i> 전체 게시물
+                    </h3>
+                    <p class="mb-0 small text-light ms-1">최신 글을 확인하세요!</p>
+                </div>
+
 
                 <!-- 🔔 알림 아이콘 추가 -->
-                <div class="notification-container">
-                    <div class="notification-icon" id="notificationIcon" style="cursor: pointer;">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+                <div class="notification-container position-relative">
+                    <div class="notification-icon position-relative" id="notificationIcon" style="cursor: pointer;">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger"
+                              id="notificationBadge" style="display: none;">!</span>
                     </div>
-                    <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
-                        <ul id="notificationList"></ul>
+                    <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3"
+                         id="notificationDropdown" style="display: none; width: 250px;">
+                        <ul id="notificationList" class="list-unstyled mb-0"></ul>
                     </div>
                 </div>
             </div>
@@ -878,17 +911,26 @@
 
                     </div>
                         <!-- 게시글 리스트 -->
-                        <table id="feedTable"  class="table table-striped table-hover">
-                            <thead>
+                        <table id="feedTable"  class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
                             <tr>
-                                <th>제목</th>
-                                <th>글쓴이</th>
-                                <th>작성일</th>
-                                <th>조회</th>
-                                <th>추천</th>
+                                <th style="width: 50%;">제목</th>
+                                <th style="width: 15%;">글쓴이</th>
+                                <th style="width: 15%;">작성일</th>
+                                <th style="width: 10%;" class="text-center"><i class="fas fa-eye"></i></th>
+                                <th style="width: 10%;" class="text-center"><i class="fas fa-thumbs-up"></i></th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="boardTableBody">
+
+                            <!-- 🔸 고정공지(핀) 예시 -->
+                            <tr class="table-warning">
+                                <td>[공지] 게시판 이용 안내</td>
+                                <td>관리자</td>
+                                <td>2025-02-23</td>
+                                <td><span class="badge bg-secondary"><i class="fas fa-eye"></i> 123</span></td>
+                                <td><span class="badge bg-success"><i class="fas fa-thumbs-up"></i> 45</span></td>
+                            </tr>
 
                             </tbody>
                         </table>
@@ -946,7 +988,7 @@
     <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
         <div id="visitorStats" class="visitor-stats mb-3"></div>
         <div id="popularFeeds">
-            <h3 class="fw-bold">인기 게시물</h3>
+            <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> 인기 게시물</h3>
             <div class="ranking-box" id="monthFeedsList">
                 <!-- 인기 게시물 내용이 동적으로 추가됩니다 -->
             </div>
@@ -1037,35 +1079,15 @@
                 renderFeeds(data);
             });
     }
+
+
     document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
         const submenu = document.querySelector(".menu-subitems");
         submenu.style.display = submenu.style.display === "block" ? "none" : "block";
     });
 
     // 데이터 렌더링 함수
-    function searchFeed(jsonData, count) {
-        const feedTableBody = document.querySelector('#feedTable tbody');
-        feedTableBody.innerHTML = ''; // 기존 데이터 제거
 
-        jsonData.data.forEach(board => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <td><a href="/search/view/feed/id?id=${board.id}">${board.title}</a></td>
-            <td>
-                <a href="/search/view/feed/id?id=${board.id}">${board.description}</a>
-                ${
-                count && count[board.id] > 0
-                    ? `<span style="color: red; font-weight: bold;">[${count[board.id]}]</span>`
-                    : ""
-            }
-            </td>
-            <td>${board.username}</td>
-
-            <td>${formatDate(board.createdAt)}</td>
-            <td>${board.viewCount}</td>`;
-            feedTableBody.appendChild(tr);
-        });
-    }
     function toggleDateFields() {
         const searchType = document.getElementById('searchType').value;
         const dateFields = document.getElementById('dateFields');
@@ -1165,69 +1187,87 @@
 
         // 2. 게시글 목록 테이블
         const feedTableBody = document.querySelector('#feedTable tbody');
-
-        feedTableBody.innerHTML = '';  // 기존 행 제거
+        feedTableBody.innerHTML = '';
         jsonData.data.forEach(board => {
-            // <a href="/search/view/feed/id?id=${board.feedUID}">${board.description}</a>
-            // countMap에서 댓글 수 가져오기 (feedUID -> count)
             const tr = document.createElement('tr');
-            tr.innerHTML = `
 
-                    <td>
-                    <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
-                     ${
+            // 🔴 고정공지(pinned)면 table-warning 적용
+            if (board.pinned) {
+                tr.classList.add('table-warning');
+            }
+
+            // 🔴 조회/추천에 배지+아이콘
+            tr.innerHTML = `
+            <td>
+                <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
+                ${
                 count && count[board.feedUID] > 0
                     ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
-                    : ""}
-                    </td>
-                    <td>${board.username}</td>
-
-                    <td>${formatDate(board.createdAt)}</td>
-                    <td>${board.viewCount}</td>
-                    <td>${board.likeCount}</td>
+                    : ""
+            }
+            </td>
+            <td>${board.username}</td>
+            <td>${formatDate(board.createdAt)}</td>
+            <td>
+                <span class="badge badge-view">
+                  <i class="fas fa-eye"></i> ${board.viewCount}
+                </span>
+            </td>
+            <td>
+                <span class="badge badge-like">
+                  <i class="fas fa-thumbs-up"></i> ${board.likeCount}
+                </span>
+            </td>
         `;
             feedTableBody.appendChild(tr);
         });
 
+
+
         // 3. 인기 게시물(month)
-        const monthFeedsList = document.getElementById('monthFeedsList');
-        monthFeedsList.innerHTML = ''; // 기존 내용을 초기화
+        const popularFeedsList = document.getElementById("monthFeedsList");
+        popularFeedsList.innerHTML = '';
 
         jsonData.month.forEach((mBoard, index) => {
-            // 인기 게시물 아이템 생성
+            // 🔸 상위 3개는 아이콘 강조
+            let rankIcon = '';
+            if (index === 0) {
+                rankIcon = '<i class="fas fa-crown text-warning"></i> '; // 1위
+            } else if (index === 1) {
+                rankIcon = '<i class="fas fa-medal" style="color: silver;"></i> '; // 2위
+            } else if (index === 2) {
+                rankIcon = '<i class="fas fa-medal" style="color: #cd7f32;"></i> '; // 3위 (동메달색)
+            }
+
             const itemDiv = document.createElement('div');
             itemDiv.className = 'd-flex align-items-center ranking-item';
 
-            // 순위 표시
+            // 순위
             const rankSpan = document.createElement('span');
-            rankSpan.className = 'rank-number';
-            rankSpan.textContent = `${index + 1}.`;
-
-            // 게시물 정보
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'ms-2 me-auto';
+            rankSpan.className = 'rank-number me-2';
+            // 실제 숫자 + 아이콘 붙이기
+            rankSpan.innerHTML = `${index + 1}. ${rankIcon}`;
 
             // 게시물 제목
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'ms-1 me-auto';
             const titleLink = document.createElement('a');
-            titleLink.className = 'ranking-title';
+            titleLink.className = 'ranking-title text-decoration-none';
             titleLink.href = `/search/view/feed/id?id=${mBoard.feedUID}`;
             titleLink.textContent = mBoard.title;
 
-            // 작성자 정보
+            // 작성자 표시
             const authorSmall = document.createElement('small');
             authorSmall.className = 'text-muted d-block';
             authorSmall.textContent = `작성자: ${mBoard.username}`;
 
-            // 게시물 제목과 작성자 추가
             contentDiv.appendChild(titleLink);
             contentDiv.appendChild(authorSmall);
 
-            // 구조 추가
             itemDiv.appendChild(rankSpan);
             itemDiv.appendChild(contentDiv);
 
-            // 부모 요소에 추가
-            monthFeedsList.appendChild(itemDiv);
+            popularFeedsList.appendChild(itemDiv);
         });
     }
     window.addEventListener('popstate', (event) => {
@@ -1734,7 +1774,29 @@
     }
 
         // 페이지 외부 클릭 시 드롭다운 닫기
+    function searchFeed(jsonData, count) {
+        const feedTableBody = document.querySelector('#feedTable tbody');
+        feedTableBody.innerHTML = ''; // 기존 데이터 제거
 
+        jsonData.data.forEach(board => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td><a href="/search/view/feed/id?id=${board.id}">${board.title}</a></td>
+            <td>
+                <a href="/search/view/feed/id?id=${board.id}">${board.description}</a>
+                ${
+                count && count[board.id] > 0
+                    ? `<span style="color: red; font-weight: bold;">[${count[board.id]}]</span>`
+                    : ""
+            }
+            </td>
+            <td>${board.username}</td>
+
+            <td>${formatDate(board.createdAt)}</td>
+            <td>${board.viewCount}</td>`;
+            feedTableBody.appendChild(tr);
+        });
+    }
     </script>
 
 

@@ -79,7 +79,7 @@ public class ToDoController {
         }
 
         List<TodoRequest> todos = toDoService.getUserAllToDo(jwtTokenProvider.getUserId(token));
-
+        log.info(todos.toString());
         // ✅ JSON 형식으로 반환 (Todo 목록 + 완료 개수)
         Map<String, Object> response = new HashMap<>();
         response.put("todos", todos);

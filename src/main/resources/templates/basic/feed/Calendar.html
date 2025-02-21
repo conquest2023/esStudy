@@ -128,6 +128,7 @@
                         <option value="운동">🏋️ 운동</option>
                         <option value="약속">📅 약속</option>
                         <option value="공부">📖 공부</option>
+                        <option value="알바">📝   알바</option>
                         <option value="데이트">💑 데이트</option>
                         <option value="기타" selected>📝 기타</option>
                     </select>
@@ -168,8 +169,9 @@
 <!-- FullCalendar 스크립트 -->
 <script>
     var calendar;
-
-    // ✅ Todo 상태에 따른 색상 설정 함수
+    function formatToISO(dateString) {
+        return dateString.includes(" ") ? dateString.replace(" ", "T") : dateString;
+    }
     document.addEventListener("DOMContentLoaded", function () {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -178,11 +180,11 @@
         }
 
         var calendarEl = document.getElementById("calendar");
-        var scheduleListContainer = document.getElementById("scheduleListContainer");
-        var scheduleListEl = document.getElementById("scheduleList");
+        var scheduleListContainer = document.getElementById("scheduleListContainer") || null;
+        var scheduleListEl = document.getElementById("scheduleList") || null;
         var selectedFilter = "all"; // 기본값: 전체 보기
-        var isListVisible = false; // 🔹 리스트가 보이는지 여부
-
+        var isListVisible = false;
+        let allEvents = []; // ✅ 전체 일정 저장 (전역 변수)
 
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
@@ -193,72 +195,21 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-
-            // ✅ 📌 서버에서 Todo & 일정(Schedule) 불러오기
-            events: function (fetchInfo, successCallback, failureCallback) {
-                Promise.all([
-                    fetch('/search/alltodo', {
-                        method: 'GET',
-                        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-                    }).then(response => response.json()),
-                    fetch('/search/schedule', {
-                        method: 'GET',
-                        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-                    }).then(response => response.json())
-                ])
-                    .then(([todoData, scheduleData]) => {
-                        let todoEvents = [];
-                        let scheduleEvents = [];
-
-                        // ✅ 📌 Todo 데이터 변환
-                        if (todoData.todos && Array.isArray(todoData.todos)) {
-                            todoEvents = todoData.todos.map(todo => {
-                                const { backgroundColor, borderColor } = getStatusColor(todo.status);
-                                return {
-                                    id: todo.todo_id,
-                                    title: `[TODO] ${todo.title}`,
-                                    description: todo.description,
-                                    start: todo.dueDate,
-                                    category:todo.category,
-                                    extendedProps: { status: todo.status },
-                                    backgroundColor: backgroundColor,
-                                    borderColor: borderColor,
-                                    textColor: "#ffffff"
-                                };
-                            });
-                        }
-
-                        // ✅ 📌 일정(Schedule) 데이터 변환
-                        if (scheduleData.todos && Array.isArray(scheduleData.todos)) {
-                            scheduleEvents = scheduleData.todos.map(schedule => {
-                                return {
-                                    id: schedule.scheduleId,
-                                    title: `[캘린더] ${schedule.title}`,
-                                    // description: schedule.description,
-                                    start: schedule.endDatetime, // ✅ 종료 시간을 시작으로 설정 (마감 일정 기준)
-                                    allDay: true, // ✅ 하루 종일 일정 처리
-                                    category:schedule.category,
-                                    extendedProps: {
-                                        location: schedule.location,
-                                        description: schedule.description
-                                    },
-                                    backgroundColor: "#0d6efd",
-                                    borderColor: "#0a58ca",
-                                    textColor: "#ffffff"
-                                };
-                            });
-                        }
-
-                        // ✅ 📌 Todo + 일정 합쳐서 캘린더에 반영
-                        successCallback([...todoEvents, ...scheduleEvents]);
-                    })
-                    .catch(error => {
-                        console.error("🚨 Todo & 일정 데이터 불러오기 실패:", error);
-                        failureCallback(error);
-                    });
+            eventTimeFormat: {
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: false  // 24시간제 사용
             },
 
-            // ✅ 📌 일정 클릭 시 상세 정보 표시
+            // ✅ ✅ `forceEventDuration`을 true로 설정하여 일정이 보이도록 강제
+            forceEventDuration: true,
+
+            // ✅ ✅ `slotMinTime`, `slotMaxTime`을 조정하여 당일 일정이 시간 내에 있는지 확인
+            slotMinTime: "00:00:00",
+            slotMaxTime: "24:00:00",
+
+            // ✅ ✅ `allDaySlot` 활성화 여부 확인
+            allDaySlot: false,
             eventClick: function (info) {
                 selectedEventId = info.event.id;
                 document.getElementById("modalEventTitle").innerText = info.event.title;
@@ -275,12 +226,103 @@
             dateClick: function (info) {
                 document.getElementById('eventEndDate').value = info.dateStr;
                 new bootstrap.Modal(document.getElementById('addEventModal')).show();
+            },
+            // ✅ 📌 서버에서 일정 및 Todo 데이터 불러오기
+            events: function (fetchInfo, successCallback, failureCallback) {
+                Promise.all([
+                    fetch('/search/alltodo', {
+                        method: 'GET',
+                        headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
+                    }).then(response => response.json()),
+                    fetch('/search/schedule', {
+                        method: 'GET',
+                        headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
+                    }).then(response => response.json())
+                ])
+                    .then(([todoData, scheduleData]) => {
+                        let todoEvents = [];
+                        let scheduleEvents = [];
+
+                        const today = new Date().toISOString(); // ✅ 현재 시간 기준으로 설정
+
+                        // ✅ 📌 Todo 데이터 변환
+                        if (todoData.todos && Array.isArray(todoData.todos)) {
+                            todoEvents = todoData.todos.map(todo => {
+                                const {backgroundColor, borderColor} = getStatusColor(todo.status);
+                                return {
+                                    id: todo.todo_id,
+                                    title: `[TODO] ${todo.title}`,
+                                    description: todo.description,
+                                    start: formatToISO(todo.createdAt) || new Date().toISOString(),  // ✅ 날짜가 없을 경우 기본값 설정
+                                    allDay: false,
+                                    status: todo.status, // ✅ 상태 추가 (completed, pending)
+                                    backgroundColor: backgroundColor,
+                                    borderColor: borderColor,
+                                    textColor: "#ffffff"
+                                };
+                            });
+                        }
+
+                        // ✅ 📌 일정(Schedule) 데이터 변환
+                        if (scheduleData.todos && Array.isArray(scheduleData.todos)) {
+                            scheduleEvents = scheduleData.todos.map(schedule => {
+                                const { backgroundColor, borderColor } = getStatusColor(schedule.status || "IN_PROGRESS");
+
+                                return {
+                                    id: schedule.scheduleId,
+                                    title: `[캘린더] ${schedule.title}`,
+                                    start: schedule.endDatetime || today, // ✅ 날짜 기본값 설정
+                                    allDay: true,
+                                    status: schedule.status || "IN_PROGRESS",
+                                    category: schedule.category,
+                                    extendedProps: {
+                                        location: schedule.location,
+                                        description: schedule.description
+                                    },
+                                    backgroundColor: backgroundColor,
+                                    borderColor: borderColor,
+                                    textColor: "#ffffff"
+                                };
+                            });
+                        }
+
+
+                        // ✅ 전체 이벤트 저장 (전역 변수 업데이트)
+                        allEvents = [...todoEvents, ...scheduleEvents];
+
+                        // ✅ 캘린더에 반영
+                        successCallback(allEvents);
+                    })
+                    .catch(error => {
+                        console.error("🚨 Todo & 일정 데이터 불러오기 실패:", error);
+                        failureCallback(error);
+                    });
             }
         });
 
         calendar.render(); // 캘린더 렌더링
 
-        // ✅ 📌 일정 추가 버튼 클릭 시 API 호출
+        // ✅ 📌 필터 버튼 이벤트 추가
+        document.querySelectorAll(".filter-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+
+                selectedFilter = this.getAttribute("data-filter");
+                applyFilter(selectedFilter); // ✅ 필터 적용
+
+                // 🔹 리스트 UI 토글 기능 (해당 요소가 존재할 경우에만 실행)
+                if (scheduleListContainer && scheduleListEl) {
+                    if (isListVisible && selectedFilter === this.getAttribute("data-filter")) {
+                        scheduleListContainer.classList.add("d-none"); // 리스트 숨김
+                        isListVisible = false;
+                    } else {
+                        scheduleListContainer.classList.remove("d-none"); // 리스트 표시
+                        isListVisible = true;
+                    }
+                }
+            });
+        });
         document.getElementById('saveEventBtn').addEventListener('click', function () {
             if (!token) {
                 alert("🚨 로그인 후 이용해주세요.");
@@ -316,34 +358,59 @@
                 });
         });
 
-    });
-        document.querySelectorAll(".filter-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-                this.classList.add("active");
+        // ✅ 📌 필터 적용 함수
+        function applyFilter(filterType) {
+            if (!allEvents || allEvents.length === 0) {
+                console.error("🚨 이벤트가 없습니다!");
+                return;
+            }
 
-                selectedFilter = this.getAttribute("data-filter");
-                calendar.refetchEvents(); // 🔄 필터 적용 후 다시 불러오기
+            const now = new Date(); // ✅ 현재 시간 (로컬 기준)
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0); // ✅ 오늘 00:00:00
 
-                // 🔹 리스트 UI 토글 기능
-                if (isListVisible && selectedFilter === this.getAttribute("data-filter")) {
-                    scheduleListContainer.classList.add("d-none"); // 리스트 숨김
-                    isListVisible = false;
-                } else {
-                    scheduleListContainer.classList.remove("d-none"); // 리스트 표시
-                    isListVisible = true;
-                }
-            });
-        });
-        function applyFilter(events, filter) {
-            if (filter === "all") return events;
-            return events.filter(event => {
-                if (filter === "completed") return event.extendedProps?.status === "DONE";
-                if (filter === "pending") return event.extendedProps?.status === "IN_PROGRESS";
-                return true;
-            });
+            let filteredEvents = [];
+
+            if (filterType === "all") {
+                filteredEvents = allEvents; // ✅ 전체 일정 표시
+            } else if (filterType === "completed") {
+                // ✅ 완료된 일정: 오늘 이전 날짜의 일정
+                filteredEvents = allEvents.filter(event => {
+                    if (!event.start) return false; // 시작 날짜가 없는 경우 필터링 제외
+                    const eventDate = new Date(event.start);
+                    return eventDate < todayStart; // 오늘 이전 일정만 완료된 일정으로 간주
+                });
+            } else if (filterType === "pending") {
+                // ✅ 미완료 일정: 현재 이후 날짜의 일정
+                filteredEvents = allEvents.filter(event => {
+                    if (!event.start) return false; // 시작 날짜가 없는 경우 필터링 제외
+                    const eventDate = new Date(event.start);
+                    return eventDate >= now; // 현재 시간 이후 일정만 미완료
+                });
+            }
+
+            calendar.removeAllEvents(); // ✅ 기존 일정 제거
+            calendar.addEventSource(filteredEvents); // ✅ 새로운 일정 추가
         }
 
+
+        // ✅ 📌 상태별 색상 반환 함수 (Todo의 상태에 따라 색상 변경)
+        // ✅ 📌 상태별 색상 반환 함수 (Todo & 일정의 상태에 따라 색상 변경)
+        function getStatusColor(status) {
+            switch (status) {
+                case "IN_PROGRESS":
+                    return { backgroundColor: "#0d6efd", borderColor: "#0a58ca" }; // 🔵 진행 중 (파란색)
+                case "DONE":
+                    return { backgroundColor: "#198754", borderColor: "#146c43" }; // ✅ 완료 (초록색)
+                case "CANCELLED":
+                    return { backgroundColor: "#dc3545", borderColor: "#b02a37" }; // ❌ 취소 (빨간색)
+                case "PENDING":
+                    return { backgroundColor: "#ffc107", borderColor: "#d39e00" }; // ⏳ 대기 (노란색)
+                default:
+                    return { backgroundColor: "#adb5bd", borderColor: "#868e96" }; // ⚪ 기본 회색
+            }
+        }
+
+    });
     document.getElementById("deleteEventBtn").addEventListener("click", function () {
         const eventId = this.getAttribute("data-event-id");
         const token = localStorage.getItem("token");
@@ -362,12 +429,12 @@
                 "Content-Type": "application/json"
             }
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("🚨 일정 삭제 실패!");
-                }
-                return response.text().then(() => {});
-            })
+    .then(response => {
+            if (!response.ok) {
+                throw new Error("🚨 일정 삭제 실패!");
+            }
+            return response.text().then(() => {});
+        })
             .then(() => {
                 alert("✅ 일정이 삭제되었습니다!");
 
@@ -386,19 +453,7 @@
             });
     });
 
-    // ✅ 📌 상태별 색상 반환 함수 (Todo의 상태에 따라 색상 변경)
-    function getStatusColor(status) {
-        switch (status) {
-            case "IN_PROGRESS":
-                return { backgroundColor: "#0d6efd", borderColor: "#0a58ca" }; // 🔵 진행 중 (파란색)
-            case "DONE":
-                return { backgroundColor: "#198754", borderColor: "#146c43" }; // ✅ 성공 (초록색)
-            case "CANCELLED":
-                return { backgroundColor: "#dc3545", borderColor: "#b02a37" }; // ❌ 실패 (빨간색)
-            default:
-                return { backgroundColor: "#adb5bd", borderColor: "#868e96" }; // 기본 회색
-        }
-    }
+
 </script>
 
 </body>
