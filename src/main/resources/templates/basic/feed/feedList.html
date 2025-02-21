@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게시판 목록</title>
+    <title>Ninfo</title>
     <div class="container">
         <!-- 카테고리 카드 -->
 
@@ -781,225 +781,646 @@
             background-color: #f1f3f5; /* Bootstrap gray-100 색상 */
             cursor: pointer;
         }
+        .login-container {
+            margin-bottom: 1rem;
+        }
+        #profile-info ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        #profile-info ul li {
+            margin-bottom: 5px;
+        }
+        .search-box {
+            position: relative;
+            width: 400px;
+            max-width: 100%;
+        }
+        .search-box input {
+            width: 100%;
+            padding-right: 40px;
+            border-radius: 30px;
+            border: 1px solid #ccc;
+            outline: none;
+            padding-left: 15px;
+            height: 38px;
+        }
+        .search-box button {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #666;
+            cursor: pointer;
+        }
+        .post-item {
+            border-bottom: 1px solid #eaeaea;
+            padding: 0.8rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .post-item:last-child {
+            border-bottom: none; /* 마지막 항목 구분선 제거 */
+        }
+        .post-left {
+            display: flex;
+            align-items: center;
+        }
+        .post-category {
+            font-size: 0.75rem;
+            color: #555;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            padding: 0.2rem 0.4rem;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+        }
+        .post-title {
+            font-weight: 500;
+            color: #333;
+            text-decoration: none;
+        }
+        .post-title:hover {
+            text-decoration: underline;
+        }
+        .post-right {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .post-right .me-3 {
+            display: inline-flex;
+            align-items: center;
+        }
+        .post-right i {
+            margin-right: 0.3rem;
+        }
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
 
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
 
+        .nav-link {
+            color: black !important;
+            font-size: 1.1rem;
+        }
+
+        .nav-item .dropdown-menu {
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            font-size: 1rem;
+        }
+
+        .dropdown-menu i {
+            margin-right: 8px;
+        }
+
+        /* 검색 바 */
+        .search-bar {
+            width: 100%;
+            max-width: 800px;
+            margin: 10px auto;
+        }
+        /* 사용자 프로필 메뉴 스타일 */
+        #user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            min-width: 150px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .custom-navbar {
+            height: 70px; /* 기존보다 높이 증가 */
+            font-size: 1.1rem; /* 폰트 크기 조정 */
+        }
+
+        /* 로고 크기 조정 및 왼쪽 정렬 */
+        .custom-logo {
+            font-size: 1.8rem; /* 기존보다 크기 증가 */
+            padding-left: 100px; /* 왼쪽 여백 추가 */
+        }
+
+        #user-menu .dropdown-item {
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #user-menu .dropdown-item:hover {
+            background: #f8f9fa;
+        }
 
 
     </style>
     </div>
 </head>
-<div class="container-fluid">
-    <button id="menuToggle" class="menu-toggle">
-        ☰ <span>메뉴</span>
-    </button>
-    <button id="rightMenuToggle" class="right-menu-toggle">
-        ☰ <span>오른쪽</span>
-    </button>
-        <!-- 사이드바 -->
-        <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">
-<!--            <button id="logout-button" class="btn btn-secondary w-100 text-start" onclick="logout()">로그아웃</button>-->
-            <button id="logout-button" class="btn btn-secondary w-100 text-start" style="display: none;" onclick="logout()">
-                <span class="fa fa-sign-out-alt"></span> 로그아웃
-            </button>
-            <!-- 로그인 상태 메시지 -->
-            <div class="login-container">
-            <div id="auth-status">
-                <p id="login-message">서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.</p>
-                <p id="user-message" style="display: none;">안녕하세요, <span id="username"></span> 사용자님!</p>
-            </div>
-            </div>
-            <div id="profile-info" style="display: none;">
-                <ul>
-                    <li><strong>방문:</strong> <span id="visit-count">0회</span></li>
-                    <li><strong>내가 쓴 게시글:</strong> <span id="feed-count">0개</span></li>
-                    <li><strong>내가 쓴 댓글:</strong> <span id="comment-count">0개</span></li>
-                </ul>
-            </div>
+<!-- ✅ 네비게이션 바 수정 -->
+<!--<div class="container">-->
+<!--    <form class="d-flex search-bar">-->
+<!--        <input class="form-control me-2" type="search" id="searchInput" placeholder="검색어를 입력하세요" />-->
+<!--        <button class="btn btn-outline-success" type="submit" onclick="redirectSearch()">-->
+<!--            <i class="fas fa-search"></i>-->
+<!--        </button>-->
+<!--    </form>-->
+<!--</div>-->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-navbar">
+    <div class="container-fluid">
+        <!-- 📌 로고 (왼쪽 정렬 + 크기 확대) -->
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
 
+        <!-- 📌 모바일 토글 버튼 -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- 네비게이션 메뉴 -->
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+                <!-- 📂 게시판 -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown">
+                        📂 게시판
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/search/view/feed/list/자유"><i class="fas fa-comments"></i> 자유</a></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/스포츠"><i class="fas fa-football-ball"></i> 스포츠</a></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/경제"><i class="fas fa-chart-line"></i> 경제</a></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/기술"><i class="fas fa-laptop-code"></i> IT정보</a></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/게임"><i class="fas fa-gamepad"></i> 게임</a></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/공부"><i class="fas fa-book"></i> 공부</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT취업정보</a></li>
+                    </ul>
+                </li>
+
+                <!-- ✅ Todo 리스트 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/todo"><i class="fas fa-check"></i> Todo리스트</a>
+                </li>
+
+                <!-- ✅ 캘린더 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/calendar"><i class="fas fa-calendar-alt"></i> 캘린더</a>
+                </li>
+            </ul>
+        </div>
+
+            <!-- ✅ 우측 버튼 (로그인, 글쓰기) -->
+        <div class="d-flex align-items-center me-3">
+            <!-- 글쓰기 버튼 -->
+            <button class="btn btn-danger me-2" onclick="window.location.href='/search/view/feed/Form';">글쓰기</button>
 
             <!-- 로그인 버튼 -->
-            <div class="vertical-menu">
-                <button id="login-button" class="btn btn-success w-100 text-start" onclick="window.location.href='/login';">
-                    <span class="fa fa-sign-in-alt"></span> 로그인
-                </button>
-                <hr>
-                <a href="/search/view/feed/list/page">
-                    <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>
-                </a>
-                <div class="sidebar-search">
-                    <div class="input-group">
-                        <input type="text" id="sidebarSearchInput" class="form-control" placeholder="검색어 입력">
-                        <button id="sidebarSearchBtn" class="btn btn-primary" onclick="redirectSearch()">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="menu-category">
-                    <button class="menu-toggle-btn">
-                        📂 게시판
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="menu-subitems">
-                        <a href="/search/view/feed/list/자유">
-                            <i class="fas fa-comments"></i><span>&nbsp; 자유</span>
-                        </a>
-                        <a href="/search/view/feed/list/스포츠">
-                            <i class="fas fa-football-ball"></i><span>&nbsp; 스포츠</span>
-                        </a>
-                        <a href="/search/view/feed/list/경제">
-                            <i class="fas fa-chart-line"></i><span>&nbsp; 경제</span>
-                        </a>
-                        <a href="/search/view/feed/list/기술">
-                            <i class="fas fa-laptop-code"></i><span>&nbsp;IT정보</span>
-                        </a>
-                        <a href="/search/view/feed/list/게임">
-                            <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>
-                        </a>
-                        <a href="/search/view/feed/list/공부">
-                            <i class="fas fa-laptop-code"></i><span> 공부</span>
-                        </a>
-                    </div>
-                    <a href="/search/view/feed/list/job">
-                        <i class="fas fa-laptop-code"></i><span>&nbsp;IT취업정보</span>
-                    </a>
-                    <a href="/todo">
-                        <i class="fas fa-chevron-down"></i><span>&nbsp;Todo리스트</span>
+            <button id="login-button" class="btn btn-outline-dark" onclick="window.location.href='/login';">로그인</button>
 
-                    </a>
-                    <a href="/calendar">
-                        <i class="fas fa-calendar-alt"></i><span>&nbsp;캘린더</span>
-                    </a>
+            <!-- 로그인 후 표시될 사용자 정보 -->
+            <div id="user-info" class="d-none ms-3 position-relative">
+                <button id="user-menu-btn" class="btn btn-outline-secondary">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+
+                <!-- 마이페이지 & 로그아웃 메뉴 -->
+                <div id="user-menu" class="dropdown-menu dropdown-menu-end" style="display: none;">
+                    <span class="dropdown-item-text text-secondary"><b id="username"></b>님</span>
+                    <a class="dropdown-item" href="/search/view/feed/list/page"><i class="fas fa-user"></i> 마이페이지</a>
+                    <a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
                 </div>
             </div>
-        </aside>
-
-<!--    <div class="container-fluid">-->
-<!--        <div class="row">-->
-            <!-- 메인 콘텐츠 -->
-        <main class="main-content col-md-7">
-<!--                <h1 class="text-center">전체글보기</h1>-->
-            <div class="section-header d-flex flex-wrap align-items-center justify-content-between py-3 px-4 mb-3 text-white rounded"
-                 style="background: linear-gradient(45deg, #007bff, #6610f2);">
-                <div class="d-flex flex-wrap align-items-center">
-                    <!-- 제목 + 서브텍스트 -->
-                    <h3 class="fw-bold mb-0 me-2">
-                        <i class="fas fa-clipboard-list"></i> 전체 게시물
-                    </h3>
-                    <p class="mb-0 small text-light ms-1">최신 글을 확인하세요!</p>
-                </div>
+        </div>
+    </div>
+</nav>
 
 
-                <!-- 🔔 알림 아이콘 추가 -->
-                <div class="notification-container position-relative">
-                    <div class="notification-icon position-relative" id="notificationIcon" style="cursor: pointer;">
-                        <i class="fas fa-bell fa-lg"></i>
+<!-- ====================== 검색창 (모바일 전용) ====================== -->
+<!-- 작은 화면에서만 보이는 검색창을 따로 둘 수도 있음 -->
+<div class="bg-light d-lg-none p-2">
+    <div class="search-box mx-auto" style="max-width: 500px;">
+        <input
+                type="text"
+                placeholder="관심있는 내용을 검색해보세요!"
+                aria-label="Search"
+        />
+        <button type="button">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<!-- ====================== 메인 레이아웃: 좌측 사이드바 / 중앙(메인) / 우측 사이드바 ====================== -->
+<!--<div class="container-fluid">-->
+<!--    <div class="row">-->
+        <!-- 왼쪽 사이드바 -->
+<!--        <aside class="left-sidebar col-md-3">-->
+            <!-- 토글 버튼 (모바일용) -->
+<!--            <button id="menuToggle" class="menu-toggle">-->
+<!--                ☰ <span>메뉴</span>-->
+<!--            </button>-->
+
+            <!-- 로그인/로그아웃 상태 메시지 -->
+<!--            <div class="login-container p-3">-->
+<!--                <div id="auth-status">-->
+<!--                    &lt;!&ndash; 기본: 비로그인 메시지 &ndash;&gt;-->
+<!--                    <p id="login-message">-->
+<!--                        서비스를 이용하려면 <a href="/login">로그인</a>이 필요합니다.-->
+<!--                    </p>-->
+<!--                    &lt;!&ndash; 로그인 후 보여줄 메시지 &ndash;&gt;-->
+<!--&lt;!&ndash;                    <p id="user-message" style="display: none;">&ndash;&gt;-->
+<!--&lt;!&ndash;                        안녕하세요, <span id="username"></span> 사용자님!&ndash;&gt;-->
+<!--&lt;!&ndash;                    </p>&ndash;&gt;-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; 프로필 정보 &ndash;&gt;-->
+<!--                <div id="profile-info" style="display: none;">-->
+<!--                    <ul>-->
+<!--                        <li><strong>방문:</strong> <span id="visit-count">0회</span></li>-->
+<!--                        <li><strong>내가 쓴 게시글:</strong> <span id="feed-count">0개</span></li>-->
+<!--                        <li><strong>내가 쓴 댓글:</strong> <span id="comment-count">0개</span></li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; 로그인 버튼 (비로그인 시 표시) &ndash;&gt;-->
+<!--&lt;!&ndash;                <button&ndash;&gt;-->
+<!--&lt;!&ndash;                        id="login-button"&ndash;&gt;-->
+<!--&lt;!&ndash;                        class="btn btn-success w-100 text-start"&ndash;&gt;-->
+<!--&lt;!&ndash;                        onclick="window.location.href='/login';"&ndash;&gt;-->
+<!--&lt;!&ndash;                >&ndash;&gt;-->
+<!--&lt;!&ndash;                    <span class="fa fa-sign-in-alt"></span> 로그인&ndash;&gt;-->
+<!--&lt;!&ndash;                </button>&ndash;&gt;-->
+<!--                &lt;!&ndash; 로그아웃 버튼 (로그인 시 표시) &ndash;&gt;-->
+<!--                <button-->
+<!--                        id="logout-button"-->
+<!--                        class="btn btn-secondary w-100 text-start mt-2"-->
+<!--                        style="display: none;"-->
+<!--                        onclick="logout()"-->
+<!--                >-->
+<!--                    <span class="fa fa-sign-out-alt"></span> 로그아웃-->
+<!--                </button>-->
+<!--            </div>-->
+
+<!--            <hr />-->
+
+            <!-- 사이드바 메뉴 -->
+<!--            <div class="vertical-menu px-3">-->
+<!--                <a href="/search/view/feed/list/page">-->
+<!--                    <i class="fas fa-user-circle"></i><span>&nbsp;마이페이지</span>-->
+<!--                </a>-->
+<!--                <div class="sidebar-search my-3">-->
+<!--                    <div class="input-group">-->
+<!--                        <input-->
+<!--                                type="text"-->
+<!--                                id="sidebarSearchInput"-->
+<!--                                class="form-control"-->
+<!--                                placeholder="검색어 입력"-->
+<!--                        />-->
+<!--                        <button-->
+<!--                                id="sidebarSearchBtn"-->
+<!--                                class="btn btn-primary"-->
+<!--                                onclick="redirectSearch()"-->
+<!--                        >-->
+<!--                            <i class="fas fa-search"></i>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="menu-category">-->
+<!--                    <button class="menu-toggle-btn mb-2">-->
+<!--                        📂 게시판-->
+<!--                        <i class="fas fa-chevron-down"></i>-->
+<!--                    </button>-->
+<!--                    <div class="menu-subitems" style="margin-bottom: 1rem;">-->
+<!--                        <a href="/search/view/feed/list/자유">-->
+<!--                            <i class="fas fa-comments"></i><span>&nbsp; 자유</span>-->
+<!--                        </a>-->
+<!--                        <a href="/search/view/feed/list/스포츠">-->
+<!--                            <i class="fas fa-football-ball"></i><span>&nbsp; 스포츠</span>-->
+<!--                        </a>-->
+<!--                        <a href="/search/view/feed/list/경제">-->
+<!--                            <i class="fas fa-chart-line"></i><span>&nbsp; 경제</span>-->
+<!--                        </a>-->
+<!--                        <a href="/search/view/feed/list/기술">-->
+<!--                            <i class="fas fa-laptop-code"></i><span>&nbsp; IT정보</span>-->
+<!--                        </a>-->
+<!--                        <a href="/search/view/feed/list/게임">-->
+<!--                            <i class="fas fa-gamepad"></i><span>&nbsp; 게임</span>-->
+<!--                        </a>-->
+<!--                        <a href="/search/view/feed/list/공부">-->
+<!--                            <i class="fas fa-laptop-code"></i><span>&nbsp; 공부</span>-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <a href="/search/view/feed/list/job">-->
+<!--                        <i class="fas fa-laptop-code"></i><span>&nbsp; IT취업정보</span>-->
+<!--                    </a>-->
+<!--                    <a href="/todo">-->
+<!--                        <i class="fas fa-check"></i><span>&nbsp; Todo리스트</span>-->
+<!--                    </a>-->
+<!--                    <a href="/calendar">-->
+<!--                        <i class="fas fa-calendar-alt"></i><span>&nbsp; 캘린더</span>-->
+<!--                    </a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </aside>-->
+<!--<input type="text" id="searchInput" class="form-control border-0 shadow-none"-->
+<!--       placeholder="관심있는 내용을 검색해보세요!" onclick="redirectSearch()">-->
+        <div class="container-fluid">
+<!--                <div class="row">-->
+        <!-- 메인 콘텐츠 -->
+            <main class="main-content col-md-7">
+                <!-- 검색 바 -->
+                <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
+                    <i class="fas fa-search me-2 text-secondary" id="searchIcon" style="cursor: pointer;"></i>
+                    <input type="text" id="searchInput" class="form-control border-0 shadow-none"
+                           placeholder="관심있는 내용을 검색해보세요!">
+                <div class="notification-container ms-auto position-relative">
+                        <i class="fas fa-bell fa-lg text-secondary" id="notificationIcon" style="cursor: pointer;"></i>
                         <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger"
                               id="notificationBadge" style="display: none;">!</span>
-                    </div>
-                    <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3"
-                         id="notificationDropdown" style="display: none; width: 250px;">
-                        <ul id="notificationList" class="list-unstyled mb-0"></ul>
+                        <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3" id="notificationDropdown" style="display: none; width: 250px;">
+                            <ul id="notificationList" class="list-unstyled mb-0"></ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            <!-- 조회수 -->
             <div class="mb-3 d-flex justify-content-end">
-                <p>조회수 : <span id="viewCount"></span></p> <!-- 조회수 출력 -->
+                <p>조회수 :<span id="viewCount"></span></p>
             </div>
-                <!-- 게시판 내용 -->
+
+            <!-- 게시글 리스트 -->
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="fw-bold"><i class="fas fa-crown text-warning"></i> 전체 글</h5>
+                    <a href="#" class="text-muted small">더보기 ></a>
+                </div>
+
+                <!-- 게시글 리스트 -->
                 <div class="mb-4">
+                    <table id="feedTable" class="table table-hover align-middle mb-0 shadow-sm">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 50%;">제목</th>
+                            <th style="width: 15%;">글쓴이</th>
+                            <th style="width: 15%;">작성일</th>
+                            <th style="width: 10%;" class="text-center"><i class="fas fa-eye"></i></th>
+                            <th style="width: 10%;" class="text-center"><i class="fas fa-thumbs-up"></i></th>
+                        </tr>
+                        </thead>
+                        <tbody id="boardTableBody">
+                        <!-- 🔽 JavaScript에서 동적으로 추가됨 -->
+                        </tbody>
+                    </table>
+                </div>
 
+
+            <!-- 페이지네이션 -->
+            <nav style="text-align: center;">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
+
+            <!-- 검색 폼 (통합 검색) -->
+            <div class="mb-4">
+                <form
+                        id="searchForm"
+                        method="get"
+                        class="d-flex align-items-center justify-content-center"
+                        style="width: 100%;"
+                >
+                    <div
+                            class="input-group input-group-sm"
+                            style="width: 80%; max-width: 800px;"
+                    >
+                        <!-- 검색 타입 선택 -->
+                        <select
+                                id="searchType"
+                                name="searchType"
+                                class="form-control form-control-sm"
+                                style="
+                width: 10%;
+                margin-right: 5px;
+                background: #f8f9fa;
+                border-radius: 5px;
+              "
+                                onchange="toggleDateFields()"
+                        >
+                            <option value="text">제목 + 내용</option>
+                            <!-- <option value="category">카테고리</option> -->
+                            <option value="date">날짜 검색</option>
+                        </select>
+
+                        <!-- 검색어 입력 -->
+<!--                        <input-->
+<!--                                type="text"-->
+<!--                                id="searchInput"-->
+<!--                                name="text"-->
+<!--                                placeholder="검색어를 입력하세요"-->
+<!--                                class="form-control form-control-sm"-->
+<!--                                style="width: 40%; margin-right: 5px;"-->
+<!--                        />-->
+
+                        <!-- 날짜 선택 (기본적으로 숨김) -->
+                        <div
+                                id="dateFields"
+                                style="
+                display: none;
+                position: absolute;
+                top: 40px;
+                left: 0;
+                z-index: 10;
+                background: white;
+                border: 1px solid #ccc;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              "
+                        >
+                            <label for="startDate" style="margin-right: 5px;"
+                            >시작 날짜:</label
+                            >
+                            <input
+                                    type="datetime-local"
+                                    id="startDate"
+                                    name="startDate"
+                                    class="form-control form-control-sm"
+                                    style="width: 100px; margin-right: 10px;"
+                            />
+                            <label for="endDate" style="margin-right: 5px;"
+                            >종료 날짜:</label
+                            >
+                            <input
+                                    type="datetime-local"
+                                    id="endDate"
+                                    name="endDate"
+                                    class="form-control form-control-sm"
+                                    style="width: 100px;"
+                            />
+                        </div>
+
+                        <!-- 검색 버튼 -->
+                        <button
+                                id="searchId"
+                                type="button"
+                                class="btn btn-primary btn-sm"
+                                onclick="redirectSearch()"
+                        >
+                            <i class="fas fa-search"></i> 검색
+                        </button>
                     </div>
-                        <!-- 게시글 리스트 -->
-                        <table id="feedTable"  class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                            <tr>
-                                <th style="width: 50%;">제목</th>
-                                <th style="width: 15%;">글쓴이</th>
-                                <th style="width: 15%;">작성일</th>
-                                <th style="width: 10%;" class="text-center"><i class="fas fa-eye"></i></th>
-                                <th style="width: 10%;" class="text-center"><i class="fas fa-thumbs-up"></i></th>
-                            </tr>
-                            </thead>
-                            <tbody id="boardTableBody">
+                </form>
+            </div>
 
-                            <!-- 🔸 고정공지(핀) 예시 -->
-                            <tr class="table-warning">
-                                <td>[공지] 게시판 이용 안내</td>
-                                <td>관리자</td>
-                                <td>2025-02-23</td>
-                                <td><span class="badge bg-secondary"><i class="fas fa-eye"></i> 123</span></td>
-                                <td><span class="badge bg-success"><i class="fas fa-thumbs-up"></i> 45</span></td>
-                            </tr>
-
-                            </tbody>
-                        </table>
-                    <nav style="text-align: center;">
-                        <ul class="pagination" id="pagination">
-                        </ul>
-                    </nav>
-                    <div class="mb-4">
-                        <!-- 통합 검색 폼 -->
-                        <form id="searchForm" method="get" class="d-flex align-items-center justify-content-center" style="width: 100%;">
-                            <div class="input-group input-group-sm" style="width: 80%; max-width: 800px;">
-                                <!-- 검색 타입 선택 -->
-                                <select id="searchType" name="searchType" class="form-control form-control-sm"
-                                        style="width: 10%; margin-right: 5px; background: #f8f9fa; border-radius: 5px;"
-                                        onchange="toggleDateFields()">
-                                    <option value="text">제목 + 내용</option>
-<!--                                    <option value="category">카테고리</option>-->
-                                    <option value="date">날짜 검색</option>
-                                </select>
-
-                                <!-- 검색어 입력 -->
-                                <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요"
-                                       class="form-control form-control-sm" style="width: 40%; margin-right: 5px;" />
-
-                                <!-- 날짜 선택 (기본적으로 숨김) -->
-                                <div id="dateFields" style="display: none; position: absolute; top: 40px; left: 0; z-index: 10; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                    <label for="startDate" style="margin-right: 5px;">시작 날짜:</label>
-                                    <input type="datetime-local" id="startDate" name="startDate" class="form-control form-control-sm"
-                                           style="width: 100px; margin-right: 10px;" />
-                                    <label for="endDate" style="margin-right: 5px;">종료 날짜:</label>
-                                    <input type="datetime-local" id="endDate" name="endDate" class="form-control form-control-sm"
-                                           style="width: 100px;" />
-                                </div>
-
-                                <!-- 검색 버튼 -->
-                                <button id="searchId" type="button" class="btn btn-primary btn-sm" onclick="redirectSearch()">
-                                    <i class="fas fa-search"></i> 검색
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">
+            <!-- 글쓰기 버튼 (메인 하단) -->
+            <div
+                    class="d-flex justify-content-center align-items-center mb-4"
+                    style="width: 100%; text-align: center;"
+            >
                 <form action="/search/view/feed/Form" method="get">
                     <button type="submit" class="btn btn-secondary">
                         <i class="fas fa-pencil-alt"></i> 작성하기
                     </button>
                 </form>
             </div>
-<!--            </div>-->
-
         </main>
-<!--    <aside class="left-sidebar col-md-3" style="background-color: #f8f9fa; height: 100vh; position: sticky; top: 0;">-->
 
-    <aside class="right-sidebar col-md-2 side-container" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;">
-        <div id="visitorStats" class="visitor-stats mb-3"></div>
-        <div id="popularFeeds">
-            <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> 인기 게시물</h3>
-            <div class="ranking-box" id="monthFeedsList">
-                <!-- 인기 게시물 내용이 동적으로 추가됩니다 -->
+        <!-- 오른쪽 사이드바 -->
+        <aside
+                class="right-sidebar col-md-2 side-container"
+                style="z-index: 10;"
+        >
+            <!-- 토글 버튼 (모바일용) -->
+            <button id="rightMenuToggle" class="right-menu-toggle">
+                ☰ <span>오른쪽</span>
+            </button>
+
+            <div id="visitorStats" class="visitor-stats mb-3 p-2">
+                <!-- 실시간 접속자 수, 방문자 수 등을 표시 -->
+                <h5 class="fw-bold">실시간 접속자 수</h5>
+                <p id="currentVisitors">0명</p>
             </div>
-        </div>
 
-    </aside>
+            <div id="popularFeeds" class="p-2">
+                <h3 class="fw-bold text-primary">
+                    <i class="fas fa-fire"></i> 인기 게시물
+                </h3>
+                <div class="ranking-box" id="monthFeedsList">
+                    <!-- 인기 게시물 내용이 동적으로 추가 -->
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
 
-        </div> <!-- row 끝 -->
 
 <script>
 
+    function redirectSearch() {
+        const searchType = document.getElementById('searchType')?.value;
+        const searchText = document.getElementById('searchInput')?.value.trim();
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
+
+        // 🔍 사이드바 검색 입력값 추가
+        const sidebarSearchText = document.getElementById('sidebarSearchInput')?.value.trim();
+
+        let url = '/search/content?';
+
+        // ✅ 검색어가 입력된 곳을 우선 적용
+        let finalSearchText = searchText || sidebarSearchText;
+
+
+
+        if (searchType === 'text' || !searchType) {
+            url += `text=${encodeURIComponent(finalSearchText)}`;
+        } else if (searchType === 'date') {
+            if (!startDate || !endDate) {
+                alert('시작 및 종료 날짜를 입력하세요!');
+                return;
+            }
+            if (!finalSearchText) {
+                alert('검색어를 입력하세요!');
+                return;
+            }
+            url += `startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+        } else {
+            alert('검색 유형을 선택하세요!');
+            return;
+        }
+
+        history.pushState(null, '', url);
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('검색 요청 실패');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.data.length === 0) {
+                    alert('검색 결과가 없습니다.');
+                    return;
+                }
+                renderFeeds(data);
+            });
+    }
+
+
+    // document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
+    //     const submenu = document.querySelector(".menu-subitems");
+    //     submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+    // });
+
+    // 데이터 렌더링 함수
+    document.addEventListener("DOMContentLoaded", function () {
+        // 드롭다운 문제 해결 (Bootstrap JS 활성화)
+        var dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('click', function (e) {
+                let menu = this.nextElementSibling;
+                if (menu.classList.contains('show')) {
+                    menu.classList.remove('show');
+                } else {
+                    document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
+                    menu.classList.add('show');
+                }
+            });
+        });
+
+        // 로그인 성공 시 UI 변경
+        if (localStorage.getItem("username")) {
+            document.getElementById("login-button").classList.add("d-none");
+            document.getElementById("user-info").classList.remove("d-none");
+            document.getElementById("username").textContent = localStorage.getItem("username");
+        }
+
+        // 사용자 아이콘 클릭 시 메뉴 토글
+        document.getElementById("user-menu-btn").addEventListener("click", function () {
+            let menu = document.getElementById("user-menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        // 로그아웃 기능
+        window.logout = function () {
+            localStorage.removeItem("username");
+            window.location.reload();
+        };
+    });
     async function loadVisitorStats() {
         try {
             const response = await fetch('/get-ip');
@@ -1029,65 +1450,6 @@
             console.error('Error fetching visitor data:', error);
         }
     }
-
-    function redirectSearch() {
-        const searchType = document.getElementById('searchType')?.value;
-        const searchText = document.getElementById('searchInput')?.value.trim();
-        const startDate = document.getElementById('startDate')?.value;
-        const endDate = document.getElementById('endDate')?.value;
-
-        // 🔍 사이드바 검색 입력값 추가
-        const sidebarSearchText = document.getElementById('sidebarSearchInput')?.value.trim();
-
-        let url = '/search/content?';
-
-        // ✅ 검색어가 입력된 곳을 우선 적용
-        let finalSearchText = searchText || sidebarSearchText;
-
-        if (!finalSearchText) {
-            alert('검색어를 입력하세요!');
-            return;
-        }
-
-        if (searchType === 'text' || !searchType) {
-            url += `text=${encodeURIComponent(finalSearchText)}`;
-        } else if (searchType === 'date') {
-            if (!startDate || !endDate) {
-                alert('시작 및 종료 날짜를 입력하세요!');
-                return;
-            }
-            url += `startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-        } else {
-            alert('검색 유형을 선택하세요!');
-            return;
-        }
-
-        history.pushState(null, '', url);
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('검색 요청 실패');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.data.length === 0) {
-                    alert('검색 결과가 없습니다.');
-                    return;
-                }
-                renderFeeds(data);
-            });
-    }
-
-
-    document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
-        const submenu = document.querySelector(".menu-subitems");
-        submenu.style.display = submenu.style.display === "block" ? "none" : "block";
-    });
-
-    // 데이터 렌더링 함수
-
     function toggleDateFields() {
         const searchType = document.getElementById('searchType').value;
         const dateFields = document.getElementById('dateFields');
@@ -1185,9 +1547,10 @@
         document.getElementById('viewCount').textContent = jsonData.viewCount;
         loadVisitorStats();
 
-        // 2. 게시글 목록 테이블
-        const feedTableBody = document.querySelector('#feedTable tbody');
+        // 게시글 목록 테이블
+        const feedTableBody = document.querySelector('#boardTableBody');
         feedTableBody.innerHTML = '';
+
         jsonData.data.forEach(board => {
             const tr = document.createElement('tr');
 
@@ -1196,7 +1559,7 @@
                 tr.classList.add('table-warning');
             }
 
-            // 🔴 조회/추천에 배지+아이콘
+            // 🔴 조회수 & 추천 배지 스타일 적용
             tr.innerHTML = `
             <td>
                 <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
@@ -1208,12 +1571,12 @@
             </td>
             <td>${board.username}</td>
             <td>${formatDate(board.createdAt)}</td>
-            <td>
+            <td class="text-center">
                 <span class="badge badge-view">
                   <i class="fas fa-eye"></i> ${board.viewCount}
                 </span>
             </td>
-            <td>
+            <td class="text-center">
                 <span class="badge badge-like">
                   <i class="fas fa-thumbs-up"></i> ${board.likeCount}
                 </span>
@@ -1221,8 +1584,6 @@
         `;
             feedTableBody.appendChild(tr);
         });
-
-
 
         // 3. 인기 게시물(month)
         const popularFeedsList = document.getElementById("monthFeedsList");
@@ -1302,7 +1663,18 @@
             loadPage(0);
         }
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        // 🔍 검색 아이콘 클릭 시 검색 실행
+        document.getElementById("searchIcon").addEventListener("click", redirectSearch);
 
+        // 🔍 Enter 키 입력 시 검색 실행
+        document.getElementById("searchInput").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // 기본 동작 방지
+                redirectSearch();
+            }
+        });
+    });
 
     // 날짜 포맷 (예시)
     // function formatDate(dateTimeString) {
@@ -1419,7 +1791,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         const menuToggle = document.getElementById("menuToggle");  // 왼쪽 토글 버튼
         const rightMenuToggle = document.getElementById("rightMenuToggle"); // 오른쪽 토글 버튼
-        const leftSidebar = document.querySelector(".left-sidebar");
+        // const leftSidebar = document.querySelector(".left-sidebar");
         const rightSidebar = document.querySelector(".right-sidebar");
         const mainContent = document.querySelector(".main-content");
 
@@ -1432,8 +1804,8 @@
             rightMenuToggle.style.display = "flex";
 
             // 좌우 사이드바 기본적으로 숨김
-            leftSidebar.style.transform = "translateX(-100%)";
-            leftSidebar.style.display = "none";
+            // leftSidebar.style.transform = "translateX(-100%)";
+            // leftSidebar.style.display = "none";
 
             rightSidebar.style.transform = "translateX(100%)"; // ✅ 오른쪽에서 숨김
             rightSidebar.style.display = "none";
@@ -1445,17 +1817,17 @@
 
             // 📌 왼쪽 사이드바 토글
             menuToggle.addEventListener("click", () => {
-                if (leftSidebar.style.transform === "translateX(-100%)") {
-                    leftSidebar.style.transform = "translateX(0)";
-                    leftSidebar.style.display = "block";
-                    mainContent.style.marginLeft = "70vw"; // 살짝 밀림 효과
-                    mainContent.style.width = "calc(100% - 70vw)";
-                } else {
-                    leftSidebar.style.transform = "translateX(-100%)";
-                    leftSidebar.style.display = "none";
-                    mainContent.style.marginLeft = "0";
-                    mainContent.style.width = "100%";
-                }
+                // if (leftSidebar.style.transform === "translateX(-100%)") {
+                //     leftSidebar.style.transform = "translateX(0)";
+                //     leftSidebar.style.display = "block";
+                //     mainContent.style.marginLeft = "70vw"; // 살짝 밀림 효과
+                //     mainContent.style.width = "calc(100% - 70vw)";
+                // } else {
+                //     leftSidebar.style.transform = "translateX(-100%)";
+                //     leftSidebar.style.display = "none";
+                //     mainContent.style.marginLeft = "0";
+                //     mainContent.style.width = "100%";
+                // }
             });
 
             // 📌 오른쪽 사이드바 토글
