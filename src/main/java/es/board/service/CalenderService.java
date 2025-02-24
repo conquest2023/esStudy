@@ -7,6 +7,8 @@ import java.util.List;
 public interface CalenderService {
 
 
+    void saveRepeatSchedule(String token,ScheduleDTO scheduleDTO);
+
 
     void saveSchedule(String token, ScheduleDTO scheduleDTO);
 

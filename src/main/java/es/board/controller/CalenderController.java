@@ -27,12 +27,22 @@ public class CalenderController {
 
     @PostMapping("/save/schedule")
     public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
+        log.info("dsasadasdsa");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                calenderService.saveRepeatSchedule(token,scheduleDTO);
+            }
+        }
 
+    }
+    @PostMapping("/save/calendar/schedule")
+    public void saveRepeatCalendar(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
         log.info(scheduleDTO.toString());
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                calenderService.saveSchedule(token,scheduleDTO);
+                calenderService.saveRepeatSchedule(token,scheduleDTO);
             }
         }
 

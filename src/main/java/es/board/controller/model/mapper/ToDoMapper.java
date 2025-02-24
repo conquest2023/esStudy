@@ -8,13 +8,22 @@ import es.board.repository.entity.Schedule;
 import es.board.repository.entity.Todo;
 import es.board.repository.entity.TodoStatus;
 import lombok.Data;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
+@Slf4j
 @Component
 public class ToDoMapper {
 
@@ -76,6 +85,10 @@ public class ToDoMapper {
                 .allDay(scheduleDTO.getAllDay())
                 .location(scheduleDTO.getLocation())
                 .description(scheduleDTO.getDescription())
+                .isRepeat(scheduleDTO.getIsRepeat())
+                .repeatDays(scheduleDTO.getRepeatDays())
+                .repeatStartDate(scheduleDTO.getRepeatStartDate())
+                .repeatEndDate(scheduleDTO.getRepeatEndDate())
                 .build();
     }
 
@@ -94,6 +107,26 @@ public class ToDoMapper {
                 .build();
     }
 
+    public List<es.board.repository.document.Schedule> toScheduleDocumentList(String userId, List<Schedule> schedules) {
+        return schedules.stream()
+                .map(schedule -> es.board.repository.document.Schedule.builder()
+                        .scheduleId(schedule.getScheduleId()) // ✅ MySQL에서 저장된 ID 사용
+                        .userId(userId)
+                        .title(schedule.getTitle())
+                        .startDatetime(schedule.getStartDatetime())
+                        .endDatetime(schedule.getEndDatetime())
+                        .location(schedule.getLocation())
+                        .category(schedule.getCategory())
+                        .description(schedule.getDescription())
+                        .createdAt(schedule.getCreatedAt())
+                        .isRepeat(schedule.getIsRepeat())
+                        .repeatDays(schedule.getRepeatDays())
+                        .repeatStartDate(schedule.getRepeatStartDate())
+                        .repeatEndDate(schedule.getRepeatEndDate())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
     public  List<ScheduleDTO> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
         return schedule.stream()
@@ -108,5 +141,76 @@ public class ToDoMapper {
                         .endDatetime(schedule1.getEndDatetime())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public List<Schedule> generateRepeatSchedules(String userId, ScheduleDTO scheduleDTO) {
+        List<Schedule> repeatSchedules = new ArrayList<>();
+
+        LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();
+        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate(); // 🔥 전체 반복 종료일 사용
+        Set<DayOfWeek> repeatDaysSet = convertToDayOfWeekSet(scheduleDTO.getRepeatDays());
+
+        LocalDate currentDate = start;
+
+        while (currentDate != null && !currentDate.isAfter(end)) {
+            if (repeatDaysSet.contains(currentDate.getDayOfWeek())) {
+                Schedule schedule = Schedule.builder()
+                        .userId(userId)
+                        .title(scheduleDTO.getTitle())
+                        .startDatetime(LocalDateTime.of(currentDate, scheduleDTO.getStartDatetime().toLocalTime()))
+                        .endDatetime(LocalDateTime.of(currentDate, scheduleDTO.getEndDatetime().toLocalTime()))
+                        .allDay(scheduleDTO.getAllDay())
+                        .location(scheduleDTO.getLocation())
+                        .category(scheduleDTO.getCategory())
+                        .description(scheduleDTO.getDescription())
+                        .createdAt(LocalDateTime.now())
+                        .isRepeat(true)
+                        .repeatDays(scheduleDTO.getRepeatDays())
+                        .repeatStartDate(scheduleDTO.getRepeatStartDate())
+                        .repeatEndDate(scheduleDTO.getRepeatEndDate())
+                        .build();
+                repeatSchedules.add(schedule);
+            }
+
+            // ✅ 다음 반복 요일로 점프
+            currentDate = getNextRepeatDate(currentDate, repeatDaysSet, end);
+
+        }
+        return repeatSchedules;
+    }
+
+
+    private LocalDate getNextRepeatDate(LocalDate currentDate, Set<DayOfWeek> repeatDaysSet, LocalDate end) {
+        // 🔹 다음 가능한 반복 요일 찾기
+        for (int i = 1; i <= 7; i++) {
+            LocalDate nextDate = currentDate.plusDays(i);
+            if (nextDate.isAfter(end)) {
+                return null; // 종료일을 넘어가면 반복 중지
+            }
+            if (repeatDaysSet.contains(nextDate.getDayOfWeek())) {
+                return nextDate;
+            }
+        }
+        return null; // 반복 요일이 없으면 종료
+    }
+
+
+    private Set<DayOfWeek> convertToDayOfWeekSet(String repeatDays) {
+        Set<DayOfWeek> daysSet = new HashSet<>();
+        if (repeatDays != null && !repeatDays.isEmpty()) {
+            String[] days = repeatDays.split(",");
+            for (String day : days) {
+                switch (day.trim()) {
+                    case "월": daysSet.add(DayOfWeek.MONDAY); break;
+                    case "화": daysSet.add(DayOfWeek.TUESDAY); break;
+                    case "수": daysSet.add(DayOfWeek.WEDNESDAY); break;
+                    case "목": daysSet.add(DayOfWeek.THURSDAY); break;
+                    case "금": daysSet.add(DayOfWeek.FRIDAY); break;
+                    case "토": daysSet.add(DayOfWeek.SATURDAY); break;
+                    case "일": daysSet.add(DayOfWeek.SUNDAY); break;
+                }
+            }
+        }
+        return daysSet;
     }
 }

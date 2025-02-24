@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,6 +30,24 @@ public class CalenderServiceImpl implements CalenderService {
     private  final ScheduleDAO scheduleDAO;
 
     private  final ToDoMapper toDoMapper;
+
+    @Override
+    public void saveRepeatSchedule(String token, ScheduleDTO scheduleDTO) {
+        CompletableFuture.supplyAsync(() -> {
+
+            List<Schedule> schedulesToInsert = new ArrayList<>(toDoMapper.generateRepeatSchedules(jwtTokenProvider.getUserId(token), scheduleDTO));
+
+            List<Schedule> savedSchedules = scheduleRepository.saveAll(schedulesToInsert);
+
+
+            List<es.board.repository.document.Schedule> scheduleDocuments = toDoMapper.toScheduleDocumentList(jwtTokenProvider.getUserId(token), savedSchedules);
+
+            asyncService.saveScheduleBulkAsync(scheduleDocuments);
+
+            return null;
+        });
+    }
+
     @Override
     public void saveSchedule(String token ,ScheduleDTO scheduleDTO) {
 

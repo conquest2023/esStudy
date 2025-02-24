@@ -3,9 +3,7 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import es.board.controller.model.req.ScheduleDTO;
 import es.board.ex.IndexException;
 import es.board.repository.ScheduleDAO;
@@ -40,6 +38,37 @@ public class ScheduleDAOImpl  implements ScheduleDAO {
             // 오류가 발생한 경우 로그를 출력합니다.
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the feed document", e); // 예외를 감싸서 던짐
+        }
+    }
+    @Override
+    public void saveScheduleBulk(List<Schedule> schedules) {
+        try {
+            // 🔹 벌크 요청 빌더
+            BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
+            // 🔹 문서 리스트를 벌크 요청에 추가
+            for (Schedule schedule : schedules) {
+                bulkRequest.operations(op -> op
+                        .index(idx -> idx
+                                .index("schedule_index")
+                                .document(schedule)
+                        )
+                );
+            }
+
+            // 🔹 벌크 요청 실행
+            BulkResponse response = client.bulk(bulkRequest.build());
+
+            // 🔹 오류가 있는지 확인
+            if (response.errors()) {
+                log.error("Bulk indexing has failures: {}", response);
+            } else {
+                log.info("Bulk indexing completed successfully.");
+            }
+
+        } catch (IOException e) {
+            log.error("Error performing bulk indexing: {}", e.getMessage(), e);
+            throw new IndexException("Failed to perform bulk indexing", e);
         }
     }
 

@@ -47,6 +47,18 @@ public class Schedule {
     @Column(nullable = false)
     private LocalDateTime updatedAt; // 수정일
 
+    @Column(name = "is_repeat")
+    private Boolean isRepeat;
+
+    @Column(name = "repeat_days")
+    private String repeatDays; // 🔄 반복 요일 (예: "월,수,금")
+
+    @Column(nullable = true,name = "repeat_start_date")
+    private LocalDateTime repeatStartDate; // 🔄 반복 일정 시작 날짜
+
+    @Column(nullable = true,name = "repeat_end_date")
+    private LocalDateTime repeatEndDate; // 🔄 반복 일정 종료 날짜
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

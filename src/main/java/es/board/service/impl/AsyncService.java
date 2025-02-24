@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -53,6 +54,19 @@ public class AsyncService {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
         try {
             scheduleDAO.saveSchedule(scheduleDTO);
+            log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> saveScheduleBulkAsync(List<Schedule> schedule) {
+        log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
+        try {
+            scheduleDAO.saveScheduleBulk(schedule);
             log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
         } catch (Exception e) {
             log.error("Elasticsearch 저장 실패", e);

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ScheduleDAO {
 
-
+    void saveScheduleBulk(List<Schedule> schedules);
     void saveSchedule(Schedule schedule);
 
      List<Schedule> searchSchedule(String userId, String query, String searchType, String sortType);
