@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ public class CalenderController {
 
     @PostMapping("/save/schedule")
     public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
-        log.info("dsasadasdsa");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -38,7 +38,6 @@ public class CalenderController {
     }
     @PostMapping("/save/calendar/schedule")
     public void saveRepeatCalendar(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
-        log.info(scheduleDTO.toString());
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -47,6 +46,25 @@ public class CalenderController {
         }
 
     }
+
+
+    @GetMapping("/search/repeat/schedule")
+    @ResponseBody
+    public ResponseEntity<?> getRepeatSchedule(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        List<ScheduleDTO> scheduleDTOS = calenderService.getRepeatSchedule(token);
+        Map<String, Object> response = new HashMap<>();
+        response.put("repeatSchedules", scheduleDTOS);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/search/schedule")
     @ResponseBody
     public ResponseEntity<?> getTodoById(@RequestHeader(value = "Authorization", required = false) String token) {
@@ -90,7 +108,8 @@ public class CalenderController {
 
         // ✅ 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
-        response.put("schedules", scheduleDTOS);  // ✅ "todos" → "schedules" 변경
+
+        response.put("schedules", scheduleDTOS);
 
         return ResponseEntity.ok(response);
     }
@@ -102,5 +121,36 @@ public class CalenderController {
                 calenderService.deleteSchedule(id,token);
             }
         }
+    }
+
+    @PostMapping("/delete/repeat/schedule")
+    public ResponseEntity<?> deleteRepeatTodo(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestBody Map<String, String> requestBody) {
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        log.info(requestBody.toString());
+        String createdAtStr = requestBody.get("createdAt");
+        String startDateTimeAtStr=requestBody.get("startDatetime");
+        String endDateTimeAtStr=requestBody.get("endDatetime");
+
+
+
+        LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
+
+        LocalDateTime start = LocalDateTime.parse(startDateTimeAtStr);
+
+        LocalDateTime end = LocalDateTime.parse(endDateTimeAtStr);
+
+
+        calenderService.deleteRepeatSchedule(token, createdAt,start,end);
+
+        return ResponseEntity.ok(Map.of("message", "반복 일정 삭제 완료"));
     }
 }

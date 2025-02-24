@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,14 +61,35 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     @Override
+    public List<ScheduleDTO> getRepeatSchedule(String token) {
+        return  toDoMapper.fromSchedule(scheduleRepository.findDistinctRepeatSchedules(jwtTokenProvider.getUserId(token)));
+    }
+
+    @Override
     public List<ScheduleDTO> searchSchedule(String token,String title,String  description, String  category) {
         return toDoMapper.fromScheduleDocument(scheduleDAO.searchSchedule(jwtTokenProvider.getUserId(token),title,description,category));
     }
 
     @Override
     public void deleteSchedule(Long id, String token) {
+
         scheduleRepository.deleteById(id);
+
+
+        //Elasticsearch에서도 동일한 일정 삭제
+        CompletableFuture.runAsync(() -> {
+            scheduleDAO.deleteSchedule(id);
+        });
     }
+
+    @Override
+    public void deleteRepeatSchedule(String token, LocalDateTime createdAt, LocalDateTime start, LocalDateTime end) {
+        scheduleRepository.deleteByUserIdAndCreatedAtAndIsRepeat(jwtTokenProvider.getUserId(token),createdAt);
+
+        CompletableFuture.runAsync(() -> {
+                scheduleDAO.deleteRepeatSchedule(jwtTokenProvider.getUserId(token),start,end);
+            });
+        }
 
     @Override
     public List<ScheduleDTO> getSchedule(String token) {

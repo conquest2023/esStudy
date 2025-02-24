@@ -123,6 +123,8 @@
             <button id="toggleGraphBtn" class="btn btn-info">📊 통계 보기</button>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">+ 일정 추가</button>
             <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#repeatEventModal">🔄 반복 일정 추가</button>
+            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRepeatEventModal">🗑 반복 일정 삭제</button>
+
         </div>
 
     </div>
@@ -134,18 +136,26 @@
     <p class="mt-3 text-muted fst-italic">📅 최근 한달동안 활동 기록</p>
 
 </div>
-
-
-<!--<div class="container mt-4">-->
-<!--    <h3>📋 일정 목록</h3>-->
-<!--    <div id="scheduleListContainer" class="d-none">-->
-<!--        <div id="scheduleList" class="list-group">-->
-<!--            &lt;!&ndash; 동적으로 일정 추가 &ndash;&gt;-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-
+<div class="modal fade" id="deleteRepeatEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🔄 반복 일정 삭제</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>삭제할 반복 일정을 선택하세요.</p>
+                <select id="repeatScheduleSelect" class="form-select">
+                    <!-- 🔄 여기에 동적으로 반복 일정 목록이 추가됨 -->
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteSelectedRepeatSchedule">삭제</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container py-4">
     <h2>📆 일정 관리 캘린더</h2>
@@ -158,10 +168,6 @@
 
         <input type="text" id="searchInput" class="form-control w-25" placeholder="검색어 입력">
 
-<!--        <select id="sortType" class="form-select w-auto">-->
-<!--            <option value="soonest">빠른 일정 순</option>-->
-<!--            <option value="latest">늦은 일정 순</option>-->
-<!--        </select>-->
 
         <button class="btn btn-primary d-flex align-items-center" id="searchBtn">
             🔍 검색
@@ -170,6 +176,23 @@
             🔄 초기화
         </button>
     </div>
+
+
+    <div class="modal fade" id="searchResultsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg"> <!-- 모달 크기 확대 -->
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">🔎 검색 결과</h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="searchResultsModalList" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- 캘린더 컨테이너 -->
     <div id="calendar-container">
         <div id="calendar"></div>
@@ -822,26 +845,33 @@
         })
             .then(response => response.json())
             .then(data => {
-                console.log("📌 검색된 일정 데이터:", data);
-                // console.log(query,searchType,sortType)
                 let scheduleEvents = [];
 
-                if (data.todos && Array.isArray(data.todos)) {
-                    scheduleEvents = data.todos.map(schedule => ({
+                if (data.schedules && Array.isArray(data.schedules)) { // ✅ `schedules`가 배열인지 체크
+                    scheduleEvents = data.schedules.map(schedule => ({
                         id: schedule.scheduleId,
                         title: `[📅] ${schedule.title}`,
-                        description: schedule.description,
-                        start: schedule.startDatetime,
-                        end: schedule.endDatetime,
-                        allDay: schedule.allDay,
+                        description: schedule.description || "설명 없음",
+                        start: schedule.startDatetime || "날짜 없음",
+                        end: schedule.endDatetime || "날짜 없음",
+                        allDay: schedule.allDay ?? false,
                         extendedProps: {
-                            location: schedule.location,
-                            category: schedule.category
+                            location: schedule.location || "장소 없음",
+                            category: schedule.category || "카테고리 없음"
                         },
-                        backgroundColor: query ? "#ffc107" : "#0d6efd", // ✅ 검색된 이벤트는 노란색
-                        borderColor: query ? "#ff9800" : "#0a58ca",
+                        backgroundColor: "#ffc107",
+                        borderColor: "#ff9800",
                         textColor: "#000000"
                     }));
+                    if (scheduleEvents.length > 0) {
+                        displaySearchResultsInModal(scheduleEvents);
+                    } else {
+                        console.warn("🚨 검색된 데이터가 비어 있음");
+                        displaySearchResultsInModal([]);
+                    }
+                } else {
+                    console.warn("🚨 검색된 데이터가 올바르지 않음:", data);
+                    displaySearchResultsInModal([]);
                 }
 
                 successCallback(scheduleEvents);
@@ -852,11 +882,11 @@
             });
     }
 
+
     // ✅ 검색 버튼 클릭 시 AJAX 요청
     document.getElementById('searchBtn').addEventListener('click', function () {
         const searchQuery = document.getElementById('searchInput').value.trim();
         const searchType = document.getElementById('searchType').value;
-        // const sortType = document.getElementById('sortType').value;
 
         if (!searchQuery) {
             alert("🔎 검색어를 입력해주세요!");
@@ -865,8 +895,53 @@
 
         calendar.removeAllEvents();  // ✅ 기존 이벤트 제거
         calendar.refetchEvents();   // ✅ 새로운 검색 결과 반영
-        loadEvents(searchQuery, searchType, events => calendar.addEventSource(events), error => console.error(error));
+        loadEvents(searchQuery, searchType, events => {
+            calendar.addEventSource(events); // ✅ 새로운 검색 결과 캘린더에 반영
+            displaySearchResultsInModal(events);
+
+            // ✅ 검색 후 자동으로 모달 닫기
+            setTimeout(() => {
+                const modalElement = document.getElementById("searchResultsModal");
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            }, 3000);
+        }, error => console.error(error));
     });
+    function displaySearchResultsInModal(results) {
+
+        const searchResultsModalList = document.getElementById("searchResultsModalList");
+        searchResultsModalList.innerHTML = ""; // 기존 목록 초기화
+
+        if (results.length === 0) {
+            searchResultsModalList.innerHTML = `<li class="list-group-item text-center text-muted">🔍 검색 결과가 없습니다.</li>`;
+            return;
+        }
+
+        results.forEach(schedule => {
+
+            const listItem = document.createElement("li");
+            listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+
+            listItem.innerHTML = `
+            <div>
+                <strong class="text-primary">${schedule.title}</strong> <br>
+                🗓 <span class="text-muted">${schedule.start || "날짜 없음"}</span> ~ <span class="text-muted">${schedule.end || "날짜 없음"}</span>
+            </div>
+            <button class="btn btn-sm btn-outline-primary view-event" data-id="${schedule.id}">🔍 보기</button>
+        `;
+            searchResultsModalList.appendChild(listItem);
+        });
+
+        const modalElement = document.getElementById("searchResultsModal");
+        const modalInstance = new bootstrap.Modal(modalElement, {
+            keyboard: false,  // ✅ ESC 키로 닫는 기능 비활성화
+            backdrop: false   // ✅ `Backdrop` 제거
+        });
+
+        modalInstance.show();
+    }
+
+
 
     // ✅ 초기화 버튼 클릭 시 전체 일정 다시 로드
     document.getElementById('resetBtn').addEventListener('click', function () {
@@ -885,11 +960,103 @@
             graphContainer.style.display = "none";
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const repeatScheduleSelect = document.getElementById("repeatScheduleSelect");
+        const deleteSelectedRepeatSchedule = document.getElementById("deleteSelectedRepeatSchedule");
+        const token = localStorage.getItem("token");
+
+        let scheduleMap = new Map(); // 🔹 scheduleId와 createdAt을 매핑하기 위한 Map
+
+        function loadRepeatSchedules() {
+            fetch('/search/repeat/schedule', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.repeatSchedules && data.repeatSchedules.length > 0) {
+                        repeatScheduleSelect.innerHTML = ""; // 기존 목록 초기화
+                        scheduleMap.clear(); // Map 초기화
+
+                        data.repeatSchedules.forEach(schedule => {
+                            const option = document.createElement("option");
+                            option.value = schedule.scheduleId; // 🆔 일정 ID 저장
+                            option.textContent = `${schedule.title} - ${schedule.startDatetime}`;
+                            repeatScheduleSelect.appendChild(option);
+
+                            scheduleMap.set(String(schedule.scheduleId), {
+                                createdAt: schedule.createdAt,
+                                startDatetime: schedule.startDatetime,
+                                endDatetime: schedule.endDatetime
+                            });
+                            console.log(scheduleMap)
+                        });
+                    } else {
+                        repeatScheduleSelect.innerHTML = "<option disabled>삭제할 일정이 없습니다.</option>";
+                    }
+                })
+                .catch(error => console.error("🚨 반복 일정 목록 불러오기 실패:", error));
+        }
+
+        // 모달이 열릴 때 반복 일정 목록을 불러옴
+        document.getElementById("deleteRepeatEventModal").addEventListener("show.bs.modal", loadRepeatSchedules);
+
+// ✅ 선택한 반복 일정 삭제 기능 추가
+        deleteSelectedRepeatSchedule.addEventListener("click", function () {
+            const selectedScheduleId = repeatScheduleSelect.value;
+            const selectedScheduleData = scheduleMap.get(String(selectedScheduleId));
+
+            if (!selectedScheduleData) {
+                alert("🚨 선택한 일정 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            const selectedCreatedAt = selectedScheduleData.createdAt;
+            const selectedStartDatetime = selectedScheduleData.startDatetime;
+            const selectedEndDatetime = selectedScheduleData.endDatetime;
+
+            if (!selectedCreatedAt || !selectedStartDatetime || !selectedEndDatetime) {
+                alert("🚨 삭제할 일정의 필수 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            if (!confirm("🗑 해당 반복 일정을 삭제하시겠습니까?")) {
+                return;
+            }
+
+            fetch(`/delete/repeat/schedule`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    createdAt: selectedCreatedAt,
+                    startDatetime: selectedStartDatetime,
+                    endDatetime: selectedEndDatetime
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("✅ 반복 일정이 삭제되었습니다.");
+                        location.reload(); // ✅ 삭제 후 새로고침하여 캘린더 갱신
+                    } else {
+                        alert("❌ 반복 일정 삭제 실패!");
+                    }
+                })
+                .catch(error => console.error("🚨 반복 일정 삭제 중 오류 발생:", error));
+        });
+    });
+
+
 </script>
 
 
 
-</script>
 
 </body>
 </html>

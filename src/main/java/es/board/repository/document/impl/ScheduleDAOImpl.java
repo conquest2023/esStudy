@@ -1,6 +1,7 @@
 package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.*;
@@ -11,9 +12,11 @@ import es.board.repository.document.Reply;
 import es.board.repository.document.Schedule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.RequestOptions;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +43,7 @@ public class ScheduleDAOImpl  implements ScheduleDAO {
             throw new IndexException("Failed to index the feed document", e); // 예외를 감싸서 던짐
         }
     }
+
     @Override
     public void saveScheduleBulk(List<Schedule> schedules) {
         try {
@@ -93,7 +97,7 @@ public class ScheduleDAOImpl  implements ScheduleDAO {
                                         return m;
                                     })
 
-                            )).sort(w-> w.field(f -> f
+                            )).sort(w -> w.field(f -> f
                                     .field("start_datetime")  // ✅ 일정 시작일 기준 정렬
                                     .order(SortOrder.Asc)     // ✅ 빠른 일정 순 (오름차순)
                             )),
@@ -109,6 +113,45 @@ public class ScheduleDAOImpl  implements ScheduleDAO {
         } catch (IOException e) {
             log.error("❌ 검색 오류 발생: {}", e.getMessage(), e);
             return Collections.emptyList();
+        }
+    }
+
+
+    @Override
+    public void deleteSchedule(Long id) {
+
+        try {
+            DeleteResponse response = client.delete(d -> d
+                    .index("schedule_index")
+                    .id(id.toString())
+            );
+            log.info("🗑 Elasticsearch 삭제 완료: " + id);
+        } catch (IOException e) {
+            log.error("🚨 Elasticsearch 삭제 중 오류 발생: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteRepeatSchedule(String userId, LocalDateTime start, LocalDateTime end) {
+        log.info("🗑 삭제 요청: userId={}, start={}, end={}", userId, start, end);
+        try {
+            DeleteByQueryRequest request = new DeleteByQueryRequest.Builder()
+                    .index("schedule_index")
+                    .query(q -> q
+                            .bool(b -> b
+                                    .must(m -> m.term(t -> t.field("userId").value(userId))) // ✅ userId 정확히 매칭
+                                    .must(m -> m.term(t -> t.field("startDatetime").value(FieldValue.of(start.toString()))))
+                                    .must(m -> m.term(t -> t.field("endDatetime").value(FieldValue.of(end.toString()))))
+                                    .must(m -> m.term(t -> t.field("isRepeat").value(true)))
+                            )
+                    )
+                    .build();
+
+            var response = client.deleteByQuery(request);
+
+            log.info("✅ 반복 일정 Elasticsearch 삭제 완료: {}개 삭제됨", response.deleted());
+        } catch (IOException e) {
+            log.error("🚨 Elasticsearch 반복 일정 삭제 중 오류 발생: {}", e.getMessage());
         }
     }
 }

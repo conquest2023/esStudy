@@ -70,6 +70,7 @@ public class ToDoMapper {
                         .location(schedule1.getLocation())
                         .startDatetime(schedule1.getStartDatetime())
                         .endDatetime(schedule1.getEndDatetime())
+                        .createdAt(schedule1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -110,7 +111,7 @@ public class ToDoMapper {
     public List<es.board.repository.document.Schedule> toScheduleDocumentList(String userId, List<Schedule> schedules) {
         return schedules.stream()
                 .map(schedule -> es.board.repository.document.Schedule.builder()
-                        .scheduleId(schedule.getScheduleId()) // ✅ MySQL에서 저장된 ID 사용
+                        .scheduleId(schedule.getScheduleId()) // MySQL에서 저장된 ID
                         .userId(userId)
                         .title(schedule.getTitle())
                         .startDatetime(schedule.getStartDatetime())
@@ -147,7 +148,7 @@ public class ToDoMapper {
         List<Schedule> repeatSchedules = new ArrayList<>();
 
         LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();
-        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate(); // 🔥 전체 반복 종료일 사용
+        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate(); //  전체 반복 종료일 사용
         Set<DayOfWeek> repeatDaysSet = convertToDayOfWeekSet(scheduleDTO.getRepeatDays());
 
         LocalDate currentDate = start;
