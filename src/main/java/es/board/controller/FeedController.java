@@ -3,6 +3,7 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.AuthService;
@@ -184,7 +185,10 @@ public class FeedController {
         return "basic/feed/MostViewFeed";
     }
 
-
+    @GetMapping("/post/page")
+    public String getNoticeOne() {
+        return  "basic/feed/PostFeedList";
+    }
     @GetMapping("/search/view/feed/list/{category}")
     public String getCategoryListFeed(Model model, @PathVariable String category) {
         model.addAttribute("data", feedService.getCategoryFeed(category));

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 작성</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>📢 공지사항 작성</h3>
+                </div>
+                <div class="card-body">
+                    <form id="noticeForm">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">제목</label>
+                            <input type="text" class="form-control" id="title" placeholder="공지사항 제목 입력" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">내용</label>
+                            <textarea class="form-control" id="content" rows="5" placeholder="공지사항 내용을 입력하세요" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">등록하기</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ 공지사항 등록 AJAX -->
+<script>
+    $(document).ready(function () {
+        $("#noticeForm").submit(function (e) {
+            e.preventDefault();
+            createNotice();
+        });
+    });
+
+    function createNotice() {
+        const token = localStorage.getItem("token"); // JWT 토큰 가져오기
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        let noticeData = {
+            title: $("#title").val(),
+            content: $("#content").val()
+        };
+
+        $.ajax({
+            url: "/add/notice",
+            type: "POST",
+            contentType: "application/json",
+            headers: { "Authorization": "Bearer " + token },
+            data: JSON.stringify(noticeData),
+            success: function () {
+                alert("✅ 공지사항이 등록되었습니다!");
+                window.location.href = "/"; // 리스트 페이지로 이동
+            },
+            error: function () {
+                alert("❌ 공지사항 등록 실패!");
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

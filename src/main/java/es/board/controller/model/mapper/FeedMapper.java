@@ -1,9 +1,11 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
 import es.board.repository.entity.Likes;
+import es.board.repository.entity.Notice;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -65,11 +67,49 @@ public class FeedMapper {
                 .build();
     }
 
+
     public Likes LikeToEntity(String feedUID, String userId) {
         return Likes.builder()
                 .feedUID(feedUID)
                 .userId(userId)
                 .created_at(LocalDateTime.now()) // 현재 시간 저장
+                .build();
+    }
+
+    public  List<NoticeDTO> fromNoticeList(List<Notice> notice) {
+        return notice.stream()
+                .map(notice1 -> NoticeDTO.builder()
+                        .id(notice1.getId())
+                        .feedUID(notice1.getFeedUID())
+                        .author(notice1.getAuthor())
+                        .title(notice1.getTitle())
+                        .content(notice1.getContent())
+                        .createdAt(notice1.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public  NoticeDTO fromNotice(Notice notice) {
+        return NoticeDTO.builder()
+                .id(notice.getId())
+                .userId(notice.getUserId())
+                .feedUID(notice.getFeedUID())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .author(notice.getAuthor())
+                .createdAt(notice.getCreatedAt())
+                .updatedAt(notice.getUpdatedAt())
+                .build();
+    }
+
+    public  Notice ToNotice(NoticeDTO notice,String userId) {
+        return Notice.builder()
+                .id(notice.getId())
+                .userId(userId)
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .author("관리자")
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }

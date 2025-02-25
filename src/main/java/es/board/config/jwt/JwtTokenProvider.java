@@ -29,10 +29,6 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
-//    public JwtToken createAccessToken(LoginResponse login){
-//
-//        return  generateToken(login);
-//    }
 private final Set<String> blacklistedTokens = new HashSet<>();
 
     // 블랙리스트에 토큰 추가
@@ -44,7 +40,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokens.contains(token);
     }
-    //    Authentication authentication
     public JwtToken generateToken(Authentication authentication,String userId) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -109,8 +104,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
 
     public  String getUserId(String token){
 
-        return  parseClaims(token).get(
-                "sub",String.class);
+        return  parseClaims(token).get("sub",String.class);
     }
 
 
@@ -172,7 +166,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            // Access Token은 만료됐을 수 있으니 Claims 반환
             return e.getClaims();
         } catch (JwtException e) {
             // JWT 형식 자체가 잘못됐을 때

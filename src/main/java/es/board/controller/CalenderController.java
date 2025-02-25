@@ -151,6 +151,6 @@ public class CalenderController {
 
         calenderService.deleteRepeatSchedule(token, createdAt,start,end);
 
-        return ResponseEntity.ok(Map.of("message", "반복 일정 삭제 완료"));
+        return ResponseEntity.ok(Map.of("success", true));
     }
 }

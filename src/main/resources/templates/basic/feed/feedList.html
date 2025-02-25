@@ -46,7 +46,22 @@
             .left-sidebar, .right-sidebar {
                 display: none;
             }
-
+            .notice-card {
+                background-color: #ffefc3; /* 연한 노랑 */
+                padding: 15px;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .notice-title {
+                font-weight: bold;
+                font-size: 18px;
+            }
+            .notice-icon {
+                color: #ff9800;
+                font-size: 20px;
+                margin-right: 5px;
+            }
             /* ✅ 모바일에서 메뉴 버튼 보이게 */
             .menu-toggle {
                 display: flex;
@@ -848,36 +863,23 @@
             justify-content: space-between;
             align-items: center;
         }
-        .post-item:last-child {
-            border-bottom: none; /* 마지막 항목 구분선 제거 */
+        .notice-card {
+            background-color: #ffefc3; /* 연한 노랑 */
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .post-left {
-            display: flex;
-            align-items: center;
+        .notice-title {
+            font-weight: bold;
+            font-size: 18px;
         }
-        .post-category {
-            font-size: 0.75rem;
-            color: #555;
-            background-color: #f1f1f1;
-            border-radius: 4px;
-            padding: 0.2rem 0.4rem;
-            margin-right: 0.5rem;
-            white-space: nowrap;
+        .notice-icon {
+            color: #ff9800;
+            font-size: 20px;
+            margin-right: 5px;
         }
-        .post-title {
-            font-weight: 500;
-            color: #333;
-            text-decoration: none;
-        }
-        .post-title:hover {
-            text-decoration: underline;
-        }
-        .post-right {
-            display: flex;
-            align-items: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
+
         .post-right .me-3 {
             display: inline-flex;
             align-items: center;
@@ -1102,18 +1104,7 @@
                     </li>
                     <!-- Q&A 탭 -->
                     <li class="nav-item" role="presentation">
-                        <button
-                                class="nav-link"
-                                id="qa-tab"
-                                data-bs-toggle="tab"
-                                data-bs-target="#qaTabPane"
-                                type="button"
-                                role="tab"
-                                aria-controls="qaTabPane"
-                                aria-selected="false"
-                        >
-                            Q&A
-                        </button>
+                        <button class="nav-link" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane" type="button" role="tab" aria-controls="qaTabPane" aria-selected="false">Q&A</button>
                     </li>
                     <!-- 토픽 베스트 탭 -->
                     <li class="nav-item" role="presentation">
@@ -1132,12 +1123,6 @@
                     </li>
                 </ul>
             <!-- 게시글 리스트 -->
-<!--                <div class="d-flex align-items-center justify-content-between mb-2">-->
-<!--                    <h5 class="fw-bold">전체 글</h5>-->
-<!--                    <a href="#" class="text-muted small">더보기 ></a>-->
-<!--                </div>-->
-
-                <!-- 게시글 리스트 -->
                 <div class="mb-4">
                     <table id="feedTable" class="table table-hover align-middle mb-0 shadow-sm">
                         <thead class="table-light">
@@ -1150,7 +1135,7 @@
                         </tr>
                         </thead>
                         <tbody id="boardTableBody">
-                        <!-- 🔽 JavaScript에서 동적으로 추가됨 -->
+
                         </tbody>
                     </table>
                 </div>
@@ -1293,76 +1278,6 @@
 <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVFQ5V8tOieywjAA7U6M/A1aIRtD0Sj1x4Onfdbk5BL9I5p4WQ=="></script>-->
 
 <script>
-    // document.addEventListener("DOMContentLoaded", function () {
-    //     checkLoginStatus(); // ✅ 로그인 상태 확인
-    //     bindLogoutEvent();  // ✅ 로그아웃 버튼 이벤트 바인딩
-    // });
-    //
-    // // ✅ 사용자 아이콘 클릭 시 메뉴 토글 (버튼과 메뉴가 있는지 확인 후 실행)
-    //     const userMenuBtn = document.getElementById("user-menu-btn");
-    //
-    //     if (userMenuBtn) {
-    //         userMenuBtn.addEventListener("click", function () {
-    //             let menu = document.getElementById("user-menu");
-    //             if (menu) {
-    //                 menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    //                 bindLogoutEvent(); // ✅ 메뉴가 열릴 때 로그아웃 버튼 이벤트 바인딩
-    //             }
-    //         });
-    //     } else {
-    //         console.error("⚠️ user-menu-btn 요소가 존재하지 않음");
-    //     }
-    //
-    //
-    //
-    // // ✅ 로그아웃 버튼 바인딩 함수
-    // function bindLogoutEvent() {
-    //     setTimeout(() => {
-    //         const logoutBtn = document.getElementById("logout-button");
-    //
-    //         if (logoutBtn) {
-    //             logoutBtn.removeEventListener("click", logout); // 중복 방지
-    //             logoutBtn.addEventListener("click", function (e) {
-    //                 e.preventDefault();
-    //                 logout();
-    //             });
-    //             console.log("✅ 로그아웃 버튼 이벤트 바인딩 완료");
-    //         } else {
-    //             console.warn("⚠️ 로그아웃 버튼이 없음. 0.5초 후 재시도...");
-    //             setTimeout(bindLogoutEvent, 500); // 버튼이 없으면 0.5초 후 다시 시도
-    //         }
-    //     }, 300);
-    // }
-    //
-    //
-    // // ✅ 로그인 상태 체크 함수
-    // function checkLoginStatus() {
-    //     const username = localStorage.getItem("username");
-    //     console.log("[DEBUG] 로그인 확인: ", username);
-    //
-    //     const loginButton = document.getElementById("login-button");
-    //     const userInfo = document.getElementById("user-info");
-    //
-    //     if (username) {
-    //         document.body.classList.add("logged-in");
-    //
-    //         if (loginButton) loginButton.classList.add("d-none"); // 로그인 버튼 숨김
-    //         if (userInfo) userInfo.classList.remove("d-none"); // 사용자 정보 표시
-    //
-    //         const usernameSpan = document.getElementById("username");
-    //         if (usernameSpan) usernameSpan.textContent = username;
-    //
-    //         console.log("✅ 로그인된 상태: ", username);
-    //     } else {
-    //         document.body.classList.remove("logged-in");
-    //
-    //         if (loginButton) loginButton.classList.remove("d-none"); // 로그인 버튼 표시
-    //         if (userInfo) userInfo.classList.add("d-none"); // 사용자 정보 숨김
-    //
-    //         console.log("❌ 로그아웃 상태");
-    //     }
-    // }
-
     // ✅ 로그아웃 함수
     function logout() {
         localStorage.removeItem("username");
@@ -1584,46 +1499,63 @@
         // }, );
     }
     function renderFeeds(jsonData,count) {
-        // 1. 조회수 표시
+        let pinnedNotices = ""; // 🔥 공지사항 HTML 저장
+        let normalPosts = ""; // 🔥 일반 게시글 HTML 저장
         document.getElementById('viewCount').textContent = jsonData.viewCount;
         loadVisitorStats();
-
-        // 게시글 목록 테이블
         const feedTableBody = document.querySelector('#boardTableBody');
         feedTableBody.innerHTML = '';
+        // ✅ 공지사항 먼저 불러오기
+        $.ajax({
+            url: "/list/noitce",
+            type: "GET",
+            success: function (noticeData) {
+                noticeData.forEach(notice => {
+                    pinnedNotices += `
+                    <tr class="table-warning">
+                        <td>📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a></td>
+                        <td>${notice.author}</td>
+                        <td>${new Date(notice.created_at).toLocaleString('ko-KR')}</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">-</td>
+                    </tr>`;
+                });
 
-        jsonData.data.forEach(board => {
-            const tr = document.createElement('tr');
+        // 게시글 목록 테이블
+                jsonData.data.forEach(board => {
+                    let isPinned = board.pinned === true;
+                    let rowHTML = `
+                    <tr class="${isPinned ? 'table-warning' : ''}">
+                        <td>
+                            ${isPinned ? '📢 ' : ''}
+                            <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
+                            ${count && count[board.feedUID] > 0 ?
+                        `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
+                        : ""}
+                        </td>
+                        <td>${board.username}</td>
+                        <td>${formatDate(board.createdAt)}</td>
+                        <td class="text-center">
+                            <span class="badge badge-view">
+                                <i class="fas fa-eye"></i> ${board.viewCount}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-like">
+                                <i class="fas fa-thumbs-up"></i> ${board.likeCount}
+                            </span>
+                        </td>
+                    </tr>`;
 
-            // 🔴 고정공지(pinned)면 table-warning 적용
-            if (board.pinned) {
-                tr.classList.add('table-warning');
+                    normalPosts += rowHTML; // 일반 게시글 추가
+                });
+
+                // ✅ 공지사항 + 일반 게시글 합쳐서 테이블에 추가
+                feedTableBody.innerHTML = pinnedNotices + normalPosts;
+            },
+            error: function () {
+                alert("❌ 공지사항을 불러오는 중 오류 발생!");
             }
-
-            // 🔴 조회수 & 추천 배지 스타일 적용
-            tr.innerHTML = `
-            <td>
-                <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
-                ${
-                count && count[board.feedUID] > 0
-                    ? `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>`
-                    : ""
-            }
-            </td>
-            <td>${board.username}</td>
-            <td>${formatDate(board.createdAt)}</td>
-            <td class="text-center">
-                <span class="badge badge-view">
-                  <i class="fas fa-eye"></i> ${board.viewCount}
-                </span>
-            </td>
-            <td class="text-center">
-                <span class="badge badge-like">
-                  <i class="fas fa-thumbs-up"></i> ${board.likeCount}
-                </span>
-            </td>
-        `;
-            feedTableBody.appendChild(tr);
         });
 
         // 3. 인기 게시물(month)
@@ -2241,6 +2173,8 @@
             todoAlert.innerText = message;
         }
     }
+
+
         // 새 알림 추가
     function addNotification(message) {
         const notificationList = document.getElementById("notificationList");
