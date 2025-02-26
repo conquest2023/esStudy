@@ -2,6 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
+
+    List<TopWriter>  getTopWriters();
     List<FeedRequest> getUserRangeTimeFeed(String userId);
     List<FeedRequest> getFeedUserList(String userId);
     Integer getUserLikeCount(String userId);

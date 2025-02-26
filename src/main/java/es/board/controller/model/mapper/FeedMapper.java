@@ -81,9 +81,9 @@ public class FeedMapper {
                 .map(notice1 -> NoticeDTO.builder()
                         .id(notice1.getId())
                         .feedUID(notice1.getFeedUID())
-                        .author(notice1.getAuthor())
+                        .username(notice1.getUsername())
                         .title(notice1.getTitle())
-                        .content(notice1.getContent())
+                        .description(notice1.getDescription())
                         .createdAt(notice1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
@@ -95,8 +95,8 @@ public class FeedMapper {
                 .userId(notice.getUserId())
                 .feedUID(notice.getFeedUID())
                 .title(notice.getTitle())
-                .content(notice.getContent())
-                .author(notice.getAuthor())
+                .description(notice.getDescription())
+                .username(notice.getUsername())
                 .createdAt(notice.getCreatedAt())
                 .updatedAt(notice.getUpdatedAt())
                 .build();
@@ -107,8 +107,8 @@ public class FeedMapper {
                 .id(notice.getId())
                 .userId(userId)
                 .title(notice.getTitle())
-                .content(notice.getContent())
-                .author("관리자")
+                .description(notice.getDescription())
+                .username("관리자")
                 .createdAt(LocalDateTime.now())
                 .build();
     }

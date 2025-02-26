@@ -5,6 +5,7 @@ import es.board.config.s3.S3Uploader;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
@@ -62,6 +63,14 @@ public class FeedServiceImpl implements FeedService {
     public double getUserFeedCount(String userId) {
 
         return  feedDAO.findUserFeedCount(userId);
+    }
+
+    @Override
+    public List<TopWriter> getTopWriters() {
+
+
+        return feedDAO.findTopWriters();
+
     }
 
     @Override

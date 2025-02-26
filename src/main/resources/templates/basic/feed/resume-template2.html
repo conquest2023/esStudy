@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발자 이력서 생성 및 PDF 다운로드</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Font Awesome (아이콘) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f4f7f9;
+      color: #333;
+    }
+    /* 입력 폼 영역 */
+    .form-section {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    /* 미리보기 영역 */
+    #resumePreview {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+    .header {
+      background: #343a40;
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+      border-radius: 5px 5px 0 0;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .contact-info i {
+      color: #007bff;
+      margin-right: 0.5rem;
+    }
+    .section-title {
+      border-bottom: 2px solid #007bff;
+      display: inline-block;
+      margin-bottom: 1rem;
+      padding-bottom: 0.25rem;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .skill-badge {
+      background: #007bff;
+      color: #fff;
+      margin: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+    }
+    .project-card {
+      transition: transform 0.2s ease;
+    }
+    .project-card:hover {
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container my-5">
+  <!-- 사용자 입력 폼 -->
+  <div class="form-section">
+    <h2 class="mb-4">이력서 정보 입력</h2>
+    <form id="resumeForm">
+      <div class="mb-3">
+        <label for="name" class="form-label">이름</label>
+        <input type="text" class="form-control" id="name" placeholder="이름을 입력하세요" required>
+      </div>
+      <div class="mb-3">
+        <label for="phone" class="form-label">전화번호</label>
+        <input type="text" class="form-control" id="phone" placeholder="전화번호를 입력하세요" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">이메일</label>
+        <input type="email" class="form-control" id="email" placeholder="이메일을 입력하세요" required>
+      </div>
+      <div class="mb-3">
+        <label for="github" class="form-label">GitHub</label>
+        <input type="text" class="form-control" id="github" placeholder="https://github.com/username">
+      </div>
+      <div class="mb-3">
+        <label for="skills" class="form-label">기술 스택 (쉼표로 구분)</label>
+        <input type="text" class="form-control" id="skills" placeholder="예: HTML5, CSS3, JavaScript">
+      </div>
+      <div class="mb-3">
+        <label for="projects" class="form-label">프로젝트 경험</label>
+        <textarea class="form-control" id="projects" rows="3" placeholder="프로젝트 경험을 간략히 입력하세요"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">미리보기</button>
+    </form>
+  </div>
+
+  <!-- 이력서 미리보기 영역 -->
+  <div id="resumePreview">
+    <header class="header">
+      <h1 id="previewName">이름</h1>
+      <p class="lead">Full-Stack Developer</p>
+      <div class="contact-info">
+        <p>
+          <i class="fas fa-phone"></i> <span id="previewPhone">전화번호</span> &nbsp;|&nbsp;
+          <i class="fas fa-envelope"></i> <span id="previewEmail">이메일</span> &nbsp;|&nbsp;
+          <i class="fab fa-github"></i> <a href="#" target="_blank" id="previewGithub">GitHub</a>
+        </p>
+      </div>
+    </header>
+
+    <section class="mt-4">
+      <h2 class="section-title">기술 스택</h2>
+      <div id="previewSkills">
+        <!-- 스킬 배지 동적 생성 -->
+      </div>
+    </section>
+
+    <section class="mt-4">
+      <h2 class="section-title">프로젝트 경험</h2>
+      <div id="previewProjects">
+        <p>프로젝트 경험 내용이 여기에 표시됩니다.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- PDF 다운로드 버튼 -->
+  <div class="text-center mt-4">
+    <button id="downloadPdfBtn" class="btn btn-success btn-lg">
+      <i class="fas fa-download"></i> PDF 다운로드
+    </button>
+  </div>
+</div>
+
+<!-- html2pdf 라이브러리 (html2pdf.bundle.min.js가 jsPDF 등 포함) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- jQuery (이미 포함됨, 혹은 위쪽 CDN 사용) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // 폼 제출 시 미리보기 업데이트
+  $('#resumeForm').on('submit', function(e) {
+    e.preventDefault();
+
+    // 입력 값 가져오기
+    const name = $('#name').val();
+    const phone = $('#phone').val();
+    const email = $('#email').val();
+    const github = $('#github').val();
+    const skills = $('#skills').val();
+    const projects = $('#projects').val();
+
+    // 미리보기 업데이트
+    $('#previewName').text(name);
+    $('#previewPhone').text(phone);
+    $('#previewEmail').text(email);
+    $('#previewGithub').attr('href', github).text(github);
+
+    // 기술 스택: 쉼표로 분리하여 배지 생성
+    const skillsArr = skills.split(',').map(s => s.trim()).filter(s => s !== "");
+    let skillsHTML = "";
+    skillsArr.forEach(skill => {
+      skillsHTML += `<span class="skill-badge">${skill}</span>`;
+    });
+    $('#previewSkills').html(skillsHTML);
+
+    // 프로젝트 경험 업데이트
+    $('#previewProjects').html(`<p>${projects}</p>`);
+  });
+
+  // PDF 다운로드 버튼 클릭 시 html2pdf 이용
+  $('#downloadPdfBtn').on('click', function() {
+    const element = document.getElementById('resumePreview');
+    const opt = {
+      margin:       0.5,
+      filename:     '개발자_이력서.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+</script>
+</body>
+</html>

@@ -2,9 +2,12 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.TopWriter;
 import es.board.ex.IndexException;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
@@ -13,6 +16,7 @@ import es.board.repository.document.Board;
 import es.board.repository.entity.entityrepository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.core.AggregationContainer;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
@@ -29,7 +33,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
 
-   private final BoardRepository boardRepository;
+    private final BoardRepository boardRepository;
 
     private final int increment = 1;
 
@@ -53,7 +57,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<Board> findUserRangeTimeFeed(String userId) {
 
-         String start =LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             SearchResponse<Board> response = client.search(s -> s
@@ -65,7 +69,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             r.date(v ->
                                                     v.gte(start).lte(end).field("createdAt")))) // 두 번째 조건
                             )
-                    ).sort(so->so.field(f->f.field("createdAt").order(SortOrder.Desc))).size(5), Board.class);
+                    ).sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))).size(5), Board.class);
             return response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
@@ -74,6 +78,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to search feed by date range", e);
         }
     }
+
     @Override
     public List<Board> saveBulkFeed(List<Board> pages) {
         BulkRequest.Builder br = new BulkRequest.Builder();
@@ -101,11 +106,11 @@ public class FeedDAOImpl implements FeedDAO {
 //            });
 //        }
 //        return pages;
-        return  null;
+        return null;
     }
 
     @Override
-    public FeedCreateResponse indexSaveFeed(FeedCreateResponse dto)  {
+    public FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) {
         dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i
@@ -114,6 +119,21 @@ public class FeedDAOImpl implements FeedDAO {
                     .document(dto));
             log.info(response.toString());
             return dto;
+        } catch (IOException e) {
+            log.error("Error indexing document: {}", e.getMessage(), e);
+            throw new IndexException("Failed to index the document", e); // 예외를 커스텀 예외로 던짐
+        }
+    }
+
+
+    @Override
+    public void saveNoticeFeed(NoticeDTO dto, Long id) {
+        try {
+            IndexResponse response = client.index(i -> i
+                    .index("board")
+                    .id(String.valueOf(id))
+                    .document(dto));
+            log.info(response.toString());
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the document", e); // 예외를 커스텀 예외로 던짐
@@ -204,11 +224,11 @@ public class FeedDAOImpl implements FeedDAO {
                                             .value(userId)))
                             .size(0) // 검색 결과는 제외하고 집계만 반환
                             .aggregations("like_count", a -> a
-                                    .sum(d-> d
+                                    .sum(d -> d
                                             .field("likeCount"))), // "likes" 필드의 합산 집계
                     Board.class);
             // 집계 결과 가져오기
-           return (int) response.aggregations()
+            return (int) response.aggregations()
                     .get("like_count")
                     .sum()
                     .value();
@@ -235,6 +255,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch like count feed", e); // 예외 처리
         }
     }
+
     @Override
     public List<Board> findPagingFeed(int page, int size) {
         try {
@@ -274,7 +295,7 @@ public class FeedDAOImpl implements FeedDAO {
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.error("Error fetching most viewed feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch most viewed feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
@@ -289,18 +310,17 @@ public class FeedDAOImpl implements FeedDAO {
                             .size(size)
                             .query(q -> q.matchAll(t -> t)),
                     Board.class);
-           return response.hits().total().value();
-        } catch (IOException  e) {
+            return response.hits().total().value();
+        } catch (IOException e) {
             log.error("Error fetching total page count: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch total page count", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }
 
 
-
     @Override
     @Transactional
-    public void deleteFeedOne(String id)  {
+    public void deleteFeedOne(String id) {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                     .index("board")
@@ -347,7 +367,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findCategoryAndContent(String category)  {
+    public List<Board> findCategoryAndContent(String category) {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -367,7 +387,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public double findSumLikeByPageOne(int page, int size)  {
+    public double findSumLikeByPageOne(int page, int size) {
 
 
         try {
@@ -389,7 +409,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public double findSumFeed()  {
+    public double findSumFeed() {
 
         try {
             SearchResponse<Board> response = client.search(s -> s
@@ -398,11 +418,11 @@ public class FeedDAOImpl implements FeedDAO {
                                     a -> a.valueCount(vc -> vc.field("feedUID.keyword"))),
                     Board.class);
 //            log.info("내가쓴 게시글={}",response.toString());
-            return    response.aggregations()
+            return response.aggregations()
                     .get("feedCount")
                     .valueCount()
                     .value();
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.error("Error fetching sum of feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch sum of feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
@@ -410,7 +430,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public List<Board> findMonthPopularFeed()  {
+    public List<Board> findMonthPopularFeed() {
         try {
             int monthPage = 5;
             SearchResponse<Board> response = client.search(s -> s
@@ -425,14 +445,14 @@ public class FeedDAOImpl implements FeedDAO {
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.error("Error fetching month popular feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch month popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }
 
     @Override
-    public List<Board> findPopularFeedDESC(int page,int size)  {
+    public List<Board> findPopularFeedDESC(int page, int size) {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -441,18 +461,18 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field("likeCount")
                                     .order(SortOrder.Desc)))
                             .query(q -> q.matchAll(t -> t))
-                            ,Board.class);
+                    , Board.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.error("Error fetching month popular feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch month popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
     }
 
     @Override
-    public List<Board> findRecentFeed()  {
+    public List<Board> findRecentFeed() {
 
         try {
             SearchResponse<Board> response = client.search(s -> s
@@ -479,13 +499,13 @@ public class FeedDAOImpl implements FeedDAO {
 
         try {
             SearchResponse<Board> response = client.search(g -> g
-                            .index("board")
-                            .query(q -> q
-                                    .bool(b -> b
-                                            .filter(
-                                                    s -> s.term(t -> t
-                                                            .field("feedUID.keyword")
-                                                            .value(id))))), Board.class);
+                    .index("board")
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            s -> s.term(t -> t
+                                                    .field("feedUID.keyword")
+                                                    .value(id))))), Board.class);
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
                 return null;
@@ -519,7 +539,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public Board findPopularFeedOne()  {
+    public Board findPopularFeedOne() {
         try {
 
             SearchResponse<Board> response = client.search(s -> s
@@ -549,7 +569,7 @@ public class FeedDAOImpl implements FeedDAO {
         try {
 
             SearchResponse<Board> response = client.search(s -> s
-                    .index("board")
+                            .index("board")
                             .aggregations("feedCount", a -> a
                                     .filter(f -> f
                                             .term(t -> t
@@ -560,7 +580,7 @@ public class FeedDAOImpl implements FeedDAO {
                     .get("feedCount")
                     .filter()
                     .docCount();
-        }catch (IOException e){
+        } catch (IOException e) {
             log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
         }
@@ -611,7 +631,7 @@ public class FeedDAOImpl implements FeedDAO {
     public int findAllViewCount() {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
-                    .index("board")
+                            .index("board")
                             .aggregations("totalViews",
                                     a -> a.sum(sum ->
                                             sum.field("viewCount"))),
@@ -622,8 +642,44 @@ public class FeedDAOImpl implements FeedDAO {
                     .sum()
                     .value();
 
-         } catch (IOException e) {
+        } catch (IOException e) {
             log.info("조회수 가져오기 실패");
+            throw new IndexException(e);
+        }
+    }
+
+    @Override
+    public List<TopWriter> findTopWriters() {
+        try {
+            SearchResponse<Board> response = client.search(
+                    s -> s.index("board")
+                            .size(0)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .must(m -> m.exists(e -> e.field("userId")))))
+                            .aggregations("top_writers", a -> a
+                                    .terms(t -> t
+                                            .field("username.keyword")
+                                            .size(7)
+                                    )
+                            ),
+                    Board.class);
+
+            // ✅ 집계 데이터 가져오기
+            return response.aggregations()
+                    .get("top_writers")
+                    .sterms()
+                    .buckets()
+                    .array()
+                    .stream()
+                    .map(bucket -> new TopWriter(
+                            bucket.key().stringValue(),
+                            bucket.docCount()
+                    ))
+                    .filter(writer -> writer.getUsername() != "" && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("🚨 Top 유저 가져오기 실패!", e);
             throw new IndexException(e);
         }
     }

@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.AuthService;
@@ -47,6 +48,11 @@ public class FeedController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+
+    @GetMapping("/top-writers")
+    public ResponseEntity<List<TopWriter>> getTopWriters() {
+        return ResponseEntity.ok(feedService.getTopWriters());
+    }
 
     @GetMapping("/logout/user")
     public String logoutPage(Model model) {
@@ -175,6 +181,38 @@ public class FeedController {
     public String getFeed() { // 페이지 크기
 
         return "basic/feed/feedList";
+    }
+
+
+    @GetMapping("/resume/template/1")
+    public String getResume1() {
+
+        return "basic/feed/resume-template1";
+    }
+
+    @GetMapping("/resume/template/2")
+    public String getResume2() {
+
+        return "basic/feed/resume-template2";
+    }
+
+    @GetMapping("/team/calendar")
+    public String getTeamCalendar() {
+
+        return "basic/feed/TeamCalendar";
+    }
+
+
+    @GetMapping("/resume/template/3")
+    public String getResume3() {
+
+        return "basic/feed/resume-template3";
+    }
+
+    @GetMapping("/search/view/resume")
+    public String getResume() { // 페이지 크기
+
+        return "basic/feed/Resume";
     }
 
     @GetMapping("/search/view/feed/list/most")

@@ -20,8 +20,9 @@ public class NoticeDTO {
     private String title;
 
     private  String feedUID;
-    private String content;
-    private String author;
+    private String description;
+
+    private String username;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

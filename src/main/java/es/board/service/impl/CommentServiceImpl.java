@@ -86,12 +86,19 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void indexComment(CommentCreate dto) {
+        String userId = postRepository.findByFeedUID(dto.getFeedUID());
 
-         commentDAO.saveCommentIndex(dto);
-         String userId = postRepository.findByFeedUID(dto.getFeedUID());
-         if (!userId.equals(dto.getUserId())) {
+        commentDAO.saveCommentIndex(dto); // ✅ 댓글 저장
 
-            notificationService.sendCommentNotification(userId,dto.getFeedUID(),dto.getUsername()+"님이"+"댓글이 작성하였습니다: " + dto.getContent());
+        if (userId == null) {
+            // ✅ 공지사항 댓글인 경우 (userId가 없을 경우)
+            log.info("📌 공지사항에 댓글 작성됨: {}", dto.getFeedUID());
+        } else {
+            // ✅ 일반 게시글 댓글 처리
+            if (!userId.equals(dto.getUserId())) {
+                notificationService.sendCommentNotification(userId, dto.getFeedUID(),
+                        dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
+            }
         }
     }
 

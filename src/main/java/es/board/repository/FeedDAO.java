@@ -2,6 +2,8 @@ package es.board.repository;
 
 
 import es.board.controller.model.req.FeedUpdate;
+import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Repository;
@@ -12,6 +14,8 @@ import java.util.List;
 @Repository
 public interface FeedDAO {
 
+    List<TopWriter> findTopWriters();
+    void saveNoticeFeed(NoticeDTO dto, Long id);
    // Map<String, Object> search(String index)  throws IOException, ElasticsearchException;
 
     List<Board> findUserRangeTimeFeed(String userId);

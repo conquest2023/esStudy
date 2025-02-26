@@ -17,9 +17,28 @@
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://kit.fontawesome.com/~~YOUR_FONTAWESOME_KEY~~.js" crossorigin="anonymous"></script>
     <style>
-        .menu-toggle {
-            display: none; /* 데스크톱에서는 숨김 */
+
+        #rightMenuToggle {
+            display: none; /* 기본값: 데스크톱에서 숨김 */
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 10px;
         }
+        .menu-toggle  {
+            display: none;
+        }
+        .right-menu-toggle {
+            display: none;
+        }
+        .container-custom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+
+        }
+
         /* 게시판 */
         #feedTable thead th {
             background-color: #f8f9fa;
@@ -39,82 +58,126 @@
             margin: 0 auto;  /* 가운데 정렬 */
             padding: 0 20px; /* 좌우 여백 추가 */
         }
+        @media (max-width: 1400px) {
+            .container-custom {
+                max-width: 95%; /* ✅ 화면이 작아질수록 너비 확장 */
+            }
+        }
 
         /* ✅ 모바일에서만 적용되는 스타일 */
         @media (max-width: 768px) {
-            /* ✅ 모바일에서는 사이드바 숨기고, 메뉴 버튼 사용 */
-            .left-sidebar, .right-sidebar {
-                display: none;
+            .balloon {
+                opacity: 1;
             }
-            .notice-card {
-                background-color: #ffefc3; /* 연한 노랑 */
-                padding: 15px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            .menu-toggle, #rightMenuToggle {
+                display: flex !important;
             }
-            .notice-title {
-                font-weight: bold;
+            #rightMenuToggle {
+                background-color: black !important; /* 검은색 배경 */
+                color: white !important; /* 흰색 글자 */
+                border: none;
                 font-size: 18px;
-            }
-            .notice-icon {
-                color: #ff9800;
-                font-size: 20px;
-                margin-right: 5px;
-            }
-            /* ✅ 모바일에서 메뉴 버튼 보이게 */
-            .menu-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: fixed;
-                top: 15px;
-                left: 15px;
-                width: 65px;
-                height: 45px;
-                background: #007bff;
-                color: white;
-                font-size: 15px;
-                font-weight: bold;
-                border: none;
-                border-radius: 8px;
+                padding: 8px 12px;
+                border-radius: 5px; /* 둥근 모서리 */
                 cursor: pointer;
-                z-index: 9999;
-            }
-            .right-menu-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: fixed;
-                top: 15px;
-                right: 15px; /* ← 왼쪽 버튼과 동일하게, 단 right 적용 */
-                width: 65px;
-                height: 45px;
-                background: #007bff;
-                color: white;
-                font-size: 15px;
-                font-weight: bold;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                z-index: 9999;
-            }
-            .right-sidebar.active {
-                transform: translateX(0);
             }
 
-            /* 모바일에서 사이드바 버튼 */
-            .right-menu-toggle {
-                position: absolute;
-                left: -40px;
-                top: 20px;
-                background: #007bff;
-                color: white;
-                padding: 5px 10px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 14px;
+            .right-sidebar.show {
+                right: 0;
             }
+            .container-custom {
+                max-width: 100%; /* ✅ 모바일에서는 좌우 공백 없이 꽉 차게 */
+                padding: 0 10px; /* ✅ 너무 꽉 차보이지 않도록 약간의 공백 유지 */
+            }
+            .tooltip-box {
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 10px;
+                font-size: 14px;
+                animation: fadeInOut 3s ease-in-out;
+            }
+            .tooltip-box.show {
+                display: block;
+                animation: fadeInOut 3s ease-in-out;
+            }
+
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateY(10px); }
+                10% { opacity: 1; transform: translateY(0px); }
+                90% { opacity: 1; transform: translateY(0px); }
+                100% { opacity: 0; transform: translateY(10px); }
+            }
+            /* 기본적으로 숨김 */
+            #navbarNav {
+                display: none;
+            }
+            #rightSidebar {
+                display: none !important;
+                position: fixed;
+                top: 0;
+                right: -250px; /* 🔥 오른쪽 화면 밖에서 대기 */
+                width: 250px;
+                height: 100vh;
+                background: white;
+                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                overflow-y: auto;
+                transition: transform 0.3s ease-in-out;
+            }
+
+            /* ✅ 버튼 클릭 시 오른쪽에서 나오게 설정 */
+            #rightSidebar.show {
+                display: block !important;
+                transform: translateX(-300px); /* ❌ 왼쪽으로 밀리지 않게 수정 */
+                right: 0; /* 🔥 오른쪽으로 나와야 함 */
+            }
+
+            /* 보일 때 */
+
+
+                    /* 버튼 클릭 시 보이게 설정 */
+            #navbarNav.show {
+                display: block;
+            }
+
+            #rightSidebar.show {
+                display: block;
+            }
+
+            #leftSidebar.show {
+                transform: translateX(250px); /* 왼쪽에서 나옴 */
+            }
+
+            #rightSidebar.show {
+                transform: translateX(-250px); /* 오른쪽에서 나옴 */
+            }
+
+            .menu-toggle, .right-menu-toggle {
+                display: flex;
+                position: fixed;
+                top: 15px;
+                background: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                width: 50px;
+                height: 40px;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            }
+            .menu-toggle {
+                left: 15px; /* 왼쪽 햄버거 버튼 */
+            }
+            .right-menu-toggle {
+                right: 15px; /* 오른쪽 햄버거 버튼 */
+            }
+
             .menu-toggle span {
                 margin-left: 5px;
                 font-size: 14px;
@@ -126,13 +189,6 @@
                 margin-top: 10px;
             }
 
-            /* ✅ 로그인 후 카테고리 정렬 */
-            .vertical-menu {
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-                /*gap: 8px; !* 각 항목 간 간격 추가 *!*/
-            }
 
 
             .vertical-menu a {
@@ -171,20 +227,20 @@
 
 
             .right-sidebar {
+                display: block !important; /* ✅ 모바일에서도 강제로 보이도록 설정 */
                 position: fixed;
                 top: 0;
-                right: 0;
-                width: 22vw;
-                min-width: 200px;
-                max-width: 280px;
+                right: -250px; /* 기본적으로 화면 밖에 위치 */
+                width: 250px;
                 height: 100vh;
                 background: white;
-                box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
-                padding: 15px;
-                z-index: 9998;
-                overflow-y: auto;
-                transform: translateX(100%); /* 기본적으로 화면 밖으로 이동 */
+                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
                 transition: transform 0.3s ease-in-out;
+            }
+
+            .right-sidebar.show {
+                transform: translateX(-250px) !important; /* ✅ 모바일에서도 나올 수 있도록 */
             }
             .left-sidebar.active {
                 transform: translateX(0); /* 왼쪽에서 나타남 */
@@ -199,15 +255,6 @@
                 display: block;
             }
 
-            .right-sidebar.active {
-                transform: translateX(0);
-                opacity: 1;
-                visibility: visible;
-            }
-            /*.left-sidebar.active ~ .main-content {*/
-            /*    margin-left: 22vw;*/
-            /*    width: calc(100% - 22vw);*/
-            /*}*/
 
             .right-sidebar.active ~ .main-content {
                 margin-left: 22vw;
@@ -421,7 +468,6 @@
         .ranking-item:last-child {
             border-bottom: none;
         }
-        /* 각 랭킹 아이템 스타일 */
 
 
         .input-group-sm input {
@@ -429,34 +475,18 @@
             margin-right: 5px; /* 필드 간 간격 */
         }
 
-        .btn-sm {
-            font-size: 0.8rem; /* 버튼 크기 축소 */
-            padding: 4px 8px;  /* 버튼의 패딩 조정 */
-        }
-
-        .list-group-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        /* 왼쪽 사이드바 */
-        .left-sidebar {
-            flex-shrink: 0;
-            width: 10%; /* 고정된 너비 */
-            background-color: #f8f9fa;
-            border-right: 1px solid #ddd;
-        }
         .right-sidebar {
-            flex-shrink: 0;
-            top: 50%; /* 화면의 중간 위치 */
-            width: 15%; /* Increased width for better balance */
-            background-color: #f8f9fa;
-            border-left: 1px solid #ddd;
-            padding: 20px;
-            /*overflow-y: auto; !* Allow vertical scrolling if needed *!*/
+            width: 250px;
+            max-width: 350px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+
+            position: sticky;
+            top: 50%;
+            transform: translateY(10%);  /*  오른쪽 바 조정  */
         }
 
         .list-group-item .btn {
@@ -513,13 +543,6 @@
         .stat-value {
             color: #007bff;
             font-weight: bold;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            width: 70%; /* Adjusted width for better balance */
-            padding: 20px;
-            overflow-y: auto; /* Allow vertical scrolling if needed */
         }
 
 
@@ -856,30 +879,12 @@
             color: #666;
             cursor: pointer;
         }
-        .post-item {
-            border-bottom: 1px solid #eaeaea;
-            padding: 0.8rem 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .tooltip-box {
+            display: none; /* 기본 hidden */
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
         }
-        .notice-card {
-            background-color: #ffefc3; /* 연한 노랑 */
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .notice-title {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .notice-icon {
-            color: #ff9800;
-            font-size: 20px;
-            margin-right: 5px;
-        }
-
         .post-right .me-3 {
             display: inline-flex;
             align-items: center;
@@ -958,7 +963,41 @@
         #user-menu .dropdown-item:hover {
             background: #f8f9fa;
         }
+        .balloon {
+            position: absolute;
+            top: 40px; /* ✅ 아이콘 아래로 이동 */
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffcc00;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            white-space: nowrap;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+            cursor: pointer;
+        }
 
+        /* ✅ 말풍선 삼각형 방향을 아래쪽으로 설정 */
+        .balloon::after {
+            content: "";
+            position: absolute;
+            top: -10px; /* ✅ 삼각형이 위쪽이 아니라 아래쪽을 가리키도록 */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #ffcc00 transparent;
+        }
+
+
+        /* ✅ 말풍선 처음에는 살짝 보였다가 사라지도록 */
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
 
     </style>
     </div>
@@ -972,17 +1011,12 @@
 <!--        </button>-->
 <!--    </form>-->
 <!--</div>-->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-navbar">
-    <div class="container-fluid">
-        <!-- 📌 로고 (왼쪽 정렬 + 크기 확대) -->
+<button id="leftMenuToggle" class="menu-toggle d-md-none">≡</button>
+<button id="rightMenuToggle" class="btn btn-dark ms-2" style="z-index: 1500; position: fixed; top: 15px; right: 180px; display: none;">
+    ☰</button>
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-navbar">
+    <div  class="container-fluid">
         <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
-
-        <!-- 📌 모바일 토글 버튼 -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- 네비게이션 메뉴 -->
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
                 <!-- 📂 게시판 -->
@@ -998,20 +1032,30 @@
                         <li><a class="dropdown-item" href="/search/view/feed/list/게임"><i class="fas fa-gamepad"></i> 게임</a></li>
                         <li><a class="dropdown-item" href="/search/view/feed/list/공부"><i class="fas fa-book"></i> 공부</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT취업정보</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/search/view/feed/list/job"><i class="fas fa-check"></i> IT 취업 정보</a>
+                    <a class="nav-link" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT 취업 정보</a>
                 </li>
                 <!-- ✅ Todo 리스트 -->
-                <li class="nav-item">
-                    <a class="nav-link" href="/todo"><i class="fas fa-check"></i> Todo리스트</a>
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="/todo">
+                        <i class="fas fa-check"></i> Todo리스트
+                    </a>
+                    <!-- 🗨️ 말풍선 (아이콘 아래에 배치) -->
+                    <div id="todoBalloon" class="balloon below show">
+                        ✨ 오늘 150개 작성됨! 한번 작성해보세요!
+                    </div>
                 </li>
 
-                <!-- ✅ 캘린더 -->
-                <li class="nav-item">
-                    <a class="nav-link" href="/calendar"><i class="fas fa-calendar-alt"></i> 캘린더</a>
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="/calendar">
+                        <i class="fas fa-calendar-alt"></i> 캘린더
+                    </a>
+                    <!-- 🗨️ 말풍선 (아이콘 아래에 배치) -->
+                    <div id="calendarBalloon" class="balloon below show">
+                        📅 오늘 일정 추가해보세요!
+                    </div>
                 </li>
             </ul>
         </div>
@@ -1059,12 +1103,9 @@
 
 <!-- ====================== 메인 레이아웃: 좌측 사이드바 / 중앙(메인) / 우측 사이드바 ====================== -->
 
-<!--<input type="text" id="searchInput" class="form-control border-0 shadow-none"-->
-<!--       placeholder="관심있는 내용을 검색해보세요!" onclick="redirectSearch()">-->
-        <div class="container-fluid">
-<!--                <div class="row">-->
+        <div class="container-custom">
         <!-- 메인 콘텐츠 -->
-            <main class="main-content col-md-7">
+            <main class="container-custom">
                 <!-- 검색 바 -->
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
                     <div id="todo-alert" class="alert alert-info mt-2" style="display: none;"></div>
@@ -1146,97 +1187,6 @@
                 <ul class="pagination" id="pagination"></ul>
             </nav>
 
-            <!-- 검색 폼 (통합 검색) -->
-<!--            <div class="mb-4">-->
-<!--                <form-->
-<!--                        id="searchForm"-->
-<!--                        method="get"-->
-<!--                        class="d-flex align-items-center justify-content-center"-->
-<!--                        style="width: 100%;"-->
-<!--                >-->
-<!--                    <div-->
-<!--                            class="input-group input-group-sm"-->
-<!--                            style="width: 80%; max-width: 800px;"-->
-<!--                    >-->
-<!--                        &lt;!&ndash; 검색 타입 선택 &ndash;&gt;-->
-<!--                        <select-->
-<!--                                id="searchType"-->
-<!--                                name="searchType"-->
-<!--                                class="form-control form-control-sm"-->
-<!--                                style="-->
-<!--                width: 10%;-->
-<!--                margin-right: 5px;-->
-<!--                background: #f8f9fa;-->
-<!--                border-radius: 5px;-->
-<!--              "-->
-<!--                                onchange="toggleDateFields()"-->
-<!--                        >-->
-<!--                            <option value="text">제목 + 내용</option>-->
-<!--                            &lt;!&ndash; <option value="category">카테고리</option> &ndash;&gt;-->
-<!--                            <option value="date">날짜 검색</option>-->
-<!--                        </select>-->
-
-                        <!-- 검색어 입력 -->
-<!--                        <input-->
-<!--                                type="text"-->
-<!--                                id="searchInput"-->
-<!--                                name="text"-->
-<!--                                placeholder="검색어를 입력하세요"-->
-<!--                                class="form-control form-control-sm"-->
-<!--                                style="width: 40%; margin-right: 5px;"-->
-<!--                        />-->
-
-                        <!-- 날짜 선택 (기본적으로 숨김) -->
-<!--                        <div-->
-<!--                                id="dateFields"-->
-<!--                                style="-->
-<!--                display: none;-->
-<!--                position: absolute;-->
-<!--                top: 40px;-->
-<!--                left: 0;-->
-<!--                z-index: 10;-->
-<!--                background: white;-->
-<!--                border: 1px solid #ccc;-->
-<!--                padding: 10px;-->
-<!--                border-radius: 5px;-->
-<!--                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);-->
-<!--              "-->
-<!--                        >-->
-<!--                            <label for="startDate" style="margin-right: 5px;"-->
-<!--                            >시작 날짜:</label-->
-<!--                            >-->
-<!--                            <input-->
-<!--                                    type="datetime-local"-->
-<!--                                    id="startDate"-->
-<!--                                    name="startDate"-->
-<!--                                    class="form-control form-control-sm"-->
-<!--                                    style="width: 100px; margin-right: 10px;"-->
-<!--                            />-->
-<!--                            <label for="endDate" style="margin-right: 5px;"-->
-<!--                            >종료 날짜:</label-->
-<!--                            >-->
-<!--                            <input-->
-<!--                                    type="datetime-local"-->
-<!--                                    id="endDate"-->
-<!--                                    name="endDate"-->
-<!--                                    class="form-control form-control-sm"-->
-<!--                                    style="width: 100px;"-->
-<!--                            />-->
-<!--                        </div>-->
-
-<!--                        &lt;!&ndash; 검색 버튼 &ndash;&gt;-->
-<!--                        <button-->
-<!--                                id="searchId"-->
-<!--                                type="button"-->
-<!--                                class="btn btn-primary btn-sm"-->
-<!--                                onclick="redirectSearch()"-->
-<!--                        >-->
-<!--                            <i class="fas fa-search"></i> 검색-->
-<!--                        </button>-->
-<!--                    </div>-->
-<!--                </form>-->
-<!--            </div>-->
-
             <!-- 글쓰기 버튼 (메인 하단) -->
             <div
                     class="d-flex justify-content-center align-items-center mb-4"
@@ -1249,26 +1199,20 @@
                 </form>
             </div>
         </main>
-
-        <!-- 오른쪽 사이드바 -->
-        <aside class="right-sidebar col-md-2 side-container" style="z-index: 10;">
-            <!-- 토글 버튼 (모바일용) -->
-            <button id="rightMenuToggle" class="right-menu-toggle">
-                ☰ <span>오른쪽</span>
-            </button>
-
+            <!-- ✅ 모바일용 말풍선 -->
+            <div id="rightSidebarTooltip" class="tooltip-box">
+                📊 실시간 접속자 & Top 5 유저 확인해보세요!
+            </div>
+        <aside id="rightSidebar"  class="right-sidebar col-md-2 side-container" style="z-index: 10;">
             <div id="visitorStats" class="visitor-stats mb-3 p-2">
-                <!-- 실시간 접속자 수, 방문자 수 등을 표시 -->
                 <h5 class="fw-bold">실시간 접속자 수</h5>
                 <p id="currentVisitors">0명</p>
             </div>
 
-            <div id="popularFeeds" class="p-2">
-                <h3 class="fw-bold text-primary">
-                    <i class="fas fa-fire"></i> 인기 게시물
-                </h3>
-                <div class="ranking-box" id="monthFeedsList">
-                    <!-- 인기 게시물 내용이 동적으로 추가 -->
+            <div class="p-3 bg-white rounded shadow-sm">
+                <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> Top 5 유저</h3>
+                <div class="ranking-box mt-3" id="topWritersList">
+                    <!-- 인기 게시물 동적 추가 -->
                 </div>
             </div>
         </aside>
@@ -1335,7 +1279,61 @@
                 renderFeeds(data);
             });
     }
+    function fetchTopWriters() {
+        fetch("/top-writers")
+            .then(response => response.json())
+            .then(data => {
+                updateTopWriters(data); // ✅ UI 업데이트
+            })
+            .catch(error => console.error("🚨 Top 유저 데이터 가져오기 실패:", error));
+    }
+    function updateTopWriters(topWriters) {
+        const topWritersList = document.getElementById("topWritersList");
+        topWritersList.innerHTML = ''; // 기존 내용 초기화
 
+        topWriters.forEach((writer, index) => {
+            // 🔸 상위 3명은 아이콘 강조
+            let rankIcon = '';
+            if (index === 0) {
+                rankIcon = '<i class="fas fa-crown text-warning"></i>'; // 🥇 1위
+            } else if (index === 1) {
+                rankIcon = '<i class="fas fa-medal" style="color: silver;"></i>'; // 🥈 2위
+            } else if (index === 2) {
+                rankIcon = '<i class="fas fa-medal" style="color: #cd7f32;"></i>'; // 🥉 3위 (동메달)
+            }
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'd-flex align-items-center ranking-item py-2 border-bottom';
+
+            // 순위 아이콘 + 숫자
+            const rankSpan = document.createElement('span');
+            rankSpan.className = 'rank-number fw-bold me-3 text-secondary';
+            rankSpan.innerHTML = `${index + 1}. ${rankIcon}`;
+
+            // 유저명 + 게시글 수
+            const userInfoDiv = document.createElement('div');
+            userInfoDiv.className = 'ms-1 me-auto';
+
+            // 🏅 유저명 (클릭 시 검색으로 이동)
+            const userLink = document.createElement('a');
+            userLink.className = 'ranking-title text-decoration-none fw-bold text-dark';
+            userLink.href = `/search/view/feed/list/${writer.username}`;
+            userLink.textContent = writer.username;
+
+            // ✏️ 작성한 글 개수
+            const postCount = document.createElement('small');
+            postCount.className = 'text-muted d-block';
+            postCount.textContent = `📌 게시글: ${writer.postCount}개`;
+
+            userInfoDiv.appendChild(userLink);
+            userInfoDiv.appendChild(postCount);
+
+            itemDiv.appendChild(rankSpan);
+            itemDiv.appendChild(userInfoDiv);
+
+            topWritersList.appendChild(itemDiv);
+        });
+    }
 
     // document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
     //     const submenu = document.querySelector(".menu-subitems");
@@ -1514,8 +1512,8 @@
                     pinnedNotices += `
                     <tr class="table-warning">
                         <td>📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a></td>
-                        <td>${notice.author}</td>
-                        <td>${new Date(notice.created_at).toLocaleString('ko-KR')}</td>
+                        <td>${notice.username}</td>
+                        <td>${formatDate(notice.createdAt).toLocaleString('ko-KR')}</td>
                         <td class="text-center">-</td>
                         <td class="text-center">-</td>
                     </tr>`;
@@ -1557,52 +1555,52 @@
                 alert("❌ 공지사항을 불러오는 중 오류 발생!");
             }
         });
-
-        // 3. 인기 게시물(month)
-        const popularFeedsList = document.getElementById("monthFeedsList");
-        popularFeedsList.innerHTML = '';
-
-        jsonData.month.forEach((mBoard, index) => {
-            // 🔸 상위 3개는 아이콘 강조
-            let rankIcon = '';
-            if (index === 0) {
-                rankIcon = '<i class="fas fa-crown text-warning"></i> '; // 1위
-            } else if (index === 1) {
-                rankIcon = '<i class="fas fa-medal" style="color: silver;"></i> '; // 2위
-            } else if (index === 2) {
-                rankIcon = '<i class="fas fa-medal" style="color: #cd7f32;"></i> '; // 3위 (동메달색)
-            }
-
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'd-flex align-items-center ranking-item';
-
-            // 순위
-            const rankSpan = document.createElement('span');
-            rankSpan.className = 'rank-number me-2';
-            // 실제 숫자 + 아이콘 붙이기
-            rankSpan.innerHTML = `${index + 1}. ${rankIcon}`;
-
-            // 게시물 제목
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'ms-1 me-auto';
-            const titleLink = document.createElement('a');
-            titleLink.className = 'ranking-title text-decoration-none';
-            titleLink.href = `/search/view/feed/id?id=${mBoard.feedUID}`;
-            titleLink.textContent = mBoard.title;
-
-            // 작성자 표시
-            const authorSmall = document.createElement('small');
-            authorSmall.className = 'text-muted d-block';
-            authorSmall.textContent = `작성자: ${mBoard.username}`;
-
-            contentDiv.appendChild(titleLink);
-            contentDiv.appendChild(authorSmall);
-
-            itemDiv.appendChild(rankSpan);
-            itemDiv.appendChild(contentDiv);
-
-            popularFeedsList.appendChild(itemDiv);
-        });
+        fetchTopWriters();
+        // // 3. 인기 게시물(month)
+        // const popularFeedsList = document.getElementById("monthFeedsList");
+        // popularFeedsList.innerHTML = '';
+        //
+        // jsonData.month.forEach((mBoard, index) => {
+        //     // 🔸 상위 3개는 아이콘 강조
+        //     let rankIcon = '';
+        //     if (index === 0) {
+        //         rankIcon = '<i class="fas fa-crown text-warning"></i> '; // 1위
+        //     } else if (index === 1) {
+        //         rankIcon = '<i class="fas fa-medal" style="color: silver;"></i> '; // 2위
+        //     } else if (index === 2) {
+        //         rankIcon = '<i class="fas fa-medal" style="color: #cd7f32;"></i> '; // 3위 (동메달색)
+        //     }
+        //
+        //     const itemDiv = document.createElement('div');
+        //     itemDiv.className = 'd-flex align-items-center ranking-item';
+        //
+        //     // 순위
+        //     const rankSpan = document.createElement('span');
+        //     rankSpan.className = 'rank-number me-2';
+        //     // 실제 숫자 + 아이콘 붙이기
+        //     rankSpan.innerHTML = `${index + 1}. ${rankIcon}`;
+        //
+        //     // 게시물 제목
+        //     const contentDiv = document.createElement('div');
+        //     contentDiv.className = 'ms-1 me-auto';
+        //     const titleLink = document.createElement('a');
+        //     titleLink.className = 'ranking-title text-decoration-none';
+        //     titleLink.href = `/search/view/feed/id?id=${mBoard.feedUID}`;
+        //     titleLink.textContent = mBoard.title;
+        //
+        //     // 작성자 표시
+        //     const authorSmall = document.createElement('small');
+        //     authorSmall.className = 'text-muted d-block';
+        //     authorSmall.textContent = `작성자: ${mBoard.username}`;
+        //
+        //     contentDiv.appendChild(titleLink);
+        //     contentDiv.appendChild(authorSmall);
+        //
+        //     itemDiv.appendChild(rankSpan);
+        //     itemDiv.appendChild(contentDiv);
+        //
+        //     popularFeedsList.appendChild(itemDiv);
+        // });
     }
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.text) {
@@ -1762,93 +1760,92 @@
             });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        // 네비게이션 토글 (Bootstrap 기본 동작)
-        document.querySelector(".navbar-toggler").addEventListener("click", function () {
-            let nav = document.getElementById("navbarNav");
-            nav.classList.toggle("show");
-        });
-
-        // 사이드바 열기/닫기
-        document.getElementById("rightMenuToggle").addEventListener("click", function () {
-            document.querySelector(".right-sidebar").classList.toggle("active");
-        });
-
-        // 네비게이션 드롭다운 버그 수정
-        let dropdowns = document.querySelectorAll(".nav-item.dropdown");
-        dropdowns.forEach(dropdown => {
-            dropdown.addEventListener("click", function (e) {
-                let menu = this.querySelector(".dropdown-menu");
-                menu.classList.toggle("show");
-            });
-        });
-    });
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     // 네비게이션 토글 (Bootstrap 기본 동작)
+    //     document.querySelector(".navbar-toggler").addEventListener("click", function () {
+    //         let nav = document.getElementById("navbarNav");
+    //         nav.classList.toggle("show");
+    //     });
+    //
+    //     // 사이드바 열기/닫기
+    //     document.getElementById("rightMenuToggle").addEventListener("click", function () {
+    //         document.querySelector(".right-sidebar").classList.toggle("active");
+    //     });
+    //
+    //     // 네비게이션 드롭다운 버그 수정
+    //     let dropdowns = document.querySelectorAll(".nav-item.dropdown");
+    //     dropdowns.forEach(dropdown => {
+    //         dropdown.addEventListener("click", function (e) {
+    //             let menu = this.querySelector(".dropdown-menu");
+    //             menu.classList.toggle("show");
+    //         });
+    //     });
+    // });
+    // document.getElementById("leftMenuToggle").addEventListener("click", function() {
+    //     document.querySelector(".left-sidebar").classList.toggle("active");
+    // });
+    // document.getElementById("rightMenuToggle").addEventListener("click", function() {
+    //     document.querySelector(".right-sidebar").classList.toggle("active");
+    // });
     document.addEventListener("DOMContentLoaded", () => {
-        const menuToggle = document.getElementById("menuToggle");  // 왼쪽 토글 버튼
-        const rightMenuToggle = document.getElementById("rightMenuToggle"); // 오른쪽 토글 버튼
-        // const leftSidebar = document.querySelector(".left-sidebar");
-        const rightSidebar = document.querySelector(".right-sidebar");
+        // const rightMenuToggle = document.getElementById("rightMenuToggle"); // 오른쪽 토글 버튼
         const mainContent = document.querySelector(".main-content");
+        const tooltipBox = document.getElementById("rightSidebarTooltip");
+        const navbarToggler = document.querySelector(".navbar-toggler");
 
         function isMobile() {
             return window.innerWidth <= 768;
         }
-
-        function initMobile() {
-            console.log("📱 모바일 레이아웃 적용");
-            rightMenuToggle.style.display = "flex";
-
-            // 좌우 사이드바 기본적으로 숨김
-            // leftSidebar.style.transform = "translateX(-100%)";
-            // leftSidebar.style.display = "none";
-
-            rightSidebar.style.transform = "translateX(100%)"; // ✅ 오른쪽에서 숨김
-            rightSidebar.style.display = "none";
-
-            // 메인 컨텐츠 전체 화면 사용
-            mainContent.style.marginLeft = "0";
-            mainContent.style.marginRight = "0";
-            mainContent.style.width = "100%";
-
-            // 📌 왼쪽 사이드바 토글
-            menuToggle.addEventListener("click", () => {
-                // if (leftSidebar.style.transform === "translateX(-100%)") {
-                //     leftSidebar.style.transform = "translateX(0)";
-                //     leftSidebar.style.display = "block";
-                //     mainContent.style.marginLeft = "70vw"; // 살짝 밀림 효과
-                //     mainContent.style.width = "calc(100% - 70vw)";
-                // } else {
-                //     leftSidebar.style.transform = "translateX(-100%)";
-                //     leftSidebar.style.display = "none";
-                //     mainContent.style.marginLeft = "0";
-                //     mainContent.style.width = "100%";
-                // }
-            });
-
-            // 📌 오른쪽 사이드바 토글
-            rightMenuToggle.addEventListener("click", () => {
-                if (rightSidebar.style.transform === "translateX(100%)") { // ✅ 오른쪽에서 나옴
-                    rightSidebar.style.transform = "translateX(0)";
-                    rightSidebar.style.display = "block";
-                    mainContent.style.marginRight = "70vw"; // ✅ 오른쪽으로 이동
-                    mainContent.style.width = "calc(100% - 70vw)";
-                } else {
-                    rightSidebar.style.transform = "translateX(100%)"; // ✅ 다시 오른쪽으로 숨김
-                    rightSidebar.style.display = "none";
-                    mainContent.style.marginRight = "0";
-                    mainContent.style.width = "100%";
-                }
-            });
+        function toggleRightSidebar() {
+            rightSidebar.classList.toggle("show");
+        }
+        function showTooltip() {
+            tooltipBox.classList.add("show");
+            setTimeout(() => {
+                tooltipBox.classList.remove("show");
+            }, 5000);
+        }
+            // 오른쪽 사이드바 토글 함수
+        function toggleSidebar() {
+            if (isMobile()) {
+                // 모바일에서는 말풍선 표시 (토글과 별개로)
+                tooltipBox.classList.add("show");
+                setTimeout(() => {
+                    tooltipBox.classList.remove("show");
+                }, 3000);
+                // 사이드바 토글 (모바일용 CSS가 필요함)
+                rightSidebar.classList.toggle("show");
+            } else {
+                // 데스크톱에서는 단순 토글
+                rightSidebar.classList.toggle("show");
+            }
         }
 
-        function initDesktop() {
+        // 모바일 초기화: 오른쪽 토글 버튼은 모바일에서만 보이도록
+        if (isMobile()) {
+            // rightMenuToggle.style.display = "flex";
+            // 메인 콘텐츠 관련 스타일 (필요 시 조정)
+            rightMenuToggle.style.display = "block";
+            // mainContent.style.marginLeft = "0";
+            // mainContent.style.marginRight = "0";
+            // mainContent.style.width = "100%";
+        } else {
+            rightMenuToggle.style.display = "none";
+        }
+
+        // 오른쪽 토글 버튼에 단 하나의 이벤트 리스너 등록
+        rightMenuToggle.addEventListener("click", toggleSidebar);
+        showTooltip();
+        // 네비게이터 토글 버튼(부트스트랩)이 항상 보이도록
+        // navbarToggler.style.visibility = "visible";
+        // navbarToggler.style.zIndex = "1050";
+
+    function initDesktop() {
             console.log("🖥️ 데스크톱 레이아웃 적용");
         }
 
         function applyLayout() {
-            if (isMobile()) {
-                initMobile();
-            } else {
+            if (!isMobile()) {
                 initDesktop();
                 rightMenuToggle.style.display = "none";
             }
@@ -2218,9 +2215,83 @@
             feedTableBody.appendChild(tr);
         });
     }
+    // ✅ 네비게이션 클릭 시 알림 배지 숨기기
+    document.addEventListener("DOMContentLoaded", function () {
+        const todoBalloon = document.getElementById("todoBalloon");
+        const calendarBalloon = document.getElementById("calendarBalloon");
+
+        // ✅ 사용자가 클릭하면 말풍선 제거
+        todoBalloon.addEventListener("click", function () {
+            todoBalloon.style.display = "none";
+        });
+
+        calendarBalloon.addEventListener("click", function () {
+            calendarBalloon.style.display = "none";
+        });
+
+        // ✅ 5초 후 자동으로 사라지게 설정
+        setTimeout(() => {
+            todoBalloon.style.opacity = "0";
+            setTimeout(() => todoBalloon.style.display = "none", 500);
+        }, 5000);
+
+        setTimeout(() => {
+            calendarBalloon.style.opacity = "0";
+            setTimeout(() => calendarBalloon.style.display = "none", 500);
+        }, 5000);
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const leftMenuToggle = document.getElementById("leftMenuToggle");
+        const rightMenuToggle = document.getElementById("rightMenuToggle");
+        const navbarNav = document.getElementById("navbarNav");
+        const rightSidebar = document.getElementById("rightSidebar");
+
+        function toggleElement(element) {
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function toggleSidebar(sidebar) {
+            console.log(`📌 ${sidebar.id} 토글 실행됨!`);
+            if (sidebar.classList.contains("show")) {
+                sidebar.classList.remove("show");
+                sidebar.style.transform = "translateX(-100%)"; // 왼쪽 숨김
+            } else {
+                sidebar.classList.add("show");
+                sidebar.style.transform = "translateX(0)"; // 나타나게
+            }
+        }
+
+        leftMenuToggle.addEventListener("click", function () {
+            toggleElement(navbarNav);
+        });
+
+        rightMenuToggle.addEventListener("click", function () {
+            toggleElement(rightSidebar);
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const rightMenuToggle = document.getElementById("rightMenuToggle");
+        const rightSidebar = document.getElementById("rightSidebar");
+
+        function toggleRightSidebar() {
+            if (rightSidebar.style.display === "block") {
+                rightSidebar.style.display = "none"; // ✅ 숨기기
+            } else {
+                rightSidebar.style.display = "block"; // ✅ 보이기
+            }
+        }
+
+        rightMenuToggle.addEventListener("click", toggleRightSidebar);
+    });
 
 
-    </script>
+
+
+</script>
 
 <!-- 메인으로 돌아가기 버튼 -->
 <!--<div class="d-flex justify-content-center align-items-center mb-4" style="width: 80%; text-align: center;"

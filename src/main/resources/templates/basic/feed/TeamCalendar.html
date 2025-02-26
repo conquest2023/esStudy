@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>팀 캘린더 & 피드백 시스템</title>
+    <!-- FullCalendar & Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        /* 네비게이션 스타일 */
+        .navbar {
+            background-color: #343a40 !important;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        /* 캘린더 컨테이너 */
+        #calendar-container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #calendar {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .fc-daygrid-event {
+            background-color: #007bff !important;
+            color: white !important;
+            border-radius: 5px;
+            padding: 3px;
+            cursor: pointer;
+        }
+        .fc-daygrid-event:hover {
+            background-color: #0056b3 !important;
+        }
+        /* FAB 스타일 */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            line-height: 60px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+        }
+        .fab:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        /* 팀원 피드백 영역 */
+        .feedback-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+        .feedback-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feedback-header .author {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .feedback-body {
+            margin-top: 10px;
+        }
+        .reply-list {
+            margin-top: 10px;
+            padding-left: 20px;
+            border-left: 2px solid #e9ecef;
+        }
+        .reply-input {
+            margin-top: 10px;
+        }
+        .reply-toggle {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #007bff;
+        }
+        .reply-toggle:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">📅 팀 캘린더 & 피드백</a>
+    </div>
+</nav>
+
+<!-- 캘린더 영역 -->
+<div class="container mt-4">
+    <h2 class="text-center">📌 팀 캘린더</h2>
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- 팀 피드백 영역 (개선된 UI) -->
+<div class="container mt-4">
+    <div class="feedback-section">
+        <h4 class="mb-3">👥 팀원 피드백</h4>
+        <div id="feedbackList">
+        </div>
+        <div class="input-group mt-3">
+            <input type="text" id="feedbackInput" class="form-control" placeholder="피드백을 입력하세요">
+            <button class="btn btn-primary" onclick="sendFeedback()">전송</button>
+        </div>
+    </div>
+</div>
+
+<!-- 일정 추가 버튼 (FAB) -->
+<button class="fab" data-bs-toggle="modal" data-bs-target="#addEventModal">+</button>
+
+<!-- 일정 추가 모달 -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">📌 새 일정 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="eventTitle" class="form-label">제목</label>
+                    <input type="text" id="eventTitle" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="eventDate" class="form-label">날짜</label>
+                    <input type="date" id="eventDate" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="eventCategory" class="form-label">카테고리</label>
+                    <select class="form-select" id="eventCategory">
+                        <option value="운동">🏋️ 운동</option>
+                        <option value="약속">📅 약속</option>
+                        <option value="공부">📖 공부</option>
+                        <option value="알바">📝 알바</option>
+                        <option value="데이트">💑 데이트</option>
+                        <option value="기타" selected>📝 기타</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="eventDescription" class="form-label">내용</label>
+                    <textarea id="eventDescription" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" id="saveEventBtn">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FullCalendar, jQuery, Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 캘린더 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ko',
+            selectable: true,
+            editable: true,
+            events: '/api/team/calendar/events', // API URL 수정 필요
+            dateClick: function (info) {
+                document.getElementById('eventDate').value = info.dateStr;
+                new bootstrap.Modal(document.getElementById('addEventModal')).show();
+            },
+            eventClick: function(info) {
+                alert("일정 상세보기 기능 구현 필요");
+            }
+        });
+        calendar.render();
+    });
+
+    // 팀 피드백 기능
+    function sendFeedback() {
+        let feedbackText = $('#feedbackInput').val().trim();
+        if (feedbackText === "") return;
+
+        // 피드백 아이템 생성 (답글 토글 버튼 포함)
+        let feedbackHTML = `
+        <div class="feedback-item">
+          <div class="feedback-header">
+            <span class="author">익명</span>
+            <span class="reply-toggle" onclick="toggleReply(this)">답글 달기</span>
+          </div>
+          <div class="feedback-body">${feedbackText}</div>
+          <div class="reply-list" style="display:none;"></div>
+          <div class="reply-input" style="display:none;">
+            <input type="text" class="form-control form-control-sm" placeholder="답글 입력">
+            <button class="btn btn-sm btn-primary mt-1" onclick="sendReply(this)">전송</button>
+          </div>
+        </div>`;
+        $('#feedbackList').append(feedbackHTML);
+        $('#feedbackInput').val("");
+    }
+
+    // 답글 입력란 토글 (답글 달기 버튼 클릭 시)
+    function toggleReply(elem) {
+        let parentItem = $(elem).closest('.feedback-item');
+        parentItem.find('.reply-list, .reply-input').toggle();
+    }
+
+    // 답글 전송 (답글 입력란에서 전송 버튼 클릭 시)
+    function sendReply(btn) {
+        let parentItem = $(btn).closest('.feedback-item');
+        let replyText = parentItem.find('.reply-input input').val().trim();
+        if(replyText === "") return;
+        let replyHTML = `<div class="reply-item mt-2"><i class="fas fa-reply"></i> ${replyText}</div>`;
+        parentItem.find('.reply-list').append(replyHTML);
+        parentItem.find('.reply-input input').val("");
+    }
+
+    // 일정 추가 저장 버튼
+    document.getElementById('saveEventBtn').addEventListener('click', function() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+        const newEvent = {
+            title: document.getElementById('eventTitle').value,
+            date: document.getElementById('eventDate').value,
+            category: document.getElementById('eventCategory').value,
+            description: document.getElementById('eventDescription').value,
+            allDay: true
+        };
+
+        fetch('/save/schedule', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(newEvent)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("✅ 일정이 추가되었습니다.");
+                    location.reload();
+                } else {
+                    alert("❌ 일정 추가 실패!");
+                }
+            })
+            .catch(error => {
+                console.error("🚨 일정 추가 중 오류 발생:", error);
+            });
+    });
+</script>
+</body>
+</html>

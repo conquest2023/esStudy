@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 
-import es.board.controller.model.req.ScheduleDTO;
+import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.FeedDAO;
@@ -9,7 +9,6 @@ import es.board.repository.LikeDAO;
 import es.board.repository.ScheduleDAO;
 import es.board.repository.UserDAO;
 import es.board.repository.document.Schedule;
-import es.board.repository.entity.Post;
 import es.board.repository.entity.User;
 import es.board.repository.entity.entityrepository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,7 @@ public class AsyncService {
 
     private  final LikeDAO likeDAO;
 
+
     private  final FeedDAO feedDAO;
 
     private  final ScheduleDAO scheduleDAO;
@@ -47,7 +47,7 @@ public class AsyncService {
         }
 
         return CompletableFuture.completedFuture(null);
-}
+    }
 
     @Async("taskExecutor")
     public CompletableFuture<Void> saveScheduleAsync(Schedule scheduleDTO) {
@@ -108,5 +108,19 @@ public class AsyncService {
         log.info("비동기 아이디 생성 작업 시작 - 스레드: {}", Thread.currentThread().getName());
         userDAO.createUser(user.DtoToUser(sign,password));
         log.info("MySQL 아이디 생성 완료 - ID: {}, 스레드: {}",sign, Thread.currentThread().getName());
+    }
+
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> saveNoticeAsync(NoticeDTO noticeDTO,Long id) {
+        log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
+            feedDAO.saveNoticeFeed(noticeDTO,id);
+        try {
+            log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+
+        return CompletableFuture.completedFuture(null);
     }
 }
