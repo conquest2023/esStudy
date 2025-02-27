@@ -19,6 +19,9 @@ public class NoticeDTO {
     private String  userId;
     private String title;
 
+    private  String imageURL;
+
+
     private  String feedUID;
     private String description;
 

@@ -32,6 +32,10 @@ public class Notice {
 
     private String username;
 
+
+    @Column(name = "image_url")
+    private String  imageURL;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

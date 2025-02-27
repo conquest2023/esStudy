@@ -254,7 +254,6 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedRequest getFeedDetail(String id) {
-
         return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
     }
 
@@ -307,8 +306,8 @@ public class FeedServiceImpl implements FeedService {
 
         feedSaveDTO.setId(id);
         log.info(String.valueOf(id));
-        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());}
-
+//        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
+    }
 }
 
 

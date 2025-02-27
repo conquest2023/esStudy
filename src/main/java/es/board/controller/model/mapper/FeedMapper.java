@@ -95,6 +95,7 @@ public class FeedMapper {
                 .userId(notice.getUserId())
                 .feedUID(notice.getFeedUID())
                 .title(notice.getTitle())
+                .imageURL(notice.getImageURL())
                 .description(notice.getDescription())
                 .username(notice.getUsername())
                 .createdAt(notice.getCreatedAt())
@@ -105,9 +106,11 @@ public class FeedMapper {
     public  Notice ToNotice(NoticeDTO notice,String userId) {
         return Notice.builder()
                 .id(notice.getId())
+                .feedUID(notice.getFeedUID())
                 .userId(userId)
                 .title(notice.getTitle())
                 .description(notice.getDescription())
+                .imageURL(notice.getImageURL())
                 .username("관리자")
                 .createdAt(LocalDateTime.now())
                 .build();

@@ -26,8 +26,6 @@ public class NoticeServiceImpl  implements NoticeService {
 
     private  final FeedMapper feedMapper;
 
-    private  final PostRepository postRepository;
-
     private  final JwtTokenProvider jwtTokenProvider;
 
     private  final AsyncService asyncService;
@@ -40,6 +38,7 @@ public class NoticeServiceImpl  implements NoticeService {
 
     @Override
     public NoticeDTO getOneNotice(Long id) {
+
         return  feedMapper.fromNotice(noticeRepository.findByNoticeOne(id));
     }
 

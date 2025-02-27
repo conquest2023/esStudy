@@ -168,10 +168,8 @@
 
 
 <div class="container">
-    <!-- 상단 테이블 (수정/삭제 버튼 등) -->
     <table class="table">
         <tr>
-            <!-- 예: 수정하기 버튼이 들어갈 부분 -->
             <td style="text-align: right;">
     <a href="#" class="edit-btn" data-author-id="">
 <!--        <button type="button" class="btn btn-outline-primary">-->
@@ -224,6 +222,7 @@
 
 
     function renderFeedDetail(jsonData) {
+        const token = localStorage.getItem("token");
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
         container.innerHTML = '';
@@ -233,7 +232,7 @@
             return;
         }
         let actionButtonsHTML = '';
-        if (jsonData.Owner) {
+        if (jsonData.Owner && token) {
             actionButtonsHTML = `
                   <button class="btn btn-outline-primary edit-feed-btn" style="margin-right: 10px;" onclick="editFeed('${board.feedUID}')">
                     <i class="fas fa-edit"></i> 수정하기
@@ -243,7 +242,7 @@
               <table class="table">
                 <tr>
                   <td style="text-align: right;">
-                    ${actionButtonsHTML} <!-- 수정/삭제 버튼 추가 -->
+                    ${actionButtonsHTML}
                   </td>
                 </tr>
                 <tr>
@@ -289,10 +288,12 @@
         }, 100);
     }
     function renderCommentForm(jsonData) {
+        const token = localStorage.getItem("token");
+
         const commentFormDiv = document.getElementById('commentForm');
         const board = jsonData?.data
         let deleteButtonHTML = '';
-        if (jsonData.Owner) {
+        if (jsonData.Owner && token) {
             deleteButtonHTML = `
          <button type="button" class="btn btn-danger delete-feed-btn" style="margin-top: 10px;" onclick="deleteFeed('${board.feedUID}')">
         <i class="fas fa-trash"></i> 삭제하기
@@ -371,13 +372,12 @@
             })
             .then(data => {
 
-                const targetRow = document.getElementById(`comment-${commentId}`); // 수정 버튼이 클릭된 댓글 행
+                const targetRow = document.getElementById(`comment-${commentId}`);
                 if (!targetRow) {
                     console.error(`Error: Target row #comment-${commentId} not found.`);
                     return; // 댓글 요소를 찾지 못하면 함수 종료
                 }
 
-                // 기존 수정 폼 제거 (중복 방지)
                 const existingForm = document.querySelector(`#edit-comment-form-${commentId}`);
                 if (existingForm) {
                     existingForm.remove();
@@ -508,45 +508,47 @@
         window.location.href = `/search/view/feed/update?id=${feedUID}`;
     }
     function deleteFeed(feedId) {
+        const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         if (!userId) {
             alert("로그인이 필요합니다.");
             return;
         }
+        if (token && userId) {
+            if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+                return;
+            }
 
-        if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-            return;
+            fetch(`/search/view/feed/delete`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: feedId,
+                    userId: userId,
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("게시글 삭제에 실패했습니다.");
+                    }
+                    return response.json(); // 서버에서 redirect URL을 반환한다고 가정
+                })
+                .then((data) => {
+                    const redirectUrl = data.redirectUrl; // JSON에서 redirectUrl 추출
+                    if (redirectUrl) {
+                        alert("게시글이 삭제되었습니다.");
+                        window.location.href = redirectUrl; // 리다이렉트 경로
+                    } else {
+                        throw new Error("리다이렉트 URL이 응답에 없습니다.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("삭제 중 오류 발생:", error);
+                    alert("삭제 중 문제가 발생했습니다. 다시 시도해주세요.");
+                });
         }
-
-        fetch(`/search/view/feed/delete`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id: feedId,
-                userId: userId,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("게시글 삭제에 실패했습니다.");
-                }
-                return response.json(); // 서버에서 redirect URL을 반환한다고 가정
-            })
-            .then((data) => {
-                const redirectUrl = data.redirectUrl; // JSON에서 redirectUrl 추출
-                if (redirectUrl) {
-                    alert("게시글이 삭제되었습니다.");
-                    window.location.href = redirectUrl; // 리다이렉트 경로
-                } else {
-                    throw new Error("리다이렉트 URL이 응답에 없습니다.");
-                }
-            })
-            .catch((error) => {
-                console.error("삭제 중 오류 발생:", error);
-                alert("삭제 중 문제가 발생했습니다. 다시 시도해주세요.");
-            });
     }
         document.addEventListener('DOMContentLoaded', function () {
             // 예: URL 파라미터 ?id=xxx 로 피드UID 가져오는 방식

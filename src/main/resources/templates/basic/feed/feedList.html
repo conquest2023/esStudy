@@ -1647,12 +1647,6 @@
         });
     });
 
-    // 날짜 포맷 (예시)
-    // function formatDate(dateTimeString) {
-    //     if (!dateTimeString) return '';
-    //     const date = new Date(dateTimeString);
-    //     return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-    // }
     function formatDate(dateTimeString) {
         if (!dateTimeString) return '';
 
@@ -1693,8 +1687,6 @@
                 url: "/search/view/feed?page=0", // 서버의 검색 결과를 처리할 URL
                 data: searchData,
                 success: function (response) {
-                    // 성공적으로 데이터를 받으면 해당 내용을 페이지에 업데이트
-                    // 예: 게시글 리스트를 갱신
                     $('tbody').html('');
                     // '<td><a href="/search/view/feed/id(id='+ board.id + ')">' + board.description + `</a></td>`
                     response.data.forEach(function (board) {
@@ -1836,7 +1828,6 @@
         // 오른쪽 토글 버튼에 단 하나의 이벤트 리스너 등록
         rightMenuToggle.addEventListener("click", toggleSidebar);
         showTooltip();
-        // 네비게이터 토글 버튼(부트스트랩)이 항상 보이도록
         // navbarToggler.style.visibility = "visible";
         // navbarToggler.style.zIndex = "1050";
 
@@ -1861,13 +1852,13 @@
 
 
     document.addEventListener("DOMContentLoaded", function() {
-        const loginButton = document.getElementById("login-button"); // 수정: 기존 ID와 다름
+        const loginButton = document.getElementById("login-button");
         const logoutButton = document.getElementById("logout-button");
         const userInfo = document.getElementById("user-info");
         const username = document.getElementById("username");
         const profileInfo = document.getElementById("profile-info");
         const userMenu = document.getElementById("user-menu"); // 드롭다운 메뉴
-        const userMenuBtn = document.getElementById("user-menu-btn"); // 프로필 버튼
+        const userMenuBtn = document.getElementById("user-menu-btn");
 
         // 저장된 토큰 확인
         const token = localStorage.getItem("token");
