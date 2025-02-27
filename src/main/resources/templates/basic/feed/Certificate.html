@@ -1,29 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>자격증 검색</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Font Awesome (아이콘) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* 배경 그라데이션 */
         body {
             background: linear-gradient(135deg, #fdfbfb, #ebedee);
             height: 100vh;
         }
-
-        /* 중앙 검색 컨테이너 */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 50vh;
+        .graph-container {
+            text-align: center;
+            margin-top: 30px;
+            width: 100%;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 검색 박스 (구글 스타일) */
+        .graph-navigation {
+            margin-bottom: 15px;
+        }
+
+        .graph-navigation button {
+            margin: 5px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            background: #f8f9fa;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .graph-navigation button:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        #kibana-chart {
+            border: none;
+            margin-top: 10px;
+            max-width: 100%;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
         .search-box {
             background: white;
             padding: 15px;
@@ -31,12 +57,11 @@
             display: flex;
             align-items: center;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 60%;
+            width: 50%;
             max-width: 600px;
-            transition: all 0.3s ease;
+            margin: auto;
         }
 
-        /* 입력 필드 */
         .search-box input {
             border: none;
             outline: none;
@@ -46,18 +71,6 @@
             border-radius: 50px;
         }
 
-        /* 드롭다운 스타일 */
-        .search-box select {
-            border: none;
-            outline: none;
-            font-size: 16px;
-            padding: 8px;
-            border-radius: 20px;
-            margin-right: 10px;
-            background: #f8f9fa;
-        }
-
-        /* 검색 버튼 */
         .search-box button {
             background: #007bff;
             border: none;
@@ -69,150 +82,386 @@
             transition: 0.3s;
         }
 
-        /* 버튼 hover 효과 */
         .search-box button:hover {
             background: #0056b3;
             transform: scale(1.05);
         }
 
-        /* 검색 결과 영역 숨김 */
         .results-container {
-            display: none;
+            text-align: center;
+            margin-top: 20px;
         }
 
-        /* 검색 아이콘 */
-        .search-box i {
-            font-size: 20px;
-            color: gray;
-            margin-right: 10px;
+        .result-card {
+            display: inline-block;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            text-align: left;
+            width: 40%;
         }
+
+        .graph-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .graph-navigation {
+            margin-bottom: 20px;
+        }
+
+        .graph-navigation button {
+            margin: 5px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            background: #f8f9fa;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .graph-navigation button:hover {
+            background: #007bff;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
 
-<!-- 🔥 **검색창 (구글 스타일)** -->
 <div class="search-container">
     <h1 class="mb-4 font-weight-bold">자격증 검색</h1>
     <form id="searchForm" class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" name="name" placeholder="검색어를 입력하세요">
-        <select name="year">
-            <option value="">전체</option>
-            <option value="2020">2020</option>
-            <option value="2021">2021</option>
-        </select>
+        <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요">
         <button type="submit"><i class="fas fa-arrow-right"></i></button>
     </form>
 </div>
 
-<!-- 🔥 **검색 결과 (숨김 상태, AJAX 실행 시 나타남)** -->
-<div class="container mt-5 results-container">
-    <div class="row">
-
-        <!-- 검색 결과 테이블 -->
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="mb-3">검색 결과</h5>
-                    <table class="table table-striped">
-                        <thead class="thead-light">
-                        <tr>
-                            <th>자격증명</th>
-                            <th>시험 연도</th>
-                            <th>합격률</th>
-                        </tr>
-                        </thead>
-                        <tbody id="certTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 사이드바 (인기 TOP 5 & 많이 검색한 자격증) -->
-        <div class="col-md-4">
-            <div class="sidebar bg-white p-3 shadow rounded">
-                <h5>🔥 인기 TOP 5 자격증</h5>
-                <ul id="popularCerts" class="list-group mb-4"></ul>
-
-                <h5>📊 많이 검색한 자격증</h5>
-                <ul id="searchedCerts" class="list-group"></ul>
-            </div>
-        </div>
-
+<div class="results-container" id="resultsContainer" style="display: none;">
+    <h5><i class="fas fa-search"></i> 검색 결과</h5>
+    <div class="result-card">
+        <span id="resultText"></span>
+        <span class="badge badge-primary" id="resultCategory"></span>
     </div>
 </div>
 
-<!-- jQuery -->
+<div class="graph-container" id="graphContainer" style="display: none;">
+    <div class="graph-navigation">
+        <button onclick="changeGraph('yearlyApplicants')">연도별 지원자 수</button>
+        <button onclick="changeGraph('passRate')">합격률 분석</button>
+        <button onclick="changeGraph('examAttempts')">응시 횟수</button>
+    </div>
+
+    <iframe id="kibana-chart" src=""  width="50%"
+            height="500"></iframe>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rison/0.1.1/rison.min.js"></script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // 검색 폼 AJAX 처리
-        $('#searchForm').submit(function(e) {
-            e.preventDefault();
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchForm = document.getElementById("searchForm");
+            const graphContainer = document.getElementById("graphContainer");
+            let currentSearchText = "";
 
-            $.ajax({
-                url: '/certifications',
-                type: 'GET',
-                data: $(this).serialize(),
-                success: function(data) {
-                    var tbody = $('#certTableBody');
-                    tbody.empty();
+            searchForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
 
-                    if (data && data.length > 0) {
-                        $.each(data, function(index, cert) {
-                            tbody.append(
-                                '<tr>' +
-                                '<td>' + cert.name + '</td>' +
-                                '<td>' + cert.year + '</td>' +
-                                '<td>' + cert.passRate + '%</td>' +
-                                '</tr>'
-                            );
-                        });
-                        $('.results-container').fadeIn();
-                    } else {
-                        tbody.append('<tr><td colspan="3" class="text-center">검색 결과가 없습니다.</td></tr>');
+                const searchText = document.getElementById("searchInput").value.trim();
+                if (!searchText) {
+                    alert("검색어를 입력하세요.");
+                    return;
+                }
+
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    alert("로그인이 필요합니다.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/search/certificate?text=${encodeURIComponent(searchText)}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("검색 결과를 불러올 수 없습니다.");
                     }
-                },
-                error: function() {
-                    alert('검색 중 오류가 발생했습니다.');
+
+                    const data = await response.json();
+                    const resultContainer = document.getElementById("resultsContainer");
+                    const resultText = document.getElementById("resultText");
+                    const resultCategory = document.getElementById("resultCategory");
+
+                    if (data.certificate) {
+                        currentSearchText = searchText; // ✅ 검색어 저장
+
+                        resultText.textContent = data.certificate.jmfldnm;
+                        resultCategory.textContent = data.certificate.qualgbnm;
+                        resultContainer.style.display = "block";
+
+                        updateSumPeopleGraph(currentSearchText);
+
+                        // ✅ 그래프 컨테이너 표시
+                        graphContainer.style.display = "block";
+                    } else {
+                        resultText.textContent = "검색 결과가 없습니다.";
+                        resultCategory.textContent = "";
+                        resultContainer.style.display = "block";
+
+                        document.getElementById("kibana-chart").src = "";
+                        graphContainer.style.display = "none";
+                    }
+                } catch (error) {
+                    console.error("검색 중 오류 발생:", error);
+                    alert("검색 결과를 불러올 수 없습니다.");
                 }
             });
-        });
 
-        // 인기 TOP 5 자격증 불러오기
-        function loadPopularCerts() {
-            $.ajax({
-                url: '/certifications/popular',
-                type: 'GET',
-                success: function(data) {
-                    var list = $('#popularCerts');
-                    list.empty();
-                    $.each(data, function(index, cert) {
-                        list.append('<li class="list-group-item">' + cert.name + '</li>');
-                    });
+            function updateSumPeopleGraph(searchText) {
+
+                const indexPattern = "1e886add-517b-41af-8b15-5a766175b6b8"; // ✅ 지원자 수 인덱스
+
+                const kibanaFilter = {
+                    filters: [
+                        {
+                            "$state": {store: "appState"},
+                            meta: {
+                                alias: null,
+                                disabled: false,
+                                index: indexPattern,
+                                key: "jmFldNm.keyword",
+                                negate: false,
+                                type: "phrase",
+                                value: searchText
+                            },
+                            query: {
+                                match_phrase: {
+                                    "jmFldNm.keyword": searchText
+                                }
+                            }
+                        }
+                    ],
+                    vis: {
+                        aggs: [
+                            {
+                                enabled: true,
+                                id: "1",
+                                params: {
+                                    field: "recptCnt", // ✅ Y축: 지원자 수 합계
+                                    customLabel: "지원자 수"
+                                },
+                                schema: "metric",
+                                type: "sum"
+                            },
+                            {
+                                enabled: true,
+                                id: "2",
+                                params: {
+                                    field: "statisYy", // ✅ X축: 연도별 그룹화
+                                    order: "desc",
+                                    orderBy: "1",
+                                    size: 10
+                                },
+                                schema: "segment",
+                                type: "terms"
+                            }
+                        ],
+                        title: `${searchText} 연도별 지원 현황`,
+                        type: "histogram"
+                    }
+                };
+
+                const risonEncodedFilter = encodeURIComponent(rison.encode(kibanaFilter));
+                const kibanaUrl = `https://kibana.montkim.com/app/visualize#/create?embed=true&type=histogram&indexPattern=${indexPattern}&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-1y,to:now))&_a=${risonEncodedFilter}`;
+
+                document.getElementById("kibana-chart").src = kibanaUrl;
+                updateGraph(kibanaUrl);
+            }
+            function updateGraph(url) {
+                const kibanaFrame = document.getElementById("kibana-chart");
+
+                // ✅ 기존 URL 초기화
+                kibanaFrame.src = "";
+
+                // ✅ 0.3초 후 새로운 URL 적용
+                setTimeout(() => {
+                    kibanaFrame.src = url;
+                }, 300);
+            }
+
+
+            function updatePassRateGraph(searchText) {
+                const baseUrl = "https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=8df398cc-cc8f-4c2e-9dbc-12ecc1d1ffc3&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=";
+
+                // 동적으로 변경할 필터 객체 (여기서 searchText 값만 반영)
+                const filterObj = {
+                    dataView: "fe8a958c-637d-4196-9737-9d3885e493fc", // 기존 Short URL에 사용된 dataView
+                    filters: [
+                        {
+                            "$state": {store: "appState"},
+                            meta: {
+                                alias: null,
+                                disabled: false,
+                                index: "fe8a958c-637d-4196-9737-9d3885e493fc", // 기존 데이터 뷰의 ID
+                                key: "jmFldNm.keyword",
+                                negate: false,
+                                type: "phrase",
+                                value: searchText
+                            },
+                            query: {
+                                match_phrase: {
+                                    "jmFldNm.keyword": searchText
+                                }
+                            }
+                        }
+                    ],
+                    linked: false,
+                    query: {language: "kuery", query: ""},
+                    uiState: {},
+                    // 기존 시각화 설정 그대로 유지 (여기서는 합격률 평균 시각화 설정 예시)
+                    vis: {
+                        aggs: [
+                            {
+                                enabled: true,
+                                id: "1",
+                                params: {
+                                    customLabel: "실기평균",
+                                    field: "silPassRate"
+                                },
+                                schema: "metric",
+                                type: "avg"
+                            },
+                            {
+                                enabled: true,
+                                id: "2",
+                                params: {
+                                    excludeIsRegex: true,
+                                    field: "statisYy",
+                                    includeIsRegex: false,
+                                    missingBucket: false,
+                                    missingBucketLabel: "Missing",
+                                    order: "desc",
+                                    orderAgg: {
+                                        enabled: true,
+                                        id: "2-orderAgg",
+                                        params: {emptyAsNull: false},
+                                        schema: "orderAgg",
+                                        type: "count"
+                                    },
+                                    orderBy: "custom",
+                                    otherBucket: false,
+                                    otherBucketLabel: "Other",
+                                    size: 5
+                                },
+                                schema: "segment",
+                                type: "terms"
+                            },
+                            {
+                                enabled: true,
+                                id: "3",
+                                params: {
+                                    customLabel: "필기 평균",
+                                    field: "pilPassRate"
+                                },
+                                schema: "metric",
+                                type: "avg"
+                            }
+                        ],
+                        params: {
+                            addLegend: true,
+                            addTimeMarker: false,
+                            addTooltip: true,
+                            categoryAxes: [
+                                {
+                                    id: "CategoryAxis-1",
+                                    labels: {show: true, truncate: 100},
+                                    position: "bottom",
+                                    scale: {type: "linear"},
+                                    show: true,
+                                    title: {text: "연도"}
+                                }
+                            ],
+                            legendPosition: "right",
+                            seriesParams: [
+                                {
+                                    data: {id: "1", label: "평균"},
+                                    interpolate: "linear",
+                                    lineWidth: 2,
+                                    mode: "normal",
+                                    show: true,
+                                    showCircles: false,
+                                    type: "line",
+                                    valueAxis: "ValueAxis-1"
+                                },
+                                {
+                                    data: {id: "3", label: "평균"},
+                                    interpolate: "linear",
+                                    lineWidth: 2,
+                                    mode: "normal",
+                                    show: true,
+                                    showCircles: false,
+                                    type: "line",
+                                    valueAxis: "ValueAxis-1"
+                                }
+                            ],
+                            type: "line",
+                            valueAxes: [
+                                {
+                                    id: "ValueAxis-1",
+                                    labels: {show: true, truncate: 100},
+                                    position: "left",
+                                    scale: {type: "linear", mode: "normal"},
+                                    show: true,
+                                    title: {text: "평균"}
+                                }
+                            ]
+                        },
+                        title: "",
+                        type: "line"
+                    }
+                };
+
+                // rison 인코딩: 필터 객체를 Rison 문자열로 변환
+                const encodedFilter = encodeURIComponent(rison.encode(filterObj));
+                // 새 URL 구성: base URL + 인코딩된 필터 부분
+                const newUrl = baseUrl + encodedFilter;
+                document.getElementById("kibana-chart").src = newUrl;
+
+            }
+
+
+            window.changeGraph = function (graphType) {
+                if (!currentSearchText) {
+                    alert("먼저 검색어를 입력하세요.");
+                    return;
                 }
-            });
-        }
 
-        // 많이 검색한 자격증 불러오기
-        function loadSearchedCerts() {
-            $.ajax({
-                url: '/certifications/searched',
-                type: 'GET',
-                success: function(data) {
-                    var list = $('#searchedCerts');
-                    list.empty();
-                    $.each(data, function(index, cert) {
-                        list.append('<li class="list-group-item">' + cert.name + '</li>');
-                    });
-                }
-            });
-        }
+                setTimeout(() => {
+                    if (graphType === "yearlyApplicants") {
+                        updateSumPeopleGraph(currentSearchText);
+                    } else if (graphType === "passRate") {
+                        updatePassRateGraph(currentSearchText);
+                    } else if (graphType === "examAttempts") {
+                        updateExamAttemptsGraph(currentSearchText);
+                    }
+                }, 500)
+            }
+        })
 
-        // 페이지 로드 시 인기 & 많이 검색한 자격증 로드
-        loadPopularCerts();
-        loadSearchedCerts();
-    });
+
+
 </script>
+
 </body>
 </html>

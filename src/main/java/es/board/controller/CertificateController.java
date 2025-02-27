@@ -1,11 +1,21 @@
 package es.board.controller;
 
 
+import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.req.CertificateDTO;
+import es.board.controller.model.req.ScheduleDTO;
+import es.board.repository.document.Certificate;
+import es.board.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -13,9 +23,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class CertificateController {
 
 
+    private  final JwtTokenProvider jwtTokenProvider;
+
+    private  final CertificateService certificateService;
 
     @GetMapping("/certificate/list")
     public String certificateList(){
         return  "basic/feed/Certificate";
     }
+
+
+    @GetMapping("/search/certificate")
+    @ResponseBody
+    public ResponseEntity<?> getTodoById(@RequestHeader(value = "Authorization", required = false) String token,  @RequestParam String text) {
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        Certificate certificate =certificateService.getCertificate(text);
+        Map<String, Object> response = new HashMap<>();
+        log.info(certificate.toString());
+        response.put("certificate", certificate);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
