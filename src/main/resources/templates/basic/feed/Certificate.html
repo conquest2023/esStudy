@@ -33,6 +33,37 @@
             font-size: 14px;
             transition: 0.3s;
         }
+        .popular-certs {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            max-width: 220px;
+            text-align: left;
+        }
+        .popular-certs h6 {
+            margin-bottom: 10px;
+        }
+        .popular-certs ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        .popular-certs li {
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            transition: background 0.3s;
+        }
+        .popular-certs li:last-child {
+            border-bottom: none;
+        }
+        .popular-certs li:hover {
+            background: #007bff;
+            color: white;
+        }
 
         .graph-navigation button:hover {
             background: #007bff;
@@ -141,6 +172,10 @@
         <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요">
         <button type="submit"><i class="fas fa-arrow-right"></i></button>
     </form>
+    <div id="topCertificates" class="popular-certs ms-3">
+        <h6 class="text-primary font-weight-bold">인기 TOP 5</h6>
+        <ul id="topCertList" class="list-group"> </ul>
+    </div>
 </div>
 
 <div class="results-container" id="resultsContainer" style="display: none;">
@@ -204,7 +239,7 @@
                     const resultCategory = document.getElementById("resultCategory");
 
                     if (data.certificate) {
-                        currentSearchText = searchText; // ✅ 검색어 저장
+                        currentSearchText = searchText;
 
                         resultText.textContent = data.certificate.jmfldnm;
                         resultCategory.textContent = data.certificate.qualgbnm;
@@ -230,7 +265,7 @@
 
             function updateSumPeopleGraph(searchText) {
 
-                const indexPattern = "1e886add-517b-41af-8b15-5a766175b6b8"; // ✅ 지원자 수 인덱스
+                const indexPattern = "1e886add-517b-41af-8b15-5a766175b6b8";
 
                 const kibanaFilter = {
                     filters: [
@@ -258,7 +293,7 @@
                                 enabled: true,
                                 id: "1",
                                 params: {
-                                    field: "recptCnt", // ✅ Y축: 지원자 수 합계
+                                    field: "recptCnt",
                                     customLabel: "지원자 수"
                                 },
                                 schema: "metric",
@@ -268,7 +303,7 @@
                                 enabled: true,
                                 id: "2",
                                 params: {
-                                    field: "statisYy", // ✅ X축: 연도별 그룹화
+                                    field: "statisYy",
                                     order: "desc",
                                     orderBy: "1",
                                     size: 10
@@ -291,13 +326,13 @@
             function updateGraph(url) {
                 const kibanaFrame = document.getElementById("kibana-chart");
 
-                // ✅ 기존 URL 초기화
+
                 kibanaFrame.src = "";
 
-                // ✅ 0.3초 후 새로운 URL 적용
+
                 setTimeout(() => {
                     kibanaFrame.src = url;
-                }, 300);
+                }, 200);
             }
 
 
@@ -306,14 +341,14 @@
 
                 // 동적으로 변경할 필터 객체 (여기서 searchText 값만 반영)
                 const filterObj = {
-                    dataView: "fe8a958c-637d-4196-9737-9d3885e493fc", // 기존 Short URL에 사용된 dataView
+                    dataView: "fe8a958c-637d-4196-9737-9d3885e493fc",
                     filters: [
                         {
                             "$state": {store: "appState"},
                             meta: {
                                 alias: null,
                                 disabled: false,
-                                index: "fe8a958c-637d-4196-9737-9d3885e493fc", // 기존 데이터 뷰의 ID
+                                index: "fe8a958c-637d-4196-9737-9d3885e493fc",
                                 key: "jmFldNm.keyword",
                                 negate: false,
                                 type: "phrase",
@@ -329,7 +364,7 @@
                     linked: false,
                     query: {language: "kuery", query: ""},
                     uiState: {},
-                    // 기존 시각화 설정 그대로 유지 (여기서는 합격률 평균 시각화 설정 예시)
+
                     vis: {
                         aggs: [
                             {
@@ -385,7 +420,7 @@
                             categoryAxes: [
                                 {
                                     id: "CategoryAxis-1",
-                                    labels: {show: true, truncate: 100},
+                                    labels: {show: true, truncate: 100 ,rotate: 0},
                                     position: "bottom",
                                     scale: {type: "linear"},
                                     show: true,
@@ -419,7 +454,7 @@
                             valueAxes: [
                                 {
                                     id: "ValueAxis-1",
-                                    labels: {show: true, truncate: 100},
+                                    labels: {show: true, truncate: 100 ,rotate: 0},
                                     position: "left",
                                     scale: {type: "linear", mode: "normal"},
                                     show: true,
@@ -432,11 +467,123 @@
                     }
                 };
 
-                // rison 인코딩: 필터 객체를 Rison 문자열로 변환
+
                 const encodedFilter = encodeURIComponent(rison.encode(filterObj));
-                // 새 URL 구성: base URL + 인코딩된 필터 부분
                 const newUrl = baseUrl + encodedFilter;
                 document.getElementById("kibana-chart").src = newUrl;
+
+                updateGraph(newUrl)
+
+
+            }
+            function updateExamAttemptsGraph(searchText) {
+                const baseUrl = "https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=3f6a5c0d-c3eb-4a51-86ad-edffc8f32b7f&_g=(filters:!(),refreshInterval:(pause:!f,value:10000),time:(from:now-15m,to:now))&_a=";
+
+
+                const filterObj = {
+                    filters: [
+                        {
+                            "$state": { store: "appState" },
+                            meta: {
+                                alias: null,
+                                disabled: false,
+                                index: "3f6a5c0d-c3eb-4a51-86ad-edffc8f32b7f",
+                                key: "jmNm.keyword",
+                                negate: false,
+                                type: "phrase",
+                                value: searchText
+                            },
+                            query: {
+                                match_phrase: {
+                                    "jmNm": searchText
+                                }
+                            }
+                        }
+                    ],
+                    vis: {
+                        aggs: [
+                            {
+                                enabled: true,
+                                id: "1",
+                                params: {
+                                    customLabel: "인원 수",
+                                    field: "passManCnt"
+                                },
+                                schema: "metric",
+                                type: "sum"
+                            },
+                            {
+                                enabled: true,
+                                id: "2",
+                                params: {
+                                    field: "trendDtlDivNm",
+                                    order: "desc",
+                                    orderBy: "custom",
+                                    orderAgg: {
+                                        enabled: true,
+                                        id: "2-orderAgg",
+                                        params: { field: "passManCnt" },
+                                        schema: "orderAgg",
+                                        type: "avg"
+                                    },
+                                    size: 5
+                                },
+                                schema: "segment",
+                                type: "terms"
+                            }
+                        ],
+                        params: {
+                            addLegend: true,
+                            addTooltip: true,
+                            categoryAxes: [
+                                {
+                                    id: "CategoryAxis-1",
+                                    labels: { show: true, truncate: 100 ,rotate: 0 },
+                                    position: "bottom",
+                                    scale: { type: "linear" },
+                                    show: true,
+                                    title: { text: "연도" }
+                                }
+                            ],
+                            legendPosition: "right",
+                            seriesParams: [
+                                {
+                                    data: { id: "1", label: "인원 수" },
+                                    interpolate: "linear",
+                                    lineWidth: 2,
+                                    mode: "normal",
+                                    show: true,
+                                    showCircles: false,
+                                    type: "line",
+                                    valueAxis: "ValueAxis-1"
+                                }
+                            ],
+                            type: "line",
+                            valueAxes: [
+                                {
+                                    id: "ValueAxis-1",
+                                    labels: { show: true, truncate: 100 ,  rotate: 0 },
+                                    position: "left",
+                                    scale: { type: "linear", mode: "normal" },
+                                    show: true,
+                                    title: { text: "인원 수" }
+                                }
+                            ]
+                        },
+                        title: "",
+                        type: "line"
+                    }
+                };
+
+
+                const encodedFilter = encodeURIComponent(rison.encode(filterObj));
+
+                const newUrl = baseUrl + encodedFilter;
+
+                document.getElementById("kibana-chart").src = newUrl;
+                console.log(newUrl)
+
+                updateGraph(newUrl)
 
             }
 
@@ -447,7 +594,6 @@
                     return;
                 }
 
-                setTimeout(() => {
                     if (graphType === "yearlyApplicants") {
                         updateSumPeopleGraph(currentSearchText);
                     } else if (graphType === "passRate") {
@@ -455,11 +601,52 @@
                     } else if (graphType === "examAttempts") {
                         updateExamAttemptsGraph(currentSearchText);
                     }
-                }, 500)
             }
         })
 
+        document.addEventListener("DOMContentLoaded", async function () {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("🔹 토큰 없음 (인기 자격증 불러오지 않음)");
+                return;
+            }
 
+            try {
+                const response = await fetch("/certificate/top5", {
+                    method: "GET",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    throw new Error("🔥 인기 자격증 데이터를 불러올 수 없습니다.");
+                }
+
+                const data = await response.json();
+                if (!data.certificateTop5 || !Array.isArray(data.certificateTop5)) {
+                    console.warn("⚠️ 예상된 데이터 형식이 아님:", data);
+                    return;
+                }
+
+                const topCertList = document.getElementById("topCertList");
+                topCertList.innerHTML = ""; // 기존 리스트 초기화
+
+                data.certificateTop5.forEach(cert => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = cert;
+                    listItem.classList.add("list-group-item");
+                    listItem.addEventListener("click", function () {
+                        document.getElementById("searchInput").value = cert;
+                        document.getElementById("searchForm").dispatchEvent(new Event("submit")); // 검색 실행
+                    });
+                    topCertList.appendChild(listItem);
+                });
+
+                document.getElementById("topCertificates").style.display = "block"; // UI 표시
+
+            } catch (error) {
+                console.error("❌ 인기 자격증 데이터 로딩 오류:", error);
+            }
+        });
 
 </script>
 

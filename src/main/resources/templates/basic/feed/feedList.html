@@ -19,7 +19,7 @@
     <style>
 
         #rightMenuToggle {
-            display: none; /* 기본값: 데스크톱에서 숨김 */
+            display: none;
             background: none;
             border: none;
             font-size: 18px;
@@ -72,22 +72,49 @@
             .menu-toggle, #rightMenuToggle {
                 display: flex !important;
             }
+
             #rightMenuToggle {
-                background-color: black !important; /* 검은색 배경 */
-                color: white !important; /* 흰색 글자 */
-                border: none;
-                font-size: 18px;
-                padding: 8px 12px;
-                border-radius: 5px; /* 둥근 모서리 */
+                position: fixed;
+                top: 100px;
+                right: 15px;
+                background: white;
+                border-radius: 8px;
+                padding: 10px 15px;
+                display: flex !important;
+                align-items: center;
+                gap: 10px;
                 cursor: pointer;
+                z-index: 1500;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+                transition: opacity 0.5s ease-in-out;
+            }
+            .hidden {
+                opacity: 0;
+                transform: translateY(10px);
+                pointer-events: none; /* 클릭 방지 */
+            }
+            #expandSidebar {
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 14px;
             }
 
+            #expandSidebar:hover {
+                background: #0056b3;
+            }
             .right-sidebar.show {
                 right: 0;
             }
+
             .container-custom {
-                max-width: 100%; /* ✅ 모바일에서는 좌우 공백 없이 꽉 차게 */
-                padding: 0 10px; /* ✅ 너무 꽉 차보이지 않도록 약간의 공백 유지 */
+                width: 100%;
+                padding: 0 10px;
+                max-width: 430px;
+                align-items: center;
+                /*padding: 0 10px;*/
             }
             .tooltip-box {
                 position: fixed;
@@ -111,7 +138,6 @@
                 90% { opacity: 1; transform: translateY(0px); }
                 100% { opacity: 0; transform: translateY(10px); }
             }
-            /* 기본적으로 숨김 */
             #navbarNav {
                 display: none;
             }
@@ -119,7 +145,7 @@
                 display: none !important;
                 position: fixed;
                 top: 0;
-                right: -250px; /* 🔥 오른쪽 화면 밖에서 대기 */
+                right: -350px;
                 width: 250px;
                 height: 100vh;
                 background: white;
@@ -129,61 +155,56 @@
                 transition: transform 0.3s ease-in-out;
             }
 
-            /* ✅ 버튼 클릭 시 오른쪽에서 나오게 설정 */
             #rightSidebar.show {
                 display: block !important;
-                transform: translateX(-300px); /* ❌ 왼쪽으로 밀리지 않게 수정 */
-                right: 0; /* 🔥 오른쪽으로 나와야 함 */
+                transform: translateX(1000px);
             }
-
-            /* 보일 때 */
-
-
-                    /* 버튼 클릭 시 보이게 설정 */
             #navbarNav.show {
                 display: block;
             }
 
-            #rightSidebar.show {
-                display: block;
-            }
 
-            #leftSidebar.show {
-                transform: translateX(250px); /* 왼쪽에서 나옴 */
-            }
-
-            #rightSidebar.show {
-                transform: translateX(-250px); /* 오른쪽에서 나옴 */
-            }
+            /*#rightSidebar.show {*/
+            /*    transform: translateX(-250px);*/
+            /*}*/
 
             .menu-toggle, .right-menu-toggle {
                 display: flex;
                 position: fixed;
                 top: 15px;
                 background: #007bff;
-                color: #fff;
+                color: white;
                 border: none;
                 border-radius: 8px;
-                width: 50px;
+                width: 80px;
                 height: 40px;
                 justify-content: center;
                 align-items: center;
+                font-size: 13px;
+                font-weight: bold;
+                transition: background 0.3s ease, transform 0.2s ease;
                 z-index: 1000;
                 cursor: pointer;
+                box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
             }
+            .menu-toggle:hover, .right-menu-toggle:hover {
+                background: #0056b3;
+                transform: scale(1.05);
+            }
+            #leftMenuToggle {
+                left: 10px;
+            }
+
             .menu-toggle {
-                left: 15px; /* 왼쪽 햄버거 버튼 */
+                left: 15px;
             }
-            .right-menu-toggle {
-                right: 15px; /* 오른쪽 햄버거 버튼 */
-            }
+
 
             .menu-toggle span {
                 margin-left: 5px;
                 font-size: 14px;
             }
 
-            /* ✅ 모바일에서 메뉴(사이드바)를 기본적으로 숨기고 버튼 클릭 시 보이게 */
             #profile-info {
                 text-align: center;
                 margin-top: 10px;
@@ -221,16 +242,16 @@
                 padding: 15px;
                 z-index: 9998;
                 overflow-y: auto;
-                transform: translateX(-100%); /* 기본적으로 화면 밖으로 이동 */
+                transform: translateX(-100%);
                 transition: transform 0.3s ease-in-out;
             }
 
 
             .right-sidebar {
-                display: block !important; /* ✅ 모바일에서도 강제로 보이도록 설정 */
+                display: block !important;
                 position: fixed;
                 top: 0;
-                right: -250px; /* 기본적으로 화면 밖에 위치 */
+                right: -250px;
                 width: 250px;
                 height: 100vh;
                 background: white;
@@ -240,17 +261,17 @@
             }
 
             .right-sidebar.show {
-                transform: translateX(-250px) !important; /* ✅ 모바일에서도 나올 수 있도록 */
+                transform: translateX(-250px) !important;
             }
             .left-sidebar.active {
-                transform: translateX(0); /* 왼쪽에서 나타남 */
+                transform: translateX(0);
             }
             .left-sidebar.active ~ .main-content {
                 margin-left: 22vw;
                 width: calc(100% - 22vw);
             }
 
-            /* 📌 메뉴 버튼 클릭 시 보이게 설정 */
+
             .left-sidebar.active {
                 display: block;
             }
@@ -262,21 +283,18 @@
                 /*transition: margin-right 0.3s ease-in-out;*/
             }
 
-            /* 📌 메뉴 버튼 클릭 시 보이게 설정 */
+
             .right-sidebar.active {
                 display: block;
             }
 
-            /* ✅ 버튼 클릭 시 메뉴가 나타나도록 */
-
-            /* ✅ 모바일에서 메인 콘텐츠 전체 너비 차지 */
             .main-content {
-                margin-left: 22vw; /* 사이드바 너비만큼 이동 */
-                width: calc(100% - 22vw); /* 너비 자동 조정 */
+                margin-left: 22vw;
+                width: calc(100% - 22vw);
                 transition: margin-left 0.3s ease-in-out;
             }
 
-            /* ✅ 검색창 너비 조정 */
+
             #searchForm {
                 flex-direction: column;
                 align-items: center;
@@ -286,23 +304,10 @@
                 width: 100%;
             }
 
-            /* ✅ 로그인 컨테이너 고정 */
-            /*.login-container {*/
-            /*    width: 90%;*/
-            /*    max-width: 350px;*/
-            /*    position: fixed;*/
-            /*    top: 60px; !* 메뉴 버튼 아래로 이동 *!*/
-            /*    left: 50%;*/
-            /*    transform: translateX(-50%);*/
-            /*    background-color: white;*/
-            /*    padding: 15px;*/
-            /*    border-radius: 8px;*/
-            /*    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);*/
-            /*    z-index: 9998;*/
-            /*}*/
+
             .login-container {
                 width: 100%;
-                max-width: 230px; /* 사이드바에 맞게 너비 제한 */
+                max-width: 230px;
                 background-color: white;
                 padding: 15px;
                 border-radius: 8px;
@@ -310,21 +315,18 @@
                 margin-bottom: 20px;
             }
 
-            /* ✅ 모바일에서 버튼 크기 조정 */
             .btn {
                 font-size: 14px;
                 padding: 8px 12px;
             }
 
-            /* ✅ 모바일에서 검색 필터 숨기기 */
             #dateFields {
                 display: none;
             }
 
-            /* ✅ 모바일에서 페이지네이션 숫자 깨짐 방지 */
             .pagination {
-                overflow-x: auto;  /* 가로 스크롤 가능하게 */
-                white-space: nowrap; /* 줄바꿈 방지 */
+                overflow-x: auto;
+                white-space: nowrap;
                 justify-content: center;
                 padding: 10px;
                 width: 100%;
@@ -332,50 +334,49 @@
 
             .pagination .page-link {
                 padding: 8px 12px;
-                font-size: 14px; /* 숫자 크게 보이게 */
-                min-width: 40px; /* 최소 크기 설정 */
+                font-size: 14px;
+                min-width: 40px;
                 text-align: center;
             }
         }
 
         #searchForm {
-            max-width: 600px; /* 검색 폼 전체 너비 제한 */
-            margin: 0 auto;  /* 폼 중앙 정렬 */
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         #searchInput {
-            min-width: 200px; /*
-            max-width: 300px; /* 입력 필드 너비 제한 */
+            min-width: 200px;
+            max-width: 300px;
         }
-        /* 검색 영역 간격 조정 */
         .mb-4 {
             margin-bottom: 20px;
         }
         input[type="date"] {
-            width: auto; /* 필드 크기를 내용에 맞게 조정 */
-            max-width: 150px; /* 최대 폭 설정 */
-            display: inline-block; /* 블록이 아닌 인라인 요소로 표시 */
-            margin: 5px; /* 주위 간격 설정 */
+            width: auto;
+            max-width: 150px;
+            display: inline-block;
+            margin: 5px;
         }
         .form-control[type="date"] {
             width: auto !important;
             max-width: 150px;
         }
         .date-container {
-            position: relative; /* 자식 요소의 위치 조정 */
-            width: 100%; /* 컨테이너 폭 */
-            max-width: 800px; /* 적절한 최대 폭 설정 */
-            margin: 0 auto; /* 중앙 정렬 */
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
         a {
-            color: black; /* 원하는 색상으로 변경 */
-            text-decoration: none; /* 밑줄 제거 */
+            color: black;
+            text-decoration: none;
         }
 
-        /* 마우스 오버 시 색상 변경 */
+
         a:hover {
-            color: #007bff; /* 호버 시 색상 */
-            text-decoration: underline; /* 호버 시 밑줄 추가 */
+            color: #007bff;
+            text-decoration: underline;
         }
 
         .input-group {
@@ -456,12 +457,10 @@
             text-decoration: underline;
         }
 
-        /* 작성자 정보 스타일 */
         .ranking-item small {
             color: #777777;
         }
 
-        /* 보기 버튼 스타일 */
         .ranking-item .btn {
             margin-left: auto;
         }
@@ -471,8 +470,8 @@
 
 
         .input-group-sm input {
-            max-width: 130px; /* 입력 필드의 최대 너비 */
-            margin-right: 5px; /* 필드 간 간격 */
+            max-width: 130px;
+            margin-right: 5px;
         }
 
         .right-sidebar {
@@ -486,7 +485,7 @@
 
             position: sticky;
             top: 50%;
-            transform: translateY(10%);  /*  오른쪽 바 조정  */
+            transform: translateY(10%);
         }
 
         .list-group-item .btn {
@@ -504,18 +503,15 @@
         }
 
 
-        /* 메인 콘텐츠 */
         main {
             float: left;
-            width: calc(100% - 25%); /* 사이드바를 제외한 너비 */
+            width: calc(100% - 25%);
         }
-        /* 사이드바 */
 
         .list-group-item:nth-child(1) .title-link {
             font-weight: bold;
         }
 
-        /* 제목 텍스트 스타일 */
         .list-group-item h6 {
             font-size: 14px;
             font-weight:bold;
@@ -548,27 +544,27 @@
 
 
         .list-group-item:nth-child(2) .rank-number {
-            color: #ffa500; /* 2위는 주황색 */
+            color: #ffa500;
         }
 
         .list-group-item:nth-child(3) .rank-number {
-            color: #32cd32; /* 3위는 초록색 */
+            color: #32cd32;
         }
         .container {
             display: flex;
-            flex-direction: row; /* 가로로 배치 */
-            justify-content: space-between; /* 좌우에 공간을 고르게 분배 */
-            align-items: flex-start; /* 세로로 위에 정렬 */
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
         }
         .side-container {
-            background-color: #f8f9fa; /* 밝은 배경 */
+            background-color: #f8f9fa;
             position: sticky;
             padding: 10px;
             float:right;
             top: 0;
             z-index: 50;
-            height: auto; /* 사이드바가 전체 높이를 차지하도록 */
-            border-right: 1px solid #ddd; /* 경계선 추가 */
+            height: auto;
+            border-right: 1px solid #ddd;
         }
 
 
@@ -583,33 +579,32 @@
             background-color: #007bff;
             color: #fff;
         }
-        /* Flexbox 컨테이너 */
+
         .container-fluid {
             display: flex;
             flex-wrap: nowrap;
             height: 100vh;
         }
         #dateFields {
-            display: none; /* 기본적으로 숨김 */
+            display: none;
             position: absolute;
-            top: 40px; /* 검색창 아래로 40px 정도 배치 */
-            left: 0; /* 검색창과 정렬 */
-            z-index: 10; /* 다른 요소 위에 표시 */
+            top: 40px;
+            left: 0;
+            z-index: 10;
             background: white;
             border: 1px solid #ccc;
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
-            width: max-content; /* 폼 크기를 내용에 맞게 설정 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: max-content;
         }
         aside {
             position: sticky;
-            top: 20px; /* 고정될 위치 */
+            top: 20px;
         }
-        /* aside 스타일 */
         .aside-container {
-            width: 300px; /* 고정 너비 */
-            height: 100vh; /* 화면 전체 높이 */
+            width: 300px;
+            height: 100vh;
             background-color: #f4f4f4;
             padding: 20px;
             display: flex;
@@ -617,16 +612,10 @@
             align-items: center;
         }
 
-        /* 로그인 컨테이너 스타일 */
-        .login-container {
-            width: 100%; /* aside 내부에 맞게 조정 */
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
 
-        /* 입력 필드 스타일 */
+
+
+
         .form-group input {
             width: 100%;
             padding: 10px;
@@ -636,16 +625,6 @@
         }
 
 
-        /* 버튼 스타일 */
-        .login-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
         html, body {
             height: 100%;
             margin: 0;
@@ -653,7 +632,7 @@
          }
         main {
             float: left;
-            width: calc(100% - 25%); /* 사이드바를 제외한 너비 */
+            width: calc(100% - 25%);
         }
         .notice-container {
             background-color: #f9f9f9;
@@ -676,34 +655,24 @@
         }
 
         .row {
-            height: 100%; /* row에 높이 설정 */
+            height: 100%;
         }
 
         .container-fluid {
             height: 100%;
         }
 
-        .row {
-            height: 100%;
-        }
-        /* 🔔 알림 아이콘 컨테이너 */
+
         .notification-container {
             position: relative;
             display: flex;
             align-items: center;
         }
 
-        /* 🔔 알림 아이콘 */
-        .notification-icon {
-            position: relative;
-            font-size: 24px;  /* 아이콘 크기 조정 */
-            color: #007bff; /* 아이콘 색상 */
-            cursor: pointer;
-            padding-right: 10px;
-            transition: transform 0.2s ease-in-out;
-        }
 
-        /* 🔴 새 알림 배지 */
+
+
+
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -719,7 +688,7 @@
             align-items: center;
         }
 
-        /* 📩 알림 드롭다운 */
+
         .notification-dropdown {
             position: absolute;
             top: 30px;
@@ -752,7 +721,6 @@
         .notification-dropdown li:hover {
             background-color: #f5f5f5;
         }
-        ./* 🔍 사이드바 검색창 스타일 (마이페이지와 동일한 크기) */
         .sidebar-search {
             display: flex;
             align-items: center;
@@ -760,18 +728,18 @@
             padding: 5px 10px;
         }
 
-        /* 검색 입력 필드 */
+
         .sidebar-search input {
             flex: 1;
-            padding: 6px 10px; /* 높이 줄이기 */
+            padding: 6px 10px;
             font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            width: 100%; /* 가로 크기 조정 */
-            height: 36px; /* 버튼과 같은 높이 */
+            width: 100%;
+            height: 36px;
         }
 
-        /* 검색 버튼 */
+
         .sidebar-search button {
             padding: 6px 8px;
             background-color: #007bff;
@@ -782,28 +750,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 36px; /* 입력창과 동일한 높이 */
-            min-width: 36px; /* 버튼 크기 축소 */
+            height: 36px;
+            min-width: 36px;
         }
 
-        /* 버튼 호버 효과 */
+
         .sidebar-search button:hover {
             background-color: #0056b3;
         }
 
-        /* 검색 아이콘 크기 조정 */
+
         .sidebar-search button i {
             font-size: 16px;
         }
-        /* 아코디언 메뉴 스타일 */
+
         .menu-category {
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
         }
         .section-header {
-            /* 이미 inline style로 그라디언트 배경을 썼다면 굳이 안 써도 됨 */
             border-radius: 8px;
-            /* flex, wrap 등은 inline style이나 Bootstrap 클래스로 이미 적용 */
         }
         .section-header h3 {
             display: flex;
@@ -811,20 +777,6 @@
         }
         .section-header .fas.fa-clipboard-list {
             margin-right: 6px;
-        }
-
-        .menu-toggle-btn {
-            background: none;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .menu-subitems {
@@ -840,12 +792,10 @@
             color: #333;
         }
         .table tbody tr:hover {
-            background-color: #f1f3f5; /* Bootstrap gray-100 색상 */
+            background-color: #f1f3f5;
             cursor: pointer;
         }
-        .login-container {
-            margin-bottom: 1rem;
-        }
+
         #profile-info ul {
             list-style: none;
             padding-left: 0;
@@ -880,7 +830,7 @@
             cursor: pointer;
         }
         .tooltip-box {
-            display: none; /* 기본 hidden */
+            display: none;
             position: fixed;
             bottom: 80px;
             right: 20px;
@@ -912,7 +862,6 @@
             padding: 10px;
         }
         .dropdown-menu {
-            /*display: block !important;*/
             visibility: visible !important;
         }
         .dropdown-menu a {
@@ -926,13 +875,12 @@
             margin-right: 8px;
         }
 
-        /* 검색 바 */
         .search-bar {
             width: 100%;
             max-width: 800px;
             margin: 10px auto;
         }
-        /* 사용자 프로필 메뉴 스타일 */
+
         #user-menu {
             position: absolute;
             top: 100%;
@@ -944,14 +892,14 @@
             padding: 10px;
         }
         .custom-navbar {
-            height: 70px; /* 기존보다 높이 증가 */
-            font-size: 1.1rem; /* 폰트 크기 조정 */
+            height: 70px;
+            font-size: 1.1rem;
         }
 
-        /* 로고 크기 조정 및 왼쪽 정렬 */
+
         .custom-logo {
-            font-size: 1.8rem; /* 기존보다 크기 증가 */
-            padding-left: 100px; /* 왼쪽 여백 추가 */
+            font-size: 1.8rem;
+            padding-left: 100px;
         }
 
         #user-menu .dropdown-item {
@@ -965,7 +913,7 @@
         }
         .balloon {
             position: absolute;
-            top: 40px; /* ✅ 아이콘 아래로 이동 */
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
             background: #ffcc00;
@@ -980,11 +928,11 @@
             cursor: pointer;
         }
 
-        /* ✅ 말풍선 삼각형 방향을 아래쪽으로 설정 */
+
         .balloon::after {
             content: "";
             position: absolute;
-            top: -10px; /* ✅ 삼각형이 위쪽이 아니라 아래쪽을 가리키도록 */
+            top: -10px;
             left: 50%;
             transform: translateX(-50%);
             border-width: 5px;
@@ -993,7 +941,7 @@
         }
 
 
-        /* ✅ 말풍선 처음에는 살짝 보였다가 사라지도록 */
+
         @keyframes fadeOut {
             0% { opacity: 1; }
             100% { opacity: 0; display: none; }
@@ -1002,24 +950,20 @@
     </style>
     </div>
 </head>
-<!-- ✅ 네비게이션 바 수정 -->
-<!--<div class="container">-->
-<!--    <form class="d-flex search-bar">-->
-<!--        <input class="form-control me-2" type="search" id="searchInput" placeholder="검색어를 입력하세요" />-->
-<!--        <button class="btn btn-outline-success" type="submit" onclick="redirectSearch()">-->
-<!--            <i class="fas fa-search"></i>-->
-<!--        </button>-->
-<!--    </form>-->
-<!--</div>-->
-<button id="leftMenuToggle" class="menu-toggle d-md-none">≡</button>
-<button id="rightMenuToggle" class="btn btn-dark ms-2" style="z-index: 1500; position: fixed; top: 15px; right: 180px; display: none;">
-    ☰</button>
+<button id="leftMenuToggle" class="menu-toggle d-md-none">📂 info</button>
+
+    <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
+        <span class="fw-bold text-dark">👥 접속자: <span id="miniCurrentVisitors">0</span>명</span>
+        <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
+        <button id="closeSidebar" class="btn btn-danger btn-sm">X</button>
+    </div>
+
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm custom-navbar">
     <div  class="container-fluid">
         <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
-                <!-- 📂 게시판 -->
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown">
                         📂 게시판
@@ -1037,12 +981,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT 취업 정보</a>
                 </li>
-                <!-- ✅ Todo 리스트 -->
                 <li class="nav-item position-relative">
                     <a class="nav-link" href="/todo">
                         <i class="fas fa-check"></i> Todo리스트
                     </a>
-                    <!-- 🗨️ 말풍선 (아이콘 아래에 배치) -->
                     <div id="todoBalloon" class="balloon below show">
                         ✨ 오늘 150개 작성됨! 한번 작성해보세요!
                     </div>
@@ -1052,29 +994,31 @@
                     <a class="nav-link" href="/calendar">
                         <i class="fas fa-calendar-alt"></i> 캘린더
                     </a>
-                    <!-- 🗨️ 말풍선 (아이콘 아래에 배치) -->
                     <div id="calendarBalloon" class="balloon below show">
                         📅 오늘 일정 추가해보세요!
                     </div>
                 </li>
+
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="/certificate/list">
+                        <i class="fas fa-check"></i> 자격증 정보
+                    </a>
+                </li>
             </ul>
         </div>
 
-            <!-- ✅ 우측 버튼 (로그인, 글쓰기) -->
+
         <div class="d-flex align-items-center me-3">
-            <!-- 글쓰기 버튼 -->
+
             <button class="btn btn-danger me-2" onclick="window.location.href='/search/view/feed/Form';">글쓰기</button>
 
-            <!-- 로그인 버튼 -->
             <button id="login-button" class="btn btn-outline-dark" onclick="window.location.href='/login';">로그인</button>
 
-            <!-- 로그인 후 표시될 사용자 정보 -->
             <div id="user-info" class="d-none ms-3 position-relative">
                 <button id="user-menu-btn" class="btn btn-outline-secondary">
                     <i class="fas fa-user-circle"></i>
                 </button>
 
-                <!-- 마이페이지 & 로그아웃 메뉴 -->
                 <div id="user-menu" class="dropdown-menu dropdown-menu-end" style="display: none;">
                     <span class="dropdown-item-text text-secondary"><b id="username"></b>님</span>
                     <a class="dropdown-item" href="/search/view/feed/list/page"><i class="fas fa-user"></i> 마이페이지</a>
@@ -1086,27 +1030,18 @@
 </nav>
 
 
-<!-- ====================== 검색창 (모바일 전용) ====================== -->
-<!-- 작은 화면에서만 보이는 검색창을 따로 둘 수도 있음 -->
+
 <div class="bg-light d-lg-none p-2">
     <div class="search-box mx-auto" style="max-width: 500px;">
-        <input
-                type="text"
-                placeholder="관심있는 내용을 검색해보세요!"
-                aria-label="Search"
-        />
+        <input type="text" placeholder="관심있는 내용을 검색해보세요!" aria-label="Search"/>
         <button type="button">
-            <i class="fas fa-search"></i>
-        </button>
+            <i class="fas fa-search"></i></button>
     </div>
 </div>
 
-<!-- ====================== 메인 레이아웃: 좌측 사이드바 / 중앙(메인) / 우측 사이드바 ====================== -->
 
         <div class="container-custom">
-        <!-- 메인 콘텐츠 -->
             <main class="container-custom">
-                <!-- 검색 바 -->
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
                     <div id="todo-alert" class="alert alert-info mt-2" style="display: none;"></div>
                     <i class="fas fa-search me-2 text-secondary" id="searchIcon" style="cursor: pointer;"></i>
@@ -1123,12 +1058,12 @@
                     </div>
                 </div>
 
-            <!-- 조회수 -->
+
             <div class="mb-3 d-flex justify-content-end">
                 <p>조회수 :<span id="viewCount"></span></p>
             </div>
                 <ul class="nav nav-tabs" id="boardTab" role="tablist">
-                    <!-- 전체글 탭 -->
+
                     <li class="nav-item" role="presentation">
                         <button
                                 class="nav-link active"
@@ -1143,11 +1078,11 @@
                             전체 글
                         </button>
                     </li>
-                    <!-- Q&A 탭 -->
+
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane" type="button" role="tab" aria-controls="qaTabPane" aria-selected="false">Q&A</button>
                     </li>
-                    <!-- 토픽 베스트 탭 -->
+
                     <li class="nav-item" role="presentation">
                         <button
                                 class="nav-link"
@@ -1163,7 +1098,7 @@
                         </button>
                     </li>
                 </ul>
-            <!-- 게시글 리스트 -->
+
                 <div class="mb-4">
                     <table id="feedTable" class="table table-hover align-middle mb-0 shadow-sm">
                         <thead class="table-light">
@@ -1182,12 +1117,12 @@
                 </div>
 
 
-            <!-- 페이지네이션 -->
+
             <nav style="text-align: center;">
                 <ul class="pagination" id="pagination"></ul>
             </nav>
 
-            <!-- 글쓰기 버튼 (메인 하단) -->
+
             <div
                     class="d-flex justify-content-center align-items-center mb-4"
                     style="width: 100%; text-align: center;"
@@ -1199,7 +1134,7 @@
                 </form>
             </div>
         </main>
-            <!-- ✅ 모바일용 말풍선 -->
+
             <div id="rightSidebarTooltip" class="tooltip-box">
                 📊 실시간 접속자 & Top 5 유저 확인해보세요!
             </div>
@@ -1212,17 +1147,40 @@
             <div class="p-3 bg-white rounded shadow-sm">
                 <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> Top 5 유저</h3>
                 <div class="ranking-box mt-3" id="topWritersList">
-                    <!-- 인기 게시물 동적 추가 -->
+
                 </div>
             </div>
         </aside>
     </div>
 </div>
 
-<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVFQ5V8tOieywjAA7U6M/A1aIRtD0Sj1x4Onfdbk5BL9I5p4WQ=="></script>-->
 
 <script>
-    // ✅ 로그아웃 함수
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let rightMenuToggle = document.getElementById("rightMenuToggle");
+        let closeSidebar = document.getElementById("closeSidebar");
+
+        if (rightMenuToggle) {
+            rightMenuToggle.style.display = "flex";
+
+            setTimeout(() => {
+                rightMenuToggle.classList.add("hidden");
+                setTimeout(() => {
+                    rightMenuToggle.style.display = "none";
+                }, 500);
+            }, 3000);
+
+            closeSidebar.addEventListener("click", function () {
+                rightMenuToggle.classList.add("hidden");
+                setTimeout(() => {
+                    rightMenuToggle.style.display = "none";
+                }, 500);
+            });
+        }
+    });
+
+
     function logout() {
         localStorage.removeItem("username");
         document.body.classList.remove("logged-in");
@@ -1235,12 +1193,12 @@
         const startDate = document.getElementById('startDate')?.value;
         const endDate = document.getElementById('endDate')?.value;
 
-        // 🔍 사이드바 검색 입력값 추가
+
         const sidebarSearchText = document.getElementById('sidebarSearchInput')?.value.trim();
 
         let url = '/search/content?';
 
-        // ✅ 검색어가 입력된 곳을 우선 적용
+
         let finalSearchText = searchText || sidebarSearchText;
 
 
@@ -1283,16 +1241,16 @@
         fetch("/top-writers")
             .then(response => response.json())
             .then(data => {
-                updateTopWriters(data); // ✅ UI 업데이트
+                updateTopWriters(data)
             })
             .catch(error => console.error("🚨 Top 유저 데이터 가져오기 실패:", error));
     }
     function updateTopWriters(topWriters) {
         const topWritersList = document.getElementById("topWritersList");
-        topWritersList.innerHTML = ''; // 기존 내용 초기화
+        topWritersList.innerHTML = '';
 
         topWriters.forEach((writer, index) => {
-            // 🔸 상위 3명은 아이콘 강조
+
             let rankIcon = '';
             if (index === 0) {
                 rankIcon = '<i class="fas fa-crown text-warning"></i>'; // 🥇 1위
@@ -1305,22 +1263,22 @@
             const itemDiv = document.createElement('div');
             itemDiv.className = 'd-flex align-items-center ranking-item py-2 border-bottom';
 
-            // 순위 아이콘 + 숫자
+
             const rankSpan = document.createElement('span');
             rankSpan.className = 'rank-number fw-bold me-3 text-secondary';
             rankSpan.innerHTML = `${index + 1}. ${rankIcon}`;
 
-            // 유저명 + 게시글 수
+
             const userInfoDiv = document.createElement('div');
             userInfoDiv.className = 'ms-1 me-auto';
 
-            // 🏅 유저명 (클릭 시 검색으로 이동)
+
             const userLink = document.createElement('a');
             userLink.className = 'ranking-title text-decoration-none fw-bold text-dark';
             userLink.href = `/search/view/feed/list/${writer.username}`;
             userLink.textContent = writer.username;
 
-            // ✏️ 작성한 글 개수
+
             const postCount = document.createElement('small');
             postCount.className = 'text-muted d-block';
             postCount.textContent = `📌 게시글: ${writer.postCount}개`;
@@ -1335,14 +1293,9 @@
         });
     }
 
-    // document.querySelector(".menu-toggle-btn").addEventListener("click", function () {
-    //     const submenu = document.querySelector(".menu-subitems");
-    //     submenu.style.display = submenu.style.display === "block" ? "none" : "block";
-    // });
 
-    // 데이터 렌더링 함수
+
     document.addEventListener("DOMContentLoaded", function () {
-        // 드롭다운 문제 해결 (Bootstrap JS 활성화)
         var dropdowns = document.querySelectorAll('.dropdown-toggle');
         dropdowns.forEach(dropdown => {
             dropdown.addEventListener('click', function (e) {
@@ -1363,11 +1316,7 @@
             document.getElementById("username").textContent = localStorage.getItem("username");
         }
 
-        // 사용자 아이콘 클릭 시 메뉴 토글
-        // document.getElementById("user-menu-btn").addEventListener("click", function () {
-        //     let menu = document.getElementById("user-menu");
-        //     menu.style.display = menu.style.display === "block" ? "none" : "block";
-        // });
+
 
         // 로그아웃 기능
         window.logout = function () {
@@ -1384,7 +1333,11 @@
 
             const data = await response.json();
 
-            // 방문자 수 표시할 DOM 요소 가져오기
+            const miniCurrentVisitors = document.getElementById('miniCurrentVisitors');
+            if (miniCurrentVisitors) {
+                miniCurrentVisitors.textContent = data.activeUsers;
+            }
+
             const visitorStatsDiv = document.getElementById('visitorStats');
             visitorStatsDiv.innerHTML = `
                 <div class="d-flex align-items-center visitor-item">
@@ -1409,9 +1362,9 @@
         const dateFields = document.getElementById('dateFields');
 
         if (searchType === 'date') {
-            dateFields.style.display = 'block'; // 날짜 입력 필드 표시
+            dateFields.style.display = 'block';
         } else {
-            dateFields.style.display = 'none'; // 날짜 입력 필드 숨김
+            dateFields.style.display = 'none';
         }
     }
     let isLoading = false;
