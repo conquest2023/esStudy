@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.ex.IndexException;
 import es.board.repository.CertificateDAO;
 import es.board.repository.document.Certificate;
@@ -28,26 +29,28 @@ public class CertificateDAOImpl  implements CertificateDAO {
     private final ElasticsearchClient client;
 
     @Override
-    public Certificate findSearchCertificate(String text) {
+    public List<Certificate> findSearchCertificate(String text) {
         try {
             SearchResponse<Certificate> response = client.search(s -> s
                             .index("certificate")
                             .query(q -> q
                                     .bool(b -> b
-                                            .should(
-                                                    a -> a.match(t -> t
-                                                            .field("jmfldnm.keyword")
-                                                            .query(text))))),
+                                            .should(a -> a.match(t -> t
+                                                    .field("jmfldnm")
+                                                    .query(text))))),
                     Certificate.class);
             log.info(response.toString());
-            return response.hits().hits().get(0).source();
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Error searching documents by Certificate: {}", e.getMessage(), e);
             throw new IndexException("자격증 검색 실패", e);
         }
     }
 
-        @Override
+
+    @Override
         public List<String> findTop5CertificateCount() {
             try {
                 // ✅ Elasticsearch 검색 실행
@@ -63,7 +66,6 @@ public class CertificateDAOImpl  implements CertificateDAO {
                         Void.class
                 );
 
-                // 🔹 집계 데이터에서 key(자격증명)만 추출하여 리스트로 변환
                 List<String> topCertificates = new ArrayList<>();
                 Map<String, Aggregate> aggs = response.aggregations();
 
@@ -77,13 +79,39 @@ public class CertificateDAOImpl  implements CertificateDAO {
                     }
                 }
 
-                log.info("📊 Top 5 Certificates: {}", topCertificates);
                 return topCertificates;
 
             } catch (IOException e) {
-                log.error("❌ Elasticsearch 검색 오류: {}", e.getMessage(), e);
+                log.error("Elasticsearch 검색 오류: {}", e.getMessage(), e);
                 throw new RuntimeException("자격증 검색 실패", e);
             }
         }
+    @Override
+    public Certificate findSearchCertificateByName(String name) {
+        try {
+            SearchResponse<Certificate> response = client.search(s -> s
+                            .index("certificate")
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("jmfldnm.keyword") // 🔹 정확한 이름으로 검색
+                                            .value(name)
+                                    )
+                            )
+                            .size(1),
+                    Certificate.class);
+
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .findFirst()
+                    .orElse(null);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Elasticsearch 검색 오류", e);
+        }
     }
+}
+
+
+
+
 

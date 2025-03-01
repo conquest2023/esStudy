@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>자격증 캘린더</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .category-bar {
+      display: flex;
+      justify-content: space-around;
+      background-color: #f1f1f1;
+      padding: 10px;
+    }
+    .category {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #ddd;
+      border-radius: 5px;
+    }
+    .category.active {
+      background-color: #007bff;
+      color: white;
+    }
+    #calendar {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1>자격증 캘린더</h1>
+
+<!-- 카테고리 바 -->
+<div class="category-bar">
+  <div class="category active" data-category="national">국가 자격증</div>
+  <div class="category" data-category="private">민간 자격증</div>
+  <div class="category" data-category="language">어학 자격증</div>
+</div>
+
+<!-- FullCalendar -->
+<div id='calendar'></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      events: '/api/certificates?category=national', // 기본 국가 자격증 로드
+    });
+    calendar.render();
+
+    // 카테고리 변경 이벤트
+    $('.category').on('click', function() {
+      $('.category').removeClass('active');
+      $(this).addClass('active');
+      var selectedCategory = $(this).data('category');
+      calendar.refetchEvents(); // 이벤트 다시 불러오기
+      calendar.removeAllEvents();
+      calendar.addEventSource(`/api/certificates?category=` + selectedCategory);
+    });
+  });
+</script>
+</body>
+</html>

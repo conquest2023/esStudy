@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class CalendarPageController {
 
-    @GetMapping("/calendar")  // 🔹 /calendar로 접속하면 HTML 반환
+    @GetMapping("/calendar")
     public String showCalendarPage() {
-        return "basic/feed/Calendar";  // 🔹 resources/templates/calendar.html을 반환
+        return "basic/feed/Calendar";
     }
 
-    @GetMapping("/todo")  // 🔹 /calendar로 접속하면 HTML 반환
+    @GetMapping("/todo")
     public String showToDoPage() {
         return "basic/feed/ToDo";
 

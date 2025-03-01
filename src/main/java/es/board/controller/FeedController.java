@@ -210,8 +210,7 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/resume")
-    public String getResume() { // 페이지 크기
-
+    public String getResume() {
         return "basic/feed/Resume";
     }
 

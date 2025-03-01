@@ -1,74 +1,235 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>이력서 템플릿 선택</title>-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
+<!--    <style>-->
+<!--        .template-card {-->
+<!--            transition: transform 0.2s;-->
+<!--        }-->
+<!--        .template-card:hover {-->
+<!--            transform: scale(1.05);-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--    <div class="container">-->
+<!--        <a class="navbar-brand" href="#">이력서 템플릿</a>-->
+<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">-->
+<!--            <span class="navbar-toggler-icon"></span>-->
+<!--        </button>-->
+<!--        <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--            <ul class="navbar-nav">-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="#">기본 이력서</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="#">개발자 이력서</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="#">디자이너 이력서</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<!--<div class="container mt-5">-->
+<!--    <h2 class="text-center">이력서 템플릿 선택</h2>-->
+<!--    <div class="row mt-4">-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="card template-card">-->
+<!--                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="기본 이력서">-->
+<!--                <div class="card-body text-center">-->
+<!--                    <h5 class="card-title">기본 이력서</h5>-->
+<!--                    <a href="#" class="btn btn-primary">선택</a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="card template-card">-->
+<!--                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="개발자 이력서">-->
+<!--                <div class="card-body text-center">-->
+<!--                    <h5 class="card-title">개발자 이력서</h5>-->
+<!--                    <a href="#" class="btn btn-success">선택</a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4">-->
+<!--            <div class="card template-card">-->
+<!--                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="디자이너 이력서">-->
+<!--                <div class="card-body text-center">-->
+<!--                    <h5 class="card-title">디자이너 이력서</h5>-->
+<!--                    <a href="#" class="btn btn-danger">선택</a>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
+<style>
+    .hero-section {
+        position: relative;
+        height: 60vh;
+        background: url("https://images.unsplash.com/photo-1503945438517-f65904a52ce6") no-repeat center center/cover;
+        /* 원하는 이미지로 교체 가능 */
+        margin-bottom: 0;
+        overflow: hidden;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .hero-section .container {
+        z-index: 2; /* 오버레이 위로 텍스트를 올림 */
+    }
+
+    .hero-section h1,
+    .hero-section p {
+        color: #fff;
+    }
+
+    /* 카드 호버 효과 */
+    .card:hover {
+        transform: translateY(-3px);
+        transition: 0.2s ease-in-out;
+    }
+
+
+</style>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이력서 템플릿 선택</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>이력서 관리</title>
+
+    <!-- Bootstrap 5 (CDN) -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
     <style>
-        .template-card {
-            transition: transform 0.2s;
+        /* Hero 섹션 */
+        .hero-section {
+            position: relative;
+            height: 60vh;
+            background: url("https://images.unsplash.com/photo-1503945438517-f65904a52ce6") no-repeat center center/cover;
+            margin-bottom: 0;
+            overflow: hidden;
         }
-        .template-card:hover {
-            transform: scale(1.05);
+
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .hero-section .container {
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-section h1,
+        .hero-section p {
+            color: #fff;
+        }
+
+        /* 카드 호버 효과 */
+        .card:hover {
+            transform: translateY(-3px);
+            transition: 0.2s ease-in-out;
+        }
+
+        /* 푸터 */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-top: 50px;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+<!-- 네비게이션 바 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="#">이력서 템플릿</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">기본 이력서</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">개발자 이력서</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">디자이너 이력서</a>
-                </li>
-            </ul>
-        </div>
+        <a class="navbar-brand fw-bold" href="/">MyResume</a>
     </div>
 </nav>
 
-<div class="container mt-5">
-    <h2 class="text-center">이력서 템플릿 선택</h2>
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card template-card">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="기본 이력서">
-                <div class="card-body text-center">
-                    <h5 class="card-title">기본 이력서</h5>
-                    <a href="#" class="btn btn-primary">선택</a>
+<!-- Hero 섹션 -->
+<section class="hero-section d-flex align-items-center justify-content-center text-center text-white">
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <h1 class="display-4 fw-bold">이력서를 쉽고 빠르게 작성하세요!</h1>
+        <p class="lead mt-3">
+            간편 작성, 직군별 맞춤형 폼으로 빠르고 쉽게 작성 가능합니다. <br/>
+            다양한 템플릿, 개발자, 디자이너, 일반회사원 등 다양한 템플릿 지원.
+        </p>
+    </div>
+</section>
+
+<!-- 이력서 작성 선택 (개발자 / 일반) -->
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <!-- 개발자 이력서 -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow text-center"
+                 style="cursor:pointer;"
+                 onclick="location.href='/resume-form?role=developer'">
+                <div class="card-body">
+                    <i class="bi bi-code-slash fs-1 text-primary"></i>
+                    <h4 class="card-title mt-3">개발자 이력서 작성</h4>
+                    <p class="card-text mt-2">
+                        프론트엔드, 백엔드, AI 등 직군별 세부 항목을 맞춤 입력!
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card template-card">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="개발자 이력서">
-                <div class="card-body text-center">
-                    <h5 class="card-title">개발자 이력서</h5>
-                    <a href="#" class="btn btn-success">선택</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card template-card">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="디자이너 이력서">
-                <div class="card-body text-center">
-                    <h5 class="card-title">디자이너 이력서</h5>
-                    <a href="#" class="btn btn-danger">선택</a>
+        <!-- 일반 이력서 -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow text-center"
+                 style="cursor:pointer;"
+                 onclick="location.href='/resume-form?role=office'">
+                <div class="card-body">
+                    <i class="bi bi-briefcase fs-1 text-primary"></i>
+                    <h4 class="card-title mt-3">일반 이력서 작성</h4>
+                    <p class="card-text mt-2">
+                        사무직, 경영직 등에서 요구되는 항목을 쉽게 작성!
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- 푸터 -->
+<footer>
+    <span>© 2025 MyResume - All Rights Reserved</span>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
+
+
+
+

@@ -77,21 +77,15 @@
         }
 
         .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
             text-align: center;
             margin-top: 30px;
         }
 
-        .search-box {
-            background: white;
-            padding: 15px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 50%;
-            max-width: 600px;
-            margin: auto;
-        }
+
 
         .search-box input {
             border: none;
@@ -131,7 +125,7 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
             text-align: left;
-            width: 40%;
+            width: 40%; top: 100%;
         }
 
         .graph-container {
@@ -160,7 +154,52 @@
             background: #007bff;
             color: white;
         }
+        .suggestion-box {
+            top: 100%;
+            position: absolute;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 5px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            z-index: 1000;
+            padding: 5px;
+            display: none;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-wrapper {
+            position: relative;
+            width: 50%;
+            max-width: 600px;
+        }
+        .search-box {
+            background: white;
+            padding: 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            position: relative;
+        }
+        .suggestion-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
+        .suggestion-box li {
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .suggestion-box li:hover {
+            background: #f1f1f1;
+        }
     </style>
 </head>
 <body>
@@ -172,9 +211,16 @@
         <input type="text" id="searchInput" name="text" placeholder="검색어를 입력하세요">
         <button type="submit"><i class="fas fa-arrow-right"></i></button>
     </form>
-    <div id="topCertificates" class="popular-certs ms-3">
-        <h6 class="text-primary font-weight-bold">인기 TOP 5</h6>
-        <ul id="topCertList" class="list-group"> </ul>
+    <div id="suggestionBox" class="suggestion-box">
+        <ul id="suggestionList"></ul>
+    </div>
+<!--    <div id="suggestionBox" class="suggestion-box shadow-sm rounded bg-white" style="display: none;">-->
+<!--        <ul id="suggestionList" class="list-unstyled"></ul>-->
+<!--    </div>-->
+
+    <div id="topCertificates" class="popular-certs shadow-sm rounded-lg p-3 bg-white" style="display: none; position: absolute; right: 20px; top: 250px; width: 500px;">
+        <h6 class="font-weight-bold mb-3">인기 자격증</h6>
+        <ul id="topCertList" class="list-unstyled"></ul>
     </div>
 </div>
 
@@ -190,7 +236,7 @@
     <div class="graph-navigation">
         <button onclick="changeGraph('yearlyApplicants')">연도별 지원자 수</button>
         <button onclick="changeGraph('passRate')">합격률 분석</button>
-        <button onclick="changeGraph('examAttempts')">응시 횟수</button>
+        <button onclick="changeGraph('examAttempts')">공부 기간</button>
     </div>
 
     <iframe id="kibana-chart" src=""  width="50%"
@@ -201,15 +247,92 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
+    function debounce(func, delay) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
         document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
             const searchForm = document.getElementById("searchForm");
+            const suggestionBox = document.getElementById("suggestionBox");
+            const suggestionList = document.getElementById("suggestionList");
             const graphContainer = document.getElementById("graphContainer");
             let currentSearchText = "";
+            let previousSearchText = "";
+            let abortController = null;
+
+            searchInput.addEventListener("input", async function () {
+                const searchText = searchInput.value.trim();
+                if (searchText.length < 2) {
+                    suggestionBox.style.display = "none";
+                    return;
+                }
+                if (previousSearchText && searchText.startsWith(previousSearchText)) {
+                    console.log("🔄 동일 접두어 검색, API 호출 방지");
+                    return;
+                }
+
+                previousSearchText = searchText;
+
+                if (abortController) {
+                    abortController.abort(); // ✅ 기존 요청 취소
+                }
+                abortController = new AbortController();
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) return;
+
+                    const response = await fetch(`/search/certificate?text=${encodeURIComponent(searchText)}`, {
+                        method: "GET",
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+
+                    if (!response.ok) throw new Error("연관 검색어를 가져올 수 없습니다.");
+
+                    const data = await response.json();
+                    if (!data.certificate || data.certificate.length === 0) {
+                        suggestionBox.style.display = "none";
+                        return;
+                    }
+
+
+                    suggestionList.innerHTML = "";
+                    data.certificate.forEach(cert => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = cert.jmfldnm;
+
+
+                        listItem.addEventListener("click", function () {
+                            searchInput.value = cert.jmfldnm;
+                            suggestionBox.style.display = "none";
+                        });
+
+                        suggestionList.appendChild(listItem);
+                    });
+
+                    suggestionBox.style.display = "block";
+                } catch (error) {
+                    console.error("연관 검색어 오류:", error);
+                }
+                const debouncedUpdate = debounce(updateSuggestions, 3000);
+                document.getElementById("searchInput").addEventListener("input", debouncedUpdate);
+            });
+
+            // ✅ 4️⃣ 검색창 이외 클릭 시 연관 검색어 숨기기
+            document.addEventListener("click", function (event) {
+                if (!searchInput.contains(event.target) && !suggestionBox.contains(event.target)) {
+                    suggestionBox.style.display = "none";
+                }
+            });
+
 
             searchForm.addEventListener("submit", async function (e) {
                 e.preventDefault();
 
-                const searchText = document.getElementById("searchInput").value.trim();
+                const searchText = searchInput.value.trim();
                 if (!searchText) {
                     alert("검색어를 입력하세요.");
                     return;
@@ -224,9 +347,7 @@
                 try {
                     const response = await fetch(`/search/certificate?text=${encodeURIComponent(searchText)}`, {
                         method: "GET",
-                        headers: {
-                            "Authorization": "Bearer " + token
-                        }
+                        headers: { "Authorization": "Bearer " + token }
                     });
 
                     if (!response.ok) {
@@ -240,21 +361,15 @@
 
                     if (data.certificate) {
                         currentSearchText = searchText;
-
-                        resultText.textContent = data.certificate.jmfldnm;
-                        resultCategory.textContent = data.certificate.qualgbnm;
+                        resultText.textContent = data.certificate[0].jmfldnm;
+                        resultCategory.textContent = data.certificate[0].qualgbnm;
                         resultContainer.style.display = "block";
-
-                        updateSumPeopleGraph(currentSearchText);
-
-                        // ✅ 그래프 컨테이너 표시
                         graphContainer.style.display = "block";
+                        updateSumPeopleGraph(currentSearchText);
                     } else {
                         resultText.textContent = "검색 결과가 없습니다.";
                         resultCategory.textContent = "";
                         resultContainer.style.display = "block";
-
-                        document.getElementById("kibana-chart").src = "";
                         graphContainer.style.display = "none";
                     }
                 } catch (error) {
@@ -262,7 +377,74 @@
                     alert("검색 결과를 불러올 수 없습니다.");
                 }
             });
-
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     const searchForm = document.getElementById("searchForm");
+        //     const graphContainer = document.getElementById("graphContainer");
+        //     let currentSearchText = "";
+        //
+        //     searchForm.addEventListener("submit", async function (e) {
+        //         e.preventDefault();
+        //
+        //         const searchText = document.getElementById("searchInput").value.trim();
+        //         if (!searchText) {
+        //             alert("검색어를 입력하세요.");
+        //             return;
+        //         }
+        //
+        //         const token = localStorage.getItem("token");
+        //         if (!token) {
+        //             alert("로그인이 필요합니다.");
+        //             return;
+        //         }
+        //
+        //         try {
+        //             const response = await fetch(`/search/certificate?text=${encodeURIComponent(searchText)}`, {
+        //                 method: "GET",
+        //                 headers: {
+        //                     "Authorization": "Bearer " + token
+        //                 }
+        //             });
+        //
+        //             if (!response.ok) {
+        //                 throw new Error("검색 결과를 불러올 수 없습니다.");
+        //             }
+        //
+        //             const data = await response.json();
+        //             const resultContainer = document.getElementById("resultsContainer");
+        //             const resultText = document.getElementById("resultText");
+        //             const resultCategory = document.getElementById("resultCategory");
+        //
+        //
+        //
+        //             if (data.certificate) {
+        //                 currentSearchText = searchText;
+        //
+        //                 resultText.textContent = data.certificate.jmfldnm;
+        //                 resultCategory.textContent = data.certificate.qualgbnm;
+        //                 resultContainer.style.display = "block";
+        //
+        //                 updateSumPeopleGraph(currentSearchText);
+        //
+        //                 graphContainer.style.display = "block";
+        //             } else {
+        //                 resultText.textContent = "검색 결과가 없습니다.";
+        //                 resultCategory.textContent = "";
+        //                 resultContainer.style.display = "block";
+        //
+        //                 document.getElementById("kibana-chart").src = "";
+        //                 graphContainer.style.display = "none";
+        //             }
+        //         } catch (error) {
+        //             console.error("검색 중 오류 발생:", error);
+        //             alert("검색 결과를 불러올 수 없습니다.");
+        //         }
+        //     });
+        //
+        //     document.addEventListener("click", function (event) {
+        //         if (!searchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+        //             suggestionsBox.style.display = "none";
+        //         }
+        //     });
             function updateSumPeopleGraph(searchText) {
 
                 const indexPattern = "1e886add-517b-41af-8b15-5a766175b6b8";
@@ -339,7 +521,6 @@
             function updatePassRateGraph(searchText) {
                 const baseUrl = "https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=8df398cc-cc8f-4c2e-9dbc-12ecc1d1ffc3&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=";
 
-                // 동적으로 변경할 필터 객체 (여기서 searchText 값만 반영)
                 const filterObj = {
                     dataView: "fe8a958c-637d-4196-9737-9d3885e493fc",
                     filters: [
@@ -607,7 +788,7 @@
         document.addEventListener("DOMContentLoaded", async function () {
             const token = localStorage.getItem("token");
             if (!token) {
-                console.warn("🔹 토큰 없음 (인기 자격증 불러오지 않음)");
+                console.warn("토큰 없음");
                 return;
             }
 
@@ -618,33 +799,60 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("🔥 인기 자격증 데이터를 불러올 수 없습니다.");
+                    throw new Error(" 인기 자격증 데이터를 불러올 수 없습니다.");
                 }
 
                 const data = await response.json();
                 if (!data.certificateTop5 || !Array.isArray(data.certificateTop5)) {
-                    console.warn("⚠️ 예상된 데이터 형식이 아님:", data);
+                    console.warn("예상된 데이터 형식이 아님:", data);
                     return;
                 }
 
                 const topCertList = document.getElementById("topCertList");
-                topCertList.innerHTML = ""; // 기존 리스트 초기화
+                topCertList.innerHTML = "";
 
-                data.certificateTop5.forEach(cert => {
+                data.certificateTop5.forEach((cert, index) => {
                     const listItem = document.createElement("li");
-                    listItem.textContent = cert;
-                    listItem.classList.add("list-group-item");
+                    listItem.classList.add("d-flex", "justify-content-between", "align-items-center", "py-2");
+
+                    const rank = document.createElement("span");
+                    rank.textContent = index + 1;
+                    rank.classList.add("font-weight-bold", "text-muted", "small");
+
+                    const certName = document.createElement("span");
+                    certName.textContent = cert;
+                    certName.classList.add("flex-grow-1", "ml-2");
+
+                    const trendIcon = document.createElement("span");
+                    const trend = Math.random();
+                    if (trend > 0.6) {
+                        trendIcon.innerHTML = "🔼";
+                        trendIcon.style.color = "red";
+                    } else if (trend < 0.3) {
+                        trendIcon.innerHTML = "🔽";
+                        trendIcon.style.color = "blue";
+                    } else {
+                        trendIcon.innerHTML = "-";
+                        trendIcon.style.color = "gray";
+                    }
+
+                    listItem.appendChild(rank);
+                    listItem.appendChild(certName);
+                    listItem.appendChild(trendIcon);
+
+                    // 클릭 시 검색 실행
                     listItem.addEventListener("click", function () {
                         document.getElementById("searchInput").value = cert;
-                        document.getElementById("searchForm").dispatchEvent(new Event("submit")); // 검색 실행
+                        document.getElementById("searchForm").dispatchEvent(new Event("submit"));
                     });
+
                     topCertList.appendChild(listItem);
                 });
 
-                document.getElementById("topCertificates").style.display = "block"; // UI 표시
+                document.getElementById("topCertificates").style.display = "block";
 
             } catch (error) {
-                console.error("❌ 인기 자격증 데이터 로딩 오류:", error);
+                console.error("인기 자격증 데이터 로딩 오류:", error);
             }
         });
 

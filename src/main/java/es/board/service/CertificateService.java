@@ -10,6 +10,6 @@ public interface CertificateService {
 
 
     List<String> getTop5CertificateCount();
-    Certificate getCertificate(String text);
+    List<Certificate> getCertificate(String text ,String userIp);
 
 }
