@@ -82,6 +82,8 @@ public class CalenderController {
 
         return ResponseEntity.ok(response);
     }
+
+
     @GetMapping("/elastic/schedule")
     @ResponseBody
     public ResponseEntity<?> searchSchedule(
@@ -89,9 +91,7 @@ public class CalenderController {
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "type", required = false) String searchType,
             @RequestParam(value = "sort", required = false) String sortType) {
-        log.info(query);
-        log.info(searchType);
-        log.info(sortType);
+
 
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));

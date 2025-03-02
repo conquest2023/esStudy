@@ -1,7 +1,7 @@
 package es.board.repository.entity;
 
 
-import es.board.config.s3.S3Uploader;
+
 import es.board.controller.model.res.FeedCreateResponse;
 import jakarta.persistence.*;
 import lombok.*;

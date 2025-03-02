@@ -48,19 +48,19 @@
             cursor: pointer;
         }
         .badge-view {
-            background-color: #6c757d; /* secondary */
+            background-color: #6c757d;
         }
         .badge-like {
-            background-color: #198754; /* success */
+            background-color: #198754;
         }
         .wrapper {
-            max-width: 1200px;  /* 전체 컨텐츠 너비를 제한 (원하는 크기로 조정 가능) */
-            margin: 0 auto;  /* 가운데 정렬 */
-            padding: 0 20px; /* 좌우 여백 추가 */
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
         @media (max-width: 1400px) {
             .container-custom {
-                max-width: 95%; /* ✅ 화면이 작아질수록 너비 확장 */
+                max-width: 95%;
             }
         }
 
@@ -114,7 +114,7 @@
                 padding: 0 10px;
                 max-width: 430px;
                 align-items: center;
-                /*padding: 0 10px;*/
+
             }
             .tooltip-box {
                 position: fixed;
@@ -328,6 +328,10 @@
                 overflow-x: auto;
                 white-space: nowrap;
                 justify-content: center;
+                background-color: #f8f9fa;
+                color: #007bff;
+                font-size: 16px;
+                transition: 0.3s;
                 padding: 10px;
                 width: 100%;
             }
@@ -338,6 +342,12 @@
                 min-width: 40px;
                 text-align: center;
             }
+            .pagination .disabled .page-link {
+                background-color: #ddd;
+                color: gray;
+                cursor: not-allowed;
+            }
+
         }
 
         #searchForm {
@@ -411,6 +421,7 @@
             color: #333;
             font-weight: 500;
         }
+
         .list-group-item small {
             color: #777777;
         }
@@ -567,6 +578,29 @@
             border-right: 1px solid #ddd;
         }
 
+        .pagination {
+            overflow-x: auto;
+            white-space: nowrap;
+            justify-content: center;
+            background-color: #f8f9fa;
+            color: #007bff;
+            font-size: 16px;
+            transition: 0.3s;
+            padding: 10px;
+            width: 100%;
+        }
+
+        .pagination .page-link {
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+        .pagination .disabled .page-link {
+            background-color: #ddd;
+            color: gray;
+            cursor: not-allowed;
+        }
 
         .vertical-menu a {
             display: block;
@@ -611,9 +645,6 @@
             flex-direction: column;
             align-items: center;
         }
-
-
-
 
 
         .form-group input {
@@ -1123,16 +1154,13 @@
             </nav>
 
 
-            <div
-                    class="d-flex justify-content-center align-items-center mb-4"
-                    style="width: 100%; text-align: center;"
-            >
-                <form action="/search/view/feed/Form" method="get">
-                    <button type="submit" class="btn btn-secondary">
-                        <i class="fas fa-pencil-alt"></i> 작성하기
-                    </button>
-                </form>
-            </div>
+<!--            <div class="d-flex justify-content-center align-items-center mb-4" style="width: 100%; text-align: center;">-->
+<!--                <form action="/search/view/feed/Form" method="get">-->
+<!--                    <button type="submit" class="btn btn-secondary">-->
+<!--                        <i class="fas fa-pencil-alt"></i> 작성하기-->
+<!--                    </button>-->
+<!--                </form>-->
+<!--            </div>-->
         </main>
 
             <div id="rightSidebarTooltip" class="tooltip-box">
@@ -1369,10 +1397,10 @@
     }
     let isLoading = false;
     async function loadPage(page) {
-        if (isLoading) return;  // 중복 호출 방지
+        if (isLoading) return;
         isLoading = true;
         try {
-            const size = 10; // 페이지 크기 (한 페이지당 항목 수)
+            const size = 10;
             const response = await fetch(`/feeds?page=${page}&size=${size}`);
             const data = await response.json();
             renderPagination(data.page,data.maxPage,data.totalPage);
@@ -1385,73 +1413,135 @@
     }
     document.addEventListener('DOMContentLoaded', async  function() {
         connectSSE();
-        await loadPage(0);
-
+        // await loadPage(0);
     });
     function navigateTo(event, category) {
         event.preventDefault();
-        const englishCategory = categoryMap[category] || category; // 기본적으로 영어 카테고리로 변환
+        const englishCategory = categoryMap[category] || category;
         window.location.href = `/search/view/feed/list/${encodeURIComponent(englishCategory)}`;
     }
-     function renderPagination(currentPage, maxPage, totalCount) {
+    function renderPagination(currentPage, maxPage, totalCount) {
         const paginationDiv = document.getElementById('pagination');
-        paginationDiv.innerHTML = ''; // 초기화
-         if (currentPage > 0) {
-             paginationDiv.innerHTML += `
-                <li class="page-item">
-                    <a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a>
-                </li>`;
-         }
+        paginationDiv.innerHTML = '';
 
-         // 페이지 번호 버튼 생성
-         for (let p = 0; p < maxPage; p++) {
-             paginationDiv.innerHTML += `
-                <li class="page-item ${p === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
-                </li>`;
-         }
+        const maxVisiblePages = 10;
+        let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(maxPage, startPage + maxVisiblePages);
 
-         // 다음 버튼
-         if (currentPage + 1 < maxPage) {
-             paginationDiv.innerHTML += `
-                <li class="page-item">
-                    <a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a>
-                </li>`;
-         }  // 총 게시글 수 추가
-         const totalPostsDiv = document.getElementById('totalPosts');
-         if (!totalPostsDiv) {
-             const newTotalPostsDiv = document.createElement('div');
-             newTotalPostsDiv.id = 'totalPosts';
-             newTotalPostsDiv.style.textAlign = 'center';
-             newTotalPostsDiv.style.fontWeight = 'bold';
-             newTotalPostsDiv.style.marginTop = '10px';
-             newTotalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
-             paginationDiv.insertAdjacentElement('afterend', newTotalPostsDiv);
-         } else {
-             totalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
-         }
+        if (endPage - startPage < maxVisiblePages) {
+            startPage = Math.max(0, endPage - maxVisiblePages);
+        }
 
-         document.getElementById('pagination').addEventListener('click', async function(event) {
-             if (event.target.classList.contains('page-link')) {
-                 event.preventDefault();
-                 const page = parseInt(event.target.dataset.page);
-                 await handlePageClick(page);
-             }
 
-         });
+        if (currentPage > 0) {
+            paginationDiv.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">&laquo;</a>
+            </li>`;
+        }
 
+
+        for (let p = startPage; p < endPage; p++) {
+            paginationDiv.innerHTML += `
+            <li class="page-item ${p === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
+            </li>`;
+        }
+
+        if (currentPage + 1 < maxPage) {
+            paginationDiv.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">&raquo;</a>
+            </li>`;
+        }
+
+
+        let totalPostsDiv = document.getElementById('totalPosts');
+        if (!totalPostsDiv) {
+            totalPostsDiv = document.createElement('div');
+            totalPostsDiv.id = 'totalPosts';
+            totalPostsDiv.style.textAlign = 'center';
+            totalPostsDiv.style.fontWeight = 'bold';
+            totalPostsDiv.style.marginTop = '10px';
+            paginationDiv.insertAdjacentElement('afterend', totalPostsDiv);
+        }
+        totalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
+
+
+        document.getElementById('pagination').addEventListener('click', async function (event) {
+            if (event.target.classList.contains('page-link')) {
+                event.preventDefault();
+                const page = parseInt(event.target.dataset.page);
+                sessionStorage.setItem('currentPage', page);
+                await handlePageClick(page);
+            }
+        });
     }
 
-    // 클릭 이벤트 처리 함수
-    async  function handlePageClick(page, element) {
-        // 0.5초 후 페이지 로드
-        // setTimeout(() => {
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const savedPage = sessionStorage.getItem('currentPage');
+        const currentPage = savedPage !== null ? parseInt(savedPage) : 0;
+
+        handlePageClick(currentPage);
+    });
+
+    //  function renderPagination(currentPage, maxPage, totalCount) {
+    //     const paginationDiv = document.getElementById('pagination');
+    //     paginationDiv.innerHTML = ''; // 초기화
+    //      if (currentPage > 0) {
+    //          paginationDiv.innerHTML += `
+    //             <li class="page-item">
+    //                 <a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a>
+    //             </li>`;
+    //      }
+    //
+    //      // 페이지 번호 버튼 생성
+    //      for (let p = 0; p < maxPage; p++) {
+    //          paginationDiv.innerHTML += `
+    //             <li class="page-item ${p === currentPage ? 'active' : ''}">
+    //                 <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
+    //             </li>`;
+    //      }
+    //
+    //      // 다음 버튼
+    //      if (currentPage + 1 < maxPage) {
+    //          paginationDiv.innerHTML += `
+    //             <li class="page-item">
+    //                 <a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a>
+    //             </li>`;
+    //      }  // 총 게시글 수 추가
+    //      const totalPostsDiv = document.getElementById('totalPosts');
+    //      if (!totalPostsDiv) {
+    //          const newTotalPostsDiv = document.createElement('div');
+    //          newTotalPostsDiv.id = 'totalPosts';
+    //          newTotalPostsDiv.style.textAlign = 'center';
+    //          newTotalPostsDiv.style.fontWeight = 'bold';
+    //          newTotalPostsDiv.style.marginTop = '10px';
+    //          newTotalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
+    //          paginationDiv.insertAdjacentElement('afterend', newTotalPostsDiv);
+    //      } else {
+    //          totalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
+    //      }
+    //
+    //      document.getElementById('pagination').addEventListener('click', async function(event) {
+    //          if (event.target.classList.contains('page-link')) {
+    //              event.preventDefault();
+    //              const page = parseInt(event.target.dataset.page);
+    //              await handlePageClick(page);
+    //          }
+    //
+    //      });
+    //
+    // }
+
+    async  function handlePageClick(page) {
+        sessionStorage.setItem('currentPage', page);
         await  loadPage(page);
-        // }, );
     }
     function renderFeeds(jsonData,count) {
-        let pinnedNotices = ""; // 🔥 공지사항 HTML 저장
-        let normalPosts = ""; // 🔥 일반 게시글 HTML 저장
+        let pinnedNotices = "";
+        let normalPosts = "";
         document.getElementById('viewCount').textContent = jsonData.viewCount;
         loadVisitorStats();
         const feedTableBody = document.querySelector('#boardTableBody');
@@ -1605,21 +1695,21 @@
 
         const date = new Date(dateTimeString);
 
-        // ✅ 년, 월, 일, 시간, 분 추출
+
         const year = date.getFullYear();
-        const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 +1
+        const month = date.getMonth() + 1;
         const day = date.getDate();
         let hour = date.getHours();
         const minute = date.getMinutes();
 
         // ✅ 오전/오후 설정
         const period = hour >= 12 ? '오후' : '오전';
-        hour = hour % 12 || 12; // 12시간제 변환
+        hour = hour % 12 || 12;
 
-        // ✅ 10분 이하일 경우 앞에 0 추가 (예: 4:05)
+
         const formattedMinute = minute < 10 ? `0${minute}` : minute;
 
-        // ✅ 최종 포맷
+
         return ` ${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
     }
 </script>
@@ -1689,7 +1779,6 @@
                         .then(refreshData => {
                             if (refreshData.accessToken) {
                                 localStorage.setItem("token", refreshData.accessToken);
-                                console.log("새로운 Access Token:", refreshData.accessToken);
                                 token = refreshData.accessToken;
 
                                 // 새 토큰으로 다시 /info 요청
@@ -1821,7 +1910,7 @@
             fetchUserInfo(token, refreshToken)
                 .then(data => {
                     if (data && data.isLoggedIn) {
-                        console.log("[DEBUG] 로그인 상태 유지:", data);
+
 
                         // 로그인 상태 표시
                         if (loginButton) loginButton.style.display = "none"; // 로그인 버튼 숨기기
@@ -1878,16 +1967,16 @@
         const profileInfo = document.getElementById("profile-info");
 
         if (loginButton) {
-            loginButton.style.removeProperty("display"); // 기존 display 속성 제거
+            loginButton.style.removeProperty("display");
             loginButton.style.display = "block";
-            loginButton.style.setProperty("display", "block", "important"); // 강제 적용
+            loginButton.style.setProperty("display", "block", "important");
             console.log("[DEBUG] 로그인 버튼 강제 표시");
         }
 
         // 로그인 관련 UI 숨기기
         if (logoutButton) logoutButton.style.display = "none";
-        if (userInfo) userInfo.classList.add("d-none"); // 사용자 정보 숨기기
-        if (profileInfo) profileInfo.style.display = "none"; // 프로필 정보 숨기기
+        if (userInfo) userInfo.classList.add("d-none");
+        if (profileInfo) profileInfo.style.display = "none";
 
 
 
@@ -1917,7 +2006,7 @@
                 return response.json();
             })
             .then(data => {
-                console.log("[DEBUG] 서버 응답 데이터:", data);
+
 
                 if (data.isLoggedIn === true) {
                     console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
@@ -1962,7 +2051,7 @@
     });
     function logout() {
         const token = localStorage.getItem("token");
-        console.log("[DEBUG] 로그아웃 요청 시작, 저장된 토큰:", token);
+
 
         fetch("/authlogout", {
             method: "POST",
@@ -1973,7 +2062,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                console.log("[DEBUG] 서버 응답 데이터:", data);
                 if (data.isLoggedIn === false) {
                     console.log("[DEBUG] 로그아웃 성공");
                     localStorage.removeItem("token");
@@ -1994,16 +2082,16 @@
             menu.style.display = menu.style.display === "block" ? "none" : "block";
         });
         document.getElementById("myPageLink").addEventListener("click", function (event) {
-            event.preventDefault(); // 기본 링크 이동 동작 막기
+            event.preventDefault();
 
             const token = localStorage.getItem("token");
             console.log("[DEBUG] 마이페이지 요청 시작, 저장된 토큰:", token);
             if (!token) {
-                window.location.href = "/"; // 토큰이 없으면 로그인 페이지로 이동
+                window.location.href = "/";
                 return;
             }
 
-            fetch("/search/view/feed/mypage", { // 서버에 마이페이지 요청
+            fetch("/search/view/feed/mypage", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -2011,16 +2099,16 @@
                 }
             })
                 .then((response) => {
-                    console.log("[DEBUG] 서버 응답 상태 코드:", response.status);
+
                     if (!response.ok) {
                         throw new Error("인증 실패: " + response.status);
                     }
                     return response.json(); // JSON 응답 파싱
                 })
                 .then((data) => {
-                    console.log("[DEBUG] 서버 응답 데이터:", data);
 
-                    if (data.isLoggedIn === true) { // 인증 성공 시 페이지 이동
+
+                    if (data.isLoggedIn === true) {
                         console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
                         console.log(token);
                         setTimeout(() => {
@@ -2029,7 +2117,7 @@
                     } else {
                         console.error("[DEBUG] 인증 실패, 로그인 페이지로 이동");
                         alert("로그인이 필요합니다.");
-                        window.location.href = "/"; // 인증 실패 시 로그인 페이지로 이동
+                        window.location.href = "/";
                     }
                 })
                 .catch((error) => {

@@ -59,6 +59,7 @@ public class FeedMapper {
                 .username(board.getUsername())
                 .imageURL(board.getImageURL())
                 .title(board.getTitle())
+//                .isAuthor()
                 .description(board.getDescription())
                 .category(board.getCategory())
                 .viewCount(board.getViewCount())
@@ -67,12 +68,11 @@ public class FeedMapper {
                 .build();
     }
 
-
     public Likes LikeToEntity(String feedUID, String userId) {
         return Likes.builder()
                 .feedUID(feedUID)
                 .userId(userId)
-                .created_at(LocalDateTime.now()) // 현재 시간 저장
+                .created_at(LocalDateTime.now())
                 .build();
     }
 

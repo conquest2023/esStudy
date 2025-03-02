@@ -104,9 +104,9 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
         return CompletableFuture.supplyAsync(() -> {
-            int savedPostId = savePost(feedSaveDTO); // ✅ MySQL 저장 (동기적 수행)
-            esSettingId(feedSaveDTO, savedPostId);  // ✅ Elasticsearch ID 세팅
-            asyncService.savePostAsync(feedSaveDTO); // ✅ 비동기적으로 ES 저장 실행
+            int savedPostId = savePost(feedSaveDTO);
+            esSettingId(feedSaveDTO, savedPostId);
+            asyncService.savePostAsync(feedSaveDTO);
             return feedSaveDTO;
         });
     }
@@ -212,7 +212,7 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public void deleteFeed(String id,String userId) {
         feedDAO.deleteFeedOne(id);
-        asyncService.deletePostAsync(userId);
+        asyncService.deletePostAsync(id,userId);
     }
     @Override
     public List<FeedRequest> getFeedUserList(String userId){
@@ -254,6 +254,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedRequest getFeedDetail(String id) {
+
         return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
     }
 

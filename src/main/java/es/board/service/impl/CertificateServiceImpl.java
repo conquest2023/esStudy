@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.req.CertificateDTO;
 import es.board.repository.CertificateDAO;
 import es.board.repository.document.Certificate;
+import es.board.repository.entity.CertificationSchedule;
+import es.board.repository.entity.entityrepository.CertificationScheduleRepository;
 import es.board.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,9 @@ public class CertificateServiceImpl implements CertificateService {
     private static final String SEARCH_RATE_LIMIT_PREFIX = "search_limit:";
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+
+    private  final CertificationScheduleRepository scheduleRepository;
 
 
     @Override
@@ -99,6 +104,12 @@ public class CertificateServiceImpl implements CertificateService {
         return result;
     }
 
+    @Override
+    public List<CertificationSchedule> getCertificationSchedule(){
+        return  scheduleRepository.findAll();
+    }
+
+
 
     private static boolean isInvalidInput(String input) {
         return Stream.of(
@@ -108,6 +119,8 @@ public class CertificateServiceImpl implements CertificateService {
                 isSequentialPattern(input)
         ).anyMatch(Boolean::booleanValue);
     }
+
+
 
     private static boolean isTooShort(String input) {
         return input.length() < 2;

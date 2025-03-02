@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,14 +25,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return  httpSecurity
-                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
-//          .authorizeHttpRequests(authz -> authz
-////                  .requestMatchers("/", "/auth/logout", "/login", "/signup").permitAll()
-//////                  .requestMatchers("/public/**","/login", "/login/pass").permitAll()
-//////                               .requestMatchers( "/login").permitAll()
-//////                 .requestMatchers("").permitAll() // 특정 엔드포인트 허용
-//                   .anyRequest().permitAll())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class) // JWT 인증 필터 추가
+                .csrf(AbstractHttpConfigurer::disable)
+//                .headers(headers -> headers
+//                        .contentSecurityPolicy(csp -> csp.policyDirectives("script-src 'self'"))
+//                        .xssProtection(xss -> xss.disable())
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+//                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }

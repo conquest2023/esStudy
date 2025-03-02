@@ -33,7 +33,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
 
-    private final BoardRepository boardRepository;
+
 
     private final int increment = 1;
 
@@ -319,24 +319,27 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    @Transactional
     public void deleteFeedOne(String id) {
         try {
-            SearchResponse<Board> searchResponse = client.search(s -> s
+
+            DeleteResponse deleteResponse = client.delete(d -> d
                     .index("board")
-                    .query(q -> q
-                            .term(t -> t
-                                    .field("feedUID.keyword")
-                                    .value(id)
-                            )
-                    ), Board.class
+                    .id(id)
             );
-            String documentId = searchResponse.hits().hits().get(0).id();
-            boardRepository.deleteById(documentId);
-//            log.info("Successfully deleted board with id: {}", id);
+
+            if (deleteResponse.result().toString().equals("NotFound")) {
+                log.warn("삭제할 문서를 찾을 수 없습니다: {}", id);
+                throw new IllegalArgumentException("해당 게시글을 찾을 수 없습니다.");
+            }
+
+            log.info("게시글 삭제 완료 (ID: {})", id);
+
+        } catch (ElasticsearchException e) {
+            log.error("Elasticsearch 삭제 오류 (ID: {}): {}", id, e.getMessage(), e);
+            throw new RuntimeException("Elasticsearch 삭제 중 오류 발생", e);
         } catch (Exception e) {
-            log.error("Error deleting board with id: {}", id, e);
-            throw new RuntimeException("Failed to delete feed", e);
+            log.error("게시글 삭제 실패 (ID: {}): {}", id, e.getMessage(), e);
+            throw new RuntimeException("게시글 삭제 중 오류 발생", e);
         }
     }
 

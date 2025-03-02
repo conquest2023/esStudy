@@ -49,7 +49,22 @@ public class CertificateController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/certificate/schedule")
+    @ResponseBody
+    public ResponseEntity<?> getScheduleCertificate(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("certSchedule", certificateService.getCertificationSchedule());
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/search/certificate")
     @ResponseBody

@@ -17,6 +17,12 @@ public class CalendarPageController {
 
     }
 
+    @GetMapping("/certificate/calendar")
+    public String showCertificateCalendar() {
+        return "basic/feed/CertificateCalendar";
+
+    }
+
     @GetMapping("/todo/new")
     public String newTodoForm() {
 

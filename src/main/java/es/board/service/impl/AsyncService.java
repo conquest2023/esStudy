@@ -79,9 +79,9 @@ public class AsyncService {
 
     @Async("taskExecutor")
     @Transactional
-    public void deletePostAsync(String userId) {
+    public void deletePostAsync(String id,String userId) {
         log.info("비동기 삭제 작업 시작 - 스레드: {}", Thread.currentThread().getName());
-        postRepository.deleteById(userId);
+        postRepository.deleteById(id,userId);
         log.info("MySQL 삭제 완료 - ID: {}, 스레드: {}",userId, Thread.currentThread().getName());
     }
 

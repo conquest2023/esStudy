@@ -89,12 +89,12 @@ public class FeedController {
     }
 
 
-    @PostMapping("/search/view/feed/update/save")
-    public String editSaveFeed(Model model, @ModelAttribute FeedUpdate feedUpdate) {
-        feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
-        model.addAttribute("feedUpdate", feedUpdate);
-        return "redirect:/search/view/feed/id?id=" + feedUpdate.getFeedUID();
-    }
+//    @PostMapping("/search/view/feed/update/save")
+//    public String editSaveFeed(Model model, @ModelAttribute FeedUpdate feedUpdate,@RequestHeader(value = "Authorization", required = false) String token) {
+//        feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
+//        model.addAttribute("feedUpdate", feedUpdate);
+//        return "redirect:/search/view/feed/id?id=" + feedUpdate.getFeedUID();
+//    }
 
     @GetMapping("/search/view/feed/id")
     public String getFeedDetail(@RequestParam String id) {
@@ -110,7 +110,6 @@ public class FeedController {
             token = token.substring(7);
         }
 
-        // ✅ JWT에서 userId 추출
         String userId = jwtTokenProvider.getUserId(token);
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -178,7 +177,7 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/feed")
-    public String getFeed() { // 페이지 크기
+    public String getFeed() {
 
         return "basic/feed/feedList";
     }
@@ -293,8 +292,8 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/comment/desc")
-    public String getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page, // 페이지 번호 (0부터 시작)
-                                     @RequestParam(defaultValue = "10") int size) throws IOException {
+    public String getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size){
 
         model.addAttribute("commentDESC", commentService.getPagingCommentDESC(feedService.getfeedUIDList(page, size), page, size));
         return "basic/comment/MostCommentDESC";
@@ -302,20 +301,24 @@ public class FeedController {
 
 
     @PostMapping("/search/view/feed/delete")
-    @ResponseBody // JSON 응답을 위해 추가
-    public ResponseEntity<?> deleteFeed(@RequestBody Map<String, String> requestData) {
+    @ResponseBody
+    public ResponseEntity<?> deleteFeed(@RequestBody Map<String, String> requestData,@RequestHeader(value = "Authorization", required = false) String token) {
+
 
         String id = requestData.get("id");
-        String userId = requestData.get("userId");
-        log.info("Deleting feed with ID: {}, UserID: {}", id, userId);
-        // 실제 삭제 로직
-        feedService.deleteFeed(id, userId);
-        // 삭제 후 리다이렉트 URL 반환
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
+
         Map<String, String> response = new HashMap<>();
         response.put("redirectUrl", "/");
         return ResponseEntity.ok(response);
     }
-
         @GetMapping("/search/view/feed/reload")
         public String reloadViewCount(Model model) {
 

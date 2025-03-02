@@ -14,7 +14,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        /* 스타일링 (이미 잘 작성된 부분은 그대로 유지) */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
         .comment-table {
             width: 100%;
             border-collapse: collapse;
@@ -24,36 +31,47 @@
         }
         .comment-item {
             display: flex;
-            flex-direction: column; /* 세로로 배치 */
-            align-items: flex-start; /* 왼쪽 정렬 */
+            flex-direction: column;
+            align-items: flex-start;
         }
-        .comment-container {
-            margin-bottom: 10px; /* 댓글 간 간격 */
-            position: relative;
-        }
-
-        .comment-username {
-            font-weight: bold;
-            margin-bottom: 5px; /* 간격을 조금 둡니다 */
-        }
-
-        .comment-content {
-            font-size: 14px;
-            margin-bottom: 5px;
+        .comment-box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            max-width: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .comment-createdAt {
-            font-size: 12px;
-            color: #888; /* 날짜 텍스트 색상 */
+        .comment-box input,
+        .comment-box textarea {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            background: #f5f5f5;
+        }
+
+        .comment-box button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-box button:hover {
+            background: #0056b3;
         }
 
         .comment-table th, .comment-table td {
             padding: 8px;
             text-align: left;
-        }
-        .comment-options {
-            margin-bottom: 10px;
-            display: none; /* 기본적으로 숨김 */
         }
 
         .comment-options a, .comment-options form {
@@ -61,10 +79,6 @@
             margin-bottom: 5px;
         }
         body {
-            /*background-color: #f8f9fa;*/
-            /*padding: 20px;*/
-            /*background-color: #f0f0f0; !* 연한 회색 배경 *!*/
-            /*color: #333333; !* 텍스트 기본 색상 *!*/
             font-family: Arial, sans-serif;
             padding: 20px;
         }
@@ -74,7 +88,6 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            /*background-color: #ffffff; !* 흰색 테이블 배경 *!*/
             margin-bottom: 20px;
         }
         h2 {
@@ -83,7 +96,6 @@
             color: #333;
         }
 
-        /* 작성자와 작성일자 스타일 */
         p {
             margin: 5px 0;
             font-size: 0.9rem;
@@ -91,27 +103,67 @@
         }
 
         .description-box {
-            background-color: #f9f9f9; /* 연한 배경색 */
-            border: 1px solid #ddd;   /* 테두리 */
-            border-radius: 8px;       /* 모서리 둥글게 */
-            padding: 20px;            /* 내부 여백을 늘려서 더 넓게 보이도록 설정 */
-            font-size: 1.2rem;        /* 글씨 크기를 키움 */
-            color: #333;              /* 글씨 색상 */
-            max-width: 900px;         /* 최대 너비를 늘림 */
-            min-height: 200px;        /* 최소 높이를 설정하여 항상 일정 크기 유지 */
-            word-break: break-word;   /* 긴 단어 줄바꿈 처리 */
-            margin-top: 15px;         /* 상단 여백 추가 */
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #333;
+            width: 100%;
+            max-width: 100%;
+            min-height: 250px;
+            word-break: break-word;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+        .like-comment-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .like-comment-box .fa-comment {
+            color: #007bff;
         }
 
-        /* 반응형 디자인 (모바일 환경) */
+        .like-comment-box .fa-heart {
+            color: #ff4d4d;
+        }
+
+        .like-comment-box p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin-left: 5px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .like-btn i {
+            font-size: 18px;
+            color: #ff4d4d;
+        }
+
+        .like-btn:hover i {
+            transform: scale(1.1);
+        }
+
+
         @media (max-width: 768px) {
             .description-box {
-                font-size: 1rem;      /* 모바일에서는 글씨 크기를 약간 줄임 */
-                padding: 15px;       /* 내부 여백도 줄임 */
-                max-width: 100%;     /* 모바일에서는 화면에 맞게 너비 조정 */
+                font-size: 1rem;
+                padding: 15px;
+                max-width: 100%;
             }
         }
-        /* 이미지 컨테이너 스타일 */
+
         .image-container img {
             max-width: 100%;
             height: auto;
@@ -119,7 +171,7 @@
             margin-bottom: 15px;
         }
 
-        /* 좋아요 수 스타일 */
+
         .small-text {
             font-size: 0.9rem;
             text-align: right;
@@ -129,7 +181,7 @@
             vertical-align: middle;
             padding: 15px;
             border: none;
-            border-bottom: 1px solid #ddd; /* 라인 추가 */
+            border-bottom: 1px solid #ddd;
             color: inherit;
         }
         .description-cell {
@@ -154,27 +206,105 @@
             text-decoration: underline;
         }
         .edit-btn, .delete-btn {
-            display: inline-block; /* 버튼을 표시 */
+            display: inline-block;
         }
         tr {
             margin-bottom: 20px;
         }
+        .like-comment-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .like-comment-box button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .like-comment-box button i {
+            color: #ff4d4d;
+        }
+
+        .like-comment-box button:hover {
+            text-decoration: underline;
+        }
+        .comment-box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            max-width: 1200px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comment-box input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            background: #f5f5f5;
+        }
+
+        .comment-box button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-box button:hover {
+            background: #0056b3;
+        }
+        .feed-detail-container {
+            position: relative; /* ✅ 버튼 위치 고정을 위해 relative 설정 */
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .delete-btn-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .delete-feed-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-feed-btn:hover {
+            background: darkred;
+        }
+
     </style>
 </head>
-<!--<body>-->
 
-
-<!--    <h1 class="text-center">피드</h1>-->
 
 
 <div class="container">
     <table class="table">
         <tr>
             <td style="text-align: right;">
-    <a href="#" class="edit-btn" data-author-id="">
-<!--        <button type="button" class="btn btn-outline-primary">-->
-<!--            <i class="fas fa-edit"></i> 수정하기-->
-<!--        </button>-->
+<!--    <a href="#" class="edit-btn" data-author-id="">-->
     </a>
     </td>
     </tr>
@@ -198,7 +328,7 @@
             return;
         }
 
-        fetch(`/search/view/comment/delete?id=${commentId}&feedUID=${feedId}`, { // URL 쿼리 매개변수로 전달
+        fetch(`/search/view/comment/delete?id=${commentId}&feedUID=${feedId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         })
@@ -226,57 +356,62 @@
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
         container.innerHTML = '';
-        // jsonData.data가 단일 피드 정보라고 가정
+
         if (!board) {
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
         }
         let actionButtonsHTML = '';
+        let deleteButtonHTML = '';
+        // if (jsonData.Owner && token) {
+        //     actionButtonsHTML = `
+        //           <button class="btn btn-outline-primary edit-feed-btn" style="margin-right: 10px;" onclick="editFeed('${board.feedUID}')">
+        //             <i class="fas fa-edit"></i> 수정하기
+        //           </button> `;
+        // }
+
         if (jsonData.Owner && token) {
-            actionButtonsHTML = `
-                  <button class="btn btn-outline-primary edit-feed-btn" style="margin-right: 10px;" onclick="editFeed('${board.feedUID}')">
-                    <i class="fas fa-edit"></i> 수정하기
-                  </button> `;
+            deleteButtonHTML = `
+         <button type="button" class="btn btn-danger delete-feed-btn" style="margin-top: 10px;" onclick="deleteFeed('${board.id}')">
+        <i class="fas fa-trash"></i> 삭제하기
+        </button>
+        `;
         }
-            const html = `
-              <table class="table">
-                <tr>
-                  <td style="text-align: right;">
-                    ${actionButtonsHTML}
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:20px;">
-                    <h2>${board.title}</h2>
-                    <p><strong>작성자:</strong> ${board.username}</p>
-                    <p><strong>작성일자:</strong> ${formatDate(board.createdAt)}</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:20px;">
-                           ${board.imageURL && board.imageURL.trim() !== "" ? `
-            <div class="description-box">
-                <img src="${board.imageURL}" alt="이미지" style="max-width:100%; height:auto;" />
+        const html = `
+
+          <div class="feed-detail-container">
+              ${deleteButtonHTML ? `<div class="delete-btn-container">${deleteButtonHTML}</div>` : ''}
+            <div class="feed-header">
+              <h2>${board.title}</h2>
+              <p><strong>작성자:</strong> ${board.username}</p>
+              <p><strong>작성일자:</strong> ${formatDate(board.createdAt)}</p>
             </div>
-        ` : ''}
-                    <div class="description-box">
-                      <p style="white-space:pre-wrap;">${board.description || ''}</p>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:10px; text-align: left;">
-                    <p>
-                      <strong>댓글:</strong> ${jsonData.count || 0} &nbsp;&nbsp;
-                      <strong>좋아요:</strong> <span id="like-count-feed-${board.feedUID}">${board.likeCount || 0}</span>
-                      <button class="like-btn" data-feed-uid="${board.feedUID}" style="background: none; border: none; padding: 0;">
-                          <i class="far fa-heart"></i>
-                      </button>
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            `;
+
+            <div class="feed-content">
+              ${board.imageURL && board.imageURL.trim() !== "" ? `
+              <div class="description-box">
+                <img src="${board.imageURL}" alt="이미지" style="max-width:100%; height:auto;" />
+              </div>
+              ` : ''}
+
+                  <div class="description-box">
+                    <p style="white-space:pre-wrap;">${board.description || ''}</p>
+                  </div>
+                </div>
+
+              <div class="like-comment-box">
+            <p>
+            <i class="far fa-comment"></i> ${jsonData.count || 0} &nbsp;&nbsp;
+            <strong>좋아요:</strong>  <span id="like-count-feed-${board.feedUID}">${board.likeCount || 0}</span>
+            <button class="like-btn" data-feed-uid="${board.feedUID}">
+                <i class="fas fa-heart"></i>
+            </button>
+        </p>
+    </div>
+
+        </div>
+          </div>
+        `;
             container.innerHTML = html;
         setTimeout(() => {
             const likeBtn = document.querySelector(`button[data-feed-uid="${board.feedUID}"]`);
@@ -285,6 +420,12 @@
                     toggleFeedLike(board.feedUID,board.likeCount);
                 });
             }
+            // const deleteBtn = document.querySelector(".delete-feed-btn");
+            // if (deleteBtn) {
+            //     deleteBtn.addEventListener("click", () => {
+            //         deleteFeed(board.id);
+            //     });
+            // }
         }, 100);
     }
     function renderCommentForm(jsonData) {
@@ -293,13 +434,6 @@
         const commentFormDiv = document.getElementById('commentForm');
         const board = jsonData?.data
         let deleteButtonHTML = '';
-        if (jsonData.Owner && token) {
-            deleteButtonHTML = `
-         <button type="button" class="btn btn-danger delete-feed-btn" style="margin-top: 10px;" onclick="deleteFeed('${board.feedUID}')">
-        <i class="fas fa-trash"></i> 삭제하기
-        </button>
-        `;
-        }
         commentFormDiv.innerHTML = `
         <div class="write-comment bg-white p-3 border rounded shadow-sm">
           <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
@@ -326,10 +460,27 @@
       `;
     }
 
-    function formatDate(dateTimeString) {
-        if (!dateTimeString) return '';
-        const date = new Date(dateTimeString);
-        return date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+        function formatDate(dateTimeString) {
+            if (!dateTimeString) return '';
+
+            const date = new Date(dateTimeString);
+
+
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            let hour = date.getHours();
+            const minute = date.getMinutes();
+
+            // ✅ 오전/오후 설정
+            const period = hour >= 12 ? '오후' : '오전';
+            hour = hour % 12 || 12;
+
+
+            const formattedMinute = minute < 10 ? `0${minute}` : minute;
+
+
+            return ` ${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
     }
     function initializeCommentEvents(feedId) {
         document.querySelectorAll(".edit-comment-btn").forEach(btn => {
@@ -375,7 +526,7 @@
                 const targetRow = document.getElementById(`comment-${commentId}`);
                 if (!targetRow) {
                     console.error(`Error: Target row #comment-${commentId} not found.`);
-                    return; // 댓글 요소를 찾지 못하면 함수 종료
+                    return;
                 }
 
                 const existingForm = document.querySelector(`#edit-comment-form-${commentId}`);
@@ -400,7 +551,7 @@
                 </div>
             `;
 
-                // 댓글 섹션의 가장 아래에 수정 폼 삽입
+
                 targetRow.insertAdjacentHTML("afterend", editFormHtml);
 
                 // 수정 저장 버튼 클릭 이벤트 추가
@@ -445,7 +596,7 @@
                 const redirectUrl = data.redirectUrl;
                 const commentContentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
                 if (commentContentElement) {
-                    commentContentElement.innerText = data.updatedContent; // 서버에서 반환된 수정된 댓글 내용
+                    commentContentElement.innerText = data.updatedContent;
                 } else {
                     console.error(`Error: Element #comment-content-${commentId} not found.`);
                 }
@@ -504,42 +655,35 @@
             });
     }
     function editFeed(feedUID) {
-        // 예: /search/view/feed/update?id=...
         window.location.href = `/search/view/feed/update?id=${feedUID}`;
     }
     function deleteFeed(feedId) {
         const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-        if (token && userId) {
+        if (token) {
             if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
                 return;
             }
-
             fetch(`/search/view/feed/delete`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
                 },
                 body: JSON.stringify({
                     id: feedId,
-                    userId: userId,
                 }),
             })
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error("게시글 삭제에 실패했습니다.");
                     }
-                    return response.json(); // 서버에서 redirect URL을 반환한다고 가정
+                    return response.json();
                 })
                 .then((data) => {
-                    const redirectUrl = data.redirectUrl; // JSON에서 redirectUrl 추출
+                    const redirectUrl = data.redirectUrl;
                     if (redirectUrl) {
                         alert("게시글이 삭제되었습니다.");
-                        window.location.href = redirectUrl; // 리다이렉트 경로
+                        window.location.href = redirectUrl;
                     } else {
                         throw new Error("리다이렉트 URL이 응답에 없습니다.");
                     }
@@ -551,7 +695,7 @@
         }
     }
         document.addEventListener('DOMContentLoaded', function () {
-            // 예: URL 파라미터 ?id=xxx 로 피드UID 가져오는 방식
+
             const urlParams = new URLSearchParams(window.location.search);
             const feedId = urlParams.get('id');
             const token = localStorage.getItem("token");
@@ -599,7 +743,7 @@
     })
 
 
-    let debounceTimeout; // 디바운스 타이머
+    let debounceTimeout;
 
         function submitComment() {
             if (debounceTimeout) clearTimeout(debounceTimeout); // 기존 타이머 제거
@@ -656,7 +800,7 @@
         function checkTokenAndUserInfo() {
             const token = localStorage.getItem("token");
             const urlParams = new URLSearchParams(window.location.search);
-            const feedUID = urlParams.get('id'); // URL에서 id 파라미터 값을 가져옴
+            const feedUID = urlParams.get('id');
             if (!token) {
                 // document.querySelector(".edit-btn").style.display = "none";
                 // document.querySelector(".delete-btn").style.display = "none";
@@ -669,11 +813,10 @@
                     const delBtn = document.querySelector(".delete-btn");
                     if (!editBtn || !delBtn) return;
                     if (Owner) {
-                        // 작성자임
+
                         editBtn.style.display = "inline-block";
                         delBtn.style.display = "inline-block";
                     } else {
-                        // 작성자 아님
                         editBtn.style.display = "none";
                         delBtn.style.display = "none";
                     }
@@ -697,9 +840,9 @@
     }
     document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const feedId = urlParams.get("id"); // ?id=123 형태로 가져옴
+        const feedId = urlParams.get("id");
 
-        // 댓글 작성 버튼 클릭 이벤트 등록
+
         const submitButton = document.querySelector(".btn-success");
         if (submitButton) {
             submitButton.onclick = () => submitComment(feedId);
@@ -771,7 +914,6 @@
         initializeCommentEvents(jsonData.feedId);
     }
         function updateLikeButtonUI(isLiked) {
-            console.log(isLiked)
             const likeButton = document.querySelector(`button.like-btn`);
             if (!likeButton) return;
 
@@ -825,7 +967,7 @@
             if (anonymousToggle) {
                 anonymousToggle.disabled = false;}}});
 
-        // 댓글 좋아요 버튼 클릭 이벤트
+
         document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
             button.addEventListener("click", function () {
                 const commentId = this.getAttribute("data-comment-id");
@@ -835,12 +977,12 @@
                 // 하트 상태 토글
                 if (heartIcon.classList.contains("far")) {
                     heartIcon.classList.remove("far");
-                    heartIcon.classList.add("fas");  // 채워진 하트로 변경
+                    heartIcon.classList.add("fas");
                 } else {
                     heartIcon.classList.remove("fas");
-                    heartIcon.classList.add("far");  // 빈 하트로 변경
+                    heartIcon.classList.add("far");
                 }
-                // 서버에 AJAX 요청 보내기 (댓글 좋아요)
+
                 fetch(`/search/view/comment/increase-like/${commentId}`, {
                     method: 'POST',
                     headers: {
@@ -849,7 +991,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // 서버 응답을 받아 새로운 좋아요 수를 업데이트
+
                         if (data.newLikeCount) {
                             likeCountSpan.textContent = data.newLikeCount;
                         }

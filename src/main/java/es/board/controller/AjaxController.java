@@ -214,7 +214,7 @@ public class AjaxController {
 
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest req, String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedUID));
-        response.put("Owner", jwtTokenProvider.getUsername(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
+        response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
         response.put("comment", userService.getCommentOwnerList(commentOwner,feedUID,userId));
         response.put("isLoggedIn", true);

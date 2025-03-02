@@ -48,8 +48,8 @@ public class ElasticConfig {
                 })
                 .setRequestConfigCallback(requestConfigBuilder ->
                         requestConfigBuilder
-                                .setConnectTimeout(50000)  // 연결 타임아웃 설정 (5초)
-                                .setSocketTimeout(50000))  // 읽기 타임아웃 설정 (5초)
+                                .setConnectTimeout(50000)
+                                .setSocketTimeout(50000))
                 .build();
     }
 

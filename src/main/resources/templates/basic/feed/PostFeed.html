@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>피드 작성</title>
+    <title>게시글 작성</title>
 
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 
     <style>
@@ -16,105 +14,168 @@
             background-color: #f8f9fa;
             padding: 20px;
         }
-        h1 {
-            margin-bottom: 30px;
+        .container {
+            max-width: 1200px;
         }
-        .table th, .table td {
-            vertical-align: middle;
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .btn-link {
-            color: #007bff;
-            text-decoration: none;
+        .category-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f8f9fa;
+            cursor: pointer;
         }
-        .btn-link:hover {
-            text-decoration: underline;
+        .title-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-bottom: 2px solid #ddd;
+            font-size: 18px;
+            background: #f8f9fa;
+            outline: none;
         }
-        .pagination {
+        .title-input::placeholder {
+            color: #aaa;
+        }
+        .content-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
+            text-align: center;
+        }
+        .content-placeholder {
+            color: #aaa;
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .content-editor {
+            min-height: 300px;
+            border: none;
+            width: 100%;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .toolbar button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #555;
+        }
+        .toolbar button:hover {
+            color: #007bff;
+        }
+        .anonymous-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .anonymous-container input {
+            transform: scale(1.2);
+        }
+        .image-upload-container {
+            padding: 10px;
+            border: 2px dashed #bbb;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #f8f9fa;
+            margin-top: 10px;
+        }
+        .image-upload-container:hover {
+            background: #e9ecef;
+        }
+        .image-upload-container label {
+            cursor: pointer;
+            display: block;
+            font-size: 16px;
+            color: #555;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- 데이터 삽입 폼 -->
+<div class="container-fluid">
     <form id="feedForm" th:object="${FeedCreateResponse}" action="/search/view/feed/save" method="post" enctype="multipart/form-data">
-<!--    <form action="/search/view/feed/save" method="post" th:object="${FeedCreateResponse}" enctype="multipart/form-data">-->
-
-        <!-- 번호 -->
-        <div class="container">
-            <h1 class="text-center">작성하기</h1>
-
-<!--                <input type="hidden" id="hiddenUsername" name="hiddenUsername" />-->
-                <!-- 익명 여부 -->
-                <div id="anonymous-info" style="display: none; color: gray;">
-                    익명으로 자동 처리됩니다.
-                </div>
-                <div id="anonymous-section">
-                    <input type="checkbox" id="anonymous">
-                    <label for="anonymous">익명으로 작성하기</label>
-                </div>
-                <!-- 사용자 이름 입력 필드 -->
-                <div id="name-input-group">
-                    <input type="text" id="username" name="username" placeholder="이름을 입력하세요." />
-                </div>
-                    <!-- 사용자 ID (숨겨진 필드) -->
-                <input type="hidden" id="userId" name="userId" th:value="${userId}" />
-
-                <div class="form-group">
-                    <label for="title">제목:</label>
-                    <textarea id="title" name="title"  class="form-control" required></textarea>
-                </div>
-<!--            <div class="form-group">-->
-<!--                <label for="attachFile">첨
-부파일 :</label>-->
-<!--                <input type="file" id="attachFile" multiple="multiple" name="attachFile" class="form-control" accept="image/*" />-->
-<!--            </div>--><div class="form-group">
-            <label for="imageFiles">이미지 파일들:</label>
-            <input type="file" id="imageFiles" name="imageFiles" class="form-control" accept="image/*" multiple />
-        </div>
-
-
-                <div class="form-group">
-                    <label for="category"> </label>
-                    <div class="dropdown">
-                        <!-- 드롭다운 버튼 -->
-                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            카테고리를 선택하세요
-                        </button>
-
-                        <!-- 드롭다운 메뉴 -->
-                        <!-- 드롭다운 메뉴 -->
-                        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="selectCategory('자유')">자유</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="selectCategory('스포츠')">스포츠</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="selectCategory('경제')">경제</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="selectCategory('기술')">기술</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="selectCategory('게임')">게임</a></li>
-                        </ul>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <div class="form-container">
+                    <h3 class="mb-3">글쓰기</h3>
+                    <div id="anonymous-info" style="display: none; color: gray;">
+                        익명으로 자동 처리됩니다.
+                    </div>
+                    <div class="mb-3">
+                    <div id="anonymous-section">
+                        <input type="checkbox" id="anonymous">
+                        <label for="anonymous">익명으로 작성하기</label>
+                    </div>
+                    <div id="name-input-group">
+                        <input type="text" id="username" name="username" placeholder="이름을 입력하세요." />
+                    </div>
                     </div>
 
-                    <!-- 선택된 카테고리를 저장할 숨겨진 input -->
-                    <input type="hidden" id="category" name="category" required>
+            <div class="row g-2 mb-3">
+                <div class="mb-3">
+                    <select id="category" name="category" class="category-select" required>
+                        <option selected>게시판을 선택해 주세요.</option>
+                        <option value="자유">자유</option>
+                        <option value="자격증">자격증</option>
+                        <option value="공부">공부</option>
+                        <option value="기술">기술</option>
+                        <option value="취업">취업</option>
+                    </select>
                 </div>
-                <!-- 내용 -->
-                <div class="form-group">
-                    <label for="description">내용:</label>
-                    <textarea id="description" name="description" rows="4" class="form-control" required></textarea>
+                <input type="text" id="title" name="title" class="title-input" placeholder="제목을 입력해 주세요." required>
+
+
+
+                <input type="hidden" id="userId" name="userId" th:value="${userId}" />
+
+
+                <div class="content-container">
+                    <div class="content-placeholder" id="content-placeholder">내용을 입력하세요.</div>
+                    <textarea id="description" name="description" class="content-editor" required></textarea>
                 </div>
-                <!-- 좋아요 수 -->
-<!--                <div class="form-group">-->
-<!--                    <label for="likeCount">좋아요 수:</label>-->
-<!--                    <input type="number" id="likeCount" name="likeCount" class="form-control"/>-->
-<!--                </div>-->
-                <!-- 저장 버튼 -->
-                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 저장하기</button>
+
+                <div class="mt-3">
+                    <label class="form-label">이미지 파일 업로드</label>
+                    <div class="image-upload-container">
+                        <label for="imageFiles">
+                            <i class="fas fa-upload"></i> 클릭하여 사진을 업로드하세요
+                        </label>
+                        <input type="file" id="imageFiles" name="imageFiles" class="d-none" accept="image/*" multiple>
+                    </div>
+                </div>
+            </div>
+                </div>
+
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>작성하기</button>
 
         </div>
-            </form>
             <div id="feedList"></div>
         </div>
-        <!-- 메인으로 돌아가기 버튼 -->
         <div class="text-center mt-4">
             <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
         </div>
@@ -122,8 +183,30 @@
 </div>
 </body>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+
+    const contentEditor = document.getElementById("description");
+    const contentPlaceholder = document.getElementById("content-placeholder");
+
+    contentEditor.addEventListener("focus", function() {
+        contentPlaceholder.style.display = "none";
+    });
+
+    contentEditor.addEventListener("blur", function() {
+        if (this.value.trim() === "") {
+            contentPlaceholder.style.display = "block";
+        }
+    });
+
+    contentEditor.addEventListener("input", function() {
+        if (this.value.trim() !== "") {
+            contentPlaceholder.style.display = "none";
+        } else {
+            contentPlaceholder.style.display = "block";
+        }
+    });
     document.addEventListener("DOMContentLoaded", () => {
         const anonymousCheckbox = document.getElementById("anonymous");
         const usernameInput = document.getElementById("username");
@@ -165,18 +248,18 @@
             const fileInput = document.getElementById("imageFiles");
             const usernameInputGroup = document.getElementById("name-input-group");
 
-            // 익명 체크박스 상태 변경 이벤트
+
                 anonymousCheckbox.addEventListener("change", () => {
                     if (anonymousCheckbox.checked) {
                         usernameInputGroup.style.display = "block";
                         usernameInput.disabled = false;
                         usernameInput.required = true;
-                        usernameInput.value = ""; // 초기화
+                        usernameInput.value = "";
                     } else {
                         usernameInputGroup.style.display = "none";
                         usernameInput.disabled = true;
                         usernameInput.required = false;
-                        usernameInput.value = "익명"; // 기본값 설정
+                        usernameInput.value = "익명";
                     }
                 });
             if (feedForm) {
@@ -189,7 +272,6 @@
                     const formData = new FormData(feedForm);
                     const token = localStorage.getItem("token");
                     if (token) {
-                        // 로그인한 경우, 익명 여부에 따라 username 처리
                             const usernameValue = usernameInput.value.trim();
                             if (!usernameValue) {
                                 alert("이름을 입력해주세요.");
@@ -236,9 +318,7 @@
                         const feedList = document.getElementById("feedList");
 
                         if (!feedList) return;
-                        // const createdAt = new Date(feed.createdAt);
-                        // const formattedDate = createdAt.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-                        // 피드 항목 생성
+
                         const feedItem = document.createElement("div");
                         feedItem.classList.add("feed-item", "p-3", "border", "rounded", "mb-3");
 
@@ -247,110 +327,38 @@
                     <p>${feed.description}</p>
                     <small>작성자: ${feed.username || "익명"} | ${new Date(feed.createdAt).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})}</small>
                 `;
-                                    console.log(new Date(feed.createdAt)); // Date 객체 확인
-                                    feedList.prepend(feedItem); // 새로운 피드를 목록 맨 앞에 추가
+                                    console.log(new Date(feed.createdAt));
+                                    feedList.prepend(feedItem);
                                 }
 
 
-                    function selectCategory(category) {
-                        // 드롭다운 버튼의 텍스트를 선택한 카테고리로 변경
-                        document.getElementById('categoryDropdown').innerText = category;
-
-                        // 선택된 카테고리를 숨겨진 input 필드에 설정
-                        document.getElementById('category').value = category;
-
-                        console.log('선택된 카테고리:', category); // 디버깅용 로그
-                    }
-
-                    // document.addEventListener("DOMContentLoaded", () => {
-                    //     const token = localStorage.getItem("token"); // 저장된 토큰 가져오기
-                    //     const anonymousSection = document.getElementById("anonymous-section");
-                    //     const anonymousInfo = document.getElementById("anonymous-info");
-                    //     const anonymousCheckbox = document.getElementById("anonymous");
-                    //     const usernameInputGroup = document.getElementById("name-input-group");
-                    //     const usernameInput = document.getElementById("username");
-                    //     const hiddenUsernameInput = document.getElementById("hiddenUsername");
-                    //     if (!token) {
-                    //         // 로그아웃 상태 - 체크박스 숨기고 안내 문구 표시
-                    //         anonymousSection.style.display = "none";
-                    //         anonymousInfo.style.display = "block";
-                    //     }
-                    //     // 초기 상태 설정
-                    //     if (token) {
-                    //         // 토큰이 있는 경우: 로그인 상태
-                    //         fetch("/info", {
-                    //             method: "GET",
-                    //             headers: {
-                    //                 "Content-Type": "application/json",
-                    //                 "Authorization": `Bearer ${token}`
-                    //             }
-                    //         })
-                    //             .then(response => response.json())
-                    //             .then(data => {
-                    //                 if (data.id) {
-                    //                     userIdInput.value = data.userId;
-                    //                     hiddenUsernameInput.value = data.username;
-                    //                     usernameInput.value = data.username;
-                    //                     usernameInputGroup.style.display = "none";
-                    //
-                    //
-                    //
-                    //                     anonymousCheckbox.addEventListener("change", () => {
-                    //                         if (anonymousCheckbox.checked) {
-                    //                             usernameInputGroup.style.display = "block";
-                    //                             usernameInput.value = ""; // 초기화
-                    //                             usernameInput.required = true; // 필수 설정
-                    //                         } else {
-                    //                             // 익명 모드 해제: 이름 입력 필드 숨기기
-                    //                             usernameInputGroup.style.display = "none";
-                    //                             usernameInput.value = data.username;
-                    //                             usernameInput.required = false;
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             })
-                    //             .catch(error => {
-                    //                 console.error("요청 처리 중 오류 발생:", error);
-                    //             });
-                    //     } else {
-                    //         // 토큰이 없는 경우: 로그아웃 상태
-                    //         anonymousCheckbox.checked = true;
-                    //         anonymousCheckbox.disabled = true;
-                    //         usernameInputGroup.style.display = "none";
-                    //         usernameInput.required = false;
-                    //         hiddenUsernameInput.value = "익명"; // 숨겨진 필드에 '익명' 값 설정
-                    //     }
-                    // });
+    function selectCategory(category) {
+        document.getElementById('categoryDropdown').innerText = category;
+        document.getElementById('category').value = category;
+        console.log('선택된 카테고리:', category);
+    }
 
 
-                    // document.querySelector("form").addEventListener("submit", (e) => {
-                    //     const usernameInput = document.getElementById("username");
-                    //
-                    //     // 필드가 숨겨져 있거나 비활성화된 경우 required 제거
-                    //     if (usernameInput.disabled || usernameInput.style.display === "none") {
-                    //         usernameInput.required = false;
-                    //     }
-                    // });
                     document.addEventListener("DOMContentLoaded", () => {
                         const anonymousCheckbox = document.getElementById("anonymous");
                         const usernameInput = document.getElementById("username");
                         const usernameInputGroup = document.getElementById("name-input-group");
 
-                        // 초기 상태 설정
-                        usernameInputGroup.style.display = "none"; // 기본적으로 숨김
+
+                        usernameInputGroup.style.display = "none";
                         usernameInput.disabled = true;
                         usernameInput.required = false;
 
-                        // 익명 체크박스 상태 변경 이벤트
+
                         anonymousCheckbox.addEventListener("change", () => {
                             if (anonymousCheckbox.checked) {
-                                // 익명 모드 활성화
+
                                 usernameInputGroup.style.display = "block";
                                 usernameInput.disabled = false;
                                 usernameInput.required = true;
-                                usernameInput.value = ""; // 초기화
+                                usernameInput.value = "";
                             } else {
-                                // 익명 모드 해제
+
                                 usernameInputGroup.style.display = "none";
                                 usernameInput.disabled = true;
                                 usernameInput.required = false;
