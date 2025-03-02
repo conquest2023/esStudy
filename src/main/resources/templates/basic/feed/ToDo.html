@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>내 Todo 리스트</title>
 
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -13,29 +13,29 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
-        /* 상태별 색상 */
+
         .badge-status[data-status="TODO"]        { background-color: #6c757d; }
         .badge-status[data-status="IN_PROGRESS"] { background-color: #0d6efd; }
         .badge-status[data-status="DONE"]        { background-color: #198754; }
 
-        /* 우선순위 배지 (priority-badge) - 1~5 레벨별 색상 */
+
         .priority-badge {
             font-size: 0.85rem;
             font-weight: 600;
         }
-        /* 예: 1=위험(빨강), 2=주의(주황), 3=중간(노랑), 4=보통(초록), 5=낮음(파랑) */
-        .priority-badge[data-priority="1"] { background-color: #dc3545; } /* 빨강 */
-        .priority-badge[data-priority="2"] { background-color: #fd7e14; } /* 주황 */
-        .priority-badge[data-priority="3"] { background-color: #ffc107; } /* 노랑 */
-        .priority-badge[data-priority="4"] { background-color: #20c997; } /* 연두 */
-        .priority-badge[data-priority="5"] { background-color: #0dcaf0; } /* 하늘 */
+
+        .priority-badge[data-priority="1"] { background-color: #dc3545; }
+        .priority-badge[data-priority="2"] { background-color: #fd7e14; }
+        .priority-badge[data-priority="3"] { background-color: #ffc107; }
+        .priority-badge[data-priority="4"] { background-color: #20c997; }
+        .priority-badge[data-priority="5"] { background-color: #0dcaf0; }
 
         .kibana-chart { margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<!-- 네비게이션 -->
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Todo App</a>
@@ -44,19 +44,24 @@
 
 <div class="container py-4">
 
-    <!-- 상단 영역 (타이틀, 새 Todo 버튼) -->
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0">내 Todo 목록</h3>
-        <a href="/todo/new" class="btn btn-primary">
-            <i class="fas fa-plus"></i> 새 Todo 추가
-        </a>
+        <div>
+            <a href="/todo/new" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> 새 Todo 추가
+            </a>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDDayModal">
+                <i class="fas fa-clock"></i> D-DAY 추가
+            </button>
+        </div>
     </div>
 
-    <!-- 완료 개수 / 전체 개수 표시 & 진행률 Progress -->
+
     <div class="card mb-3" id="todoSummaryCard" style="display: none;">
         <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between">
             <div id="todoSummaryText" class="mb-2 mb-md-0">
-                <!-- 예: 전체 Todo: 10개 / 완료: 7개 -->
+
             </div>
             <div class="progress" style="width: 50%; min-width:200px;">
                 <div class="progress-bar" role="progressbar" id="todoProgressBar" aria-valuenow="0"
@@ -82,7 +87,26 @@
                     </tr>
                     </thead>
                     <tbody id="todo-table-body">
-                    <!-- 여기에 JavaScript로 데이터 삽입 -->
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow-sm mt-5">
+        <div class="card-header bg-white"><strong>내 D-DAY 일정</strong></div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>시험명</th>
+                        <th>시험일</th>
+                        <th>D-DAY</th>
+                        <th>목표</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dDay-table-body">
                     </tbody>
                 </table>
             </div>
@@ -90,17 +114,13 @@
     </div>
 </div>
 
-<!-- 차트 섹션 (Kibana) -->
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card text-center shadow-lg p-4">
                 <h4 class="mb-3">📊 Todo 완료율 분석</h4>
-<!--                <iframe id="kibana-chart" height="600" width="800"></iframe>-->
-                <!--                <iframe class="rounded border"-->
-                <!--                        src="https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=84096079-8960-4e0d-a98c-6a5fd89ff035&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-7d,to:now))&_a=(dataView:d62d2338-65d8-4f24-8a25-5ff361054759,filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:d62d2338-65d8-4f24-8a25-5ff361054759,key:userId,negate:!f,type:exists,value:exists),query:(exists:(field:userId)))),linked:!f,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(field:completionRate),schema:metric,type:avg),(enabled:!t,id:'2',params:(drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:timestamp,interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-7d,to:now),useNormalizedEsInterval:!t,used_interval:'3h'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'Average%20completionRate'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Average%20completionRate'),type:value))),title:'',type:line))" height="600" width="800">-->
-                <!--                        height="500" width="100%" frameborder="0">-->
-                <!--                </iframe>-->
+
                 <iframe id="kibana-chart" height="600" width="800"></iframe>
                 <p class="mt-3 text-muted">최근 1주일 동안 완료된 Todo 추이</p>
             </div>
@@ -108,8 +128,53 @@
     </div>
 </div>
 
+<div class="modal fade" id="addDDayModal" tabindex="-1" aria-labelledby="addDDayModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDDayModalLabel">D-DAY 일정 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dDayForm">
 
-<!-- Bootstrap JS -->
+                    <div class="mb-3">
+                        <label for="examName" class="form-label">시험명</label>
+                        <input type="text" class="form-control" id="examName" required>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">카테고리</label>
+                        <select class="form-select" id="category" required>
+                            <option value="영어">영어</option>
+                            <option value="기사">기사</option>
+                            <option value="컴활">컴활</option>
+                            <option value="공무원">공무원</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="examDate" class="form-label">시험일</label>
+                        <input type="date" class="form-control" id="examDate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="goal" class="form-label">목표</label>
+                        <input type="text" class="form-control" id="goal" placeholder="ex) 합격, 700점 목표 etc">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">등록</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/rison/0.1.1/rison.min.js"></script>
 
 
@@ -124,7 +189,7 @@
             }
 
             try {
-                // ✅ 서버에서 userId 가져오기
+
                 const response = await fetch("/user/id", {
                     method: "GET",
                     headers: {
@@ -151,9 +216,9 @@
                     time: { from: "now-7d", to: "now+5d" }
                 };
 
-                // (2) Kibana app 시각화 상태
+
                 const aObj = {
-                    // dataView (혹은 indexPattern) ID는 본인의 Kibana에서 가져온 값으로 교체하세요
+
                     dataView: "d62d2338-65d8-4f24-8a25-5ff361054759",
 
                     // userId에 대한 필터 적용
@@ -163,11 +228,11 @@
                             meta: {
                                 alias: null,
                                 disabled: false,
-                                index: "d62d2338-65d8-4f24-8a25-5ff361054759",  // 실제 index / dataView ID
-                                key: "userId",      // 필드명
+                                index: "d62d2338-65d8-4f24-8a25-5ff361054759",
+                                key: "userId",
                                 negate: false,
-                                type: "phrase",     // 'phrase' 타입 필터
-                                value: userId       // 필터 값
+                                type: "phrase",
+                                value: userId
                             },
                             query: {
                                 match_phrase: {
@@ -177,7 +242,7 @@
                         }
                     ],
 
-                    // Kibana의 query 영역 (Kuery)
+
                     query: {
                         language: "kuery",
                         query: `userId : "${userId}"`
@@ -186,7 +251,7 @@
                     linked: false,
                     uiState: {},
 
-                    // (3) 시각화(라인 차트) 설정
+
                     vis: {
                         aggs: [
                             {
@@ -284,50 +349,47 @@
                     }
                 };
 
-                // (4) Rison 인코딩
+
                 const gRison = rison.encode(gObj);
                 const aRison = rison.encode(aObj);
 
-                // (5) 최종 Kibana URL
-                //  - &indexPattern=... 부분은 필요에 따라 제거하거나 dataView와 일치하도록 맞춰야 합니다.
-                //  - 개행/공백 주의 -> .trim() 권장
+
                 const kibanaUrl = `https://kibana.montkim.com/app/visualize#/create?embed=true&type=line&indexPattern=84096079-8960-4e0d-a98c-6a5fd89ff035&_g=${encodeURIComponent(gRison)}&_a=${encodeURIComponent(aRison)}`.trim();
 
-                // (6) iframe에 넣기
                 const iframe = document.getElementById("kibana-chart");
                 if (iframe) {
                     iframe.src = kibanaUrl;
                 }
 
             } catch (error) {
-                console.error("🚨 유저 정보를 가져오는 중 오류 발생:", error);
+                console.error("유저 정보를 가져오는 중 오류 발생:", error);
                 alert("유저 정보를 불러올 수 없습니다.");
             }
         });
         document.addEventListener("DOMContentLoaded", function () {
             const token = localStorage.getItem("token");
             if (!token) {
-                alert("🚨 로그인 후 이용해주세요.");
+                alert("로그인 후 이용해주세요.");
                 window.location.href = "/login";
                 return;
             }
-            // 1) Todo 목록 불러오기
+
             fetch("/search/todo", {
                 method: "GET",
                 headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
             })
                 .then(response => {
-                    if (!response.ok) throw new Error("🚨 Todo 데이터를 불러오는 데 실패했습니다.");
+                    if (!response.ok) throw new Error("Todo 데이터를 불러오는 데 실패했습니다.");
                     return response.json();
                 })
                 .then(data => {
-                    console.log("📌 불러온 Todo 데이터:", data);
+                    console.log(" 불러온 Todo 데이터:", data);
 
                     const todos = data.todos;
                     const completedCount = data.completedCount || 0;
                     const totalCount = todos.length;
 
-                    // 2) 상단 완료 개수/전체 개수 표시 & 진행률 갱신
+
                     if (totalCount > 0) {
                         const summaryCard = document.getElementById("todoSummaryCard");
                         summaryCard.style.display = "block";
@@ -342,7 +404,7 @@
                         progressBar.textContent = progress + "%";
                     }
 
-                    // 3) 테이블에 Todo 목록 표시
+
                     const tableBody = document.getElementById("todo-table-body");
                     tableBody.innerHTML = "";
 
@@ -386,7 +448,7 @@
             `;
                         tableBody.appendChild(row);
 
-                        // 상세 정보 행 (토글용)
+
                         const detailRow = document.createElement("tr");
                         detailRow.classList.add("todo-details");
                         detailRow.style.display = "none";
@@ -399,14 +461,14 @@
                         tableBody.appendChild(detailRow);
                     });
 
-                    // 4) 상태 완료 버튼 핸들러
+
                     document.querySelectorAll(".complete-btn").forEach(button => {
                         button.addEventListener("click", function () {
                             const todoId = this.getAttribute("data-id");
                             const status = this.getAttribute("data-status");
 
                             if (status !== "IN_PROGRESS") {
-                                alert("🚨 진행 중인 Todo만 완료할 수 있습니다!");
+                                alert("진행 중인 Todo만 완료할 수 있습니다!");
                                 return;
                             }
                             if (!confirm("정말 완료 처리하시겠습니까?")) return;
@@ -420,7 +482,7 @@
                             })
                                 .then(response => {
                                     if (!response.ok) {
-                                        throw new Error("🚨 상태 변경 실패");
+                                        throw new Error("상태 변경 실패");
                                     }
                                     return response.json();
                                 })
@@ -429,12 +491,12 @@
                                     location.reload();
                                 })
                                 .catch(error => {
-                                    alert("🚨 오류 발생: " + error.message);
+                                    alert("오류 발생: " + error.message);
                                 });
                         });
                     });
 
-                    // 5) 상세 보기(토글) 이벤트
+
                     document.querySelectorAll(".todo-title").forEach(titleLink => {
                         titleLink.addEventListener("click", function (e) {
                             e.preventDefault();
@@ -447,7 +509,7 @@
                         });
                     });
 
-                    // 6) 삭제 버튼 이벤트
+
                     document.querySelectorAll(".delete-btn").forEach(button => {
                         button.addEventListener("click", function () {
                             const todoId = this.getAttribute("data-id");
@@ -462,32 +524,31 @@
                             })
                                 .then(response => {
                                     if (!response.ok) {
-                                        throw new Error("🚨 삭제 실패");
+                                        throw new Error("삭제 실패");
                                     }
                                     return response.text();
                                 })
                                 .then(() => {
-                                    alert("✅ Todo가 삭제되었습니다!");
+                                    alert("Todo가 삭제되었습니다!");
                                     location.reload();
                                 })
                                 .catch(error => {
-                                    alert("🚨 오류 발생: " + error.message);
+                                    alert("오류 발생: " + error.message);
                                 });
                         });
                     });
 
                 })
                 .catch(error => {
-                    console.error("🚨 Todo 데이터 불러오기 실패:", error);
-                    alert("🚨 Todo 데이터를 불러올 수 없습니다.");
+                    console.error("Todo 데이터 불러오기 실패:", error);
+                    alert("Todo 데이터를 불러올 수 없습니다.");
                     window.location.href = "/todo";
 
 
-                    // 7) Kibana 차트 (userId 필터) 불러오는 로직도 여기에 (이미 작성된 로직 재활용)
-                    // ...
+
                 });
 
-            // 🔹 Status 문자열을 한글로 변환(또는 원하는 텍스트 변환)
+
             function convertStatusText(status) {
                 switch (status) {
                     case "IN_PROGRESS":
@@ -499,6 +560,104 @@
                 }
             }
         })
+
+        document.getElementById("dDayForm").addEventListener("submit", function(e){
+            e.preventDefault();
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            // 사용자 입력값 가져오기
+            const examName = document.getElementById("examName").value;
+            const category = document.getElementById("category").value;
+            const examDate = document.getElementById("examDate").value;
+            const goal = document.getElementById("goal").value;
+
+            // JSON 데이터 생성
+            const payload = {
+                examName,
+                category,
+                examDate,
+                goal
+            };
+
+            fetch("/day/save", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => {
+                    if(!response.ok) throw new Error("D-DAY 등록 실패");
+                    return response.json();
+                })
+                .then(data => {
+                    alert("D-DAY가 등록되었습니다!");
+                    document.getElementById("dDayForm").reset();
+                    bootstrap.Modal.getInstance(document.getElementById("addDDayModal")).hide();
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("오류 발생: " + err.message);
+                });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("token");
+                fetch("/day", {
+                    method: "GET",
+                    headers: {"Authorization": "Bearer " + token}
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("D-DAY 목록 불러오기 실패");
+                        return response.json();
+                    })
+                        .then(data => {
+                            console.log(data)
+                            const dDayArray = data.D_Day;
+                            const dDayTbody = document.getElementById("dDay-table-body");
+                            dDayTbody.innerHTML = "";
+
+                            if (!dDayArray || dDayArray.length === 0) {
+                                dDayTbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            등록된 D-DAY가 없습니다.
+                        </td>
+                    </tr>
+                `;
+                            return;
+                        }
+
+                        dDayArray.forEach(dd => {
+                            let dDayText = "D-" + dd.dDay;
+                            if (dd.dDay < 0) {
+                                dDayText = "시험 지남";
+                            } else if (dd.dDay === 0) {
+                                dDayText = "시험 당일!";
+                            }
+
+                            const row = `
+                <tr>
+                    <td>${dd.examName}</td>
+                    <td>${dd.examDate}</td>
+                    <td><strong>${dd.dday}</strong></td>
+                    <td>${dd.goal || ""}</td>
+                </tr>
+            `;
+                            dDayTbody.innerHTML += row;
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("D-DAY 목록을 가져올 수 없습니다.");
+                    });
+            })
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

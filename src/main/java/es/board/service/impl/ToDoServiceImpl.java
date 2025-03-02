@@ -2,11 +2,13 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.ToDoMapper;
+import es.board.controller.model.req.D_DayDTO;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.repository.ToDoDAO;
 import es.board.repository.document.Todo;
 import es.board.repository.entity.TodoStatus;
+import es.board.repository.entity.entityrepository.D_DayRepository;
 import es.board.repository.entity.entityrepository.TodoRepository;
 import es.board.service.NotificationService;
 import es.board.service.ToDoService;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +47,8 @@ public class ToDoServiceImpl implements ToDoService {
     private final String REDIS_TODO_COUNT_KEY = "todo_count:";
 
 
+    private final D_DayRepository dayRepository;
+
 
     @Override
     public List<TodoRequest> getUserToDo(String userId) {
@@ -63,6 +68,18 @@ public class ToDoServiceImpl implements ToDoService {
         redisTemplate.opsForValue().increment(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
 
+    }
+
+    @Override
+    public void addD_Day(String token, D_DayDTO dDayDTO) {
+
+        dayRepository.save(toDoMapper.toEntityD_Day(jwtTokenProvider.getUserId(token),dDayDTO));
+    }
+
+    @Override
+    public List<D_DayDTO> getD_Day(String token) {
+
+      return toDoMapper.fromD_DayEntityList(dayRepository.findAll(jwtTokenProvider.getUserId(token)));
     }
 
     @Override
@@ -100,7 +117,6 @@ public class ToDoServiceImpl implements ToDoService {
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().decrement(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
-        // ✅ 현재 남은 Todo 개수 가져오기
         Object remainingCount = redisTemplate.opsForValue().get(redisKey);
         notificationService.sendTodoNotification(jwtTokenProvider.getUserId(token), "✅ Todo 완료! 남은 Todo: " + remainingCount + "개");
     }
@@ -119,9 +135,9 @@ public class ToDoServiceImpl implements ToDoService {
         }
     }
 
-        @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")  // 매일 00시 실행
+        @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")
         public void calculateAndStoreCompletionRates() {
-            log.info("🚀 Todo 완료율 계산 시작...");
+            log.info(" odo 완료율 계산 시작");
 
             Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now()); // 모든 사용자 ID 조회
             List<Todo> completionRates = new ArrayList<>();
@@ -134,7 +150,7 @@ public class ToDoServiceImpl implements ToDoService {
                 Todo rate = new Todo(userId, completionRate, LocalDateTime.now());
                 completionRates.add(rate);
             }
-            // ✅ Elasticsearch에 저장
+
             toDoDAO.savePercentTodo(completionRates);
             log.info("✅ Todo 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
         }
