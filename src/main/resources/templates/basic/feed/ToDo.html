@@ -47,17 +47,39 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0">내 Todo 목록</h3>
-        <div>
-            <a href="/todo/new" class="btn btn-primary me-2">
+        <div class="d-flex gap-2">
+            <a href="/todo/new" class="btn btn-primary">
                 <i class="fas fa-plus"></i> 새 Todo 추가
             </a>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDDayModal">
                 <i class="fas fa-clock"></i> D-DAY 추가
             </button>
+            <button class="btn btn-outline-info" id="compareButton">
+                🎯 상위 3%와 비교해보기
+            </button>
         </div>
     </div>
 
 
+
+    <div class="modal fade" id="compareModal" tabindex="-1" aria-labelledby="compareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="compareModalLabel">📊 상위 3%의 목표 달성법</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="https://i.pinimg.com/originals/11/0e/fa/110efaf0397d57690e7c18153fd39de2.jpg" class="img-fluid mb-3" alt="상위 3% 라이프스타일">
+                    <p>✅ 상위 3%의 목표 달성 습관을 알아보고, 나의 목표를 점검해보세요.</p>
+                    <p>더 자세한 내용을 보려면 아래 링크를 클릭하세요.</p>
+                    <a href="https://www.youtube.com/watch?v=QFPntl7yKXI" class="btn btn-primary w-100" target="_blank">
+                        상위 3%의 라이프스타일 보기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card mb-3" id="todoSummaryCard" style="display: none;">
         <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between">
             <div id="todoSummaryText" class="mb-2 mb-md-0">
@@ -180,7 +202,12 @@
 
 
 <script>
-
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("compareButton").addEventListener("click", function () {
+            let modal = new bootstrap.Modal(document.getElementById("compareModal"));
+            modal.show();
+        });
+    });
         document.addEventListener("DOMContentLoaded", async function () {
             const token = localStorage.getItem("token");
             if (!token) {

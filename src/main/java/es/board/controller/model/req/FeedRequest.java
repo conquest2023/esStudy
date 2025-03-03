@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.config.XssSafeSerializer;
 import es.board.repository.document.Board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,16 +30,22 @@ public class FeedRequest {
 
     private String feedUID;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String username;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private  String imageURL;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String title;
 
-
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String description;
 
+
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String category;
+
 
     private int likeCount;
 
@@ -51,41 +58,4 @@ public class FeedRequest {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
-
-
-
-//    public List<FeedRequest> BoardListToDTO(List<Board> boards) {
-//        return boards.stream()
-//                .map(board -> FeedRequest.builder()
-//                        .feedUID(board.getFeedUID())
-//                        .id(board.getId())
-//                        .userId(board.getUserId())
-//                        .username(board.getUsername())
-//                        .imageURL(board.getImageURL())
-//                        .title(board.getTitle())
-//                        .description(board.getDescription())
-//                        .likeCount(board.getLikeCount())
-//                        .category(board.getCategory())
-//                        .viewCount(board.getViewCount())
-//                        .createdAt(board.getCreatedAt())
-//                        .build())
-//                .collect(Collectors.toList());
-//    }
-//
-//
-//    public FeedRequest BoardToDTO(Board board) {
-//            return FeedRequest.builder()
-//                    .feedUID(board.getFeedUID())
-//                    .id(board.getId())
-//                    .userId(board.getUserId())
-//                    .username(board.getUsername())
-//                    .imageURL(board.getImageURL())
-//                    .title(board.getTitle())
-//                    .description(board.getDescription())
-//                    .category(board.getCategory())
-//                    .viewCount(board.getViewCount())
-//                    .likeCount(board.getLikeCount())
-//                    .createdAt(board.getCreatedAt())
-//                    .build();
-//        }
 }

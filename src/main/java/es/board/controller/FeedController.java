@@ -244,7 +244,6 @@ public class FeedController {
         return "/basic/feed/RangeFeed";
     }
 
-    //    required = false,
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
@@ -254,7 +253,6 @@ public class FeedController {
         Map<String, Object> response = new HashMap<>();
         try {
             processFileUpload(file, res);
-            log.info(res.toString());
             authService.extractUserIdFromToken(token,res);
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);

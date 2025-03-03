@@ -1,6 +1,7 @@
 package es.board.service;
 
 import es.board.controller.model.req.JobListing;
+import es.board.controller.model.req.StudyTipDTO;
 import es.board.controller.model.req.WantedJobData;
 
 import java.util.List;
@@ -16,5 +17,11 @@ public interface ItCrawlingService {
      List<JobListing> jobPlanetList();
 
      List<WantedJobData> wantedList();
+
+     List<StudyTipDTO> crawlNaverStudyTips(String keyword);
+
+     List<StudyTipDTO> crawlGoogleStudyTips(String keyword);
+
+
 
 }

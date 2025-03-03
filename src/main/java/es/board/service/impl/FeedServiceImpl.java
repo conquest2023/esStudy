@@ -43,26 +43,26 @@ public class FeedServiceImpl implements FeedService {
 
     private final FeedMapper feedMapper;
 
-    private  final S3Uploader s3Uploader;
+    private final S3Uploader s3Uploader;
 
-    private  final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    private  final PostRepository postRepository;
+    private final PostRepository postRepository;
 
     private final FeedDAO feedDAO;
 
     private final AsyncService asyncService;
 
 
-    private  final LikeDAO likeDAO;
+    private final LikeDAO likeDAO;
 
-    private  final LikeRepository likeRepository;
+    private final LikeRepository likeRepository;
 
 
     @Override
     public double getUserFeedCount(String userId) {
 
-        return  feedDAO.findUserFeedCount(userId);
+        return feedDAO.findUserFeedCount(userId);
     }
 
     @Override
@@ -75,14 +75,13 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getUserRangeTimeFeed(String userId) {
-        return  feedMapper.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
+        return feedMapper.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
     }
 
     @Override
     public Integer getUserLikeCount(String userId) {
-        return  feedDAO.findUserLikeCount(userId);
+        return feedDAO.findUserLikeCount(userId);
     }
-
 
 
 //    @Override
@@ -104,12 +103,14 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
         return CompletableFuture.supplyAsync(() -> {
+            checkValueFeed(feedSaveDTO);
             int savedPostId = savePost(feedSaveDTO);
             esSettingId(feedSaveDTO, savedPostId);
             asyncService.savePostAsync(feedSaveDTO);
             return feedSaveDTO;
         });
     }
+
 
     @Override
     public List<String> getfeedUIDList(int page, int size) {
@@ -129,7 +130,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getPopularFeedDESC(int page, int size) {
-        return  feedMapper.BoardListToDTO(feedDAO.findPopularFeedDESC(page,size));
+        return feedMapper.BoardListToDTO(feedDAO.findPopularFeedDESC(page, size));
     }
 
     @Override
@@ -172,6 +173,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public String createFeed(String indexName, FeedCreateResponse dto) {
+
         return feedDAO.saveFeed(indexName, dto);
     }
 
@@ -210,46 +212,49 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public void deleteFeed(String id,String userId) {
+    public void deleteFeed(String id, String userId) {
         feedDAO.deleteFeedOne(id);
-        asyncService.deletePostAsync(id,userId);
+        asyncService.deletePostAsync(id, userId);
     }
+
     @Override
-    public List<FeedRequest> getFeedUserList(String userId){
+    public List<FeedRequest> getFeedUserList(String userId) {
 
         return feedMapper.BoardListToDTO(feedDAO.findUserBoardList(userId));
     }
+
     @Override
     public void saveViewCountFeed(String id) {
 
         feedDAO.saveViewCounts(id);
     }
+
     @Override
     public FeedUpdate updateFeed(String id, FeedUpdate update) {
         feedDAO.modifyFeed(id, update);
         return update;
     }
+
     @Override
-    public  void plusLike(String id,String userId) {
-        if (isAlreadyLiked(id,userId)){
+    public void plusLike(String id, String userId) {
+        if (isAlreadyLiked(id, userId)) {
             throw new IllegalStateException("이미 좋아요를 누른 상태입니다.");
         }
-        likeRepository.save(feedMapper.LikeToEntity(id,userId));
-        asyncService.postLike(userId,id);
+        likeRepository.save(feedMapper.LikeToEntity(id, userId));
+        asyncService.postLike(userId, id);
     }
 
     @Override
     @Transactional
-    public  void cancelLike(String userId,String feedId) {
+    public void cancelLike(String userId, String feedId) {
 
-        if (isAlreadyLiked(userId,feedId)){
-            likeRepository.deleteByUserIdAndFeedUID(userId,feedId);
-            asyncService.cancelLike(userId,feedId);
-        }else {
+        if (isAlreadyLiked(userId, feedId)) {
+            likeRepository.deleteByUserIdAndFeedUID(userId, feedId);
+            asyncService.cancelLike(userId, feedId);
+        } else {
             throw new IllegalStateException("좋아요를 누른 상태가 아닙니다.");
         }
     }
-
 
 
     @Override
@@ -259,15 +264,15 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public boolean isAlreadyLiked(String userId,String id) {
-        return likeRepository.existsByUserIdAndFeedUID(userId,id); // 존재하면 이미 좋아요 눌렀음
+    public boolean isAlreadyLiked(String userId, String id) {
+        return likeRepository.existsByUserIdAndFeedUID(userId, id);
     }
 
     private void validateUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("유저 이름을 입력해주세요.");
         }
-        if (!username.matches("^[a-zA-Z0-9가-힣]+$")) {  // 영문, 한글, 숫자만 허용
+        if (!username.matches("^[a-zA-Z0-9가-힣]+$")) {
             throw new IllegalArgumentException("유저 이름에는 특수문자를 사용할 수 없습니다.");
         }
     }
@@ -287,27 +292,37 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
-        private int savePost(FeedCreateResponse feedSaveDTO) {
-    //        log.info("동기 MySQL 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
-            Post post = new Post();
-            feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
-            Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
+    private int savePost(FeedCreateResponse feedSaveDTO) {
 
-    //        log.info("동기 MySQL 저장 완료 - ID: {}, 스레드: {}", savedPost.getId(), Thread.currentThread().getName());
-            return savedPost.getId();
-        }
+        Post post = new Post();
+        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
+        Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
+
+        return savedPost.getId();
+    }
+
     private List<String> extractFeedUID(int page, int size) {
         List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()
                 .map(Board::getFeedUID)
                 .collect(Collectors.toList());
         return feedUIDs;
     }
-    public void esSettingId(FeedCreateResponse feedSaveDTO,int id) {
+
+    public void esSettingId(FeedCreateResponse feedSaveDTO, int id) {
 
         feedSaveDTO.setId(id);
-        log.info(String.valueOf(id));
-//        feedSaveDTO.setImageURL(feedSaveDTO.getImageURL());
+    }
+
+    private static void checkValueFeed(FeedCreateResponse feedSaveDTO) {
+        log.info(feedSaveDTO.toString());
+
+        if (isEmpty(feedSaveDTO.getTitle()) || isEmpty(feedSaveDTO.getDescription()) || isEmpty(feedSaveDTO.getCategory())) {
+            throw new IllegalArgumentException("제목, 본문, 카테고리는 필수 입력값입니다.");
+        }
+    }
+    private static boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
 

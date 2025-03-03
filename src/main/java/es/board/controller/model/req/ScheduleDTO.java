@@ -2,6 +2,8 @@ package es.board.controller.model.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import es.board.config.XssSafeSerializer;
 import es.board.repository.entity.Schedule;
 import lombok.*;
 import org.springframework.security.core.userdetails.User;
@@ -16,39 +18,49 @@ import java.time.LocalTime;
 public class ScheduleDTO {
 
     private Long scheduleId;
+
     private String userId;
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String title;
 
     private LocalDateTime startDatetime;
 
     private LocalDateTime endDatetime;
 
+
     @JsonFormat(pattern = "HH:mm")
+    @JsonSerialize(using = XssSafeSerializer.class)
     private LocalTime startTime;
 
     @JsonFormat(pattern = "HH:mm")
+    @JsonSerialize(using = XssSafeSerializer.class)
     private LocalTime endTime;
 
     private Boolean allDay;
 
     private String location;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private  String category;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String description;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    private Boolean isRepeat; // 🔄 반복 일정 여부
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private Boolean isRepeat;
 
-    private String repeatDays; // 🔄 반복 요일 (예: "월,수,금")
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private String repeatDays;
 
-    private LocalDateTime repeatStartDate; // 🔄 반복 일정 시작 날짜
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private LocalDateTime repeatStartDate;
 
-    private LocalDateTime repeatEndDate; // 🔄 반복 일정 종료 날짜
 
-
-    // 엔터티 -> DTO 변환 메서드
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private LocalDateTime repeatEndDate;
 
 }

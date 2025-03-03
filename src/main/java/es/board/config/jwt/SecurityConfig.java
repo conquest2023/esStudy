@@ -27,9 +27,9 @@ public class SecurityConfig {
         return  httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
 //                .headers(headers -> headers
-//                        .contentSecurityPolicy(csp -> csp.policyDirectives("script-src 'self'"))
+//
 //                        .xssProtection(xss -> xss.disable())
-//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+//
 //                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();

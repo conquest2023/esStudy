@@ -31,7 +31,7 @@ public class CalenderController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                calenderService.saveRepeatSchedule(token,scheduleDTO);
+                calenderService.saveSchedule(token,scheduleDTO);
             }
         }
 

@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <title>FullCalendar + Thymeleaf</title>
 
-    <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 
-    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -24,7 +20,7 @@
             padding-top: 20px;
         }
 
-        /* 네비게이션 스타일 */
+
         .navbar {
             background-color: #343a40 !important;
         }
@@ -35,7 +31,6 @@
             font-weight: bold;
         }
 
-        /* 캘린더 컨테이너 */
         #calendar-container {
             max-width: 900px;
             margin: 50px auto;
@@ -50,13 +45,13 @@
             margin: 0 auto;
         }
 
-        /* 📌 달력 숫자 스타일 */
+
         .fc-daygrid-day-number {
             color: #000 ; /* 검은색 숫자 */
             /*font-weight: bold;*/
         }
 
-        /* 📆 일정 스타일 */
+
         .fc-daygrid-event {
             background-color: #007bff !important;
             color: white !important;
@@ -69,21 +64,21 @@
             background-color: #0056b3 !important;
         }
 
-        /* 필터 버튼 */
+
         .filter-btn {
             margin: 5px;
         }
-        /* 검색 UI 정리 */
+
         #searchType,
         #sortType {
-            min-width: 120px; /* 선택창 크기 조절 */
+            min-width: 120px;
         }
 
         #searchInput {
-            max-width: 250px; /* 검색 입력창 크기 조절 */
+            max-width: 250px;
         }
 
-        /* 버튼 스타일 개선 */
+
         #searchBtn {
             background-color: #007bff;
             border-color: #007bff;
@@ -112,7 +107,7 @@
 </head>
 <body>
 
-<!-- 네비게이션 바 -->
+
 <nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between">
         <a class="navbar-brand" href="#">📅 내 캘린더</a>
@@ -146,7 +141,7 @@
             <div class="modal-body">
                 <p>삭제할 반복 일정을 선택하세요.</p>
                 <select id="repeatScheduleSelect" class="form-select">
-                    <!-- 🔄 여기에 동적으로 반복 일정 목록이 추가됨 -->
+
                 </select>
             </div>
             <div class="modal-footer">
@@ -193,13 +188,13 @@
     </div>
 
 
-    <!-- 캘린더 컨테이너 -->
+
     <div id="calendar-container">
         <div id="calendar"></div>
     </div>
 </div>
 
-<!-- 📌 일정 추가 모달 -->
+
 <div class="modal fade" id="addEventModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -220,6 +215,7 @@
                         <option value="공부">📖 공부</option>
                         <option value="알바">📝   알바</option>
                         <option value="데이트">💑 데이트</option>
+                        <option value="기념일">💑 기념일</option>
                         <option value="기타" selected>📝 기타</option>
                     </select>
                 </div>
@@ -322,10 +318,10 @@
         </div>
     </div>
 </div>
-<!--<iframe id="kibana-chart" width="800" height="600"></iframe>-->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/rison/0.1.1/rison.min.js"></script>
 
-<!-- FullCalendar 스크립트 -->
+
 <script>
 
     var calendar;
@@ -337,7 +333,7 @@
         }
 
         try {
-            // ✅ 서버에서 userId 가져오기
+
             const response = await fetch("/user/id", {
                 method: "GET",
                 headers: {
@@ -357,16 +353,16 @@
                 return;
             }
 
-            // ✅ Kibana의 Global Time 필터 설정
+
             const gObj = {
                 filters: [],
                 refreshInterval: { pause: true, value: 0 },
-                time: { from: "now-7d", to: "now" }  // 최근 7일간 데이터
+                time: { from: "now-7d", to: "now" }
             };
 
-            // ✅ Kibana의 시각화 설정
+
             const aObj = {
-                dataView: "9766ed94-3782-4050-b2d1-9d1f6f418b76", // 자신의 Kibana Index Pattern ID 사용
+                dataView: "9766ed94-3782-4050-b2d1-9d1f6f418b76",
                 filters: [
                     {
                         "$state": { store: "appState" },
@@ -424,7 +420,7 @@
                                 position: "left",
                                 scale: { type: "linear" },
                                 show: true,
-                                title: { text: "카테고리" }  // ✅ title 추가
+                                title: { text: "카테고리" }
                             }
                         ],
                         grid: { categoryLines: true },
@@ -454,7 +450,7 @@
                                 position: "bottom",
                                 scale: { type: "linear" },
                                 show: true,
-                                title: { text: "카테고리 개수" }  // ✅ 타이틀 명시적으로 설정
+                                title: { text: "카테고리 개수" }
                             }
                         ]
                     },
@@ -463,14 +459,14 @@
                 }
             };
 
-            // ✅ Rison 인코딩
+
             const gRison = rison.encode(gObj);
             const aRison = rison.encode(aObj);
 
-            // ✅ 최종 Kibana URL 생성
+
             const kibanaUrl = `https://kibana.montkim.com/app/visualize#/create?embed=true&type=horizontal_bar&indexPattern=9766ed94-3782-4050-b2d1-9d1f6f418b76&_g=${encodeURIComponent(gRison)}&_a=${encodeURIComponent(aRison)}`.trim();
 
-            // ✅ iframe에 적용
+
             const iframe = document.getElementById("kibana-chart");
             if (iframe) {
                 iframe.src = kibanaUrl;
@@ -495,10 +491,9 @@
         var calendarEl = document.getElementById("calendar");
         var scheduleListContainer = document.getElementById("scheduleListContainer") || null;
         var scheduleListEl = document.getElementById("scheduleList") || null;
-        var selectedFilter = "all"; // 기본값: 전체 보기
+        var selectedFilter = "all";
         var isListVisible = false;
-        let allEvents = []; // ✅ 전체 일정 저장 (전역 변수)
-
+        let allEvents = [];
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ko',
@@ -514,14 +509,14 @@
                 meridiem: false  // 24시간제 사용
             },
 
-            // ✅ ✅ `forceEventDuration`을 true로 설정하여 일정이 보이도록 강제
+
             forceEventDuration: true,
 
-            // ✅ ✅ `slotMinTime`, `slotMaxTime`을 조정하여 당일 일정이 시간 내에 있는지 확인
+
             slotMinTime: "00:00:00",
             slotMaxTime: "24:00:00",
 
-            // ✅ ✅ `allDaySlot` 활성화 여부 확인
+
             allDaySlot: false,
             eventClick: function (info) {
                 selectedEventId = info.event.id;
@@ -529,18 +524,15 @@
                 document.getElementById("modalEventDate").innerText = info.event.start.toLocaleDateString();
                 document.getElementById("modalEventCategory").innerText = info.event.extendedProps.category || "미지정";
 
-                // ✅ description 가져올 때 extendedProps에서 불러오기
                 document.getElementById("modalEventDescription").innerText = info.event.extendedProps.description || "없음";
                 document.getElementById("deleteEventBtn").setAttribute("data-event-id", info.event.id);
                 new bootstrap.Modal(document.getElementById('eventDetailModal')).show();
             },
 
-            // ✅ 📌 캘린더에서 일정 추가 시 API 호출
             dateClick: function (info) {
                 document.getElementById('eventEndDate').value = info.dateStr;
                 new bootstrap.Modal(document.getElementById('addEventModal')).show();
             },
-            // ✅ 📌 서버에서 일정 및 Todo 데이터 불러오기
             events: function (fetchInfo, successCallback, failureCallback) {
                 Promise.all([
                     fetch('/search/alltodo', {
@@ -556,7 +548,7 @@
                         let todoEvents = [];
                         let scheduleEvents = [];
 
-                        const today = new Date().toISOString(); // ✅ 현재 시간 기준으로 설정
+                        const today = new Date().toISOString();
 
                         // ✅ 📌 Todo 데이터 변환
                         if (todoData.todos && Array.isArray(todoData.todos)) {
@@ -566,9 +558,9 @@
                                     id: todo.todo_id,
                                     title: `[TODO] ${todo.title}`,
                                     description: todo.description,
-                                    start: formatToISO(todo.createdAt) || new Date().toISOString(),  // ✅ 날짜가 없을 경우 기본값 설정
+                                    start: formatToISO(todo.createdAt) || new Date().toISOString(),
                                     allDay: false,
-                                    status: todo.status, // ✅ 상태 추가 (completed, pending)
+                                    status: todo.status,
                                     backgroundColor: backgroundColor,
                                     borderColor: borderColor,
                                     textColor: "#ffffff"
@@ -576,7 +568,7 @@
                             });
                         }
 
-                        // ✅ 📌 일정(Schedule) 데이터 변환
+
                         if (scheduleData.todos && Array.isArray(scheduleData.todos)) {
                             scheduleEvents = scheduleData.todos.map(schedule => {
                                 const { backgroundColor, borderColor } = getStatusColor(schedule.status || "IN_PROGRESS");
@@ -584,7 +576,7 @@
                                 return {
                                     id: schedule.scheduleId,
                                     title: `[캘린더] ${schedule.title}`,
-                                    start: schedule.endDatetime || today, // ✅ 날짜 기본값 설정
+                                    start: schedule.endDatetime || today,
                                     allDay: true,
                                     status: schedule.status || "IN_PROGRESS",
                                     category: schedule.category,
@@ -600,10 +592,10 @@
                         }
 
 
-                        // ✅ 전체 이벤트 저장 (전역 변수 업데이트)
+
                         allEvents = [...todoEvents, ...scheduleEvents];
 
-                        // ✅ 캘린더에 반영
+
                         successCallback(allEvents);
                     })
                     .catch(error => {
@@ -613,39 +605,28 @@
             }
         });
 
-        calendar.render(); // 캘린더 렌더링
+        calendar.render();
 
-        // ✅ 📌 필터 버튼 이벤트 추가
         document.querySelectorAll(".filter-btn").forEach(button => {
             button.addEventListener("click", function () {
                 document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
                 this.classList.add("active");
 
                 selectedFilter = this.getAttribute("data-filter");
-                applyFilter(selectedFilter); // ✅ 필터 적용
+                applyFilter(selectedFilter);
 
-                // 🔹 리스트 UI 토글 기능 (해당 요소가 존재할 경우에만 실행)
                 if (scheduleListContainer && scheduleListEl) {
                     if (isListVisible && selectedFilter === this.getAttribute("data-filter")) {
-                        scheduleListContainer.classList.add("d-none"); // 리스트 숨김
+                        scheduleListContainer.classList.add("d-none");
                         isListVisible = false;
                     } else {
-                        scheduleListContainer.classList.remove("d-none"); // 리스트 표시
+                        scheduleListContainer.classList.remove("d-none");
                         isListVisible = true;
                     }
                 }
             });
         });
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const saveRepeatEventBtn = document.getElementById("saveRepeatEventBtn");
-        //
-        //
-        //
-        //         console.log("🔄 저장할 반복 일정 데이터:", repeatEvent);
-        //
-        //         alert("🔄 반복 일정이 저장되었습니다.");
-        //     });
-        // });
+
         document.getElementById('saveRepeatEventBtn').addEventListener('click', function () {
             if (!token) {
                 alert("🚨 로그인 후 이용해주세요.");
@@ -661,7 +642,6 @@
                 const endTime = document.getElementById("repeatEventEndTime")?.value || "";
                 const description = document.getElementById("repeatEventDescription")?.value || "";
 
-                // ✅ `repeatDays` 값을 `String`으로 변환 ("월,수,금" 형태)
                 const repeatDays = [...document.querySelectorAll(".repeat-days:checked")]
                     .map(day => day.value)
                     .join(",");
@@ -673,13 +653,13 @@
 
                 const repeatEvent = {
                     title,
-                    allDay: true, // 종일 일정 여부
+                    allDay: true,
                     category,
                     startDatetime: startDate + "T00:00:00",
                     endDatetime: endDate ? endDate + "T23:59:59" : null,
                     startTime,
                     endTime,
-                    repeatDays,  // ✅ "월,수,금" 형태의 문자열로 변환됨
+                    repeatDays,
                     repeatStartDate: startDate + "T00:00:00",
                     repeatEndDate: endDate ? endDate + "T23:59:59" : null,
                     description
@@ -695,7 +675,7 @@
                 .then(response => {
                     if (response.ok) {
                         alert("✅ 반복 일정이 추가되었습니다.");
-                        location.reload(); // 페이지 새로고침하여 캘린더 갱신
+                        location.reload();
                     } else {
                         alert("❌ 반복 일정 추가 실패!");
                     }
@@ -718,7 +698,7 @@
                 allDay: true,
                 location: document.getElementById('eventLocation')?.value || "",
                 endDatetime: document.getElementById('eventEndDate').value ?
-                    document.getElementById('eventEndDate').value + "T23:59:59" : null, // 종료 날짜 (없으면 null)
+                    document.getElementById('eventEndDate').value + "T23:59:59" : null,
                 category: document.getElementById('eventCategory')?.value || "" ,
                 description: document.getElementById('eventDescription')?.value || ""
             };
@@ -731,7 +711,7 @@
                 .then(response => {
                     if (response.ok) {
                         alert("✅ 일정이 추가되었습니다.");
-                        location.reload(); // 페이지 새로고침하여 캘린더 갱신
+                        location.reload();
                     } else {
                         alert("❌ 일정 추가 실패!");
                     }
@@ -741,55 +721,51 @@
                 });
         });
 
-        // ✅ 📌 필터 적용 함수
+
         function applyFilter(filterType) {
             if (!allEvents || allEvents.length === 0) {
                 console.error("🚨 이벤트가 없습니다!");
                 return;
             }
 
-            const now = new Date(); // ✅ 현재 시간 (로컬 기준)
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0); // ✅ 오늘 00:00:00
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
 
             let filteredEvents = [];
 
             if (filterType === "all") {
-                filteredEvents = allEvents; // ✅ 전체 일정 표시
+                filteredEvents = allEvents;
             } else if (filterType === "completed") {
-                // ✅ 완료된 일정: 오늘 이전 날짜의 일정
                 filteredEvents = allEvents.filter(event => {
-                    if (!event.start) return false; // 시작 날짜가 없는 경우 필터링 제외
+                    if (!event.start) return false;
                     const eventDate = new Date(event.start);
-                    return eventDate < todayStart; // 오늘 이전 일정만 완료된 일정으로 간주
+                    return eventDate < todayStart;
                 });
             } else if (filterType === "pending") {
-                // ✅ 미완료 일정: 현재 이후 날짜의 일정
                 filteredEvents = allEvents.filter(event => {
-                    if (!event.start) return false; // 시작 날짜가 없는 경우 필터링 제외
+                    if (!event.start) return false;
                     const eventDate = new Date(event.start);
-                    return eventDate >= now; // 현재 시간 이후 일정만 미완료
+                    return eventDate >= now;
                 });
             }
 
-            calendar.removeAllEvents(); // ✅ 기존 일정 제거
-            calendar.addEventSource(filteredEvents); // ✅ 새로운 일정 추가
+            calendar.removeAllEvents();
+            calendar.addEventSource(filteredEvents);
         }
 
 
-        // ✅ 📌 상태별 색상 반환 함수 (Todo의 상태에 따라 색상 변경)
-        // ✅ 📌 상태별 색상 반환 함수 (Todo & 일정의 상태에 따라 색상 변경)
         function getStatusColor(status) {
             switch (status) {
                 case "IN_PROGRESS":
-                    return { backgroundColor: "#0d6efd", borderColor: "#0a58ca" }; // 🔵 진행 중 (파란색)
+                    return { backgroundColor: "#0d6efd", borderColor: "#0a58ca" };
                 case "DONE":
-                    return { backgroundColor: "#198754", borderColor: "#146c43" }; // ✅ 완료 (초록색)
+                    return { backgroundColor: "#198754", borderColor: "#146c43" };
                 case "CANCELLED":
-                    return { backgroundColor: "#dc3545", borderColor: "#b02a37" }; // ❌ 취소 (빨간색)
+                    return { backgroundColor: "#dc3545", borderColor: "#b02a37" };
                 case "PENDING":
-                    return { backgroundColor: "#ffc107", borderColor: "#d39e00" }; // ⏳ 대기 (노란색)
+                    return { backgroundColor: "#ffc107", borderColor: "#d39e00" };
                 default:
-                    return { backgroundColor: "#adb5bd", borderColor: "#868e96" }; // ⚪ 기본 회색
+                    return { backgroundColor: "#adb5bd", borderColor: "#868e96" };
             }
         }
 
@@ -821,13 +797,12 @@
             .then(() => {
                 alert("✅ 일정이 삭제되었습니다!");
 
-                // ✅ 삭제할 이벤트 찾아서 제거
+
                 let eventToRemove = calendar.getEventById(eventId);
                 if (eventToRemove) {
-                    eventToRemove.remove();  // ✅ 삭제 반영
+                    eventToRemove.remove();
                 }
                 calendar.refetchEvents();
-                // ✅ 모달 닫기
                 bootstrap.Modal.getInstance(document.getElementById('eventDetailModal')).hide();
             })
             .catch(error => {
@@ -847,7 +822,7 @@
             .then(data => {
                 let scheduleEvents = [];
 
-                if (data.schedules && Array.isArray(data.schedules)) { // ✅ `schedules`가 배열인지 체크
+                if (data.schedules && Array.isArray(data.schedules)) {
                     scheduleEvents = data.schedules.map(schedule => ({
                         id: schedule.scheduleId,
                         title: `[📅] ${schedule.title}`,
@@ -883,7 +858,6 @@
     }
 
 
-    // ✅ 검색 버튼 클릭 시 AJAX 요청
     document.getElementById('searchBtn').addEventListener('click', function () {
         const searchQuery = document.getElementById('searchInput').value.trim();
         const searchType = document.getElementById('searchType').value;
@@ -893,13 +867,13 @@
             return;
         }
 
-        calendar.removeAllEvents();  // ✅ 기존 이벤트 제거
-        calendar.refetchEvents();   // ✅ 새로운 검색 결과 반영
+        calendar.removeAllEvents();
+        calendar.refetchEvents();
         loadEvents(searchQuery, searchType, events => {
-            calendar.addEventSource(events); // ✅ 새로운 검색 결과 캘린더에 반영
+            calendar.addEventSource(events);
             displaySearchResultsInModal(events);
 
-            // ✅ 검색 후 자동으로 모달 닫기
+
             setTimeout(() => {
                 const modalElement = document.getElementById("searchResultsModal");
                 const modalInstance = bootstrap.Modal.getInstance(modalElement);
@@ -910,7 +884,7 @@
     function displaySearchResultsInModal(results) {
 
         const searchResultsModalList = document.getElementById("searchResultsModalList");
-        searchResultsModalList.innerHTML = ""; // 기존 목록 초기화
+        searchResultsModalList.innerHTML = "";
 
         if (results.length === 0) {
             searchResultsModalList.innerHTML = `<li class="list-group-item text-center text-muted">🔍 검색 결과가 없습니다.</li>`;
@@ -934,8 +908,8 @@
 
         const modalElement = document.getElementById("searchResultsModal");
         const modalInstance = new bootstrap.Modal(modalElement, {
-            keyboard: false,  // ✅ ESC 키로 닫는 기능 비활성화
-            backdrop: false   // ✅ `Backdrop` 제거
+            keyboard: false,
+            backdrop: false
         });
 
         modalInstance.show();
@@ -943,7 +917,7 @@
 
 
 
-    // ✅ 초기화 버튼 클릭 시 전체 일정 다시 로드
+
     document.getElementById('resetBtn').addEventListener('click', function () {
         document.getElementById('searchInput').value = "";
         document.getElementById('searchType').value = "title";
@@ -966,7 +940,7 @@
         const deleteSelectedRepeatSchedule = document.getElementById("deleteSelectedRepeatSchedule");
         const token = localStorage.getItem("token");
 
-        let scheduleMap = new Map(); // 🔹 scheduleId와 createdAt을 매핑하기 위한 Map
+        let scheduleMap = new Map();
 
         function loadRepeatSchedules() {
             fetch('/search/repeat/schedule', {
@@ -978,12 +952,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.repeatSchedules && data.repeatSchedules.length > 0) {
-                        repeatScheduleSelect.innerHTML = ""; // 기존 목록 초기화
-                        scheduleMap.clear(); // Map 초기화
+                        repeatScheduleSelect.innerHTML = "";
+                        scheduleMap.clear();
 
                         data.repeatSchedules.forEach(schedule => {
                             const option = document.createElement("option");
-                            option.value = schedule.scheduleId; // 🆔 일정 ID 저장
+                            option.value = schedule.scheduleId;
                             option.textContent = `${schedule.title} - ${schedule.startDatetime}`;
                             repeatScheduleSelect.appendChild(option);
 
@@ -1001,16 +975,15 @@
                 .catch(error => console.error("🚨 반복 일정 목록 불러오기 실패:", error));
         }
 
-        // 모달이 열릴 때 반복 일정 목록을 불러옴
+
         document.getElementById("deleteRepeatEventModal").addEventListener("show.bs.modal", loadRepeatSchedules);
 
-// ✅ 선택한 반복 일정 삭제 기능 추가
         deleteSelectedRepeatSchedule.addEventListener("click", function () {
             const selectedScheduleId = repeatScheduleSelect.value;
             const selectedScheduleData = scheduleMap.get(String(selectedScheduleId));
 
             if (!selectedScheduleData) {
-                alert("🚨 선택한 일정 정보를 찾을 수 없습니다.");
+                alert("선택한 일정 정보를 찾을 수 없습니다.");
                 return;
             }
 
@@ -1019,11 +992,11 @@
             const selectedEndDatetime = selectedScheduleData.endDatetime;
 
             if (!selectedCreatedAt || !selectedStartDatetime || !selectedEndDatetime) {
-                alert("🚨 삭제할 일정의 필수 정보를 찾을 수 없습니다.");
+                alert("삭제할 일정의 필수 정보를 찾을 수 없습니다.");
                 return;
             }
 
-            if (!confirm("🗑 해당 반복 일정을 삭제하시겠습니까?")) {
+            if (!confirm("해당 반복 일정을 삭제하시겠습니까?")) {
                 return;
             }
 
@@ -1042,13 +1015,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("✅ 반복 일정이 삭제되었습니다.");
-                        location.reload(); // ✅ 삭제 후 새로고침하여 캘린더 갱신
+                        alert("반복 일정이 삭제되었습니다.");
+                        location.reload();
                     } else {
-                        alert("❌ 반복 일정 삭제 실패!");
+                        alert("반복 일정 삭제 실패!");
                     }
                 })
-                .catch(error => console.error("🚨 반복 일정 삭제 중 오류 발생:", error));
+                .catch(error => console.error("반복 일정 삭제 중 오류 발생:", error));
         });
     });
 

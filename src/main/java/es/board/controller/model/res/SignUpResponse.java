@@ -1,6 +1,8 @@
 package es.board.controller.model.res;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import es.board.config.XssSafeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +21,7 @@ public class SignUpResponse {
 
     private String password;
 
-
+    @JsonSerialize(using = XssSafeSerializer.class)
     private  String category;
 
     private  int visitCount;

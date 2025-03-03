@@ -1,4 +1,4 @@
-package es.board.config.jwt;
+package es.board.filter;
 
 import es.board.interceptor.IpLimitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionLimitInterceptor)
-                .addPathPatterns("/")  // 모든 경로에 적용
-                .excludePathPatterns("/public/**");  // 특정 경로 제외
+                .addPathPatterns("/")
+                .excludePathPatterns("/public/**");
+
     }
 }

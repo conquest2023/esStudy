@@ -1,6 +1,8 @@
 package es.board.controller.model.req;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import es.board.config.XssSafeSerializer;
 import es.board.repository.document.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +23,13 @@ public class CommentRequest {
 
     private String feedUID;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String username;
 
     @JsonIgnore
     private  String userId;
 
-
+    @JsonSerialize(using = XssSafeSerializer.class)
     private String content;
 
     private  int LikeCount;

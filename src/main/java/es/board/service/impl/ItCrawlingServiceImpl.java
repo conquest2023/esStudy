@@ -3,6 +3,7 @@ package es.board.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.req.JobListing;
+import es.board.controller.model.req.StudyTipDTO;
 import es.board.controller.model.req.WantedJobData;
 import es.board.service.ItCrawlingService;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -38,12 +39,17 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
     private final ObjectMapper objectMapper;
 
+
+    private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?q=";
     private static final String JUMPIT_URL = "https://jumpit-api.saramin.co.kr/api/positions?jobCategory=1&jobCategory=2&jobCategory=3&jobCategory=9&career=0&sort=rsp_rate&highlight=false";
 
 
     private static final String PROGRAMMERS_URL = "https://career.programmers.co.kr/api/job_positions?min_career=0&order=recent&page=1&job_category_ids[]=1&job_category_ids[]=25&tags[]=Java&tags[]=Spring";
 
     private static final String JOBPLANET_URL = "https://www.jobplanet.co.kr/job";
+
+
+    private static final String NAVER_SEARCH_URL = "https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&sm=tab_jum&query=";
 
     private static final String WANTED_URL = "https://www.wanted.co.kr/wdlist/518?country=kr&job_sort=job.latest_order&years=0&selected=872&selected=873&selected=10110&selected=660&selected=669&locations=seoul.all&locations=incheon.all&locations=gyeonggi.all";
 
@@ -150,21 +156,20 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     public List<JobListing> jobPlanetList() {
         List<JobListing> jobList = new ArrayList<>();
 
-        // 1. ChromeDriver 자동 설정
+
         WebDriverManager.chromedriver().setup();
 
-        // 2. Chrome 옵션 설정
+
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");  // (테스트 후 필요시 주석)
-        options.addArguments("--disable-blink-features=AutomationControlled");  // Bot 탐지 우회
+        options.addArguments("--headless");
+        options.addArguments("--disable-blink-features=AutomationControlled");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36");
 
-        // 3. WebDriver 실행
         WebDriver driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         driver.get(JOBPLANET_URL);
 
-        // 4. 채용 공고 목록 탐색
+
         List<WebElement> jobElements = driver.findElements(By.cssSelector(".overflow-hidden.medium"));
 
         for (WebElement jobElement : jobElements) {
@@ -179,7 +184,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
             }
         }
 
-        // 5. WebDriver 종료
+
         driver.quit();
 
         return jobList;
@@ -217,8 +222,68 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return jobList;
+    }
+
+    @Override
+    public List<StudyTipDTO> crawlNaverStudyTips(String keyword) {
+        List<StudyTipDTO> studyTips = new ArrayList<>();
+        String searchUrl = NAVER_SEARCH_URL + keyword.replace(" ", "+");
+
+        try {
+            Document doc = Jsoup.connect(searchUrl)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    .get();
+
+            Elements blogItems = doc.select(".detail_box"); // 검색 결과 블로그 항목
+
+            for (Element item : blogItems) {
+                Element titleElement = item.selectFirst(".title_area a.title_link");
+                Element imageElement = item.selectFirst(".mod_ugc_thumb_area img");
+                Element descElement = item.selectFirst(".dsc_area a.dsc_link");
+
+                if (titleElement != null) {
+                    String title = titleElement.text().trim();
+                    String link = titleElement.attr("href");
+                    String image = imageElement != null ? imageElement.attr("src") : null;
+                    String description = descElement != null ? descElement.text().trim() : "";
+
+                    studyTips.add(new StudyTipDTO(title, link, image, description));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return studyTips;
+    }
+    public List<StudyTipDTO> crawlGoogleStudyTips(String keyword) {
+        List<StudyTipDTO> studyTips = new ArrayList<>();
+        String searchUrl = GOOGLE_SEARCH_URL + keyword.replace(" ", "+");
+
+        try {
+            Document doc = Jsoup.connect(searchUrl)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    .get();
+
+            Elements searchResults = doc.select("div[jscontroller=SC7lYd]");
+            log.info(searchResults.toString());
+            for (Element result : searchResults) {
+                Element titleElement = result.selectFirst("h3");
+                Element linkElement = result.selectFirst("a");
+                Element descElement = result.selectFirst(".VwiC3b");
+
+                if (titleElement != null && linkElement != null) {
+                    String title = titleElement.text().trim();
+                    String link = linkElement.attr("href");
+                    String description = (descElement != null) ? descElement.text().trim() : "";
+
+                    studyTips.add(new StudyTipDTO(title, link, null, description)); // 구글은 이미지 없음
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return studyTips;
     }
 }
 

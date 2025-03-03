@@ -24,6 +24,7 @@
 </head>
 <body>
 
+
 <div class="container">
   <h2 class="mb-3">📝 새 Todo 추가</h2>
 
@@ -55,6 +56,7 @@
     </div>
 
 
+
     <div class="mb-3">
 <!--      <label for="priority" class="form-label">우선순위</label>-->
       <select class="form-select" id="priority">
@@ -68,23 +70,30 @@
 
     <button type="submit" class="btn btn-primary w-100">추가하기</button>
   </form>
+  <div class="text-center mt-3">
 </div>
+    </div>
+  </div>
+
 
 <!-- JavaScript -->
 <script>
+
+
+
   document.getElementById('todoForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
     const priority = document.getElementById('priority').value;
-    const category = document.getElementById('category').value; // ✅ 카테고리 추가
+    const category = document.getElementById('category').value;
 
     const todoData = {
       title: title,
       description: description,
       priority: parseInt(priority),
-      category: category, // ✅ 백엔드로 전송
+      category: category,
       status: "IN_PROGRESS"
     };
 
@@ -106,7 +115,7 @@
             })
             .then(() => {
               alert("✅ Todo가 추가되었습니다!");
-              window.location.href = "/todo"; // ✅ 추가 후 목록 페이지로 이동
+              window.location.href = "/todo";
             })
             .catch(error => {
               alert("🚨 오류 발생: " + error.message);
