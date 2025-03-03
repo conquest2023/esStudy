@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CertificateService {
 
-    List<CertificationSchedule> getCertificationSchedule();
+    List<CertificationSchedule> getCertificationSchedule(String text);
     List<String> getTop5CertificateCount();
     List<Certificate> getCertificate(String text ,String userIp);
 

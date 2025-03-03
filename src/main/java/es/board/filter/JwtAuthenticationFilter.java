@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authorizationHeader = httpRequest.getHeader("Authorization");
 
-//        log.info("Authorization Header: {}", authorizationHeader);
 
         if(token !=null&& jwtTokenProvider.validateToken(token)){
             if (jwtTokenProvider.isTokenBlacklisted(token)) {

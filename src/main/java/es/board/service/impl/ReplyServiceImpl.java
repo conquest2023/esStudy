@@ -1,6 +1,7 @@
 package es.board.service.impl;
 
 import es.board.controller.model.req.ReplyRequest;
+import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.ReplyDAO;
 import es.board.service.ReplyService;
@@ -27,7 +28,7 @@ public class ReplyServiceImpl implements ReplyService {
     }
     @Override
     public  void  saveReply(ReplyCreate response){
-
+        checkValueReply(response);
         replyDAO.saveReply(response);
     }
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
@@ -35,5 +36,15 @@ public class ReplyServiceImpl implements ReplyService {
         List<ReplyRequest> replies = getPartialReply(feedId);
         return replies.stream()
                 .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
+    }
+
+    private static void checkValueReply(ReplyCreate response) {
+
+        if (isEmpty(response.getUsername()) || isEmpty(response.getContent())) {
+            throw new IllegalArgumentException("답글은 필수 입력값입니다.");
+        }
+    }
+    private static boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

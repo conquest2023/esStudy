@@ -76,7 +76,6 @@
   </div>
 
 
-<!-- JavaScript -->
 <script>
 
 
@@ -101,24 +100,25 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token') // ✅ JWT 토큰 포함
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
       },
       body: JSON.stringify(todoData)
     })
             .then(response => {
               if (!response.ok) {
-                throw new Error("🚨 서버 응답 오류: " + response.statusText);
+                throw new Error("서버 응답 오류: " + response.statusText);
               }
 
-              // ✅ 응답이 없을 경우에도 에러 없이 처리
+
               return response.text().then(() => {});
             })
             .then(() => {
-              alert("✅ Todo가 추가되었습니다!");
+              alert("Todo가 추가되었습니다!");
               window.location.href = "/todo";
             })
             .catch(error => {
-              alert("🚨 오류 발생: " + error.message);
+              alert("오류 발생: " + error.message);
+
             });
     });
 </script>

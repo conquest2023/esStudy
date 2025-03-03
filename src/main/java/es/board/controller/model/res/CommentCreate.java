@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.config.XssSafeDeserializer;
 import es.board.config.XssSafeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,9 +26,11 @@ public class CommentCreate {
     private  String feedUID;
 
     @JsonSerialize(using = XssSafeSerializer.class)
+    @JsonDeserialize(using = XssSafeDeserializer.class)
     private String username;
 
     @JsonSerialize(using = XssSafeSerializer.class)
+    @JsonDeserialize(using = XssSafeDeserializer.class)
     private String content;
 
 

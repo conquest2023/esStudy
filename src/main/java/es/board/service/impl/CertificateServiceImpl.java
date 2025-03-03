@@ -105,8 +105,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<CertificationSchedule> getCertificationSchedule(){
-        return  scheduleRepository.findAll();
+    public List<CertificationSchedule> getCertificationSchedule(String text){
+
+        return  scheduleRepository.findAllByCertificationSchedule(text);
     }
 
 

@@ -73,6 +73,27 @@ public class ToDoController {
         return ResponseEntity.ok(response);
     }
 
+
+        @GetMapping("/search/today/todo")
+        @ResponseBody
+        public ResponseEntity<?> getTodoByToday(@RequestHeader(value = "Authorization", required = false) String token) {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+            }
+
+            token = token.substring(7);
+            if (!jwtTokenProvider.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+            }
+
+            List<TodoRequest> todos = toDoService.getUserToDo(jwtTokenProvider.getUserId(token));
+            Object remainingCount = toDoService.getRemainingTodos(jwtTokenProvider.getUserId(token));
+            Map<String, Object> response = new HashMap<>();
+            response.put("remainingCount", remainingCount);
+            response.put("todos", todos);
+            return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/search/alltodo")
     @ResponseBody
     public ResponseEntity<?> getTodoAll(@RequestHeader(value = "Authorization", required = false) String token) {
@@ -120,7 +141,6 @@ public class ToDoController {
                 toDoService.addToDo(token, todoResponse);
             }
         }
-//        return todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Todo Not Found"));
     }
 
     @PostMapping("/todo/delete/{id}")

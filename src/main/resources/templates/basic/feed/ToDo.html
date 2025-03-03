@@ -583,7 +583,7 @@
                     case "DONE":
                         return "완료됨";
                     default:
-                        return status; // TODO, CANCELED 등
+                        return status;
                 }
             }
         })
@@ -627,6 +627,7 @@
                     alert("D-DAY가 등록되었습니다!");
                     document.getElementById("dDayForm").reset();
                     bootstrap.Modal.getInstance(document.getElementById("addDDayModal")).hide();
+                    window.location.href = "/todo";
                 })
                 .catch(err => {
                     console.error(err);

@@ -49,9 +49,10 @@ public class CertificateController {
 
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/certificate/schedule")
+    @GetMapping("/certificate/schedule/{text}")
     @ResponseBody
-    public ResponseEntity<?> getScheduleCertificate(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> getScheduleCertificate(@RequestHeader(value = "Authorization", required = false) String token,
+                                                    @PathVariable String text) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -61,7 +62,7 @@ public class CertificateController {
         }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("certSchedule", certificateService.getCertificationSchedule());
+        response.put("certSchedule", certificateService.getCertificationSchedule(text));
 
         return ResponseEntity.ok(response);
     }

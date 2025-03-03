@@ -5,7 +5,6 @@
   <title>자격증 캘린더</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -18,9 +17,14 @@
       max-width: 1200px;
       margin: 30px auto;
     }
+    .category-select-container {
+      text-align: center;
+      margin-bottom: 50px;
+    }
     .category-list {
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
+      flex-wrap: wrap;
       padding: 15px;
       background: white;
       border-radius: 8px;
@@ -33,10 +37,14 @@
       cursor: pointer;
       border-radius: 5px;
       transition: all 0.3s ease;
+      margin: 5px;
     }
     .category-item:hover, .category-item.active {
       background: #007bff;
       color: white;
+    }
+    #calendar-container {
+      display: none;
     }
     #calendar {
       margin-top: 20px;
@@ -45,102 +53,75 @@
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    .category-title {
-      font-size: 18px;
-      font-weight: bold;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #007bff;
-      margin-bottom: 15px;
-    }
-    .category-list {
-      padding: 10px;
-      list-style: none;
-    }
-    .category-item {
-      padding: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: all 0.3s ease;
-    }
-    .category-item:hover, .category-item.active {
-      background: #007bff;
-      color: white;
-    }
-    .sub-category {
-      list-style: none;
-      padding-left: 15px;
-    }
-    .sub-category-item {
-      padding: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-    }
-    .sub-category-item:hover {
-      background: #007bff;
-      color: white;
-      border-radius: 5px;
-    }
 
-    @media (max-width: 768px) {
-      #calendar {
-        height: 500px !important;
-      }
-    }
-    @media (min-width: 769px) {
-      #calendar {
-        height: 800px !important;
-      }
-    }
-
-    /* ✅ 주말 스타일 (CSS로 강제 적용) */
     .fc-day-sat a {
       color: #3498db !important;
     }
     .fc-day-sun a {
       color: #e74c3c !important;
     }
-    /* ✅ 공휴일 스타일 */
     .fc-holiday {
       background-color: #ff4757 !important;
       color: white !important;
+    }
+    .custom-category-btn {
+      width: 400px;
+      height: 45px;
+      font-size: 1.1rem;
+      border: 1px solid #ced4da;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-dropdown-menu {
+      max-height: 250px;
+      overflow-y: auto;
+      width: 400px;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1 class="text-center text-primary">📅 자격증 일정 캘린더</h1>
-
-  <div class="category-list">
-    <div class="category-item active" data-category="all">전체 보기</div>
-    <div class="category-item" data-category="national">국가 자격증</div>
-    <div class="category-item" data-category="private">민간 자격증</div>
-    <div class="category-item" data-category="language">어학 자격증</div>
+  <h1 class="text-center text-primary">📅자격증 일정 캘린더</h1>
+  <div class="category-select-container position-relative">
+    <button class="btn btn-light dropdown-toggle text-start fw-bold custom-category-btn"
+            type="button" id="majorCategoryBtn"
+            data-bs-toggle="dropdown" aria-expanded="false">
+      카테고리를 선택하세요
+    </button>
+    <ul class="dropdown-menu w-100 custom-dropdown-menu" id="majorCategoryList" aria-labelledby="majorCategoryBtn">
+      <li><a class="dropdown-item" href="#" data-value="환경.에너지">환경·에너지 (예: 대기환경기사, 수질환경기사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="화학">화학 (예: 화공기사, 위험물산업기사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="정보통신">정보통신 (예: 정보처리기사, 네트워크관리사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="전기.전자">전기·전자 (예: 전기기사, 전자기기기능사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="재료">재료 (예: 재료조직평가기사, 금속재료기사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="이용.숙박.여행.오락.스포츠">이용·숙박·여행·오락·스포츠 (예: 호텔서비스사, 국내여행안내사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="영업.판매">영업·판매 (예: 유통관리사, 판매관리사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="안전관리">안전관리 (예: 산업안전기사, 건설안전기사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="식품.가공">식품·가공 (예: 식품기사, 제빵기능사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="사회복지.종교">사회복지·종교 (예: 사회복지사, 청소년지도사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="보건.의료">보건·의료 (예: 임상병리사, 응급구조사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="농림어업">농림어업 (예: 조경기능사, 농산물품질관리사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="기계">기계 (예: 기계설계산업기사, 생산자동화산업기사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="경영.회계.사무">경영·회계·사무 (예: 공인회계사, 세무사)</a></li>
+      <li><a class="dropdown-item" href="#" data-value="건설">건설 (예: 건축기사, 토목기사)</a></li>
+    </ul>
   </div>
-
-  <div id="calendar"></div>
+  <input type="hidden" id="majorCategory" name="majorCategory">
+  <div id="calendar-container">
+    <div id="calendar"></div>
+  </div>
 </div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     var calendarEl = document.getElementById("calendar");
-
-    // ✅ 대한민국 공휴일 (2024년 기준)
-    var holidays = [
-      { title: "신정", start: "2024-01-01" },
-      { title: "설날", start: "2024-02-09", end: "2024-02-11" },
-      { title: "삼일절", start: "2024-03-01" },
-      { title: "어린이날", start: "2024-05-05" },
-      { title: "현충일", start: "2024-06-06" },
-      { title: "광복절", start: "2024-08-15" },
-      { title: "추석", start: "2024-09-16", end: "2024-09-18" },
-      { title: "개천절", start: "2024-10-03" },
-      { title: "한글날", start: "2024-10-09" },
-      { title: "성탄절", start: "2024-12-25" }
-    ];
+    var calendarContainer = document.getElementById("calendar-container");
+    var dropdownButton = document.getElementById("majorCategoryBtn");
+    var dropdownItems = document.querySelectorAll("#majorCategoryList .dropdown-item");
+    var hiddenInput = document.getElementById("majorCategory");
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "dayGridMonth",
@@ -154,12 +135,7 @@
       dayMaxEventRows: 3,
       moreLinkText: "더보기",
       height: "auto",
-      events: [].concat(holidays.map(h => ({
-        ...h,
-        classNames: ["fc-holiday"]
-
-      }))),
-
+      events: [],
       eventDidMount: function (info) {
         if (info.event.extendedProps.classNames && info.event.extendedProps.classNames.includes("fc-holiday")) {
           info.el.style.backgroundColor = "#ff4757";
@@ -169,55 +145,62 @@
         }
       }
     });
+
     calendar.render();
+    calendarContainer.style.display = "none";
 
-    document.querySelectorAll(".category-item").forEach(item => {
-      item.addEventListener("click", function () {
-        document.querySelectorAll(".category-item").forEach(el => el.classList.remove("active"));
-        this.classList.add("active");
 
-        var selectedCategory = this.getAttribute("data-category");
-        calendar.getEvents().forEach(event => {
-          if (selectedCategory === "all" || event.extendedProps.category === selectedCategory) {
-            event.setProp("display", "auto");
-          } else {
-            event.setProp("display", "none");
-          }
-        });
+    dropdownItems.forEach(item => {
+      item.addEventListener("click", function (event) {
+        event.preventDefault();
+        const selectedText = this.innerText;
+        const selectedValue = this.getAttribute("data-value");
+
+
+        dropdownButton.innerText = selectedText;
+        dropdownButton.classList.add("fw-bold");
+
+
+        hiddenInput.value = selectedValue;
+
+        if (selectedValue) {
+          calendarContainer.style.display = "block";
+          fetchCertificationSchedules(selectedValue);
+        } else {
+          calendarContainer.style.display = "none";
+        }
       });
     });
 
+    function fetchCertificationSchedules(category) {
+      const token = localStorage.getItem("token");
 
-      function fetchCertificationSchedules() {
-        const token = localStorage.getItem("token");
+      fetch(`/certificate/schedule/${category}`, {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+              .then(response => response.json())
+              .then(data => {
+                if (data.certSchedule) {
+                  calendar.removeAllEvents();
 
-            fetch("/certificate/schedule", {
-              method: "GET",
-              headers: {
-                "Authorization": "Bearer " + token }}
-            )
-                .then(response => response.json())
-                .then(data => {
-                  console.log(data)
-                  if (data.certSchedule) {
-                    const uniqueEvents = new Map();
-                    const events = data.certSchedule.flatMap(cert => [
-                      { title: `[필기 원서접수] ${cert.name} - ${cert.examRound}`, start: cert.writtenRegStart, color: "#007bff" },
-                      { title: `[필기 시험] ${cert.name} - ${cert.examRound}`, start: cert.writtenExamStart, color: "#ff6b6b" },
-                      { title: `[필기 합격발표] ${cert.name} - ${cert.examRound}`, start: cert.writtenPassDate, color: "#ffc107" },
-                      { title: `[실기 원서접수] ${cert.name} - ${cert.examRound}`, start: cert.practicalRegStart, color: "#17a2b8" },
-                      { title: `[실기 시험] ${cert.name} - ${cert.examRound}`, start: cert.practicalExamStart, color: "#28a745" },
-                      { title: `[실기 합격발표] ${cert.name} - ${cert.examRound}`, start: cert.practicalPassStart, color: "#ff851b" }
-                    ]);
+                  const events = data.certSchedule.flatMap(cert => [
+                    { title: `[필기 원서접수] ${cert.name} - ${cert.examRound}`, start: cert.writtenRegStart, color: "#007bff" },
+                    { title: `[필기 시험] ${cert.name} - ${cert.examRound}`, start: cert.writtenExamStart, color: "#ff6b6b" },
+                    { title: `[필기 합격발표] ${cert.name} - ${cert.examRound}`, start: cert.writtenPassDate, color: "#ffc107" },
+                    { title: `[실기 원서접수] ${cert.name} - ${cert.examRound}`, start: cert.practicalRegStart, color: "#17a2b8" },
+                    { title: `[실기 시험] ${cert.name} - ${cert.examRound}`, start: cert.practicalExamStart, color: "#28a745" },
+                    { title: `[실기 합격발표] ${cert.name} - ${cert.examRound}`, start: cert.practicalPassStart, color: "#ff851b" }
+                  ]);
 
-                    calendar.addEventSource(events);
-                    calendar.render();
-                  }
-                })
-                  .catch(error => console.error("데이터 로딩 오류:", error));
-      }
-
-    fetchCertificationSchedules();
+                  calendar.addEventSource(events);
+                  calendar.render();
+                }
+              })
+              .catch(error => console.error("데이터 로딩 오류:", error));
+    }
   });
 
 </script>

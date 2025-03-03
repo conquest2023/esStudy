@@ -19,7 +19,7 @@ public class XssAndEmptyValueFilter  implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        // 🔥 XSS 필터링 적용
+
         Map<String, String[]> sanitizedParams = httpRequest.getParameterMap().entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,

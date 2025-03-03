@@ -231,6 +231,12 @@ public class FeedController {
         return "basic/feed/CategoryFeed";
     }
 
+    @GetMapping("/search/view/feed/recommend")
+    public String getRecommendFeed() {
+
+        return "basic/feed/CategoryFeed";
+    }
+
     @GetMapping("/search/view/feed/latest")
     public String getRecentFeedList(Model model) {
         model.addAttribute("data", feedService.getRecentFeed());

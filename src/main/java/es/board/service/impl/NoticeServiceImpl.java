@@ -47,7 +47,7 @@ public class NoticeServiceImpl  implements NoticeService {
 
         String userId = jwtTokenProvider.getUserId(token);
         if (!isAdmin(userId)) {
-            throw new RuntimeException("🚨 관리자만 공지사항을 등록할 수 있습니다!");
+            throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
             CompletableFuture.supplyAsync(() -> {
             Long savedNoticeId = NoticeSaveId(noticeDTO,token);
@@ -66,7 +66,7 @@ public class NoticeServiceImpl  implements NoticeService {
     private Long NoticeSaveId(NoticeDTO  noticeDTO, String token) {
 
         noticeDTO.setFeedUID(UUID.randomUUID().toString());
-        Notice notice =   noticeRepository.save(feedMapper.ToNotice(noticeDTO,jwtTokenProvider.getUserId(token)));
+        Notice notice =noticeRepository.save(feedMapper.ToNotice(noticeDTO,jwtTokenProvider.getUserId(token)));
         return notice.getId();
     }
 

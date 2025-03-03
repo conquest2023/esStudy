@@ -7,6 +7,7 @@ import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreate;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
@@ -86,12 +87,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void indexComment(CommentCreate dto) {
+        checkValueComment(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
-
-        commentDAO.saveCommentIndex(dto); // ✅ 댓글 저장
-
+        commentDAO.saveCommentIndex(dto);
         if (userId == null) {
-            // ✅ 공지사항 댓글인 경우 (userId가 없을 경우)
             log.info("📌 공지사항에 댓글 작성됨: {}", dto.getFeedUID());
         } else {
             // ✅ 일반 게시글 댓글 처리
@@ -173,7 +172,6 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> BulkToEntity(List<CommentCreate> res) {
         List<Comment> comments = new ArrayList<>();
         for (CommentCreate dto : res) {
-            // 빌더 패턴을 사용해 Comment 객체 생성
             Comment comment = Comment.builder()
                     .commentUID(dto.getCommentUID())
                     .username(dto.getUsername())
@@ -183,5 +181,15 @@ public class CommentServiceImpl implements CommentService {
             comments.add(comment);
         }
         return comments;
+    }
+
+    private static void checkValueComment(CommentCreate commentCreate) {
+
+        if (isEmpty(commentCreate.getUsername()) || isEmpty(commentCreate.getContent())) {
+            throw new IllegalArgumentException("내용은 필수 입력값입니다.");
+        }
+    }
+    private static boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
