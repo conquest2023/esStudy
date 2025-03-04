@@ -232,10 +232,11 @@ public class FeedController {
     }
 
     @GetMapping("/search/view/feed/recommend")
-    public String getRecommendFeed() {
-
-        return "basic/feed/CategoryFeed";
+    @ResponseBody
+    public  ResponseEntity<?> getRecommendFeed() {
+        return ResponseEntity.ok(Map.of("recommend", feedService.getRecommendFeed()));
     }
+
 
     @GetMapping("/search/view/feed/latest")
     public String getRecentFeedList(Model model) {

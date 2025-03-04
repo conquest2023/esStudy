@@ -13,10 +13,10 @@ import java.util.List;
 
 @Repository
 public interface FeedDAO {
-
+    List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
-   // Map<String, Object> search(String index)  throws IOException, ElasticsearchException;
+
 
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;

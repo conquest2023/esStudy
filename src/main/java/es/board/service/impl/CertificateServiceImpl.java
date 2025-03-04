@@ -10,7 +10,7 @@ import es.board.repository.entity.entityrepository.CertificationScheduleReposito
 import es.board.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.cert.cmp.CertificateStatus;
+//import org.bouncycastle.cert.cmp.CertificateStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -102,6 +102,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         return result;
+    }
+
+    @Override
+    public List<String> getMainCategoryAndSubCategory(String mainCategory, String subCategory) {
+        return scheduleRepository.findAllByMajorCategoryAndSubCategory(mainCategory,subCategory);
     }
 
     @Override

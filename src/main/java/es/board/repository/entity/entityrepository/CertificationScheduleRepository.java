@@ -14,6 +14,11 @@ import java.util.List;
 @Repository
 public interface CertificationScheduleRepository  extends JpaRepository<CertificationSchedule,String> {
 
-    @Query("SELECT t FROM CertificationSchedule t WHERE t.majorCategory = :majorCategory")
-    List<CertificationSchedule> findAllByCertificationSchedule(@Param("majorCategory") String majorCategory);
+    @Query("SELECT t FROM CertificationSchedule t WHERE t.name = :name")
+    List<CertificationSchedule> findAllByCertificationSchedule(@Param("name") String name);
+
+
+
+    @Query("SELECT DISTINCT t.name FROM CertificationSchedule t WHERE t.majorCategory = :majorCategory AND  t.subCategory=:subCategory")
+    List<String> findAllByMajorCategoryAndSubCategory(@Param("majorCategory") String majorCategory,@Param("subCategory")String subCategory);
 }

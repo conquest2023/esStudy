@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipDTO;
+import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.req.WantedJobData;
 import es.board.service.ItCrawlingService;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -18,6 +19,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,7 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -39,6 +44,8 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
     private final ObjectMapper objectMapper;
 
+    private final AsyncService asyncService;
+
 
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?q=";
     private static final String JUMPIT_URL = "https://jumpit-api.saramin.co.kr/api/positions?jobCategory=1&jobCategory=2&jobCategory=3&jobCategory=9&career=0&sort=rsp_rate&highlight=false";
@@ -48,6 +55,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
     private static final String JOBPLANET_URL = "https://www.jobplanet.co.kr/job";
 
+    private static final String TISTORY_SEARCH_URL = "https://www.tistory.com/search?keyword=";
 
     private static final String NAVER_SEARCH_URL = "https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&sm=tab_jum&query=";
 
@@ -80,7 +88,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
             for (JsonNode position : positions) {
                 Map<String, Object> jobInfo = new HashMap<>();
                 jobInfo.put("id", position.get("id"));
-                jobInfo.put("jobCategory",position.get("jobCategory"));
+                jobInfo.put("jobCategory", position.get("jobCategory"));
                 jobInfo.put("companyName", position.get("companyName"));
                 jobInfo.put("title", position.get("title"));
                 jobInfo.put("techStacks", position.get("techStacks"));
@@ -199,7 +207,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36")
                     .timeout(5000)
                     .get();
-            Elements jobCards= doc.select("div.JobList_JobList__contentWrapper__3wwft");
+            Elements jobCards = doc.select("div.JobList_JobList__contentWrapper__3wwft");
             log.info(doc.data());
             for (Element jobElement : jobCards) {
                 Element jobLink = jobElement.selectFirst("a[data-attribute-id=position__click]");
@@ -256,36 +264,55 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
         }
         return studyTips;
     }
+
+    @Override
     public List<StudyTipDTO> crawlGoogleStudyTips(String keyword) {
         List<StudyTipDTO> studyTips = new ArrayList<>();
-        String searchUrl = GOOGLE_SEARCH_URL + keyword.replace(" ", "+");
+        String searchUrl = GOOGLE_SEARCH_URL + keyword;
+
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36");
+
+        WebDriver driver = new ChromeDriver(options);
 
         try {
-            Document doc = Jsoup.connect(searchUrl)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                    .get();
+            driver.get(searchUrl);
 
-            Elements searchResults = doc.select("div[jscontroller=SC7lYd]");
-            log.info(searchResults.toString());
-            for (Element result : searchResults) {
-                Element titleElement = result.selectFirst("h3");
-                Element linkElement = result.selectFirst("a");
-                Element descElement = result.selectFirst(".VwiC3b");
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.g")));
 
-                if (titleElement != null && linkElement != null) {
-                    String title = titleElement.text().trim();
-                    String link = linkElement.attr("href");
-                    String description = (descElement != null) ? descElement.text().trim() : "";
+            List<WebElement> searchResults = driver.findElements(By.cssSelector("div.g"));
 
-                    studyTips.add(new StudyTipDTO(title, link, null, description)); // 구글은 이미지 없음
+            for (WebElement result : searchResults) {
+                try {
+                    WebElement titleElement = result.findElement(By.cssSelector("h3"));
+                    String title = titleElement.getText().trim();
+
+                    WebElement linkElement = result.findElement(By.cssSelector("a"));
+                    String link = linkElement.getAttribute("href");
+
+                    WebElement descElement = result.findElement(By.cssSelector("div.VwiC3b"));
+                    String description = (descElement != null) ? descElement.getText().trim() : "";
+
+                    studyTips.add(new StudyTipDTO(title, link, null, description));
+                } catch (Exception e) {
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            driver.quit();
         }
         return studyTips;
     }
-}
 
+    @Override
+    public CompletableFuture<List<TistoryPost>> crawlTistoryPosts(String keyword) {
+        return asyncService.crawlTistoryPostsAsync(keyword);
+        }
+    }
 
 

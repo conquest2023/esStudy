@@ -3,6 +3,7 @@ package es.board.controller;
 
 import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipDTO;
+import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.req.WantedJobData;
 import es.board.service.ItCrawlingService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,12 +44,10 @@ public class CrawlingController {
         }
     }
 
-    //    @GetMapping("/jobplanet")
-//    public List<JobListing> getJobPlanetList() {
-//        return crawlingService.jobPlanetList();
-//    }
-//
-//
+    @GetMapping("/jobplanet")
+    public List<JobListing> getJobPlanetList() {
+        return crawlingService.jobPlanetList();
+    }
     @GetMapping("/wanted")
     public List<WantedJobData> getWantedList() {
 
@@ -62,6 +62,12 @@ public class CrawlingController {
     @GetMapping("/google/{keyword}")
     public ResponseEntity<List<StudyTipDTO>> getGoogleTips(@PathVariable String keyword) {
         return ResponseEntity.ok(crawlingService.crawlGoogleStudyTips(keyword));
+    }
+
+    @GetMapping("/tistory/{keyword}")
+    public CompletableFuture<ResponseEntity<List<TistoryPost>>> getTistory(@PathVariable String keyword) {
+        return crawlingService.crawlTistoryPosts(keyword)
+                .thenApply(ResponseEntity::ok);
     }
 }
 

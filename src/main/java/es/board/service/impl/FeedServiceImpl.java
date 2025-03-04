@@ -111,6 +111,10 @@ public class FeedServiceImpl implements FeedService {
         });
     }
 
+    @Override
+    public List<FeedRequest> getRecommendFeed() {
+        return feedMapper.BoardListToDTO(feedDAO.findRecommendFeed());
+    }
 
     @Override
     public List<String> getfeedUIDList(int page, int size) {

@@ -358,8 +358,12 @@
     }
 
 
-
-
+    function convertLinks(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, url => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+        });
+    }
     function renderFeedDetail(jsonData) {
         const token = localStorage.getItem("token");
         const container = document.getElementById('feedDetailContainer');
@@ -370,6 +374,7 @@
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
         }
+        const formattedDescription = convertLinks(board.description);
         let deleteButtonHTML = '';
         // if (jsonData.Owner && token) {
         //     actionButtonsHTML = `
@@ -402,8 +407,8 @@
                     <strong>작성일자:</strong> ${formatDate(board.createdAt)}
                 </p>
 
-                <!-- 본문 -->
-                <div class="feed-content">${board.description || ""}</div>
+
+                <div class="feed-content">${formattedDescription|| ""}</div>
 
                 ${
             board.imageURL && board.imageURL.trim() !== ""

@@ -16,7 +16,7 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
-
+    List<FeedRequest> getRecommendFeed();
     List<TopWriter>  getTopWriters();
     List<FeedRequest> getUserRangeTimeFeed(String userId);
     List<FeedRequest> getFeedUserList(String userId);

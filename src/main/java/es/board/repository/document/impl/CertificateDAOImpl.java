@@ -12,7 +12,7 @@ import es.board.repository.CertificateDAO;
 import es.board.repository.document.Certificate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.cert.cmp.CertificateStatus;
+//import org.bouncycastle.cert.cmp.CertificateStatus;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;

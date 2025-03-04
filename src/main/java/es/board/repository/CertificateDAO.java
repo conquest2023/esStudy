@@ -1,7 +1,7 @@
 package es.board.repository;
 
 import es.board.repository.document.Certificate;
-import org.bouncycastle.cert.cmp.CertificateStatus;
+//import org.bouncycastle.cert.cmp.CertificateStatus;
 
 import java.util.List;
 

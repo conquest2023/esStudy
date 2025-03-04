@@ -2,6 +2,7 @@ package es.board.service.impl;
 
 
 import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.FeedDAO;
@@ -11,12 +12,22 @@ import es.board.repository.UserDAO;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.User;
 import es.board.repository.entity.entityrepository.PostRepository;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +45,64 @@ public class AsyncService {
 
     private  final FeedDAO feedDAO;
 
+    private static final String TISTORY_SEARCH_URL = "https://www.tistory.com/search?keyword=";
+
+
     private  final ScheduleDAO scheduleDAO;
+
+    @Async("taskExecutor")
+    public CompletableFuture<List<TistoryPost>> crawlTistoryPostsAsync(String keyword) {
+        log.info("비동기 크롤링 시작 - 스레드: {}", Thread.currentThread().getName());
+
+        List<TistoryPost> postList = new ArrayList<>();
+        String searchUrl = TISTORY_SEARCH_URL + keyword.replace(" ", "%20");
+
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--blink-settings=imagesEnabled=false");
+        options.addArguments("--disable-extensions");
+        options.addArguments("--disable-infobars");
+        options.addArguments("--remote-allow-origins=*");
+
+        WebDriver driver = new ChromeDriver(options);
+
+        try {
+            driver.get(searchUrl);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(1000));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.item_group")));
+
+            List<WebElement> items = driver.findElements(By.cssSelector("div.item_group"));
+
+            for (WebElement item : items) {
+                try {
+                    String blogName = item.findElement(By.cssSelector("div.wrap_profile a.link_blog span.txt_g")).getText();
+                    String blogUrl = item.findElement(By.cssSelector("div.wrap_profile a.link_blog")).getAttribute("href");
+                    String title = item.findElement(By.cssSelector("a.link_cont div.wrap_tit strong.tit_cont")).getText();
+                    String postUrl = item.findElement(By.cssSelector("a.link_cont")).getAttribute("href");
+                    String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
+                    String date = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child")).getText();
+                    String thumbnailUrl = item.findElement(By.cssSelector("a.link_cont div.wrap_thumb img[alt='글 섬네일']")).getAttribute("src");
+
+                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, description, date, thumbnailUrl));
+
+                } catch (Exception e) {
+                    log.warn("일부 요소를 찾을 수 없음: {}", e.getMessage());
+                    continue;
+                }
+            }
+        } catch (Exception e) {
+            log.error("크롤링 중 오류 발생: ", e);
+        } finally {
+            driver.quit();
+        }
+
+        log.info("비동기 크롤링 완료 - 스레드: {}", Thread.currentThread().getName());
+        return CompletableFuture.completedFuture(postList);
+    }
     @Async("taskExecutor")
     public CompletableFuture<Void> savePostAsync(FeedCreateResponse feedSaveDTO) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
