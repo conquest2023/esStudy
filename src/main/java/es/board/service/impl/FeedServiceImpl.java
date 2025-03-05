@@ -16,17 +16,16 @@ import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -63,6 +62,11 @@ public class FeedServiceImpl implements FeedService {
     public double getUserFeedCount(String userId) {
 
         return feedDAO.findUserFeedCount(userId);
+    }
+
+    @Override
+    public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
+        return  feedDAO.findUserMapageLikeAndFeedCount(userId);
     }
 
     @Override
@@ -222,9 +226,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedRequest> getFeedUserList(String userId) {
+    public Map<String, Object> getFeedUserList(String userId) {
 
-        return feedMapper.BoardListToDTO(feedDAO.findUserBoardList(userId));
+        return feedDAO.findMypageUserList(userId);
     }
 
     @Override

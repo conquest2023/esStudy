@@ -44,6 +44,7 @@ public class UserDAOImpl implements UserDAO {
         try {
             SearchResponse<EsUser> response = client.search(s -> s
                             .index("user")
+                            .size(0)
                             .query(q -> q
                                     .bool(b->b.filter(f->f.term(t -> t
                                             .field("userId")

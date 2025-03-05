@@ -13,6 +13,8 @@ import java.util.Map;
 @Service
 public interface CommentService {
 
+
+    Map<String, Object> getUserComments(String userId);
     List<CommentRequest> getUserRangeTimeActive(String userId);
     List<FeedRequest>  getFeedAndComment(String userId);
     public String saveDocument(String indexName, CommentCreate dto) ;

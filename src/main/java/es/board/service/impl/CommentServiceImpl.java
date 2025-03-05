@@ -45,6 +45,12 @@ public class CommentServiceImpl implements CommentService {
     private  final NotificationService notificationService;
 
     @Override
+    public Map<String, Object> getUserComments(String userId) {
+
+        return commentDAO.findUserComments(userId);
+    }
+
+    @Override
     public List<CommentRequest> getUserRangeTimeActive(String userId) {
 
       return  commentMapper.changeCommentListDTO(commentDAO.findUserRangeActive(userId));

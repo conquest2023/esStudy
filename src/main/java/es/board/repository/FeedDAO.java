@@ -10,9 +10,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface FeedDAO {
+
+    Map<String, Object> findUserMapageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
@@ -46,7 +49,7 @@ public interface FeedDAO {
       Board findPopularFeedOne();
     Integer findUserLikeCount(String userId);
 
-    List<Board> findUserBoardList(String userId);
+    Map<String, Object> findMypageUserList(String userId);
 
     double findUserFeedCount(String userId);
     void saveViewCounts(String id) ;

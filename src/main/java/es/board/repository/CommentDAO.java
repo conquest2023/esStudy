@@ -12,6 +12,8 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
+
+    Map<String, Object> findUserComments(String userId);
     List<Comment> findUserRangeActive(String userId);
 
     List<Board> findFeedAndComment(String userId);

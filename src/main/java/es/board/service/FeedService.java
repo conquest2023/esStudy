@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -16,10 +17,12 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
+
+    Map<String, Object> getUserMapageLikeAndFeedCount(String userId);
     List<FeedRequest> getRecommendFeed();
     List<TopWriter>  getTopWriters();
     List<FeedRequest> getUserRangeTimeFeed(String userId);
-    List<FeedRequest> getFeedUserList(String userId);
+    Map<String, Object> getFeedUserList(String userId);
     Integer getUserLikeCount(String userId);
     CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO);
 

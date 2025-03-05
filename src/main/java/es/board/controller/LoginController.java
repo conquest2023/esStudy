@@ -55,15 +55,18 @@ public class LoginController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
+                Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
+                Map<String,Object> commentStats= commentService.getUserComments(userId);
+                Map<String,Object> feedLists=feedService.getFeedUserList(userId);
                 Map<String, Object> response = Map.of(
-                        "like", feedService.getUserLikeCount(userId),
-                        "feedCount", feedService.getUserFeedCount(userId),
-                        "commentList", commentService.getCommentId(userId),
-                        "feedList",  feedService.getFeedUserList(userId),
-                        "RangeUserTimeComment",commentService.getUserRangeTimeActive(userId),
-                        "RangeUserTimeFeed", feedService.getUserRangeTimeFeed(userId),
+                        "like", boardStats.get("totalLikes"),
+                        "feedCount",  boardStats.get("totalBoards"),
+                        "commentList", commentStats.get("comments"),
+                        "feedList",  feedLists.get("totalBoards"),
+                        "RangeUserTimeComment",commentStats.get("latest10comments"),
+                        "RangeUserTimeFeed", feedLists.get("latestBoards"),
                         "commentAndFeed",commentService.getFeedAndComment(userId),
-                        "commentCount", commentService.getUserCommentCount(userId),
+                        "commentCount", commentStats.get("totalComments"),
                         "visitCount", userService.findVisitCount(userId),
                         "username", jwtTokenProvider.getUsername(token)
                 );

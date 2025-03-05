@@ -32,6 +32,43 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
+    public Map<String, Object> findUserComments(String userId) {
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .size(1000)
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("userId")
+                                            .value(userId)))
+                            .sort(st -> st
+                                    .field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc)))
+                            .trackTotalHits(t -> t.enabled(true)),
+                    Comment.class);
+
+            long totalComments = response.hits().total().value();
+            List<Comment> commentList = response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+            List<Comment> latest10comments =commentList.stream()
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            return Map.of(
+                    "totalComments", totalComments,
+                    "comments", commentList,
+                    "latest10comments",latest10comments
+            );
+
+        } catch (IOException e) {
+            log.error("Error fetching user comments: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch user comments", e);
+        }
+    }
+
+    @Override
     public double findUserCommentCount(String userId) {
         try {
 
@@ -49,7 +86,7 @@ public class CommentDAOImpl implements CommentDAO {
                     .docCount();
         }catch (IOException e){
             log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch popular feed", e); // 예외를 커스텀 예외로 감싸서 던짐
+            throw new IndexException("Failed to fetch popular feed", e);
         }
     }
 
@@ -60,7 +97,6 @@ public class CommentDAOImpl implements CommentDAO {
             IndexResponse response = client.index(i -> i
                     .index(index)
                     .document(dto));
-            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
             return response.id();
         } catch (IOException e) {
             log.error("Error indexing document: " + e.getMessage(), e);
@@ -76,8 +112,6 @@ public class CommentDAOImpl implements CommentDAO {
             IndexResponse response = client.index(i -> i
                     .index("comment")
                     .document(dto));
-            // 성공적으로 문서가 저장되면, 문서 ID를 반환.
-//            return response.id();
         } catch (IOException e) {
             log.error("Error indexing document: " + e.getMessage(), e);
             throw new IndexException("Failed to index the comment", e);
@@ -112,13 +146,13 @@ public class CommentDAOImpl implements CommentDAO {
     public List<Comment> findLikeCount() {
         try {
             SearchResponse<Comment> response = client.search(s -> s
-                            .index("comment")  // 'comment' 인덱스에서 검색
-                            .query(q -> q.matchAll(t -> t))  // 모든 문서를 검색
+                            .index("comment")
+                            .query(q -> q.matchAll(t -> t))
                             .sort(sort -> sort.field(f -> f
-                                    .field("likeCount")  // 정렬 기준 필드: likeCount
-                                    .order(SortOrder.Desc)) // 내림차순 정렬
+                                    .field("likeCount")
+                                    .order(SortOrder.Desc))
                             ),
-                    Comment.class   // 결과를 Comment 클래스 객체로 매핑
+                    Comment.class
             );
 
             List<Comment> comments = response.hits().hits().stream()
@@ -136,11 +170,11 @@ public class CommentDAOImpl implements CommentDAO {
     public List<Comment> findPagingComment(int num) {
         try {
             SearchResponse<Comment> response = client.search(s -> s
-                            .index("comment")  // 'comments' 인덱스에서 검색
+                            .index("comment")
                             .from(num)
                             .size(num + 3)
                             .query(q -> q.matchAll(t -> t)),
-                    Comment.class  // 결과를 Comment 클래스 객체로 매핑
+                    Comment.class
             );
 
             List<Comment> comments = response.hits().hits().stream()
@@ -195,35 +229,49 @@ public class CommentDAOImpl implements CommentDAO {
     }
     @Override
     public List<Board> findFeedAndComment(String userId){
-        try{
-            SearchResponse<Comment> response=client.search(s->s
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
-                            .query(q->q
-                                    .term(t->t
-                                            .field("userId.keyword")
-                                            .value(userId)))
-                    ,Comment.class);
-         List<String> feedUIDS= response.hits().hits().stream()
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .filter(
+                                                    a -> a.term(t -> t
+                                                            .field("userId.keyword")
+                                                            .value(userId))))),
+                    Comment.class);
+            List<String> feedUIDs = response.hits().hits().stream()
                     .map(hit -> hit.source().getFeedUID())
                     .collect(Collectors.toList());
-            List<FieldValue> fieldValues = feedUIDS.stream()
+
+            if (feedUIDs.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            List<FieldValue> fieldValues = feedUIDs.stream()
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
             SearchResponse<Board> res = client.search(s -> s
-                            .index("board")
-                            .query(q -> q
-                                    .terms(t -> t
-                                            .field("feedUID.keyword")
-                                            .terms(tf -> tf.value(fieldValues)
-                                            ))), Board.class);
+                    .index("board")
+                    .query(q -> q
+                            .terms(t -> t
+                                    .field("feedUID.keyword")
+                                    .terms(tf -> tf.value(fieldValues))
+                            )
+                    )
+                    .sort(sort -> sort
+                            .field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Desc)
+                            )
+                    ), Board.class);
 
-            return  res.hits().hits().stream()
+            return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
 
-        }catch (IOException  e) {
-            log.error("Error fetching total page count: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch total page count", e); // 예외를 커스텀 예외로 감싸서 던짐
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 
@@ -293,19 +341,17 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public int findSumComment(String id) {
         try {
-            // Elasticsearch 검색 요청
             SearchResponse<Void> response = client.search(s -> s
                             .index("comment")
                             .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("feedUID").value(id)))))
                             .aggregations("feedUID_count", a -> a.valueCount(vc -> vc.field("feedUID"))),
-                    Void.class // 검색 결과를 사용하지 않으므로 Void로 설정
-            );
+                    Void.class);
 
             // 집계 결과에서 값 추출
             double commentCount = response.aggregations()
-                    .get("feedUID_count") // 집계 이름
-                    .valueCount()         // ValueCount 집계 결과
-                    .value();             // 실제 값
+                    .get("feedUID_count")
+                    .valueCount()
+                    .value();
             return (int) commentCount;
         } catch (IOException e) {
             log.error("Error searching for comment by id", e);
@@ -322,17 +368,16 @@ public class CommentDAOImpl implements CommentDAO {
             SearchResponse<Board> boardResponse = client.search(s -> s
                             .index("board")
                             .query(q -> q.bool(b -> b
-                                  // 피드 소유자 조건
                                     .filter(f -> f.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 날짜 범위 필터
-                                    .must(m -> m.term(t -> t.field("userId").value(userId))) // userId가 매칭되는 경우만
+                                    .must(m -> m.term(t -> t.field("userId").value(userId)))
                             ))
-                            .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))) // 최신순 정렬
+                            .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc)))
                     .source(a -> a.filter(f -> f.includes("feedUID"))),Board.class);
             List<String> feedUIDs = boardResponse.hits().hits().stream()
                     .map(hit -> hit.source().getFeedUID())
                     .collect(Collectors.toList());
             if (feedUIDs.isEmpty()) {
-                return Collections.emptyList(); // 피드가 없으면 빈 결과 반환   .terms(tf -> tf.value(fieldValues)
+                return Collections.emptyList();
             }
             List<FieldValue> fieldValues = feedUIDs.stream()
                     .map(FieldValue::of)

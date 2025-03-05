@@ -72,7 +72,7 @@ public class AsyncService {
 
         try {
             driver.get(searchUrl);
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(1000));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(5000));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.item_group")));
 
             List<WebElement> items = driver.findElements(By.cssSelector("div.item_group"));

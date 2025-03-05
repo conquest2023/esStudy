@@ -64,10 +64,10 @@ public class FeedDAOImpl implements FeedDAO {
                     .index("board")
                     .query(q -> q
                             .bool(b -> b
-                                    .must(m -> m.term(t -> t.field("userId").value(userId))) // 첫 번째 조건
+                                    .must(m -> m.term(t -> t.field("userId").value(userId)))
                                     .must(m -> m.range(r ->
                                             r.date(v ->
-                                                    v.gte(start).lte(end).field("createdAt")))) // 두 번째 조건
+                                                    v.gte(start).lte(end).field("createdAt"))))
                             )
                     ).sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))).size(5), Board.class);
             return response.hits().hits().stream()
@@ -211,21 +211,41 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findUserBoardList(String userId) {
+    public Map<String, Object> findMypageUserList(String userId) {
         try {
             SearchResponse<Board> response = client.search(s -> s
-                    .index("board")
-                    .query(q -> q
-                            .term(t -> t.field("userId")
-                                    .value(userId))), Board.class);
-            return response.hits().hits().stream()
-                    .map(hit -> hit.source())
+                            .index("board")
+                            .size(300)
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("userId")
+                                            .value(userId)))
+                            .sort(st -> st
+                                    .field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc))),
+                    Board.class);
+
+            List<Board> boardList = response.hits().hits().stream()
+                    .map(Hit::source)
                     .collect(Collectors.toList());
+
+            List<Board> latest10Boards = boardList.stream()
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            // ✅ 전체 객체 & 최신 10개 객체 함께 반환
+            return Map.of(
+                    "totalBoards", boardList,
+                    "latestBoards", latest10Boards
+            );
+
         } catch (IOException e) {
-            log.error("Error fetching like count feed: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch like count feed", e);
+            log.error("Error fetching user board list: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch user board list", e);
         }
     }
+
 
     @Override
     public List<Board> findPagingFeed(int page, int size) {
@@ -249,7 +269,34 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch paging feed", e);
         }
     }
+    @Override
+    public Map<String, Object> findUserMapageLikeAndFeedCount(String userId) {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .size(0)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .filter(
+                                                    a -> a.term(t -> t
+                                                            .field("userId")
+                                                            .value(userId)))))
+                            .aggregations("totalLikes", a -> a
+                                    .sum(sum -> sum.field("likeCount"))),
+                    Board.class);
+            long totalBoards = response.hits().total().value();
+            double totalLikes = response.aggregations().get("totalLikes").sum().value();
 
+            return Map.of(
+                    "totalBoards", totalBoards,
+                    "totalLikes", (int) totalLikes
+            );
+
+        } catch (IOException e) {
+            log.error("Error fetching user board stats: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch user board stats", e);
+        }
+    }
     @Override
     public List<Board> findMostViewFeed(int page, int size) {
         try {
