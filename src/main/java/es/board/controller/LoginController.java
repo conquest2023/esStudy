@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.res.SignUpResponse;
+import es.board.repository.document.Comment;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import es.board.service.AuthService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -48,29 +50,82 @@ public class LoginController {
 
         return "basic/feed/Mypage";
     }
-    @GetMapping("/mypage")
-    public ResponseEntity<?> getMyPage(HttpServletRequest request) {
+
+    @GetMapping("/mypage/feed/comment/paging")
+    public ResponseEntity<?> getCommentAndFeedMyPage(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size) {
         String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                String userId = jwtTokenProvider.getUserId(token);
+                Map<String, Object> response = Map.of(
+                        "commentAndFeed",commentService.getFeedAndCommentMyPage(userId,page,size));
+                return ResponseEntity.ok(response);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    @GetMapping("/mypage/feed/paging")
+    public ResponseEntity<?> getMyPage(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                String userId = jwtTokenProvider.getUserId(token);
+                Map<String,Object> feedLists=feedService.getFeedUserList(userId,page,size);
+                Map<String, Object> response = Map.of(
+                        "feedList",  feedLists.get("boardList"),
+                        "username", jwtTokenProvider.getUsername(token)
+                );
+
+                return ResponseEntity.ok(response);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    @GetMapping("/mypage/comment/paging")
+    public ResponseEntity<?> getCommentMyPage(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                String userId = jwtTokenProvider.getUserId(token);
+                List<Comment> commentList=commentService.getMyPageComment(userId,page,size);
+                log.info("commentList={}",commentList.toString());
+                Map<String, Object> response = Map.of(
+                        "commentList",commentList
+                );
+
+                return ResponseEntity.ok(response);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+
+
+    @GetMapping("/mypage")
+    public ResponseEntity<?> getMyPageInfo(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
                 Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
                 Map<String,Object> commentStats= commentService.getUserComments(userId);
-                Map<String,Object> feedLists=feedService.getFeedUserList(userId);
                 Map<String, Object> response = Map.of(
                         "like", boardStats.get("totalLikes"),
-                        "feedCount",  boardStats.get("totalBoards"),
-                        "commentList", commentStats.get("comments"),
-                        "feedList",  feedLists.get("totalBoards"),
-                        "RangeUserTimeComment",commentStats.get("latest10comments"),
-                        "RangeUserTimeFeed", feedLists.get("latestBoards"),
-                        "commentAndFeed",commentService.getFeedAndComment(userId),
                         "commentCount", commentStats.get("totalComments"),
-                        "visitCount", userService.findVisitCount(userId),
-                        "username", jwtTokenProvider.getUsername(token)
-                );
-
+                        "feedCount",  boardStats.get("totalBoards"),
+                        "username",jwtTokenProvider.getUsername(token),
+                        "userId",jwtTokenProvider.getUserId(token),
+                        "visitCount", userService.findVisitCount(userId));
                 return ResponseEntity.ok(response);
             }
         }
@@ -84,12 +139,12 @@ public class LoginController {
 
         if (isIdAvailable) {
             userService.createUser(sign);
-            return "redirect:/login"; // 아이디가 사용 가능하면 로그인 페이지로 리다이렉트
+            return "redirect:/login";
         } else {
-            model.addAttribute("errorButton", false); // 중복된 경우 false 전달
+            model.addAttribute("errorButton", false);
             model.addAttribute("error", "아이디가 중복됩니다.");
             model.addAttribute("signUpResponse", sign);
-            return "basic/login/SignUp"; // 다시 회원가입 페이지로 이동
+            return "basic/login/SignUp";
         }
     }
 

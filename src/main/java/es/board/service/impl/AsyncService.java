@@ -42,7 +42,7 @@ public class AsyncService {
 
     private  final LikeDAO likeDAO;
 
-
+    private final WebDriver webDriver;
     private  final FeedDAO feedDAO;
 
     private static final String TISTORY_SEARCH_URL = "https://www.tistory.com/search?keyword=";
@@ -84,10 +84,10 @@ public class AsyncService {
                     String title = item.findElement(By.cssSelector("a.link_cont div.wrap_tit strong.tit_cont")).getText();
                     String postUrl = item.findElement(By.cssSelector("a.link_cont")).getAttribute("href");
                     String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
-                    String date = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child")).getText();
+//                    String date = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child")).getText();
                     String thumbnailUrl = item.findElement(By.cssSelector("a.link_cont div.wrap_thumb img[alt='글 섬네일']")).getAttribute("src");
 
-                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, description, date, thumbnailUrl));
+                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, null,null,thumbnailUrl));
 
                 } catch (Exception e) {
                     log.warn("일부 요소를 찾을 수 없음: {}", e.getMessage());

@@ -52,14 +52,13 @@ public class CommentDAOImpl implements CommentDAO {
             List<Comment> commentList = response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-            List<Comment> latest10comments =commentList.stream()
-                    .limit(10)
-                    .collect(Collectors.toList());
+//            List<Comment> latest10comments =commentList.stream()
+//                    .limit(10)
+//                    .collect(Collectors.toList());
 
             return Map.of(
                     "totalComments", totalComments,
-                    "comments", commentList,
-                    "latest10comments",latest10comments
+                    "comments", commentList
             );
 
         } catch (IOException e) {
@@ -167,15 +166,23 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public List<Comment> findPagingComment(int num) {
+    public List<Comment> findMyPagePagingComment(String userId,int page,int size) {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
-                            .from(num)
-                            .size(num + 3)
-                            .query(q -> q.matchAll(t -> t)),
-                    Comment.class
-            );
+                            .from(page * size)
+                            .size(size)
+                            .query(q->q
+                            .bool(b -> b
+                                    .filter(
+                                            a -> a.term(t -> t
+                                                    .field("userId.keyword")
+                                                    .value(userId)))))
+                            .sort(st -> st
+                                    .field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc))),
+                    Comment.class);
 
             List<Comment> comments = response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -228,16 +235,23 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
     @Override
-    public List<Board> findFeedAndComment(String userId){
+    public List<Board> findFeedAndCommentMypage(String userId,int page ,int size){
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
+                            .from(page * size)
+                            .size(size)
                             .query(q -> q
                                     .bool(b -> b
                                             .filter(
                                                     a -> a.term(t -> t
-                                                            .field("userId.keyword")
-                                                            .value(userId))))),
+                                                            .field("userId")
+                                                            .value(userId)))))
+                    .sort(sort -> sort
+                                    .field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc)
+                                    )),
                     Comment.class);
             List<String> feedUIDs = response.hits().hits().stream()
                     .map(hit -> hit.source().getFeedUID())
@@ -246,7 +260,6 @@ public class CommentDAOImpl implements CommentDAO {
             if (feedUIDs.isEmpty()) {
                 return Collections.emptyList();
             }
-
             List<FieldValue> fieldValues = feedUIDs.stream()
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
@@ -264,7 +277,6 @@ public class CommentDAOImpl implements CommentDAO {
                                     .order(SortOrder.Desc)
                             )
                     ), Board.class);
-
             return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());

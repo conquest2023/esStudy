@@ -16,7 +16,7 @@ public interface CommentService {
 
     Map<String, Object> getUserComments(String userId);
     List<CommentRequest> getUserRangeTimeActive(String userId);
-    List<FeedRequest>  getFeedAndComment(String userId);
+    List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size);
     public String saveDocument(String indexName, CommentCreate dto) ;
 
     List<Comment> getSearchComment(String text) ;
@@ -33,7 +33,7 @@ public interface CommentService {
     Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
     List<CommentCreate> createBulkComment(List<CommentCreate> comments) ;
 
-
+    List<Comment> getMyPageComment(String  userId, int num ,int size);
     int getSumComment(String id);
 
     List<CommentRequest> getLikeCount() ;

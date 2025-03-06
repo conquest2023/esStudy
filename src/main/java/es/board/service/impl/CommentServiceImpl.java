@@ -1,13 +1,11 @@
 package es.board.service.impl;
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreate;
-import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Comment;
@@ -39,7 +37,6 @@ public class CommentServiceImpl implements CommentService {
 
     private  final PostRepository postRepository;
 
-    private  final JwtTokenProvider jwtTokenProvider;
 
 
     private  final NotificationService notificationService;
@@ -57,11 +54,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<FeedRequest> getFeedAndComment(String userId) {
+    public List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size) {
 
-        return  feedMapper.BoardListToDTO(commentDAO.findFeedAndComment(userId));
+        return  feedMapper.BoardListToDTO(commentDAO.findFeedAndCommentMypage(userId,page,size));
     }
 
+    @Override
+     public List<Comment> getMyPageComment(String  userId, int num ,int size){
+        return commentDAO.findMyPagePagingComment(userId,num,size);
+    }
     @Override
     public String saveDocument(String indexName, CommentCreate dto) {
 

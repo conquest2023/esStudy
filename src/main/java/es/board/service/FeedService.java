@@ -22,7 +22,7 @@ public interface FeedService {
     List<FeedRequest> getRecommendFeed();
     List<TopWriter>  getTopWriters();
     List<FeedRequest> getUserRangeTimeFeed(String userId);
-    Map<String, Object> getFeedUserList(String userId);
+    Map<String, Object> getFeedUserList(String userId,int page,int size);
     Integer getUserLikeCount(String userId);
     CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO);
 
@@ -69,7 +69,7 @@ public interface FeedService {
 
     List<String> getfeedUIDList(int page, int size);
 
-    Double getTotalFeed();
+    Map<String, Object> getFetchTotalFeedStats();
 
     FeedUpdate updateFeed(String id, FeedUpdate update);
 

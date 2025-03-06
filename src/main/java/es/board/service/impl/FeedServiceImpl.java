@@ -66,7 +66,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
-        return  feedDAO.findUserMapageLikeAndFeedCount(userId);
+        return  feedDAO.findUserMyPageLikeAndFeedCount(userId);
     }
 
     @Override
@@ -205,7 +205,7 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<FeedRequest> getPagingFeed(int page, int size) {
 
-        return feedMapper.BoardListToDTO(feedDAO.findPagingFeed(page, size));
+        return feedMapper.BoardListToDTO(feedDAO.findPagingMainFeed(page, size));
     }
 
     @Override
@@ -215,8 +215,8 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public Double getTotalFeed() {
-        return feedDAO.findSumFeed();
+    public Map<String, Object> getFetchTotalFeedStats() {
+        return feedDAO.fetchTotalFeedStats();
     }
 
     @Override
@@ -226,9 +226,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public Map<String, Object> getFeedUserList(String userId) {
+    public Map<String, Object> getFeedUserList(String userId,int page,int size) {
 
-        return feedDAO.findMypageUserList(userId);
+        return feedDAO.findMypageUserList(userId,page,size);
     }
 
     @Override
@@ -311,7 +311,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     private List<String> extractFeedUID(int page, int size) {
-        List<String> feedUIDs = feedDAO.findPagingFeed(page, size).stream()
+        List<String> feedUIDs = feedDAO.findPagingMainFeed(page, size).stream()
                 .map(Board::getFeedUID)
                 .collect(Collectors.toList());
         return feedUIDs;

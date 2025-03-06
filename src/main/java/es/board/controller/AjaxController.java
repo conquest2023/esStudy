@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Sinks;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -67,10 +68,10 @@ public class AjaxController {
             String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
             String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("viewedFeeds", encodedValue);
-            cookie.setHttpOnly(true);  // 클라이언트 스크립트에서 접근 방지
-            cookie.setSecure(true);    // HTTPS에서만 전송 (운영 환경 고려)
-            cookie.setPath("/");        // 전체 도메인에서 쿠키 유효
-            cookie.setMaxAge(60 * 30);  // 30분 유지
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 30);
             response.addCookie(cookie);
         }
 
@@ -113,9 +114,9 @@ public class AjaxController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
-                        "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
-                        "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
-                        "visitCount",userService.findVisitCount(jwtTokenProvider.getUserId(token)),
+//                        "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
+//                        "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
+//                        "visitCount",userService.findVisitCount(jwtTokenProvider.getUserId(token)),
                         "userId",jwtTokenProvider.getUserId(token),
                         "username",jwtTokenProvider.getUsername(token),
                         "isLoggedIn", true));
@@ -160,26 +161,26 @@ public class AjaxController {
         ));
     }
     @GetMapping("/feeds")
-    public ResponseEntity<?> getPagingFeed(
+    public ResponseEntity<?> getPagingMainFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        int viewCount = feedService.getViewCountAll();
+        Map<String,Object> feedCount=feedService.getFetchTotalFeedStats();
         Map<String,Double> countMap = commentService.getPagingComment(feedService.getfeedUIDList(page, size), page, size);
         int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
-        int totalPage = (int) Math.ceil(feedService.getTotalFeed());
+        Long totalPage = (Long) feedCount.get("totalFeedCount");
         List<FeedRequest> data = feedService.getPagingFeed(page, size);
-        List<FeedRequest> month = feedService.getMonthPopularFeed();
+//        List<FeedRequest> month = feedService.getMonthPopularFeed();
         return ResponseEntity.ok(Map.of(
-                "viewCount", viewCount,
+                "viewCount", (Long) feedCount.get("totalViewCount"),
                 "count", countMap,
                 "page", page,
                 "maxPage", maxPage,
                 "totalPage", totalPage,
-                "data", data,
-                "month", month
+                "data", data
         ));
     }
+
     @GetMapping("/auth/status")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAuthStatus(HttpServletRequest request) {

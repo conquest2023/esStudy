@@ -15,7 +15,7 @@ import java.util.Map;
 @Repository
 public interface FeedDAO {
 
-    Map<String, Object> findUserMapageLikeAndFeedCount(String userId);
+    Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
@@ -36,7 +36,7 @@ public interface FeedDAO {
     List<Board> findLikeCount();
 
 
-    List<Board> findPagingFeed(int page, int size) ;
+    List<Board> findPagingMainFeed(int page, int size) ;
 
     List<Board> findRecentFeed();
 
@@ -49,7 +49,7 @@ public interface FeedDAO {
       Board findPopularFeedOne();
     Integer findUserLikeCount(String userId);
 
-    Map<String, Object> findMypageUserList(String userId);
+    Map<String, Object> findMypageUserList(String userId,int page,int size);
 
     double findUserFeedCount(String userId);
     void saveViewCounts(String id) ;
@@ -60,7 +60,7 @@ public interface FeedDAO {
     double findTotalPage(int page, int size)  ;
 
     List<Board> findMostViewFeed(int page, int size) ;
-    double findSumFeed();
+    Map<String, Object> fetchTotalFeedStats();
 
     void deleteFeedOne(String id);
 //   Board getFeed(String id);

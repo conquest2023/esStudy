@@ -24,6 +24,6 @@ public interface ItCrawlingService {
 
      List<StudyTipDTO> crawlGoogleStudyTips(String keyword);
 
-
+     List<TistoryPost> crawlTistoryPostEx(String keyword);
 
 }

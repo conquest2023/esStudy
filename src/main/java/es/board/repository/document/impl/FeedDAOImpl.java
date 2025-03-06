@@ -211,11 +211,15 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Map<String, Object> findMypageUserList(String userId) {
+    public Map<String, Object> findMypageUserList(String userId,int page,int size) {
+
         try {
+            int from = (page) * size;
+
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .size(300)
+                            .from(from)
+                            .size(size)
                             .query(q -> q
                                     .term(t -> t
                                             .field("userId")
@@ -225,19 +229,14 @@ public class FeedDAOImpl implements FeedDAO {
                                             .field("createdAt")
                                             .order(SortOrder.Desc))),
                     Board.class);
-
             List<Board> boardList = response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
 
-            List<Board> latest10Boards = boardList.stream()
-                    .limit(10)
-                    .collect(Collectors.toList());
-
-            // ✅ 전체 객체 & 최신 10개 객체 함께 반환
+            long totalBoards = response.hits().total().value();
             return Map.of(
-                    "totalBoards", boardList,
-                    "latestBoards", latest10Boards
+                    "totalBoards", totalBoards,
+                    "boardList", boardList
             );
 
         } catch (IOException e) {
@@ -245,10 +244,42 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch user board list", e);
         }
     }
+//        try {
+//            SearchResponse<Board> response = client.search(s -> s
+//                            .index("board")
+//                            .size(300)
+//                            .query(q -> q
+//                                    .term(t -> t
+//                                            .field("userId")
+//                                            .value(userId)))
+//                            .sort(st -> st
+//                                    .field(f -> f
+//                                            .field("createdAt")
+//                                            .order(SortOrder.Desc))),
+//                    Board.class);
+//
+//            List<Board> boardList = response.hits().hits().stream()
+//                    .map(Hit::source)
+//                    .collect(Collectors.toList());
+//
+//            List<Board> latest10Boards = boardList.stream()
+//                    .limit(10)
+//                    .collect(Collectors.toList());
+//
+//            // ✅ 전체 객체 & 최신 10개 객체 함께 반환
+//            return Map.of(
+//                    "totalBoards", boardList,
+//                    "latestBoards", latest10Boards
+//            );
+//
+//        } catch (IOException e) {
+//            log.error("Error fetching user board list: {}", e.getMessage(), e);
+//            throw new IndexException("Failed to fetch user board list", e);
+//        }
 
 
     @Override
-    public List<Board> findPagingFeed(int page, int size) {
+    public List<Board> findPagingMainFeed(int page, int size) {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -270,7 +301,7 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
     @Override
-    public Map<String, Object> findUserMapageLikeAndFeedCount(String userId) {
+    public Map<String, Object> findUserMyPageLikeAndFeedCount(String userId) {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -284,7 +315,9 @@ public class FeedDAOImpl implements FeedDAO {
                             .aggregations("totalLikes", a -> a
                                     .sum(sum -> sum.field("likeCount"))),
                     Board.class);
+            log.info(response.toString());
             long totalBoards = response.hits().total().value();
+            log.info(String.valueOf(totalBoards));
             double totalLikes = response.aggregations().get("totalLikes").sum().value();
 
             return Map.of(
@@ -448,23 +481,33 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public double findSumFeed() {
-
+    public Map<String, Object> fetchTotalFeedStats() {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .aggregations("feedCount",
-                                    a -> a.valueCount(vc -> vc.field("feedUID.keyword"))),
+                            .size(0)
+                            .aggregations("totalFeedCount", a -> a.valueCount(vc -> vc.field("feedUID.keyword")))
+                            .aggregations("totalViewCount", a -> a.sum(sum -> sum.field("viewCount")))
+                            .trackTotalHits(t -> t.enabled(true)),
                     Board.class);
-            return response.aggregations()
-                    .get("feedCount")
-                    .valueCount()
-                    .value();
+
+            // ✅ 전체 게시글 개수
+            long totalFeedCount = (long) response.aggregations().get("totalFeedCount").valueCount().value();
+
+            // ✅ 전체 조회수 (viewCount 합산)
+            double totalViewCount = response.aggregations().get("totalViewCount").sum().value();
+
+            return Map.of(
+                    "totalFeedCount", totalFeedCount,
+                    "totalViewCount", (long) totalViewCount
+            );
+
         } catch (IOException e) {
-            log.error("Error fetching sum of feed: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch sum of feed", e);
+            log.error("Error fetching total feed stats: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch total feed stats", e);
         }
     }
+
 
 
     @Override
@@ -666,11 +709,11 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                             .index("board")
+                            .size(0)
                             .aggregations("totalViews",
                                     a -> a.sum(sum ->
                                             sum.field("viewCount"))),
                     Board.class);
-
             return (int) searchResponse.aggregations()
                     .get("totalViews")
                     .sum()
@@ -699,7 +742,6 @@ public class FeedDAOImpl implements FeedDAO {
                             ),
                     Board.class);
 
-            // ✅ 집계 데이터 가져오기
             return response.aggregations()
                     .get("top_writers")
                     .sterms()

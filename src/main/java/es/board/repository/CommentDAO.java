@@ -16,7 +16,7 @@ public interface CommentDAO {
     Map<String, Object> findUserComments(String userId);
     List<Comment> findUserRangeActive(String userId);
 
-    List<Board> findFeedAndComment(String userId);
+    List<Board> findFeedAndCommentMypage(String userId,int page ,int size);
 
     double findUserCommentCount(String userId);
 
@@ -32,7 +32,7 @@ public interface CommentDAO {
 
     List<Comment> findLikeCount();
 
-    List<Comment> findPagingComment(int num);
+    List<Comment> findMyPagePagingComment(String userId,int page,int size);
 
     Map<String, Double> findPagingCommentDESC(List<String> feedUIDs, int page, int size);
 

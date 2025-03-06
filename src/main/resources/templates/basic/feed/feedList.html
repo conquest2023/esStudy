@@ -1006,19 +1006,20 @@
         .ranking-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .ranking-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 8px;
             background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            transition: transform 0.2s ease-in-out;
+            position: relative;
         }
-        .rank-icon {
-            width: 22px;
-            height: 22px;
+        .ranking-item:hover {
+            transform: translateY(-3px);
+            background: #e9ecef;
         }
         .rank-name {
             font-weight: bold;
@@ -1314,11 +1315,10 @@
             </div>
             </div>
             <div class="card shadow-sm mt-3" id="topWritersCard">
-            <div class="p-3 bg-white rounded shadow-sm">
-                <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> Top 5 유저</h3>
-                <div class="ranking-box mt-3" id="topWritersList">
+                <div class="p-3 bg-white rounded shadow-sm">
+                    <h3 class="fw-bold text-primary"><i class="fas fa-fire"></i> Top 5 유저</h3>
+                    <div id="topWritersList" class="ranking-container"></div>
                 </div>
-            </div>
             </div>
         </aside>
     </div>
@@ -1443,27 +1443,27 @@
         topWritersList.innerHTML = '';
 
         topWriters.forEach((writer, index) => {
-            let rankClass = "";
-            let rankIcon = "";
+            let rankClass = "rank-default";
+            let rankText = index + 1;
 
             if (index === 0) {
-                rankClass = "gold";
-                rankIcon = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" class="rank-icon">';
+                rankClass = "rank-gold";
+                rankText = "🥇";
             } else if (index === 1) {
-                rankClass = "silver";
-                rankIcon = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828913.png" class="rank-icon">';
+                rankClass = "rank-silver";
+                rankText = "🥈";
             } else if (index === 2) {
-                rankClass = "bronze";
-                rankIcon = '<img src="https://cdn-icons-png.flaticon.com/512/1828/1828970.png" class="rank-icon">';
+                rankClass = "rank-bronze";
+                rankText = "🥉";
             }
 
             const itemDiv = document.createElement('div');
-            itemDiv.className = `ranking-item ${rankClass}`;
+            itemDiv.className = `ranking-item`;
 
             itemDiv.innerHTML = `
-            ${rankIcon}
+            <div class="rank-badge ${rankClass}">${rankText}</div>
             <span class="rank-name">${writer.username}</span>
-            <span class="post-count">게시글: ${writer.postCount}개</span>
+            <span class="rank-details">게시글: ${writer.postCount}개</span>
         `;
 
             topWritersList.appendChild(itemDiv);
@@ -1815,7 +1815,7 @@
                         return;
                     }
 
-                    renderFeeds(data, data.count); // 검색 결과 렌더링
+                    renderFeeds(data, data.count);
                 })
                 .catch(error => {
                     console.error('검색 요청 중 오류 발생:', error);
@@ -2045,8 +2045,6 @@
         const profileInfo = document.getElementById("profile-info");
         const userMenu = document.getElementById("user-menu");
         const userMenuBtn = document.getElementById("user-menu-btn");
-
-        // 저장된 토큰 확인
         const token = localStorage.getItem("token");
         const refreshToken = localStorage.getItem("refreshToken");
 
@@ -2054,8 +2052,6 @@
             fetchUserInfo(token, refreshToken)
                 .then(data => {
                     if (data && data.isLoggedIn) {
-
-
 
                         if (loginButton) loginButton.style.display = "none";
                         if (logoutButton) logoutButton.style.display = "block";

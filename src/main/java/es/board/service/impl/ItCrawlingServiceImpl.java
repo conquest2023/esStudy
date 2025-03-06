@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -297,7 +299,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     WebElement descElement = result.findElement(By.cssSelector("div.VwiC3b"));
                     String description = (descElement != null) ? descElement.getText().trim() : "";
 
-                    studyTips.add(new StudyTipDTO(title, link, null, description));
+                    studyTips.add(new StudyTipDTO(title, link, null, null));
                 } catch (Exception e) {
                 }
             }
@@ -313,6 +315,42 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     public CompletableFuture<List<TistoryPost>> crawlTistoryPosts(String keyword) {
         return asyncService.crawlTistoryPostsAsync(keyword);
         }
+
+    public List<TistoryPost> crawlTistoryPostEx(String keyword) {
+        List<TistoryPost> postList = new ArrayList<>();
+        String searchUrl = "https://tistory.com/search?q=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+        try {
+            Document doc = Jsoup.connect(searchUrl)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    .timeout(15000)  // 타임아웃 증가
+                    .get();
+
+            Elements items = doc.select("list_tistory_top");
+
+            log.info(items.toString());
+            for (Element item : items) {
+                try {
+                    String blogName = item.select("div.wrap_profile a.link_blog span.txt_g").text();
+                    String blogUrl = item.select("div.wrap_profile a.link_blog").attr("href");
+                    String title = item.select("a.link_cont div.wrap_tit strong.tit_cont").text();
+                    String postUrl = item.select("a.link_cont").attr("href");
+                    String description = item.select("a.link_cont div.wrap_tit div.wrap_desc p.desc_g").text();
+                    String date = item.select("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child").text();
+                    String thumbnailUrl = item.select("a.link_cont div.wrap_thumb img").attr("src");
+
+                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, description, date, thumbnailUrl));
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return postList;
     }
+
+}
 
 

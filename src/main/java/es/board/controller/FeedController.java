@@ -146,7 +146,8 @@ public class FeedController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Double totalFeeds = feedService.getTotalFeed();
+        Map<String,Object> feedCount = feedService.getFetchTotalFeedStats();
+        Double totalFeeds= (double) feedCount.get("totalFeedCount");
         int maxPage = (int) Math.ceil((double) totalFeeds / size);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -173,7 +174,6 @@ public class FeedController {
                     "data", feedService.getSearchBoard(text)
             ));
         }
-//        return "basic/feed/SearchFeed";
     }
 
     @GetMapping("/search/view/feed")

@@ -69,5 +69,12 @@ public class CrawlingController {
         return crawlingService.crawlTistoryPosts(keyword)
                 .thenApply(ResponseEntity::ok);
     }
+
+
+    @GetMapping("/ex/{keyword}")
+    public ResponseEntity<?> getGoogleTipdasd(@PathVariable String keyword) {
+        ResponseEntity<List<TistoryPost>> ok = ResponseEntity.ok(crawlingService.crawlTistoryPostEx(keyword));
+        return ResponseEntity.ok(ok);
+    }
 }
 
