@@ -1274,19 +1274,6 @@
     </div>
 </nav>
 
-
-
-<!--<div class="bg-light d-lg-none p-2">-->
-<!--    <div class="search-box mx-auto" style="max-width: 500px;">-->
-<!--        <input type="text" placeholder="관심있는 내용을 검색해보세요!" aria-label="Search"/>-->
-<!--        <button type="button">-->
-<!--            <i class="fas fa-search"></i></button>-->
-<!--    </div>-->
-<!--</div>-->
-
-
-
-
 <div class="container-custom">
             <main class="container-custom">
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
@@ -1312,8 +1299,8 @@
                 <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
                     <span class="fw-bold text-dark">D-Day&접속자:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
-<!--                    <button id="closeSidebar" class="btn btn-danger btn-sm">X</button>-->
                 </div>
+                <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;"></div>
                 <section class="my-5">
                     <h2 class="section-title">읽어볼만한 글</h2>
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="recommendedPosts">
@@ -1444,6 +1431,34 @@
 </div>
 
 <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("/interview/random")
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data && data.question) {
+                        showInterviewQuestion(data.question);
+                    }
+                })
+                .catch(error => console.error("면접 질문 로드 실패:", error));
+        });
+
+        function showInterviewQuestion(question) {
+            const container = document.getElementById("interviewQuestionContainer");
+            container.innerText = `💡 예상 면접 질문: ${question}`;
+            container.style.display = "block";
+
+            setTimeout(() => {
+                container.style.transition = "opacity 1s";
+                container.style.opacity = "0";
+                setTimeout(() => {
+                    container.style.display = "none";
+                    container.style.opacity = "1";
+                }, 1000);
+            }, 15000);
+        }
+
     document.addEventListener("DOMContentLoaded", function () {
         let rightMenuToggle = document.getElementById("rightMenuToggle");
         let bookmarkToggle = document.getElementById("bookmarkToggle");
