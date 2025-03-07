@@ -6,6 +6,7 @@ import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipDTO;
 import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.req.WantedJobData;
+import es.board.repository.entity.entityrepository.TistoryPostRepository;
 import es.board.service.ItCrawlingService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,8 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     private final ObjectMapper objectMapper;
 
     private final AsyncService asyncService;
+
+    private  final TistoryPostRepository tistoryPostRepository;
 
 
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?q=";
@@ -210,19 +213,14 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     .timeout(5000)
                     .get();
             Elements jobCards = doc.select("div.JobList_JobList__contentWrapper__3wwft");
-            log.info(doc.data());
             for (Element jobElement : jobCards) {
                 Element jobLink = jobElement.selectFirst("a[data-attribute-id=position__click]");
                 if (jobLink != null) {
                     String positionName = jobLink.attr("data-position-name");
                     String companyName = jobLink.attr("data-company-name");
                     String jobUrl = "https://example.com" + jobLink.attr("href"); // 도메인 추가 필요
-
-                    // 이미지 가져오기
                     Element imgElement = jobElement.selectFirst("img");
                     String imgUrl = imgElement != null ? imgElement.attr("src") : "";
-
-                    // 위치 정보 가져오기
                     Element locationElement = jobElement.selectFirst(".CompanyNameWithLocationPeriod_CompanyNameWithLocationPeriod__location__FHNmN");
                     String location = locationElement != null ? locationElement.text() : "";
 
@@ -312,9 +310,10 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     }
 
     @Override
-    public CompletableFuture<List<TistoryPost>> crawlTistoryPosts(String keyword) {
-        return asyncService.crawlTistoryPostsAsync(keyword);
-        }
+    public CompletableFuture<Void> crawlTistoryPosts(String keyword) {
+            asyncService.crawlTistoryPostsAsync();
+            return  null;
+    }
 
     public List<TistoryPost> crawlTistoryPostEx(String keyword) {
         List<TistoryPost> postList = new ArrayList<>();

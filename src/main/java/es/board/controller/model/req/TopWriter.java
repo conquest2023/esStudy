@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TopWriter {
     private String username;
-    private long postCount;
+    private double viewCount;
 }

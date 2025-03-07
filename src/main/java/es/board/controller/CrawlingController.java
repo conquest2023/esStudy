@@ -5,7 +5,9 @@ import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipDTO;
 import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.req.WantedJobData;
+import es.board.repository.CertificateDAO;
 import es.board.service.ItCrawlingService;
+import es.board.service.impl.AsyncService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,11 @@ public class CrawlingController {
 
 
     private final ItCrawlingService crawlingService;
+
+    private  final CertificateDAO certificateDAO;
+
+
+    private  final AsyncService asyncService;
 
     @GetMapping("/jumpit")
     public ResponseEntity<List<Map<String, Object>>> getJumPitList() {
@@ -64,11 +71,11 @@ public class CrawlingController {
         return ResponseEntity.ok(crawlingService.crawlGoogleStudyTips(keyword));
     }
 
-    @GetMapping("/tistory/{keyword}")
-    public CompletableFuture<ResponseEntity<List<TistoryPost>>> getTistory(@PathVariable String keyword) {
-        return crawlingService.crawlTistoryPosts(keyword)
-                .thenApply(ResponseEntity::ok);
-    }
+//    @GetMapping("/tistory/{keyword}")
+//    public CompletableFuture<ResponseEntity<List<TistoryPost>>> getTistory(@PathVariable String keyword) {
+//        return crawlingService.crawlTistoryPosts(keyword)
+//                .thenApply(ResponseEntity::ok);
+//    }
 
 
     @GetMapping("/ex/{keyword}")
@@ -76,5 +83,13 @@ public class CrawlingController {
         ResponseEntity<List<TistoryPost>> ok = ResponseEntity.ok(crawlingService.crawlTistoryPostEx(keyword));
         return ResponseEntity.ok(ok);
     }
+
+    @GetMapping("/exss")
+    public CompletableFuture<Void> getEx(String keyword) {
+
+          asyncService.crawlTistoryPostsAsync();
+          return  null;
+    }
+
 }
 

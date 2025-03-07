@@ -56,6 +56,14 @@ public class CommentCreate {
         this.commentUID=UUID.randomUUID().toString();
     }
 
+    public void commentAnonymousBasicSetting(String id) {
+        this.feedUID=id;
+        this.userId="";
+        this.username="익명";
+        this.createdAt=LocalDateTime.now();
+        this.commentUID=UUID.randomUUID().toString();
+    }
+
     public  void commentOwnerId(String userId){
         this.userId=userId;
     }

@@ -460,16 +460,23 @@
         <input type="hidden" id="feedAuthorId"/>
         <input type="hidden" id="currentUserId" />
 
-        <div class="form-group mt-3">
-          <label for="username" class="form-label">이름</label>
-          <input type="text" id="username" class="form-control" required />
-          <div class="form-check mt-2">
-            <input type="checkbox" class="form-check-input" id="anonymous-toggle" />
-            <label for="anonymous-toggle" class="form-check-label" style="font-size:0.9rem;">
-              익명으로 작성하기
-            </label>
-          </div>
-        </div>
+            <div class="form-group mt-3">
+        <label for="username" class="form-label">이름</label>
+        <input type="text" id="username" class="form-control" required />
+        <small class="text-muted d-block mt-1">
+            로그인하지 않으면 자동으로 <strong>익명</strong> 처리됩니다.
+        </small>
+    </div>
+<!--        <div class="form-group mt-3">-->
+<!--          <label for="username" class="form-label">이름</label>-->
+<!--          <input type="text" id="username" class="form-control" required />-->
+<!--&lt;!&ndash;          <div class="form-check mt-2">&ndash;&gt;-->
+<!--&lt;!&ndash;            <input type="checkbox" class="form-check-input" id="anonymous-toggle" />&ndash;&gt;-->
+<!--&lt;!&ndash;            <label for="anonymous-toggle" class="form-check-label" style="font-size:0.9rem;">&ndash;&gt;-->
+<!--&lt;!&ndash;              익명으로 작성하기&ndash;&gt;-->
+<!--&lt;!&ndash;            </label>&ndash;&gt;-->
+<!--&lt;!&ndash;          </div>&ndash;&gt;-->
+<!--        </div>-->
 
         <div class="form-group mt-3">
           <label for="content" class="form-label">내용</label>
@@ -794,32 +801,34 @@
     let debounceTimeout;
 
         function submitComment() {
-            if (debounceTimeout) clearTimeout(debounceTimeout); // 기존 타이머 제거
+            if (debounceTimeout) clearTimeout(debounceTimeout);
 
             debounceTimeout = setTimeout(() => {
                 const content = document.getElementById("content").value.trim();
                 const username = document.getElementById("username").value.trim();
                 const token = localStorage.getItem("token");
-                const isAnonymous = document.getElementById("anonymous-toggle").checked;
+                // const isAnonymous = document.getElementById("anonymous-toggle").checked;
 
                 if (!content) {
                     alert("댓글 내용을 입력하세요!");
                     return;
                 }
-
-                const finalUsername = isAnonymous ? "익명" : username || "익명";
+                // const finalUsername = isAnonymous ? "익명" : username || "익명";
                 const urlParams = new URLSearchParams(window.location.search);
                 const feedUID = urlParams.get('id');
+                const headers = {
+                    "Content-Type": "application/json",
+                };
+                if (token) {
+                    headers["Authorization"] = `Bearer ${token}`;
+                }
 
                 fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
                     method: "POST",
-                    headers: {
-                        "Authorization": token ? `Bearer ${token}` : "",
-                        "Content-Type": "application/json",
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         content: content,
-                        username: finalUsername,
+                        username: username,
                     }),
                 })
                     .then((response) => {
@@ -829,6 +838,7 @@
                         return response.json();
                     })
                     .then((data) => {
+                        console.log(data)
                         const redirectUrl = data.redirectUrl;
                         if (redirectUrl) {
                             setTimeout(() => {
@@ -891,7 +901,7 @@
                 : `<strong>${cmt.username}</strong>`;
 
             html += `
-            <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">  <!-- ✅ border-bottom 추가 -->
+            <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         ${displayedUsername}

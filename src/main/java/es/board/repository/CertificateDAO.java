@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface CertificateDAO {
 
+
+    List<String> getCertificationNames();
     Certificate findSearchCertificateByName(String name);
 
     List<Certificate> findSearchCertificate(String text);

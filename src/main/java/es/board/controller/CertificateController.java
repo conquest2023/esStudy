@@ -28,6 +28,7 @@ public class CertificateController {
 
     private  final CertificateService certificateService;
 
+
     @GetMapping("/certificate/list")
     public String certificateList(){
         return  "basic/feed/Certificate";

@@ -72,7 +72,6 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<TopWriter> getTopWriters() {
 
-
         return feedDAO.findTopWriters();
 
     }

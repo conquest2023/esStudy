@@ -19,8 +19,6 @@ public class RedisConfig {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration("192.168.0.4", 30007));
     }
 
-
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();

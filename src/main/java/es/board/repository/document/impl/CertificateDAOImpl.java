@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.ex.IndexException;
@@ -93,7 +94,7 @@ public class CertificateDAOImpl  implements CertificateDAO {
                             .index("certificate")
                             .query(q -> q
                                     .term(t -> t
-                                            .field("jmfldnm.keyword") // 🔹 정확한 이름으로 검색
+                                            .field("jmfldnm.keyword")
                                             .value(name)
                                     )
                             )
@@ -107,6 +108,29 @@ public class CertificateDAOImpl  implements CertificateDAO {
 
         } catch (IOException e) {
             throw new RuntimeException("Elasticsearch 검색 오류", e);
+        }
+    }
+
+    @Override
+    public List<String> getCertificationNames() {
+        try {
+            SearchResponse<Certificate> response = client.search(s -> s
+                            .index("certificate")
+                            .query(q -> q.matchAll(m -> m)) // match_all 쿼리 사용
+                            .size(600), // 최대 600개 데이터 조회
+                    Certificate.class);
+
+            log.info("🔍 Elasticsearch에서 자격증 600개 조회 완료!");
+
+            // 데이터를 변환하여 리스트로 반환
+            return response.hits().hits().stream()
+                    .map(Hit::source)
+                    .map(Certificate::getJmfldnm)
+                    .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            log.error("❌ Elasticsearch 자격증 검색 실패: {}", e.getMessage(), e);
+            throw new IndexException("자격증 검색 실패", e);
         }
     }
 }

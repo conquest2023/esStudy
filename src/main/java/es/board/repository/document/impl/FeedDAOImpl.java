@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -491,10 +492,8 @@ public class FeedDAOImpl implements FeedDAO {
                             .trackTotalHits(t -> t.enabled(true)),
                     Board.class);
 
-            // ✅ 전체 게시글 개수
             long totalFeedCount = (long) response.aggregations().get("totalFeedCount").valueCount().value();
 
-            // ✅ 전체 조회수 (viewCount 합산)
             double totalViewCount = response.aggregations().get("totalViewCount").sum().value();
 
             return Map.of(
@@ -737,11 +736,11 @@ public class FeedDAOImpl implements FeedDAO {
                             .aggregations("top_writers", a -> a
                                     .terms(t -> t
                                             .field("username.keyword")
-                                            .size(7)
-                                    )
-                            ),
+                                            .size(7))
+                                    .aggregations("total_views", subAgg -> subAgg
+                                            .sum(sum -> sum
+                                                    .field("viewCount")))),
                     Board.class);
-
             return response.aggregations()
                     .get("top_writers")
                     .sterms()
@@ -750,10 +749,13 @@ public class FeedDAOImpl implements FeedDAO {
                     .stream()
                     .map(bucket -> new TopWriter(
                             bucket.key().stringValue(),
-                            bucket.docCount()
+                            bucket.aggregations().get("total_views").sum().value()
                     ))
-                    .filter(writer -> writer.getUsername() != "" && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명"))
+                    .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명") && !writer.getUsername().equals("asd"))
+                    .sorted(Comparator.comparingDouble(TopWriter::getViewCount).reversed())
                     .collect(Collectors.toList());
+
+
         } catch (IOException e) {
             log.error("Top 유저 가져오기 실패!", e);
             throw new IndexException(e);

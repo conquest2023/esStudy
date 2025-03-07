@@ -64,7 +64,7 @@ public class FeedController {
     public String mainPage(Model model, HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 이후의 토큰만 추출
+            token = token.substring(7);
         }
         if (token != null && jwtTokenProvider.validateToken(token)) {
             return "basic/feed/feedList";

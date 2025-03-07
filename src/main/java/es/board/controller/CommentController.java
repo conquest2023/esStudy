@@ -27,30 +27,31 @@ public class CommentController {
     private  final JwtTokenProvider jwtTokenProvider;
 
 
-//    @PostMapping("/search/view/feed/id")
-////    @ResponseBody
-//    public String saveCommentId(@RequestParam String id,
-//                                @ModelAttribute CommentCreate response,
-//                                Model model)  {
-//        response.commentBasicSetting(id);
-//        commentService.indexComment(response);
-//        model.addAttribute("push",response);
-//        return "redirect:/search/view/feed/id?id=" + id;
-//    }
     @PostMapping("/search/view/comment/id")
     @ResponseBody
     public ResponseEntity<?> saveCommentId(
             @RequestParam("feedUID") String id,
-            @RequestBody CommentCreate response, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        String userId = extractUserIdFromToken(token);
-        response.commentBasicSetting(id, userId);
+            @RequestBody CommentCreate response,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+
+            if (jwtTokenProvider.validateToken(token)) {
+                response.commentBasicSetting(id, jwtTokenProvider.getUserId(token));
+            } else {
+                response.commentAnonymousBasicSetting(id);
+            }
+        } else {
+            response.commentAnonymousBasicSetting(id);
+        }
+
         commentService.indexComment(response);
+
         Map<String, String> res = new HashMap<>();
         res.put("redirectUrl", "/search/view/feed/id?id=" + id);
-
         return ResponseEntity.ok(res);
     }
+
 
     @GetMapping("comment/update/get")
     @ResponseBody
