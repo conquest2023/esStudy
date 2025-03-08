@@ -17,6 +17,7 @@ public interface FeedService {
 
     double getUserFeedCount(String userId);
 
+    List<FeedRequest>  findWeekBestFeed(int page, int size);
 
     Map<String, Object> getUserMapageLikeAndFeedCount(String userId);
     List<FeedRequest> getRecommendFeed();

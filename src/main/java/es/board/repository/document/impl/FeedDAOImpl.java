@@ -255,8 +255,8 @@ public class FeedDAOImpl implements FeedDAO {
                             .sort(sort -> sort.field(f -> f
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
-                            ))
-                            .query(q -> q.matchAll(t -> t)),
+                            )),
+//                            .query(q -> q.matchAll(t -> t)),
                     Board.class);
 
             return response.hits().hits().stream()
@@ -538,8 +538,38 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch recent feed", e);
         }
     }
-
-
+    @Override
+    public List<Board> findWeekBestFeed(int page, int size) {
+        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .from(page * size)
+                            .size(size)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .filter(f -> f.range(r -> r
+                                                    .date(d->d
+                                                    .field("createdAt")
+                                                    .gte(start)
+                                                    .lte(end)
+                                            )))
+                                    )
+                            )
+                            .sort(sort -> sort.field(f -> f
+                                    .field("viewCount")
+                                    .order(SortOrder.Desc)
+                            ))
+                    , Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error fetching month popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch month popular feed", e);
+        }
+    }
     @Override
     public Board findFeedDetail(String id) {
 

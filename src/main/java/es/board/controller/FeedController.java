@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
+import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.req.TopWriter;
@@ -303,6 +304,17 @@ public class FeedController {
         model.addAttribute("commentDESC", commentService.getPagingCommentDESC(feedService.getfeedUIDList(page, size), page, size));
         return "basic/comment/MostCommentDESC";
     }
+
+
+    @GetMapping("/search/view/feed/best")
+    public  ResponseEntity<?> getWeekBestFeed( @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size){
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", feedService.findWeekBestFeed(page,size));
+        return ResponseEntity.ok(response);
+    }
+
 
 
     @PostMapping("/search/view/feed/delete")

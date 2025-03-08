@@ -1297,7 +1297,7 @@
                 <p>조회수 :<span id="viewCount"></span></p>
             </div>
                 <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
-                    <span class="fw-bold text-dark">D-Day&접속자:<span id="miniCurrentVisitors">0</span>명</span>
+                    <span class="fw-bold text-dark">중요한 일정 & 실시간 정보 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
                 </div>
                 <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;"></div>
@@ -1320,10 +1320,13 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold" id="best-tab" data-bs-toggle="tab" data-bs-target="#bestTabPane" type="button" role="tab">
-                            <i class="fas fa-fire"></i> 토픽 베스트
+                        <button class="nav-link fw-bold" id="best-tab" data-bs-toggle="tab" data-bs-target="#bestTabPane"
+                                type="button" role="tab" title="🔥 이번 주 가장 인기 있는 게시글을 확인하세요!">
+                            <i class="fas fa-fire"></i> 이번주 인기글
                         </button>
                     </li>
+
+
                 </ul>
                 <div class="col-12" id="pinnedNoticesContainer"></div>
                 <div class="col-12" id="normalPostsContainer"></div>
@@ -1438,8 +1441,50 @@
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var bestTabButton = document.getElementById("best-tab");
 
-        document.addEventListener("DOMContentLoaded", function () {
+        var tooltip = new bootstrap.Tooltip(bestTabButton, {
+            trigger: 'manual',  // 자동 표시를 위해 'manual' 설정
+            placement: 'top'    // 툴팁 위치 설정
+        });
+
+        // ✅ 페이지 로드 후 1초 뒤 툴팁 자동 표시
+        setTimeout(function () {
+            tooltip.show();
+        }, 1000);
+
+        // ✅ 3초 후 툴팁 자동 숨김
+        setTimeout(function () {
+            tooltip.hide();
+        }, 4000);
+    });
+
+
+    document.getElementById("best-tab").addEventListener("click", function () {
+        fetchWeekBestFeed();
+    });
+
+    function fetchWeekBestFeed() {
+        $.ajax({
+            url: "/search/view/feed/best",
+            type: "GET",
+            data: { page: 0, size: 10 },
+            success: function (response) {
+                if (response.data) {
+                    renderFeeds(response);
+                    $("#pagination").hide();
+                } else {
+                    alert("이번 주 인기글을 불러올 수 없습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류: 이번 주 인기글을 불러올 수 없습니다.");
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
             fetch("/interview/random")
                 .then(response => response.json())
                 .then(data => {
@@ -1942,6 +1987,7 @@
             }
         });
         fetchTopWriters();
+    }
         // // 3. 인기 게시물(month)
         // const popularFeedsList = document.getElementById("monthFeedsList");
         // popularFeedsList.innerHTML = '';
@@ -1987,7 +2033,6 @@
         //
         //     popularFeedsList.appendChild(itemDiv);
         // });
-    }
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.text) {
             const searchText = event.state.text;

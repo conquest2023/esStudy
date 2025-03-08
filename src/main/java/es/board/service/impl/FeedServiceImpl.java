@@ -65,6 +65,11 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public   List<FeedRequest> findWeekBestFeed(int page, int size) {
+        return feedMapper.BoardListToDTO(feedDAO.findWeekBestFeed(page,size));
+    }
+
+    @Override
     public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
         return  feedDAO.findUserMyPageLikeAndFeedCount(userId);
     }
