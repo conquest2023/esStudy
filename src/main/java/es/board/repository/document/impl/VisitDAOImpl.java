@@ -68,7 +68,6 @@ public class VisitDAOImpl implements VisitDAO {
                                 .aggregations("total_visitors", a -> a
                                         .cardinality(c -> c.field("ipAddress.keyword"))),
                         Void.class);
-                log.info("Elasticsearch Response: {}", response.toString());
 
                 long todayVisitors = response.aggregations()
                         .get("today_visitors")

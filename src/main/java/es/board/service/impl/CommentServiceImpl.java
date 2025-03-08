@@ -98,9 +98,8 @@ public class CommentServiceImpl implements CommentService {
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
         if (userId == null) {
-            log.info("📌 공지사항에 댓글 작성됨: {}", dto.getFeedUID());
+            log.info("공지사항에 댓글 작성됨: {}", dto.getFeedUID());
         } else {
-            // ✅ 일반 게시글 댓글 처리
             if (!userId.equals(dto.getUserId())) {
                 notificationService.sendCommentNotification(userId, dto.getFeedUID(),
                         dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
@@ -165,16 +164,6 @@ public class CommentServiceImpl implements CommentService {
         commentDAO.deleteCommentId(id);
     }
 
-    public Comment updateCommentDTO(String id, Comment comment, CommentUpdate update) {
-        String username = update.getUsername() != null ? update.getUsername() : comment.getUsername();
-        String content = update.getContent() != null ? update.getContent() : comment.getContent();
-        return Comment.builder()
-                .commentUID(id)
-                .username(username)
-                .content(content)
-                .updatedAt(LocalDateTime.now())
-                .build();
-    }
 
     public List<Comment> BulkToEntity(List<CommentCreate> res) {
         List<Comment> comments = new ArrayList<>();

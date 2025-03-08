@@ -29,7 +29,7 @@ public class NoticeController {
     private final S3Uploader s3Uploader;
 
 
-    // 📌 공지사항 목록 조회
+
     @GetMapping("/list/noitce")
     public ResponseEntity<List<NoticeDTO>> getNotices() {
         return ResponseEntity.ok(noticeService.getAllNotices());
@@ -42,7 +42,6 @@ public class NoticeController {
     }
 
 
-    // 📌 공지사항 등록 (관리자만 가능)
     @PostMapping("/add/notice")
     public void createNotice(@RequestHeader(value = "Authorization") String token,
                              @ModelAttribute NoticeDTO noticeDTO,

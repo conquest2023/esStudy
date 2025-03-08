@@ -16,6 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -35,28 +36,24 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     private VisitorService visitorService;
 
     private final Cache<String, LocalDateTime> visitCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)  // 하루 후 자동 만료
-            .maximumSize(10000)  // 최대 저장 크기 제한
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .maximumSize(10000)
             .build();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
-        String sessionId = request.getSession().getId();
         String userAgent = request.getHeader("User-Agent");
-        // 로그인 여부 확인 (토큰 유무)
         String userId = (token != null && token.startsWith("Bearer "))
                 ? jwtTokenProvider.getUserId(token.substring(7))
                 : "guest";
+        String uniqueKey = userId.equals("guest") ? ipAddress : userId;
+//        String uniqueKey = userId.equals("guest")
+//                ? ipAddress + ":" + userAgent
+//                : userId + ":" + ipAddress;
 
-        // 중복 검사 키 (IP + userId 기준)
-        String uniqueKey = userId.equals("guest")
-                ? ipAddress + ":" + userAgent // 익명 사용자는 IP + User-Agent 조합
-                : userId + ":" + ipAddress;   // 로그인 사용자는 userId + IP 조합
-
-        // 방문 여부 확인 (1일 동안 캐싱)
-        if (visitCache.getIfPresent(uniqueKey) == null) {
+        if (visitCache.getIfPresent(uniqueKey) == null || !Objects.equals(ipAddress, "127.0.0.1")) {
             visitCache.put(uniqueKey, LocalDateTime.now());
             CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, userAgent));
             log.info("새로운 방문자 기록 - {}", uniqueKey);
@@ -64,7 +61,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
             log.info("중복 방문 방지 - {}", uniqueKey);
         }
         String onlineKey = "online_users:" + uniqueKey;
-        redisTemplate.opsForValue().set(onlineKey, "active", Duration.ofMinutes(10));  // TTL 10분 설정
+        redisTemplate.opsForValue().set(onlineKey, "active", Duration.ofMinutes(10));
 
         return true;
     }
@@ -72,6 +69,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         private String getClientIpAddress(HttpServletRequest request) {
             String ip = request.getHeader("CF-Connecting-IP");
 
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("CF-Connecting-IP");
+            }
             if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
@@ -84,13 +84,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
 
     }
 
-//    private void startCacheCleaner() {
-//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//        scheduler.scheduleAtFixedRate(() -> {
-//            visitCache.clear();
-//            System.out.println("Daily visitCache cleared at midnight.");
-//        }, 1, 1, TimeUnit.DAYS);
-//    }
+
 
 
 }

@@ -33,19 +33,17 @@ public class ReplyDAOImpl implements ReplyDAO {
                                     .value(id)))))
 
             ,Reply.class);
-            log.info(response.toString());
             return  response.hits().hits().stream()
                     .map(hit->hit.source())
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Error deleting board with id: {}", id, e);
-            throw new RuntimeException("Failed to delete feed", e);
+            log.error("Error find Reply with id: {}", id, e);
+            throw new RuntimeException("Failed to find Reply", e);
         }
     }
 
     @Override
     public void saveReply(ReplyCreate dto) {
-//        dto.TimePush();
         try{
             IndexResponse response=client.index(i->i
                     .index("reply")

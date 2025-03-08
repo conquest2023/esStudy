@@ -26,9 +26,7 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public String getTodayQuestion() {
         String question = redisTemplate.opsForValue().get(INTERVIEW_CACHE_KEY);
-
         if (question == null) {
-            // 캐시에 없으면 새로운 질문 설정
             question = fetchRandomQuestion();
             redisTemplate.opsForValue().set(INTERVIEW_CACHE_KEY, question, Duration.ofDays(1));
         }

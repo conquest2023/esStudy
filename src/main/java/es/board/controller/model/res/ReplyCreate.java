@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -24,6 +25,8 @@ public class ReplyCreate {
     private String id;
 
     private String commentUID;
+
+    private  String  userId;
 
     private String feedUID;
     @JsonSerialize(using = XssSafeSerializer.class)
@@ -42,6 +45,18 @@ public class ReplyCreate {
     private LocalDateTime  createdAt;
 
     public void TimePush(){
+        this.createdAt=LocalDateTime.now();
+    }
+
+
+    public void replyBasicSetting(String userId) {
+        this.userId=userId;
+        this.createdAt=LocalDateTime.now();
+    }
+
+    public void replyAnonymousBasicSetting() {
+        this.userId="";
+        this.username="익명";
         this.createdAt=LocalDateTime.now();
     }
 }

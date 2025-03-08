@@ -23,17 +23,22 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
 
+
+    private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
+
     // ✅ SSE 구독 요청 처리
     @Override
     public SseEmitter subscribe(String userId) {
-        log.info("🔗 SSE 구독 요청 - userId: {}", userId);
-        SseEmitter emitter = new SseEmitter(60 * 1000L); // 60초 동안 연결 유지
+        log.info("SSE 구독 요청 - userId: {}", userId);
+        SseEmitter emitter = new SseEmitter(60 * 1000L);
         emitters.put(userId, emitter);
 
-        // ✅ 기존 댓글 알림 전송
+
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
-        // ✅ 기존 Todo 알림 전송
+
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
+
+        sendPendingNotifications(userId,REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
 
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
@@ -45,61 +50,66 @@ public class NotificationServiceImpl implements NotificationService {
         return emitter;
     }
 
-    // ✅ Redis에 저장된 미전송 알림을 클라이언트에 전송
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
+        log.info("📩 redisKey",redisKey);
         List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
         if (notifications != null && !notifications.isEmpty()) {
             try {
                 for (String message : notifications) {
                     emitter.send(SseEmitter.event().name(eventType).data(message));
                 }
-                redisTemplate.delete(redisKey); // 전송 후 삭제
+                redisTemplate.delete(redisKey);
             } catch (IOException e) {
-                log.error("❌ 기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
+                log.error("기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
             }
         }
     }
 
-    // ✅ 댓글 알림 전송
+
     @Override
     public void sendCommentNotification(String userId, String feedUID, String message) {
         sendNotification(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
     }
 
-    // ✅ Todo 알림 전송
+
     @Override
     public void sendTodoNotification(String userId, String message) {
         sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
     }
+    @Override
+    public void sendReplyNotification(String userId, String message) {
+        sendNotification(userId, REPLY_NOTIFICATION_KEY, "reply-notification", message);
+    }
 
-    // SSE 알림 전송 (공통 메서드)
+
+
     private void sendNotification(String userId, String redisKeyPrefix, String eventType, String message) {
         String redisKey = redisKeyPrefix + userId;
-
+        log.info("redisKey={}",redisKey);
         if (!emitters.containsKey(userId)) {
             redisTemplate.opsForList().leftPush(redisKey, message);
             redisTemplate.opsForList().trim(redisKey, 0, 49);
-            log.warn("❗ SSE 구독 없음 - Redis에 저장: {}", message);
+            log.warn("SSE 구독 없음 - Redis에 저장: {}", message);
             return;
         }
 
         SseEmitter emitter = emitters.get(userId);
         if (emitter == null) {
-            log.warn("❗ Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
             return;
         }
 
         try {
-            log.info("🚀 알림 전송 - userId: {}, 메시지: {}", userId, message);
+            log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
             emitter.send(SseEmitter.event().name(eventType).data(message));
         } catch (IOException e) {
-            log.error("❌ 알림 전송 실패 - userId: {}", userId, e);
+            log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
         }
     }
 
-    // ✅ SSE 연결 종료 시 Emitter 정리
+
     private void removeEmitter(String userId, String reason) {
         log.info("[{}] SSE 연결 종료 - Reason: {}", userId, reason);
         emitters.remove(userId);

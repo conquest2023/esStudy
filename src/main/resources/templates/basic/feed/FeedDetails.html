@@ -549,7 +549,7 @@
         });
 
 
-        // 답글 작성 버튼 클릭 이벤트
+
 
     function showEditCommentForm(commentId) {
         fetch(`/comment/update/get?commentUID=${commentId}`)
@@ -684,11 +684,14 @@
         });
     }
     function submitReply(feedId,commentId, replyContent) {
-
+        const token = localStorage.getItem("token");
         const username = localStorage.getItem("username") || "익명";
         fetch('/search/view/reply/save', {
             method: 'POST',
-            headers: {"Content-Type": "application/json"},
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            },
             body: JSON.stringify({
                 commentUID: commentId,
                 feedUID: feedId,
@@ -981,21 +984,21 @@
             console.warn("로그인하지 않은 상태입니다. 익명으로 고정됩니다.");
 
             if (anonymousToggle) {
-                anonymousToggle.checked = true; // 익명 체크박스를 기본으로 체크
-                anonymousToggle.disabled = true; // 비활성화
+                anonymousToggle.checked = true;
+                anonymousToggle.disabled = true;
             } else {
                 console.warn("'anonymous-toggle' 요소를 찾을 수 없습니다.");
             }
 
             if (usernameInput) {
-                usernameInput.value = "익명"; // 입력 필드에 "익명" 기본값 설정
-                usernameInput.readOnly = true; // 입력 비활성화
+                usernameInput.value = "익명";
+                usernameInput.readOnly = true;
             } else {
                 console.warn("'username' 요소를 찾을 수 없습니다.");
             }
 
             document.querySelectorAll(".toggle-btn").forEach(toggleButton => {
-                toggleButton.style.display = "none"; // 버튼 숨기기
+                toggleButton.style.display = "none";
             });
         } else {
             if (anonymousToggle) {
@@ -1008,7 +1011,6 @@
                 const likeCountSpan = document.getElementById(`like-count-${commentId}`);
                 const heartIcon = this.querySelector("i");
 
-                // 하트 상태 토글
                 if (heartIcon.classList.contains("far")) {
                     heartIcon.classList.remove("far");
                     heartIcon.classList.add("fas");

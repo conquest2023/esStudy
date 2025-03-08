@@ -1334,7 +1334,7 @@
         </main>
 
             <div id="rightSidebarTooltip" class="tooltip-box">
-                📊 실시간 접속자 & Top 5 유저 확인해보세요!
+                 중요한 일정 & 실시간 정보 한눈에!
             </div>
             <aside id="rightSidebar" class="right-sidebar col-md-2 side-container" style="z-index: 10;">
                 <div class="card shadow-sm mt-3">
@@ -1350,9 +1350,12 @@
                     </div>
 
                     <div class="tab-content">
-                        <!-- 📋 Todo & D-Day (초기 화면) -->
                         <div class="tab-pane fade show active p-2" id="todoSection">
-                            <h6 class="fw-bold">D-Day 일정</h6>
+                            <h6 class="fw-bold">
+                                D-Day 일정
+                                <a href="/todo" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
+                            </h6>
+
                             <ul class="list-group small" id="quickDDayList"></ul>
                             <h6 class="fw-bold mt-3">📝 오늘의 Todo</h6>
                             <div class="progress mb-2">
@@ -1363,9 +1366,13 @@
                             <ul class="list-group small" id="quickTodoList"></ul>
                         </div>
 
-                        <!-- 📅 캘린더 -->
+
                         <div class="tab-pane fade p-2" id="calendarSection">
-                            <h6 class="fw-bold">📅 내 캘린더</h6>
+                            <h6 class="fw-bold">
+                                📅 내 캘린더
+                                <a href="/calendar" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
+                            </h6>
+
                             <div id="miniCalendar"></div>
                         </div>
                     </div>
@@ -2476,12 +2483,12 @@
             eventSource.addEventListener("todo-notification", (event) => {
                 console.log("Todo 알림 수신:", event.data);
                 addNotification(event.data);
-
-
                 pdateTodoAlert(event.data);
                 });
-
-
+                eventSource.addEventListener("reply-notification", (event) => {
+                    console.log("📩 답글 알림 수신:", event.data);
+                    addNotification(event.data);
+                });
             eventSource.onerror = function () {
                 console.error("SSE 연결이 끊어졌습니다. 3초 후 재연결 시도 중...");
                 eventSource.close();

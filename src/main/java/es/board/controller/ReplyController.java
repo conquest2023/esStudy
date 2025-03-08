@@ -1,6 +1,7 @@
 package es.board.controller;
 
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.res.ReplyCreate;
 import es.board.service.ReplyService;
@@ -19,15 +20,26 @@ public class ReplyController {
 
     private final ReplyService replyService;
 
+    private  final JwtTokenProvider jwtTokenProvider;
+
     @GetMapping("/search/view/reply")
     public List<ReplyRequest> getReplyAll(@RequestParam String id) {
         return replyService.getPartialReply(id);
     }
 
     @PostMapping("/search/view/reply/save")
-    public ResponseEntity<String> postReply(@RequestBody ReplyCreate replyCreateDTO) {
-        replyService.saveReply(replyCreateDTO);
-
-        return ResponseEntity.ok("/search/view/feed/id?id=" + replyCreateDTO.getFeedUID());
+    public ResponseEntity<String> postReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                response.replyBasicSetting(jwtTokenProvider.getUserId(token));
+            } else {
+                response.replyAnonymousBasicSetting();
+            }
+        } else {
+            response.replyAnonymousBasicSetting();
+        }
+        replyService.saveReply(response);
+        return ResponseEntity.ok("/search/view/feed/id?id=" + response.getFeedUID());
     }
 }

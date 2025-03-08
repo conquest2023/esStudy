@@ -1,6 +1,9 @@
 package es.board.service.impl;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.NoticeDTO;
@@ -11,8 +14,10 @@ import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,22 +29,42 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class NoticeServiceImpl  implements NoticeService {
 
-    private  final FeedMapper feedMapper;
+    private final FeedMapper feedMapper;
 
-    private  final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    private  final AsyncService asyncService;
+    private final AsyncService asyncService;
 
-    private  final NoticeRepository noticeRepository;
+    private final StringRedisTemplate redisTemplate;
+
+    private final ObjectMapper objectMapper;
+
+    private static final String NOTICE_KEY = "notice_daily";
+
+
+    private final NoticeRepository noticeRepository;
+
     @Override
     public List<NoticeDTO> getAllNotices() {
-        return feedMapper.fromNoticeList(noticeRepository.findAll());
+        String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
+
+        if (cachedNotices != null) {
+
+            return deserializeNotices(cachedNotices);
+        }
+
+        List<NoticeDTO> notices = feedMapper.fromNoticeList(noticeRepository.findAll());
+
+        redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofDays(1));
+
+        return notices;
+
     }
 
     @Override
     public NoticeDTO getOneNotice(Long id) {
 
-        return  feedMapper.fromNotice(noticeRepository.findByNoticeOne(id));
+        return feedMapper.fromNotice(noticeRepository.findByNoticeOne(id));
     }
 
     @Override
@@ -49,30 +74,41 @@ public class NoticeServiceImpl  implements NoticeService {
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
-            CompletableFuture.supplyAsync(() -> {
-            Long savedNoticeId = NoticeSaveId(noticeDTO,token);
-            asyncService.saveNoticeAsync(noticeDTO,savedNoticeId);
+        CompletableFuture.supplyAsync(() -> {
+            Long savedNoticeId = NoticeSaveId(noticeDTO, token);
+            asyncService.saveNoticeAsync(noticeDTO, savedNoticeId);
             return null;
         });
     }
 
-    private  boolean isAdmin(String userId) {
-        String  admin= noticeRepository.findByUserId(userId);
+    private boolean isAdmin(String userId) {
+        String admin = noticeRepository.findByUserId(userId);
 
 
-        return  admin!=null && Objects.equals(userId, admin);
+        return admin != null && Objects.equals(userId, admin);
     }
 
-    private Long NoticeSaveId(NoticeDTO  noticeDTO, String token) {
+    private Long NoticeSaveId(NoticeDTO noticeDTO, String token) {
 
         noticeDTO.setFeedUID(UUID.randomUUID().toString());
-        Notice notice =noticeRepository.save(feedMapper.ToNotice(noticeDTO,jwtTokenProvider.getUserId(token)));
+        Notice notice = noticeRepository.save(feedMapper.ToNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
         return notice.getId();
     }
 
-    public void esSettingId(NoticeDTO noticeDTO, Long id) {
-
-        log.info(String.valueOf(id));
-
+    private String serializeNotices(List<NoticeDTO> notices) {
+        try {
+            return objectMapper.writeValueAsString(notices);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("공지사항 직렬화 실패", e);
         }
     }
+
+    private List<NoticeDTO> deserializeNotices(String json) {
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<NoticeDTO>>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("공지사항 역직렬화 실패", e);
+        }
+    }
+}

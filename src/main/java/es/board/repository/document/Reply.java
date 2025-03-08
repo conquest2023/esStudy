@@ -26,6 +26,8 @@ public class Reply {
 
     private  String feedUID;
 
+    private  String  userId;
+
     private String commentUID;
 
 

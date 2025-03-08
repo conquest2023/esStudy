@@ -245,40 +245,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch user board list", e);
         }
     }
-//        try {
-//            SearchResponse<Board> response = client.search(s -> s
-//                            .index("board")
-//                            .size(300)
-//                            .query(q -> q
-//                                    .term(t -> t
-//                                            .field("userId")
-//                                            .value(userId)))
-//                            .sort(st -> st
-//                                    .field(f -> f
-//                                            .field("createdAt")
-//                                            .order(SortOrder.Desc))),
-//                    Board.class);
-//
-//            List<Board> boardList = response.hits().hits().stream()
-//                    .map(Hit::source)
-//                    .collect(Collectors.toList());
-//
-//            List<Board> latest10Boards = boardList.stream()
-//                    .limit(10)
-//                    .collect(Collectors.toList());
-//
-//            // ✅ 전체 객체 & 최신 10개 객체 함께 반환
-//            return Map.of(
-//                    "totalBoards", boardList,
-//                    "latestBoards", latest10Boards
-//            );
-//
-//        } catch (IOException e) {
-//            log.error("Error fetching user board list: {}", e.getMessage(), e);
-//            throw new IndexException("Failed to fetch user board list", e);
-//        }
-
-
     @Override
     public List<Board> findPagingMainFeed(int page, int size) {
         try {

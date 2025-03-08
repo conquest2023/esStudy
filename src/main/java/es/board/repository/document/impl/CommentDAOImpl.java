@@ -30,7 +30,23 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final CommentRepository commentRepository;
 
+    @Override
+    public Comment findCommentUID(String commentId)  {
 
+        try {
+        SearchResponse<Comment> response = client.search(s -> s
+                        .index("comment")
+                        .query(q -> q
+                                .match(t -> t
+                                        .field("commentUID")
+                                        .query(commentId))),
+                Comment.class);
+              return   response.hits().hits().get(0).source();
+        } catch (IOException e) {
+            log.error("Error fetching commentUID: {}", e.getMessage(), e);
+            throw new IndexException("Failed to commentUID", e);
+        }
+    }
     @Override
     public Map<String, Object> findUserComments(String userId) {
         try {
