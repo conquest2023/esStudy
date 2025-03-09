@@ -68,7 +68,7 @@ public interface FeedService {
 
     List<FeedRequest> getMostViewFeed(int page, int size);
 
-    List<String> getfeedUIDList(int page, int size);
+    List<String> getfeedUIDList(List<FeedRequest> requests);
 
     Map<String, Object> getFetchTotalFeedStats();
 

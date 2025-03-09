@@ -9,6 +9,7 @@ import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.CommentDAO;
 import es.board.repository.FeedDAO;
 import es.board.repository.UserDAO;
+import es.board.repository.document.Comment;
 import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.User;
 import es.board.service.AuthService;
@@ -93,9 +94,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public List<CommentRequest> getCommentOwnerList(String commentOwner,String feedUID, String userId) {
-        return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(feedUID))
-                .stream()
+    public List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner,String feedUID, String userId) {
+        if (!(comments instanceof List<?>)) {
+            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+        }
+        List<CommentRequest> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+        return commentList.stream()
                 .peek(comment -> {
                     comment.setAuthor(comment.getUserId().equals(userId));
                     comment.setCommentOwner(comment.getUserId().equals(commentOwner));

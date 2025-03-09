@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.controller.model.res.CommentCreate;
 import es.board.ex.IndexException;
 import es.board.repository.CommentDAO;
@@ -29,6 +30,37 @@ public class CommentDAOImpl implements CommentDAO {
     private final ElasticsearchClient client;
 
     private final CommentRepository commentRepository;
+
+
+    @Override
+    public Map<String, Object> findCommentsWithCount(String feedUID) {
+        try {
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("feedUID").value(feedUID)))))
+                            .aggregations("feedUID_count", a -> a.valueCount(vc -> vc.field("feedUID"))),
+                    Comment.class);
+
+            List<Comment> comments = response.hits().hits().stream()
+                    .map(Hit::source)
+                    .collect(Collectors.toList());
+
+            double commentCount = response.aggregations()
+                    .get("feedUID_count")
+                    .valueCount()
+                    .value();
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("comments", comments);
+            result.put("commentCount", (int) commentCount);
+
+            return result;
+
+        } catch (IOException e) {
+            log.error("Error searching for comments by feedUID", e);
+            throw new IndexException("Failed to find comments by feedUID", e);
+        }
+    }
 
     @Override
     public Comment findCommentUID(String commentId)  {
@@ -484,17 +516,18 @@ public class CommentDAOImpl implements CommentDAO {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
+                            .size(0)
                             .query(q -> q
                                     .bool(b -> b.filter(f -> f.terms(
                                             a -> a.field("feedUID")
                                                     .terms(v -> v.value(fieldValues))))))
                             .aggregations("feed_comment_count", a -> a
                                     .terms(t -> t
-                                            .field("feedUID") // 게시글 ID별 댓글 수 집계
-                                            .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+                                            .field("feedUID")
+                                            .size(feedUIDs.size())
                                     )
                                     .aggregations("comment_count", ag -> ag
-                                            .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+                                            .valueCount(v -> v.field("feedUID"))
                                     )), Comment.class);
              return  response.aggregations()
                     .get("feed_comment_count")
@@ -503,7 +536,7 @@ public class CommentDAOImpl implements CommentDAO {
                     .collect(Collectors.toMap(
                             bucket -> bucket.key().stringValue(),
                             bucket -> bucket.aggregations()
-                                    .get("comment_count")         // 중첩된 value_count 집계 이름
+                                    .get("comment_count")
                                     .valueCount().value()));
         }   catch (IOException e) {
         log.error("Error searching for paginated comments in descending order", e);

@@ -1445,16 +1445,15 @@
         var bestTabButton = document.getElementById("best-tab");
 
         var tooltip = new bootstrap.Tooltip(bestTabButton, {
-            trigger: 'manual',  // 자동 표시를 위해 'manual' 설정
-            placement: 'top'    // 툴팁 위치 설정
+            trigger: 'manual',
+            placement: 'top'
         });
 
-        // ✅ 페이지 로드 후 1초 뒤 툴팁 자동 표시
         setTimeout(function () {
             tooltip.show();
         }, 1000);
 
-        // ✅ 3초 후 툴팁 자동 숨김
+
         setTimeout(function () {
             tooltip.hide();
         }, 4000);
@@ -1464,6 +1463,12 @@
     document.getElementById("best-tab").addEventListener("click", function () {
         fetchWeekBestFeed();
     });
+    document.getElementById("all-tab").addEventListener("click", function () {
+        loadPage(0)
+        $("#pagination").show();
+    });
+
+
 
     function fetchWeekBestFeed() {
         $.ajax({
@@ -1600,12 +1605,12 @@
 
         // '더 보기' 버튼 클릭 시 확장
         expandSidebar.addEventListener("click", function () {
-            rightMenuToggle.style.height = "auto";  // 높이를 자동 확장
+            rightMenuToggle.style.height = "auto";
         });
 
         // 'X' 버튼 클릭 시 다시 축소
         closeSidebar.addEventListener("click", function () {
-            rightMenuToggle.style.height = "30px"; // 최소 높이로 축소
+            rightMenuToggle.style.height = "30px";
         });
     });
 
@@ -1791,7 +1796,7 @@
             const size = 10;
             const response = await fetch(`/feeds?page=${page}&size=${size}`);
             const data = await response.json();
-            renderPagination(data.page,data.maxPage,data.totalPage);
+            renderPagination(data.page,data.totalPage,data.maxPage);
             renderFeeds(data, data.count);
         } catch (error) {
             console.error('[error]', error);
@@ -1808,42 +1813,59 @@
         const englishCategory = categoryMap[category] || category;
         window.location.href = `/search/view/feed/list/${encodeURIComponent(englishCategory)}`;
     }
-    function renderPagination(currentPage, maxPage, totalCount) {
+    function renderPagination(currentPage, totalCount, size) {
         const paginationDiv = document.getElementById('pagination');
         paginationDiv.innerHTML = '';
-
         const maxVisiblePages = 10;
+        let maxPage = Math.ceil(totalCount / 10) - 1;
         let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(maxPage, startPage + maxVisiblePages);
+        let endPage = Math.min(maxPage-2, startPage + maxVisiblePages - 1);
 
         if (endPage - startPage < maxVisiblePages) {
             startPage = Math.max(0, endPage - maxVisiblePages);
         }
 
-
+        // ⏮ 처음으로 이동 버튼
         if (currentPage > 0) {
             paginationDiv.innerHTML += `
             <li class="page-item">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">&laquo;</a>
+                <a class="page-link" href="#" data-page="0">&laquo;&laquo;</a>
             </li>`;
         }
 
+        // ◀ 한 챕터(10페이지) 전으로 이동 버튼
+        if (startPage > 0) {
+            paginationDiv.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${Math.max(0, currentPage - maxVisiblePages)}">&laquo;</a>
+            </li>`;
+        }
 
-        for (let p = startPage; p < endPage; p++) {
+        // 📌 페이지 번호
+        for (let p = startPage; p <= endPage; p++) {
             paginationDiv.innerHTML += `
             <li class="page-item ${p === currentPage ? 'active' : ''}">
                 <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
             </li>`;
         }
 
-        if (currentPage + 1 < maxPage) {
+        // ▶ 한 챕터(10페이지) 앞으로 이동 버튼
+        if (endPage < maxPage) {
             paginationDiv.innerHTML += `
             <li class="page-item">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">&raquo;</a>
+                <a class="page-link" href="#" data-page="${Math.min(maxPage, currentPage + maxVisiblePages)}">&raquo;</a>
             </li>`;
         }
 
+        // ⏭ 마지막 페이지 버튼
+        if (currentPage < maxPage) {
+            paginationDiv.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${maxPage}">&raquo;&raquo;</a>
+            </li>`;
+        }
 
+        // 📌 총 게시글 수 표시
         let totalPostsDiv = document.getElementById('totalPosts');
         if (!totalPostsDiv) {
             totalPostsDiv = document.createElement('div');
@@ -1860,11 +1882,19 @@
             if (event.target.classList.contains('page-link')) {
                 event.preventDefault();
                 const page = parseInt(event.target.dataset.page);
+
+                // 🚨 마지막 페이지를 넘어가려고 하면 경고
+                if (page > maxPage) {
+                    alert("❌ 더 이상 페이지가 없습니다.");
+                    return;
+                }
+
                 sessionStorage.setItem('currentPage', page);
                 await handlePageClick(page);
             }
         });
     }
+
 
 
     document.addEventListener('DOMContentLoaded', function () {

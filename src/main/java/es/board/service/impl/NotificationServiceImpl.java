@@ -52,7 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
-        log.info("📩 redisKey",redisKey);
         List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
         if (notifications != null && !notifications.isEmpty()) {
             try {

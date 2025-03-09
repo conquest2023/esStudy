@@ -121,8 +121,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public int getSumComment(String id) {
-        return commentDAO.findSumComment(id);
+    public  Map<String, Object> findCommentsWithCount(String feedUID){
+        return commentDAO.findCommentsWithCount(feedUID);
     }
 
     @Override

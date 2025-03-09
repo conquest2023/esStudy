@@ -2,9 +2,11 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.LoginResponse;
+import es.board.repository.document.Comment;
 import es.board.service.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +49,10 @@ public class AjaxController {
 
     private  final CommentService commentService;
 
+    private  final CommentMapper commentMapper;
+
+
+
     @GetMapping("/get-ip")
     public ResponseEntity<?> getClientIp() {
 
@@ -60,11 +66,11 @@ public class AjaxController {
                                                @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
         String id = request.get("id");
 
-        // 쿠키에서 해당 게시글 조회 여부 확인
+
         if (!viewedFeeds.contains(id)) {
             feedService.saveViewCountFeed(id);
 
-            // 새 쿠키 설정 (30분 동안 유지)
+
             String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
             String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("viewedFeeds", encodedValue);
@@ -84,7 +90,7 @@ public class AjaxController {
         log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-            jwtTokenProvider.addToBlacklist(token); // 토큰 블랙리스트 처리
+            jwtTokenProvider.addToBlacklist(token);
             log.info("[DEBUG] 블랙리스트에 추가된 토큰: " + token);
         }
         return ResponseEntity.ok(Map.of(
@@ -114,9 +120,6 @@ public class AjaxController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
-//                        "feedCount",(int) feedService.getUserFeedCount(jwtTokenProvider.getUserId(token)),
-//                        "commentCount",(int)  commentService.getUserCommentCount(jwtTokenProvider.getUserId(token)),
-//                        "visitCount",userService.findVisitCount(jwtTokenProvider.getUserId(token)),
                         "userId",jwtTokenProvider.getUserId(token),
                         "username",jwtTokenProvider.getUsername(token),
                         "isLoggedIn", true));
@@ -125,22 +128,6 @@ public class AjaxController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "error", "세션이 만료되었습니다."
         ));}
-    @GetMapping("/detail")
-    public ResponseEntity<?> getDetailInfo(HttpServletRequest request,
-    @RequestParam(value = "id") String feedUID) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
-        response.put("count", commentService.getSumComment(feedUID));
-        FeedRequest req=feedService.getFeedDetail(feedUID);
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                return handleAuthenticatedRequest(req, jwtTokenProvider.getUserId(token),req.getUserId(),feedUID, response, token);
-            }
-        }
-        return handleUnauthenticatedRequest(req, feedUID, response);
-    }
 
     @PostMapping("/authlogin")
     @ResponseBody
@@ -164,18 +151,15 @@ public class AjaxController {
     public ResponseEntity<?> getPagingMainFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
-        Map<String,Object> feedCount=feedService.getFetchTotalFeedStats();
-        Map<String,Double> countMap = commentService.getPagingComment(feedService.getfeedUIDList(page, size), page, size);
-        int maxPage = (int) Math.ceil((double) feedService.getTotalPage(page, size) / size);
-        Long totalPage = (Long) feedCount.get("totalFeedCount");
+        Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
         List<FeedRequest> data = feedService.getPagingFeed(page, size);
-//        List<FeedRequest> month = feedService.getMonthPopularFeed();
+        Map<String,Double> countMap = commentService.getPagingComment(feedService.getfeedUIDList(data), page, size);
+        Long totalPage = (Long) feedCount.get("totalFeedCount");
         return ResponseEntity.ok(Map.of(
                 "viewCount", (Long) feedCount.get("totalViewCount"),
                 "count", countMap,
                 "page", page,
-                "maxPage", maxPage,
+                "maxPage",totalPage,
                 "totalPage", totalPage,
                 "data", data
         ));
@@ -212,25 +196,44 @@ public class AjaxController {
         String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
-
-    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest req, String commentOwner, String userId, String feedUID, Map<String, Object> response, String token) {
-        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedUID));
-        response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedService.getFeedDetail(feedUID).getUserId()));
+    @GetMapping("/detail")
+    public ResponseEntity<?> getDetailInfo(HttpServletRequest request,
+                                           @RequestParam(value = "id") String feedUID) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
+        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
+        response.put("count",commentRes.get("commentCount"));
+        FeedRequest feedRequest=feedService.getFeedDetail(feedUID);
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                return handleAuthenticatedRequest(feedRequest, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
+            }
+        }
+        return handleUnauthenticatedRequest( commentRes.get("comments"),feedRequest, response);
+    }
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
+        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
+        response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedRequest.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
-        response.put("comment", userService.getCommentOwnerList(commentOwner,feedUID,userId));
+        response.put("comment", userService.getCommentOwnerList(comments, commentOwner,feedRequest.getFeedUID(),jwtTokenProvider.getUserId(token)));
         response.put("isLoggedIn", true);
-        response.put("data", req);
+        response.put("data", feedRequest);
         return ResponseEntity.ok(response);
     }
 
 
-    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(FeedRequest req, String feedUID, Map<String, Object> response) {
-        String postOwnerId = req.getUserId();
-       List<CommentRequest> requests=  commentService.getCommentOne(feedUID)
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, FeedRequest req, Map<String, Object> response) {
+
+        if (!(comments instanceof List<?>)) {
+            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+        }
+        List<CommentRequest> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+        List<CommentRequest> requests=  commentList
                     .stream()
                     .peek(comment -> {
-                        // 댓글 작성자가 게시글 작성자인지 여부 확인
-                        comment.setAuthor(postOwnerId.equals(comment.getUserId()));
+                        comment.setAuthor(req.getUserId().equals(comment.getUserId()));
                     })
                     .collect(Collectors.toList());
         response.put("isLiked",false);

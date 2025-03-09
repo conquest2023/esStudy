@@ -34,7 +34,7 @@ public interface CommentService {
     List<CommentCreate> createBulkComment(List<CommentCreate> comments) ;
 
     List<Comment> getMyPageComment(String  userId, int num ,int size);
-    int getSumComment(String id);
+    Map<String, Object> findCommentsWithCount(String feedUID);
 
     List<CommentRequest> getLikeCount() ;
 

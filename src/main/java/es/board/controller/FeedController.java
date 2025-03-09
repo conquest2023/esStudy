@@ -297,13 +297,13 @@ public class FeedController {
         return feedService.createBulkFeed(comments);
     }
 
-    @GetMapping("/search/view/comment/desc")
-    public String getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size){
-
-        model.addAttribute("commentDESC", commentService.getPagingCommentDESC(feedService.getfeedUIDList(page, size), page, size));
-        return "basic/comment/MostCommentDESC";
-    }
+//    @GetMapping("/search/view/comment/desc")
+//    public String getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page,
+//                                     @RequestParam(defaultValue = "10") int size){
+//
+//        model.addAttribute("commentDESC", commentService.getPagingCommentDESC(feedService.getfeedUIDList(page, size), page, size));
+//        return "basic/comment/MostCommentDESC";
+//    }
 
 
     @GetMapping("/search/view/feed/best")

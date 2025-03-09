@@ -21,7 +21,7 @@ public interface AuthService {
     boolean login(LoginResponse login);
 
     Boolean checkId(SignUpResponse sign);
-    List<CommentRequest> getCommentOwnerList(String commentOwner, String  feedUID,String userId);
+    List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner, String  feedUID,String userId);
     boolean checkFeedOwner(String token,String feedUID) ;
     Long findVisitCount(String  userId);
 

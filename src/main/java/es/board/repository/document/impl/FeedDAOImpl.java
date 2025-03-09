@@ -256,9 +256,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
                             )),
-//                            .query(q -> q.matchAll(t -> t)),
                     Board.class);
-
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -328,6 +326,7 @@ public class FeedDAOImpl implements FeedDAO {
                             .size(size)
                             .query(q -> q.matchAll(t -> t)),
                     Board.class);
+            log.info(response.toString());
             return response.hits().total().value();
         } catch (IOException e) {
             log.error("Error fetching total page count: {}", e.getMessage(), e);
@@ -582,6 +581,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             s -> s.term(t -> t
                                                     .field("feedUID.keyword")
                                                     .value(id))))), Board.class);
+            log.info("feedDetail={}",response.toString());
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
                 return null;

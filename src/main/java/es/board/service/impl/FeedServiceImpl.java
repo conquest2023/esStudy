@@ -125,8 +125,8 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<String> getfeedUIDList(int page, int size) {
-        return extractFeedUID(page, size);
+    public List<String> getfeedUIDList(List<FeedRequest> requests) {
+        return extractFeedUID(requests);
     }
 
     @Override
@@ -314,9 +314,9 @@ public class FeedServiceImpl implements FeedService {
         return savedPost.getId();
     }
 
-    private List<String> extractFeedUID(int page, int size) {
-        List<String> feedUIDs = feedDAO.findPagingMainFeed(page, size).stream()
-                .map(Board::getFeedUID)
+    private List<String> extractFeedUID(List<FeedRequest> requests) {
+        List<String> feedUIDs = requests.stream()
+                .map(FeedRequest::getFeedUID)
                 .collect(Collectors.toList());
         return feedUIDs;
     }
