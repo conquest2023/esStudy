@@ -2,16 +2,20 @@ package es.board.controller.model.mapper;
 
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
 import es.board.repository.entity.Likes;
 import es.board.repository.entity.Notice;
+import es.board.repository.entity.Vote;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 @Component
+@Slf4j
 public class FeedMapper {
 
     public List<FeedRequest> BoardListToDTO(List<Board> boards) {
@@ -113,4 +117,49 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+    public Vote voteToEntity(VoteResponse voteResponse,String  username, String userId) {
+        return Vote.builder()
+                .userId(userId)
+                .username(username)
+                .title(voteResponse.getTitle())
+                .description(voteResponse.getDescription())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public VoteResponse voteToDTO(Vote vote ,String username, String userId) {
+        return VoteResponse.builder()
+                .userId(userId)
+                .username(username)
+                .title(vote.getTitle())
+                .description(vote.getDescription())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+
+    public VoteResponse voteToDTOMain(Vote vote) {
+        return VoteResponse.builder()
+                .id(vote.getId())
+                .username(vote.getUsername())
+                .title(vote.getTitle())
+                .description(vote.getDescription())
+                .createdAt(vote.getCreatedAt())
+                .build();
+    }
+
+
+    public List<VoteResponse> voteToDTOMainList(List<Vote> vote) {
+        return vote.stream()
+                .map(vote1 -> VoteResponse.builder()
+                        .id(vote1.getId())
+                        .username(vote1.getUsername())
+                        .title(vote1.getTitle())
+                        .description(vote1.getDescription())
+                        .createdAt(vote1.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

@@ -204,6 +204,12 @@ public class FeedServiceImpl implements FeedService {
     public Map<String, Double> getDayAggregation(){
         return  feedDAO.findDayAggregation();
     }
+
+    @Override
+    public List<FeedRequest> findDataFeed(int page, int size) {
+        return  feedMapper.BoardListToDTO(feedDAO.findDataFeed(page,size));
+    }
+
     @Override
     public List<FeedRequest> getLikeCount() {
 
@@ -326,10 +332,8 @@ public class FeedServiceImpl implements FeedService {
     }
 
     public void esSettingId(FeedCreateResponse feedSaveDTO, int id) {
-
         feedSaveDTO.setId(id);
     }
-
     private static void checkValueFeed(FeedCreateResponse feedSaveDTO) {
         log.info(feedSaveDTO.toString());
 

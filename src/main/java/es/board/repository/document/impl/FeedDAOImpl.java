@@ -576,6 +576,30 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
+    public List<Board> findDataFeed(int page, int size) {
+        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .from(page * size)
+                            .size(size)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .filter(
+                                                    st -> st.term(t -> t
+                                                            .field("category")
+                                                            .value("자료"))))), Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error data feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to data feed", e);
+        }
+    }
+
+    @Override
     public Board findFeedDetail(String id) {
 
         try {

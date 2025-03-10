@@ -2,15 +2,19 @@ package es.board.service.impl;
 
 
 import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.*;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
 import es.board.repository.entity.User;
+import es.board.repository.entity.Vote;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.repository.entity.entityrepository.TistoryPostRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -40,17 +44,20 @@ public class AsyncService {
 
     private final LikeDAO likeDAO;
 
-    //    private final WebDriver webDriver;
     private final FeedDAO feedDAO;
 
     private  final  TistoryPostRepository tistoryPostRepository;
 
     private final CertificateDAO certificateDAO;
 
+    private  final  VoteDAO voteDAO;
+
     private static final String TISTORY_SEARCH_URL = "https://www.tistory.com/search?keyword=";
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);  // 🔥 단일 스레드 실행
+    @PersistenceContext
+    private EntityManager entityManager;
 
+    private static final int BATCH_SIZE = 100;
 
     private final ScheduleDAO scheduleDAO;
 
@@ -81,23 +88,33 @@ public class AsyncService {
                         String blogUrl = item.findElement(By.cssSelector("div.wrap_profile a.link_blog")).getAttribute("href");
                         String title = item.findElement(By.cssSelector("a.link_cont div.wrap_tit strong.tit_cont")).getText();
                         String postUrl = item.findElement(By.cssSelector("a.link_cont")).getAttribute("href");
-                        String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
+//                        String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
                         String thumbnailUrl = item.findElement(By.cssSelector("a.link_cont div.wrap_thumb img[alt='글 섬네일']")).getAttribute("src");
                         log.info(blogUrl);
                         postList.add(TistoryPost.builder()
+                                .name(keyword)
                                 .blogName(blogName)
                                 .blogUrl(blogUrl)
                                 .title(title)
                                 .postUrl(postUrl)
-                                .description(description)
                                 .thumbnailUrl(thumbnailUrl)
                                 .build());
-                        tistoryPostRepository.saveAll(postList);
+                        if (postList.size() >= BATCH_SIZE) {
+                            savePostsInBatch(postList);
+                            postList.clear();
+                        }
                     } catch (Exception e) {
                         log.warn("⚠️ 일부 요소를 찾을 수 없음: {}", e.getMessage());
                     }
                 }
+
                 driver.quit();
+                if (!postList.isEmpty()) {
+                    savePostsInBatch(postList);
+                }
+
+                log.info("✅ '{}' 키워드 크롤링 완료 ({}개 게시글)", keyword, postList.size());
+
 
                 Thread.sleep(10000);
 
@@ -105,11 +122,39 @@ public class AsyncService {
                 log.error("크롤링 중 오류 발생: ", e);
             }
         }
-
         log.info("비동기 크롤링 완료!");
         return CompletableFuture.completedFuture(postList);
     }
 
+    @Transactional
+    public void savePostsInBatch(List<TistoryPost> posts) {
+        for (TistoryPost post : posts) {
+            tistoryPostRepository.bulkInsert(
+                    post.getName(),
+                    post.getBlogName(),
+                    post.getBlogUrl(),
+                    post.getTitle(),
+                    post.getPostUrl(),
+                    post.getThumbnailUrl()
+            );
+        }
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> saveVoteAsync(VoteResponse vote, Long id) {
+        log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
+
+        try {
+            voteDAO.saveAgreeVote(vote,id);
+            log.info("비동기 Vote Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
 
 
     @Async("taskExecutor")
@@ -117,7 +162,7 @@ public class AsyncService {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
-            feedDAO.indexSaveFeed(feedSaveDTO); // Elasticsearch 저장
+            feedDAO.indexSaveFeed(feedSaveDTO);
             log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
         } catch (Exception e) {
             log.error("Elasticsearch 저장 실패", e);

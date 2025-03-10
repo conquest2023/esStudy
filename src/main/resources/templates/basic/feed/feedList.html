@@ -1194,6 +1194,122 @@
             background-color: #007bff;
             color: white;
         }
+        #voteSection {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        #voteSection .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+
+        #voteSection {
+            position: fixed;
+            left: 20px;
+            top: 200px;
+            width: 220px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            z-index: 1000;
+        }
+
+
+
+        #voteSection .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        #voteList {
+            padding: 0;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .vote-buttons button {
+            min-width: 100px;
+        }
+
+        #voteList .list-group-item {
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        .vote-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vote-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .vote-btn {
+            flex: 1;
+            width: 45%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+        }
+
+        .vote-buttons button {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upvote-btn {
+            background: #e0f7e9;
+            border: 1px solid #27ae60;
+            color: #27ae60;
+        }
+
+        .upvote-btn:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        .downvote-btn {
+            background: #fdecea;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .downvote-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+        .vote-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+
+        #voteList .list-group-item:hover {
+            background: #f1f1f1;
+        }
+
 
         .badge-view { background: #e3e3e3; color: #333; }
         .badge-like { background: #FF6B6B; color: white; }
@@ -1258,6 +1374,7 @@
     </div>
 </nav>
 
+
 <div class="container-custom">
             <main class="container-custom">
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
@@ -1291,6 +1408,18 @@
 
                     </div>
                 </section>
+                <div class="card shadow-sm mt-3" id="voteSection">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold"><i class="fas fa-poll"></i> 인기 투표</h5>
+                        <span class="vote-participants">참여자: <span id="total-votes">0</span>명</span>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group small" id="voteList">
+                            <!-- 투표 항목이 여기에 추가됨 -->
+                        </ul>
+                    </div>
+                </div>
+
 
                 <ul class="nav nav-tabs modern-tabs" id="boardTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -1304,13 +1433,15 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane" type="button" role="tab">
-                            <i class="fas fa-question-circle"></i> 자료집
+                        <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane"
+                                type="button" role="tab" title="📚 다양한 학습 자료와 정보를 확인하세요!">
+                            <i class="fas fa-book"></i> 학습 자료
                         </button>
                     </li>
+
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold" id="best-tab" data-bs-toggle="tab" data-bs-target="#bestTabPane"
-                                type="button" role="tab" title="🔥 이번 주 가장 인기 있는 게시글을 확인하세요!">
+                                type="button" role="tab" title="이번 주 가장 인기 있는 게시글을 확인하세요!">
                             <i class="fas fa-fire"></i> 이번주 인기글
                         </button>
                     </li>
@@ -1380,7 +1511,6 @@
                             </ul>
                         </div>
                         <div class="tab-content p-3">
-                            <!-- 방문자 수 (기존 UI) -->
                             <div class="tab-pane fade show active" id="visitorStats">
                                 <p><strong>현재 접속자:</strong> <span id="currentVisitors">0</span></p>
                                 <p><strong>오늘 방문자:</strong> <span id="todayVisitors">0</span></p>
@@ -1402,6 +1532,7 @@
         </aside>
     </div>
 </div>
+
 <div class="modal fade" id="dDayTodoModal" tabindex="-1" aria-labelledby="dDayTodoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1429,7 +1560,121 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchVotes();
+    });
 
+    function fetchVotes() {
+        fetch("/get/vote")
+            .then(response => response.json())
+            .then(data => {
+                const votes = Array.isArray(data) ? data : [data];
+                renderVotes(votes);
+            })
+            .catch(error => console.error("Error fetching votes:", error));
+    }
+
+    function renderVotes(votes) {
+        const voteList = document.getElementById("voteList");
+        voteList.innerHTML = "";
+
+        if (!votes || votes.length === 0) {
+            voteList.innerHTML = "<p class='text-muted text-center'>현재 진행 중인 투표가 없습니다.</p>";
+            return;
+        }
+
+        votes.forEach(vote => {
+            voteList.appendChild(createVoteItem(vote));
+        });
+
+        attachVoteEvents();
+    }
+
+
+    function createVoteItem(vote) {
+        const voteItem = document.createElement("li");
+        voteItem.classList.add("list-group-item");
+
+        const totalVotes = vote.totalVotes ?? 0;
+        const upvotes = vote.upvotes ?? 0;
+        const downvotes = vote.downvotes ?? 0;
+
+        voteItem.innerHTML = `
+        <div class="vote-content text-center">
+            <strong class="vote-title">${vote.title}</strong>
+        </div>
+        <div class="vote-buttons d-flex mt-2">
+            <button class="vote-btn upvote-btn" data-id="${vote.id}">
+                👍 찬성 (<span id="upvote-count-${vote.id}">${upvotes}</span>)
+            </button>
+            <button class="vote-btn downvote-btn" data-id="${vote.id}">
+                👎 반대 (<span id="downvote-count-${vote.id}">${downvotes}</span>)
+            </button>
+        </div>
+    `;
+        return voteItem;
+    }
+
+
+    function attachVoteEvents() {
+        document.querySelectorAll(".upvote-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                castVote(this.dataset.id, true);
+            });
+        });
+
+        document.querySelectorAll(".downvote-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                castVote(this.dataset.id, false);
+            });
+        });
+    }
+    function castVote(voteId, isUpvote) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        fetch("/save/agree/vote", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ id: voteId, upvote: isUpvote })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    updateVoteUI(voteId, data.upvotes, data.downvotes);
+                }
+            })
+            .catch(error => console.error("Error casting vote:", error));
+    }
+
+    function updateVoteUI(voteId, upvotes, downvotes) {
+        document.getElementById(`upvote-count-${voteId}`).innerText = upvotes;
+        document.getElementById(`downvote-count-${voteId}`).innerText = downvotes;
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const dataTab = document.getElementById("data-tab");
+
+        const tooltip = new bootstrap.Tooltip(dataTab, {
+            trigger: "manual",
+            delay: { show: 0, hide: 5000 },
+        });
+        dataTab.addEventListener("mouseenter", function () {
+            tooltip.show();
+            setTimeout(() => {
+                tooltip.hide();
+            }, 5000);
+        });
+    });
     document.addEventListener("DOMContentLoaded", function () {
         fetch("/today/arrgegation")
             .then(response => response.json())
@@ -1495,13 +1740,36 @@
 
     document.getElementById("best-tab").addEventListener("click", function () {
         fetchWeekBestFeed();
+
     });
+    document.getElementById("data-tab").addEventListener("click", function () {
+        fetchDataFeed();
+    });
+
+
     document.getElementById("all-tab").addEventListener("click", function () {
         loadPage(0)
         $("#pagination").show();
     });
 
-
+    function fetchDataFeed() {
+        $.ajax({
+            url: "/data/feed",
+            type: "GET",
+            data: { page: 0, size: 10 },
+            success: function (response) {
+                if (response.data) {
+                    renderFeeds(response);
+                    $("#pagination").hide();
+                } else {
+                    alert("자료집을 불러올 수 없습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류: 자료집을 불러올 수 없습니다.");
+            }
+        });
+    }
 
     function fetchWeekBestFeed() {
         $.ajax({
@@ -1526,7 +1794,6 @@
             fetch("/interview/random")
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     if (data && data.question) {
                         showInterviewQuestion(data.question);
                     }
@@ -1554,12 +1821,10 @@
         let bookmarkToggle = document.getElementById("bookmarkToggle");
         let closeSidebar = document.getElementById("closeSidebar");
 
-        // 북마크 버튼 클릭 시 메뉴 열기
         bookmarkToggle.addEventListener("click", function () {
             rightMenuToggle.classList.toggle("active");
         });
 
-        // 닫기 버튼 클릭 시 메뉴 숨기기
         closeSidebar.addEventListener("click", function () {
             rightMenuToggle.classList.remove("active");
         });
@@ -1584,11 +1849,10 @@
                 });
                 if (response.ok) {
                     const jsonData = await response.json();
-                    console.log("📅 캘린더 일정 데이터:", jsonData);
                     if (jsonData.todos) {
                         calendarEvents = jsonData.todos;
                     } else {
-                        console.error("❌ 예상한 형식이 아닙니다.", jsonData);
+                        console.error("예상한 형식이 아닙니다.", jsonData);
                     }
                 } else {
                     console.error("D-Day API 요청 실패:", response.status);
@@ -1636,12 +1900,10 @@
         let expandSidebar = document.getElementById("expandSidebar");
         let closeSidebar = document.getElementById("closeSidebar");
 
-        // '더 보기' 버튼 클릭 시 확장
         expandSidebar.addEventListener("click", function () {
             rightMenuToggle.style.height = "auto";
         });
 
-        // 'X' 버튼 클릭 시 다시 축소
         closeSidebar.addEventListener("click", function () {
             rightMenuToggle.style.height = "30px";
         });
@@ -1763,7 +2025,7 @@
             });
         });
 
-        // 로그인 성공 시 UI 변경
+
         if (localStorage.getItem("username")) {
             document.getElementById("login-button").classList.add("d-none");
             document.getElementById("user-info").classList.remove("d-none");
@@ -1772,7 +2034,6 @@
 
 
 
-        // 로그아웃 기능
         window.logout = function () {
             localStorage.removeItem("username");
             window.location.reload();
@@ -1839,7 +2100,6 @@
     }
     document.addEventListener('DOMContentLoaded', async  function() {
         connectSSE();
-        // await loadPage(0);
     });
     function navigateTo(event, category) {
         event.preventDefault();
@@ -1858,7 +2118,7 @@
             startPage = Math.max(0, endPage - maxVisiblePages);
         }
 
-        // ⏮ 처음으로 이동 버튼
+
         if (currentPage > 0) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -1866,7 +2126,7 @@
             </li>`;
         }
 
-        // ◀ 한 챕터(10페이지) 전으로 이동 버튼
+
         if (startPage > 0) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -1874,7 +2134,7 @@
             </li>`;
         }
 
-        // 📌 페이지 번호
+
         for (let p = startPage; p <= endPage; p++) {
             paginationDiv.innerHTML += `
             <li class="page-item ${p === currentPage ? 'active' : ''}">
@@ -1882,7 +2142,7 @@
             </li>`;
         }
 
-        // ▶ 한 챕터(10페이지) 앞으로 이동 버튼
+
         if (endPage < maxPage) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -1890,7 +2150,7 @@
             </li>`;
         }
 
-        // ⏭ 마지막 페이지 버튼
+
         if (currentPage < maxPage) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -1898,7 +2158,7 @@
             </li>`;
         }
 
-        // 📌 총 게시글 수 표시
+
         let totalPostsDiv = document.getElementById('totalPosts');
         if (!totalPostsDiv) {
             totalPostsDiv = document.createElement('div');
@@ -1916,9 +2176,8 @@
                 event.preventDefault();
                 const page = parseInt(event.target.dataset.page);
 
-                // 🚨 마지막 페이지를 넘어가려고 하면 경고
                 if (page > maxPage) {
-                    alert("❌ 더 이상 페이지가 없습니다.");
+                    alert("더 이상 페이지가 없습니다.");
                     return;
                 }
 
@@ -1937,62 +2196,12 @@
         handlePageClick(currentPage);
     });
 
-    //  function renderPagination(currentPage, maxPage, totalCount) {
-    //     const paginationDiv = document.getElementById('pagination');
-    //     paginationDiv.innerHTML = ''; // 초기화
-    //      if (currentPage > 0) {
-    //          paginationDiv.innerHTML += `
-    //             <li class="page-item">
-    //                 <a class="page-link" href="#" data-page="${currentPage - 1}">&lt;</a>
-    //             </li>`;
-    //      }
-    //
-    //      // 페이지 번호 버튼 생성
-    //      for (let p = 0; p < maxPage; p++) {
-    //          paginationDiv.innerHTML += `
-    //             <li class="page-item ${p === currentPage ? 'active' : ''}">
-    //                 <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
-    //             </li>`;
-    //      }
-    //
-    //      // 다음 버튼
-    //      if (currentPage + 1 < maxPage) {
-    //          paginationDiv.innerHTML += `
-    //             <li class="page-item">
-    //                 <a class="page-link" href="#" data-page="${currentPage + 1}">&gt;</a>
-    //             </li>`;
-    //      }  // 총 게시글 수 추가
-    //      const totalPostsDiv = document.getElementById('totalPosts');
-    //      if (!totalPostsDiv) {
-    //          const newTotalPostsDiv = document.createElement('div');
-    //          newTotalPostsDiv.id = 'totalPosts';
-    //          newTotalPostsDiv.style.textAlign = 'center';
-    //          newTotalPostsDiv.style.fontWeight = 'bold';
-    //          newTotalPostsDiv.style.marginTop = '10px';
-    //          newTotalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
-    //          paginationDiv.insertAdjacentElement('afterend', newTotalPostsDiv);
-    //      } else {
-    //          totalPostsDiv.textContent = `총 게시글 수: ${totalCount}`;
-    //      }
-    //
-    //      document.getElementById('pagination').addEventListener('click', async function(event) {
-    //          if (event.target.classList.contains('page-link')) {
-    //              event.preventDefault();
-    //              const page = parseInt(event.target.dataset.page);
-    //              await handlePageClick(page);
-    //          }
-    //
-    //      });
-    //
-    // }
-
     async  function handlePageClick(page) {
         sessionStorage.setItem('currentPage', page);
         await  loadPage(page);
     }
     function renderFeeds(jsonData,count) {
         let pinnedNotices = "";
-        let normalPosts = "";
         document.getElementById('viewCount').textContent = jsonData.viewCount;
         loadVisitorStats();
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
@@ -2116,7 +2325,7 @@
                         return;
                     }
 
-                    renderFeeds(data, data.count); // 검색 결과 렌더링
+                    renderFeeds(data, data.count);
                 })
                 .catch(error => {
                     console.error('검색 요청 중 오류 발생:', error);
@@ -2243,7 +2452,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        // const rightMenuToggle = document.getElementById("rightMenuToggle");
         const mainContent = document.querySelector(".main-content");
         const tooltipBox = document.getElementById("rightSidebarTooltip");
         const navbarToggler = document.querySelector(".navbar-toggler");
@@ -2263,31 +2471,25 @@
 
         function toggleSidebar() {
             if (isMobile()) {
-                // 모바일에서는 말풍선 표시 (토글과 별개로)
+
                 tooltipBox.classList.add("show");
                 setTimeout(() => {
                     tooltipBox.classList.remove("show");
                 }, 3000);
-                // 사이드바 토글 (모바일용 CSS가 필요함)
+
                 rightSidebar.classList.toggle("show");
             } else {
-                // 데스크톱에서는 단순 토글
+
                 rightSidebar.classList.toggle("show");
             }
         }
 
-        // 모바일 초기화: 오른쪽 토글 버튼은 모바일에서만 보이도록
         if (isMobile()) {
-            // rightMenuToggle.style.display = "flex";
             rightMenuToggle.style.display = "block";
-            // mainContent.style.marginLeft = "0";
-            // mainContent.style.marginRight = "0";
-            // mainContent.style.width = "100%";
         } else {
             rightMenuToggle.style.display = "none";
         }
 
-        // 오른쪽 토글 버튼에 단 하나의 이벤트 리스너 등록
         rightMenuToggle.addEventListener("click", toggleSidebar);
         showTooltip();
 
@@ -2774,9 +2976,6 @@
                 container.innerHTML += postHTML;
             });
         }
-
-
-
 
         document.addEventListener("DOMContentLoaded", function () {
         fetch('/search/view/feed/recommend')

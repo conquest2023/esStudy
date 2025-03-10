@@ -51,7 +51,6 @@ public class AjaxController {
     private  final CommentMapper commentMapper;
 
 
-
     @GetMapping("/get-ip")
     public ResponseEntity<?> getClientIp() {
 
@@ -171,6 +170,14 @@ public class AjaxController {
                 "totalPage", totalPage,
                 "data", data
         ));
+    }
+
+    @GetMapping("/data/feed")
+    public ResponseEntity<?> getPagingDataFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(Map.of(
+                "data", feedService.findDataFeed(page,size)));
     }
 
     @GetMapping("/auth/status")

@@ -9,6 +9,7 @@ import es.board.repository.CertificateDAO;
 import es.board.service.ItCrawlingService;
 import es.board.service.impl.AsyncService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class CrawlingController {
 
 
@@ -86,8 +88,8 @@ public class CrawlingController {
 
     @GetMapping("/exss")
     public CompletableFuture<Void> getEx(String keyword) {
-
-          asyncService.crawlTistoryPostsAsync();
+        log.info(certificateDAO.getCertificationNames().toString());
+//          asyncService.crawlTistoryPostsAsync();
           return  null;
     }
 

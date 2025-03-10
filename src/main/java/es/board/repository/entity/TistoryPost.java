@@ -16,6 +16,8 @@ public class TistoryPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 기본키 (자동 증가)
 
+    private  String name;
+
     private String blogName;       // 블로그 이름
     private String blogUrl;        // 블로그 URL
     private String title;          // 게시글 제목

@@ -15,6 +15,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
     Map<String, Double> getDayAggregation();
+
+    List<FeedRequest> findDataFeed(int page, int size);;
     double getUserFeedCount(String userId);
 
     List<FeedRequest>  findWeekBestFeed(int page, int size);

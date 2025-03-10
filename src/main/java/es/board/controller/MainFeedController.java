@@ -2,20 +2,14 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.req.TopWriter;
-import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.AuthService;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
-import es.board.service.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,13 +24,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 @RequiredArgsConstructor
 @Slf4j
 @Controller
-public class FeedController {
+public class MainFeedController {
 
 
     private final AuthService authService;
@@ -217,9 +210,14 @@ public class FeedController {
     @GetMapping("/search/view/feed/list/most")
     public String getMostViewFeed(Model model,
                                   @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size) { // 페이지 크기
+                                  @RequestParam(defaultValue = "10") int size) {
         model.addAttribute("data", feedService.getMostViewFeed(page, size));
         return "basic/feed/MostViewFeed";
+    }
+
+    @GetMapping("/search/view/feed/vote")
+    public  String  getVoteFeed(){
+        return  "basic/feed/VoteAdd";
     }
 
     @GetMapping("/post/page")
@@ -297,13 +295,6 @@ public class FeedController {
         return feedService.createBulkFeed(comments);
     }
 
-//    @GetMapping("/search/view/comment/desc")
-//    public String getMostCommentDESC(Model model, @RequestParam(defaultValue = "0") int page,
-//                                     @RequestParam(defaultValue = "10") int size){
-//
-//        model.addAttribute("commentDESC", commentService.getPagingCommentDESC(feedService.getfeedUIDList(page, size), page, size));
-//        return "basic/comment/MostCommentDESC";
-//    }
 
 
     @GetMapping("/search/view/feed/best")

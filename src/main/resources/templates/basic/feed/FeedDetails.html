@@ -369,7 +369,7 @@
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
         container.innerHTML = '';
-
+        console.log(board)
         if (!board) {
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
@@ -418,7 +418,7 @@
                 : ""
         }
 
-                <!-- 좋아요 & 댓글 -->
+
                 <div class="feed-actions">
                     <div class="text-muted">
                         <i class="far fa-comment"></i> ${jsonData.count || 0}
@@ -449,7 +449,6 @@
         }, 100);
     }
     function renderCommentForm(jsonData) {
-        const token = localStorage.getItem("token");
         const commentFormDiv = document.getElementById('commentForm');
         const board = jsonData?.data
         let deleteButtonHTML = '';
@@ -890,7 +889,8 @@
         commentContainer.innerHTML = '';
         const comments = jsonData.comment;
         const replies = jsonData.replies;
-
+        // const formattedContent = convertLinks(comments.content);
+        // console.log(formattedContent)
         if (!comments || comments.length === 0) {
             commentContainer.innerHTML = '<p>댓글이 없습니다.</p>';
             return;
@@ -898,54 +898,56 @@
 
         let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
 
-        comments.forEach((cmt, index) => {
+        comments.forEach((cmt) => {
             const displayedUsername = cmt.author
                 ? `<strong style="color:#888;">작성자</strong>`
                 : `<strong>${cmt.username}</strong>`;
 
             html += `
-            <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        ${displayedUsername}
-                        <small class="text-muted ms-2">${formatDate(cmt.createdAt)}</small>
-                    </div>
-                    <div>
-                        ${
+        <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    ${displayedUsername}
+                    <small class="text-muted ms-2">${formatDate(cmt.createdAt)}</small>
+                </div>
+                <div>
+                    ${
                 cmt.commentOwner
                     ? `
-                                    <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
-                                    <button class="btn btn-sm btn-link text-danger delete-comment-btn" data-comment-id="${cmt.commentUID}">삭제</button>
-                                `
+                            <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
+                            <button class="btn btn-sm btn-link text-danger delete-comment-btn" data-comment-id="${cmt.commentUID}">삭제</button>
+                        `
                     : ""
             }
-                    </div>
-                </div>
-
-                <!-- 댓글 내용 -->
-              <div id="comment-content" style="white-space:pre-wrap; text-align: left; margin-left: 0; padding-left: 0;">
-    ${cmt.content}
-</div>
-
-
-
-                <div class="mt-3 ms-3">
-                    ${renderReplies(replies[cmt.commentUID])}
-                    <button class="btn btn-sm btn-outline-primary reply-toggle" data-comment-id="${cmt.commentUID}">답글 달기</button>
-
-
-                    <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
-                        <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
-                        <button class="btn btn-sm btn-primary submit-reply-btn" data-comment-id="${cmt.commentUID}">답글 작성</button>
-                    </div>
                 </div>
             </div>
-        `;
+
+            <!-- 댓글 내용 -->
+            <div id="comment-content-${cmt.commentUID}" style="white-space:pre-wrap; text-align: left; margin-left: 0; padding-left: 0;">
+                ${convertLinks(cmt.content)}
+            </div>
+
+            <div class="mt-3 ms-3">
+                ${renderReplies(replies[cmt.commentUID] || [])}
+                <button class="btn btn-sm btn-outline-primary reply-toggle" data-comment-id="${cmt.commentUID}">답글 달기</button>
+
+                <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
+                    <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
+                    <button class="btn btn-sm btn-primary submit-reply-btn" data-comment-id="${cmt.commentUID}">답글 작성</button>
+                </div>
+            </div>
+        </div>`;
         });
 
-        html += `</div></div>`;
-
         commentContainer.innerHTML = html;
+
+        comments.forEach((cmt) => {
+            const commentElement = document.getElementById(`comment-content-${cmt.commentUID}`);
+            if (commentElement) {
+                commentElement.innerHTML = convertLinks(cmt.content);
+            }
+        });
+
         initializeCommentEvents(jsonData.feedId);
     }
 
