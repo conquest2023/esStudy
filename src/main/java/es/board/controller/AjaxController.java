@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Sinks;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -128,6 +127,15 @@ public class AjaxController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "error", "세션이 만료되었습니다."
         ));}
+    @GetMapping("/today/arrgegation")
+    @ResponseBody
+    public ResponseEntity<?> getTodayAggregation() {
+        return ResponseEntity.ok(Map.of(
+                "todayPosts", feedService.getDayAggregation().get("postCount"),
+                "todayViews", feedService.getDayAggregation().get("viewCount"),
+                "todayComments", commentService.getTodayCommentAggregation().get("commentCount")
+        ));
+    }
 
     @PostMapping("/authlogin")
     @ResponseBody
@@ -233,7 +241,7 @@ public class AjaxController {
         List<CommentRequest> requests=  commentList
                     .stream()
                     .peek(comment -> {
-                        comment.setAuthor(req.getUserId().equals(comment.getUserId()));
+                        comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
                     })
                     .collect(Collectors.toList());
         response.put("isLiked",false);
@@ -243,4 +251,7 @@ public class AjaxController {
         response.put("data", req);
         return ResponseEntity.ok(response);
     }
+
+
+
 }

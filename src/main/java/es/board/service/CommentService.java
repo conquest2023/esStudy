@@ -13,7 +13,7 @@ import java.util.Map;
 @Service
 public interface CommentService {
 
-
+    Map<String,Long> getTodayCommentAggregation();
     Map<String, Object> getUserComments(String userId);
     List<CommentRequest> getUserRangeTimeActive(String userId);
     List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size);

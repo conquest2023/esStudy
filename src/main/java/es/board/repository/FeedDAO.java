@@ -15,6 +15,7 @@ import java.util.Map;
 @Repository
 public interface FeedDAO {
 
+    Map<String, Double> findDayAggregation();
     List<Board> findWeekBestFeed(int page, int size);
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
-
 
 
     private final int increment = 1;
@@ -212,7 +212,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Map<String, Object> findMypageUserList(String userId,int page,int size) {
+    public Map<String, Object> findMypageUserList(String userId, int page, int size) {
 
         try {
             int from = (page) * size;
@@ -245,6 +245,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch user board list", e);
         }
     }
+
     @Override
     public List<Board> findPagingMainFeed(int page, int size) {
         try {
@@ -265,6 +266,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch paging feed", e);
         }
     }
+
     @Override
     public Map<String, Object> findUserMyPageLikeAndFeedCount(String userId) {
         try {
@@ -295,6 +297,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch user board stats", e);
         }
     }
+
     @Override
     public List<Board> findMostViewFeed(int page, int size) {
         try {
@@ -405,6 +408,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch category and content feed", e);
         }
     }
+
     @Override
     public List<Board> findRecommendFeed() {
         try {
@@ -424,6 +428,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch category", e);
         }
     }
+
     @Override
     public double findSumLikeByPageOne(int page, int size) {
 
@@ -471,7 +476,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch total feed stats", e);
         }
     }
-
 
 
     @Override
@@ -537,6 +541,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch recent feed", e);
         }
     }
+
     @Override
     public List<Board> findWeekBestFeed(int page, int size) {
         String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
@@ -549,11 +554,11 @@ public class FeedDAOImpl implements FeedDAO {
                             .query(q -> q
                                     .bool(b -> b
                                             .filter(f -> f.range(r -> r
-                                                    .date(d->d
-                                                    .field("createdAt")
-                                                    .gte(start)
-                                                    .lte(end)
-                                            )))
+                                                    .date(d -> d
+                                                            .field("createdAt")
+                                                            .gte(start)
+                                                            .lte(end)
+                                                    )))
                                     )
                             )
                             .sort(sort -> sort.field(f -> f
@@ -569,6 +574,7 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch month popular feed", e);
         }
     }
+
     @Override
     public Board findFeedDetail(String id) {
 
@@ -581,7 +587,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             s -> s.term(t -> t
                                                     .field("feedUID.keyword")
                                                     .value(id))))), Board.class);
-            log.info("feedDetail={}",response.toString());
+            log.info("feedDetail={}", response.toString());
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
                 return null;
@@ -592,6 +598,58 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch document by ID", e);
         }
     }
+
+    @Override
+    public Map<String, Double> findDayAggregation() {
+        String start = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        Map<String, Double> stats = new HashMap<>();
+
+        try {
+            SearchResponse<Void> response = client.search(s -> s
+                    .index("board")
+                    .size(0)
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(f -> f.range(r -> r
+                                            .date(d -> d
+                                                    .field("createdAt")
+                                                    .gte(start)
+                                                    .lte(end)
+                                            )))
+                            )
+                    )
+                    .aggregations("today_post_count", a -> a
+                            .cardinality(c -> c.field("feedUID.keyword"))
+                    )
+                    .aggregations("today_view_count", a -> a
+                            .sum(sum -> sum.field("viewCount"))
+                    ), Void.class
+            );
+
+            double postCount = response.aggregations()
+                    .get("today_post_count")
+                    .cardinality()
+                    .value();
+
+            double viewCount = response.aggregations()
+                    .get("today_view_count")
+                    .sum()
+                    .value();
+
+            stats.put("postCount", postCount);
+            stats.put("viewCount", viewCount);
+
+            log.info("오늘 게시글 수: {}, 오늘 조회수: {}", postCount, viewCount);
+
+        } catch (IOException e) {
+            log.error("Elasticsearch 집계 조회 오류: {}", e.getMessage(), e);
+            throw new RuntimeException("오늘 통계를 가져오는 데 실패했습니다.", e);
+        }
+
+        return stats;
+    }
+
 
     @Override
     public void saveViewCounts(String feedUID) {

@@ -31,6 +31,43 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final CommentRepository commentRepository;
 
+    @Override
+    public  Map<String,Long> findTodayCommentAggregation(){
+            String start = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+            String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+            Map<String, Long> stats = new HashMap<>();
+        try {
+            SearchResponse<Void> commentResponse = client.search(s -> s
+                    .index("comment")
+                    .size(0)
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(f -> f.range(r -> r
+                                            .date(d -> d
+                                                    .field("createdAt")
+                                                    .gte(start)
+                                                    .lte(end))))))
+                    .aggregations("today_comment_count", a -> a
+                            .cardinality(c -> c.field("commentUID"))
+                    ), Void.class
+            );
+
+            long commentCount = commentResponse.aggregations()
+                    .get("today_comment_count")
+                    .cardinality()
+                    .value();
+
+            stats.put("commentCount", commentCount);
+
+            log.info(" 댓글 수: {}",commentCount);
+
+        } catch (IOException e) {
+            log.error("Elasticsearch 집계 조회 오류: {}", e.getMessage(), e);
+            throw new RuntimeException("오늘 통계를 가져오는 데 실패했습니다.", e);
+        }
+
+            return stats;
+        }
 
     @Override
     public Map<String, Object> findCommentsWithCount(String feedUID) {
@@ -69,9 +106,11 @@ public class CommentDAOImpl implements CommentDAO {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
                         .query(q -> q
-                                .match(t -> t
-                                        .field("commentUID")
-                                        .query(commentId))),
+                                .bool(b -> b
+                                        .filter(
+                                                a-> a.term(t -> t
+                                                        .field("commentUID")
+                                                        .value(commentId))))),
                 Comment.class);
               return   response.hits().hits().get(0).source();
         } catch (IOException e) {

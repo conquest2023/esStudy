@@ -201,6 +201,10 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public Map<String, Double> getDayAggregation(){
+        return  feedDAO.findDayAggregation();
+    }
+    @Override
     public List<FeedRequest> getLikeCount() {
 
         return feedMapper.BoardListToDTO(feedDAO.findLikeCount());

@@ -30,10 +30,9 @@
             width: 100%;
             max-width: 420px;
             text-align: center;
-            border-top: 5px solid #2F80ED; /* ✅ Ninfo 브랜드 컬러 */
+            border-top: 5px solid #2F80ED;
         }
 
-        /* ✅ Ninfo 로고 */
         .brand-title {
             font-weight: 700;
             font-size: 32px;
@@ -90,7 +89,6 @@
     <form th:action="@{/signup/pass}" method="post">
         <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
 
-        <!-- ✅ 아이디 입력 -->
         <div class="mb-3">
             <label for="userId" class="form-label">아이디</label>
             <div class="input-group">
@@ -112,7 +110,6 @@
                    title="특수문자를 제외해주세요" required>
         </div>
 
-        <!-- ✅ 나이 선택 -->
         <div class="mb-3">
             <label for="age" class="form-label">나이</label>
             <select id="age" name="age" class="form-control" required>
@@ -126,7 +123,6 @@
             </select>
         </div>
 
-        <!-- ✅ 비밀번호 입력 -->
         <div class="mb-3">
             <label for="password" class="form-label">비밀번호</label>
             <input type="password" id="password" name="password" class="form-control"
@@ -135,10 +131,9 @@
                    title="비밀번호는 영문, 숫자를 포함해 8자 이상이어야 합니다." required>
         </div>
 
-        <!-- ✅ 회원가입 버튼 -->
         <button type="submit" class="btn btn-primary w-100">회원가입</button>
 
-        <!-- ✅ 로그인 & 홈 버튼 -->
+
         <div class="d-flex gap-2 mt-3">
             <button type="button" class="btn btn-outline-secondary w-50" onclick="location.href='/login'">로그인</button>
             <button type="button" class="btn btn-secondary w-50" onclick="location.href='/'">홈으로</button>

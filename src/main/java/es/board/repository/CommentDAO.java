@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Repository
 public interface CommentDAO {
-
+    Map<String,Long> findTodayCommentAggregation();
     Map<String, Object> findCommentsWithCount(String feedUID);
     Comment findCommentUID(String commentId);
 

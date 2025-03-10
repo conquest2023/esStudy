@@ -90,10 +90,6 @@ public class VisitDAOImpl implements VisitDAO {
                         .cardinality()
                         .value();
 
-                log.info("todayVisitors: {}", todayVisitors);
-                log.info("currentVisitors: {}", currentVisitors);
-                log.info("totalVisitors: {}", totalVisitors);
-
                 return Map.of(
                         "todayVisitors", todayVisitors,
                         "currentVisitors", currentVisitors,

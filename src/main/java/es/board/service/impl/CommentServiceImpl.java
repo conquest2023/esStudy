@@ -154,6 +154,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public Map<String,Long> getTodayCommentAggregation(){
+            return commentDAO.findTodayCommentAggregation();
+    }
+
+    @Override
     public List<Comment> getCommentId(String id) {
 
         return commentDAO.findDetailComment(id);
