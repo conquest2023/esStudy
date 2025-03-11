@@ -1369,7 +1369,15 @@
 
 
         <div class="d-flex align-items-center me-3">
-
+            <div class="notification-container position-relative" style="margin-right: 50px;">
+                <i class="fas fa-bell fa-lg text-secondary" id="notificationIcon" style="cursor: pointer;"></i>
+                <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger"
+                      id="notificationBadge" style="display: none;">!</span>
+                <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3"
+                     id="notificationDropdown" style="display: none; width: 250px;">
+                    <ul id="notificationList" class="list-unstyled mb-0"></ul>
+                </div>
+            </div>
             <button class="btn btn-danger me-2" onclick="window.location.href='/search/view/feed/Form';">글쓰기</button>
 
             <button id="login-button" class="btn btn-outline-dark" onclick="window.location.href='/login';">로그인</button>
@@ -1397,15 +1405,6 @@
                     <i class="fas fa-search me-2 text-secondary" id="searchIcon" style="cursor: pointer;"></i>
                     <input type="text" id="searchInput" class="form-control border-0 shadow-none flex-grow-1"
                            placeholder="관심있는 내용을 검색해보세요!">
-                <div class="notification-container ms-auto position-relative">
-                    <i class="fas fa-bell fa-lg text-secondary" id="notificationIcon" style="cursor: pointer;"></i>
-
-                        <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger"
-                              id="notificationBadge" style="display: none;">!</span>
-                        <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3" id="notificationDropdown" style="display: none; width: 250px;">
-                            <ul id="notificationList" class="list-unstyled mb-0"></ul>
-                        </div>
-                    </div>
                 </div>
 
 
@@ -1416,7 +1415,7 @@
                     <span class="fw-bold text-dark">중요한 일정 & 실시간 정보 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
                 </div>
-                <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;"></div>
+                <div id="interviewQuestionContainer" class="aert alert-info text-center fw-bold" style="display: none;"></div>
                 <section class="my-5">
                     <h2 class="section-title">읽어볼만한 글</h2>
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="recommendedPosts">
@@ -1426,11 +1425,10 @@
                 <div class="card shadow-sm mt-3" id="voteSection">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold"><i class="fas fa-poll"></i> 인기 투표</h5>
-<!--                        <span class="vote-participants">참여자: <span id="total-votes">0</span>명</span>-->
+                        <button class="btn-close" onclick="closeVoteSection()" aria-label="Close"></button>
                     </div>
                     <div class="card-body">
                         <ul class="list-group small" id="voteList">
-                            <!-- 투표 항목이 동적으로 추가될 예정 -->
                         </ul>
                     </div>
                 </div>
@@ -1576,6 +1574,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+
+    function closeVoteSection() {
+        document.getElementById("voteSection").style.display = "none";
+    }
     document.addEventListener("DOMContentLoaded", function () {
         fetchVotes();
     });
@@ -2347,7 +2349,7 @@
                     </div>`;
                 });
                 pinnedNoticesContainer.innerHTML = pinnedNotices;
-
+                console.log(jsonData)
                 let normalPosts = "";
                 jsonData.data.forEach(board => {
                     let isPinned = board.pinned === true;
@@ -2510,7 +2512,6 @@
                 data: searchData,
                 success: function (response) {
                     $('tbody').html('');
-                    // '<td><a href="/search/view/feed/id(id='+ board.id + ')">' + board.description + `</a></td>`
                     response.data.forEach(function (board) {
                         var row = '<tr>' +
                             '<td><a href="/search/view/feed/id(id=' + board.id + ')">' + board.title + '</a></td>' +

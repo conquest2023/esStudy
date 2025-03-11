@@ -414,9 +414,12 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
+                            .sort(sort -> sort.field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Desc)))
                             .query(q -> q
                                     .bool(b -> b
-                                            .must(m -> m.term(t -> t.field("category").value("추천")))))
+                                            .filter(m -> m.term(t -> t.field("category").value("추천")))))
                             .size(3),
                     Board.class);
 
@@ -437,7 +440,7 @@ public class FeedDAOImpl implements FeedDAO {
 
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .from(size) // 페이지 시작점
+                            .from(size)
                             .size(size)
                             .aggregations("totalLikes", a -> a.sum(sum -> sum.field("likeCount"))),
                     Board.class);

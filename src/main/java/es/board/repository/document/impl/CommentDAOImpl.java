@@ -74,6 +74,10 @@ public class CommentDAOImpl implements CommentDAO {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
+                            .sort(sort -> sort.field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Asc)
+                            ))
                             .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("feedUID").value(feedUID)))))
                             .aggregations("feedUID_count", a -> a.valueCount(vc -> vc.field("feedUID"))),
                     Comment.class);

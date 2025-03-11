@@ -75,8 +75,6 @@ public class CalenderServiceImpl implements CalenderService {
 
         scheduleRepository.deleteById(id);
 
-
-        //Elasticsearch에서도 동일한 일정 삭제
         CompletableFuture.runAsync(() -> {
             scheduleDAO.deleteSchedule(id);
         });

@@ -19,6 +19,8 @@ public class SignUpResponse {
 
     private  String age;
 
+    private String interest;
+
     private String password;
 
     @JsonSerialize(using = XssSafeSerializer.class)

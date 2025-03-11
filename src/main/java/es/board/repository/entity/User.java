@@ -43,6 +43,8 @@ public class User {
 
     private  String category;
 
+    private  String  interest;
+
     @Transient
     private  int visitCount;
 
@@ -82,6 +84,7 @@ public class User {
                 .username(sign.getUsername())
                 .password(password)
                 .age(sign.getAge())
+                .interest(sign.getInterest())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

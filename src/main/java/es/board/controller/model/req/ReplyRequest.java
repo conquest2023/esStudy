@@ -45,16 +45,4 @@ public class ReplyRequest {
 
 
 
-    public List<ReplyRequest> ReplyListToDTO(List<Reply> reply) {
-        return reply.stream()
-                .map(reply1 -> ReplyRequest.builder()
-                        .feedUID(reply1.getFeedUID())
-                        .commentUID(reply1.getCommentUID())
-                        .username(reply1.getUsername())
-                        .content(reply1.getContent())
-                        .likeCount(reply1.getLikeCount())
-//                        .createdAt(reply1.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-    }
 }

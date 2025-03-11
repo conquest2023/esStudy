@@ -2,9 +2,11 @@ package es.board.controller.model.mapper;
 
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
+import es.board.repository.document.Reply;
 import es.board.repository.entity.Likes;
 import es.board.repository.entity.Notice;
 import es.board.repository.entity.UserVote;
@@ -182,5 +184,16 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-
+    public List<ReplyRequest> ReplyListToDTO(List<Reply> reply) {
+        return reply.stream()
+                .map(reply1 -> ReplyRequest.builder()
+                        .feedUID(reply1.getFeedUID())
+                        .commentUID(reply1.getCommentUID())
+                        .username(reply1.getUsername())
+                        .content(reply1.getContent())
+                        .likeCount(reply1.getLikeCount())
+                        .createdAt(reply1.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

@@ -2,8 +2,10 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.res.ReplyCreate;
+import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +24,12 @@ public class ReplyController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/search/view/reply")
-    public List<ReplyRequest> getReplyAll(@RequestParam String id) {
-        return replyService.getPartialReply(id);
-    }
+    private  final FeedMapper feedMapper;
+
+//    @GetMapping("/search/view/reply")
+//    public List<ReplyRequest> getReplyAll(@RequestParam String id) {
+//        return feedMapper.ReplyListToDTO((List<Reply>) replyService.getPartialReply(id).get("replyList"));
+//    }
 
     @PostMapping("/search/view/reply/save")
     public ResponseEntity<String> postReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {

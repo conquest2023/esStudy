@@ -38,7 +38,7 @@ public interface CommentService {
 
     List<CommentRequest> getLikeCount() ;
 
-    Map<String, Double> getPagingComment(List<String> feedUIDs , int num, int size) ;
+    Map<String, Double> getCommentAndReplyAggregation(List<String> feedUIDs , int num, int size) ;
 
 
     List<CommentRequest> getComment() ;

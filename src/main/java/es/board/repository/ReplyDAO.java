@@ -4,10 +4,12 @@ import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.document.Reply;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ReplyDAO {
 
-    List<Reply> findPartialReply(String id);
+    Map<String, Object> findPartialReply(String id);
 
+    Map<String, Double> findAggregationReply(List<String> feedUIDs);
     void saveReply(ReplyCreate dto);
 }

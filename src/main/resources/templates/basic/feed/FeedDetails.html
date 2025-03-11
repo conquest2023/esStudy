@@ -301,25 +301,17 @@
             text-align: right;
         }
 
-        .comment-username {
-            font-weight: bold;
-            color: #333;
-            display: block;
-        }
-
-        .comment-content {
-            margin-top: 0px !important;
-            padding-top: 0px !important;
-            font-size: 1rem;
-            color: #555;
-        }
 
     </style>
 </head>
 
 
 <!--    <a href="#" class="edit-btn" data-author-id="">-->
-
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
 <div class="container my-4">
     <div id="feedDetailContainer"></div>
     <div id="commentSection"></div>
@@ -330,13 +322,13 @@
             <i class="fas fa-home"></i> 메인으로 돌아가기
         </a>
     </div>
+    </div>
 </div>
 <script>
     function deleteComment(feedId, commentId) {
         if (!confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
             return;
         }
-
         fetch(`/search/view/comment/delete?id=${commentId}&feedUID=${feedId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -369,7 +361,6 @@
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
         container.innerHTML = '';
-        console.log(board)
         if (!board) {
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
@@ -390,24 +381,15 @@
             </button>
         `;
         }
-
         const html = `
         <div class="card feed-card">
             <div class="card-body">
-                ${
-            deleteButtonHTML
-                ? `<div class="text-end mb-3">${deleteButtonHTML}</div>`
-                : ""
-        }
-
-                <!-- 제목/작성자/작성일 -->
+                ${deleteButtonHTML ? `<div class="text-end mb-3">${deleteButtonHTML}</div>` : ""}
                 <h2 class="feed-title">${board.title}</h2>
                 <p class="feed-meta">
                     <strong>작성자:</strong> ${board.username} &nbsp;|&nbsp;
                     <strong>작성일자:</strong> ${formatDate(board.createdAt)}
                 </p>
-
-
                 <div class="feed-content">${formattedDescription|| ""}</div>
 
                 ${
@@ -458,7 +440,6 @@
         <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
         <input type="hidden" id="feedAuthorId"/>
         <input type="hidden" id="currentUserId" />
-
             <div class="form-group mt-3">
         <label for="username" class="form-label">이름</label>
         <input type="text" id="username" class="form-control" required />
@@ -482,13 +463,8 @@
           <textarea id="content" rows="4" class="form-control" required></textarea>
         </div>
 
-        <button
-          id="btnCommentSubmit"
-          type="button"
-          class="btn btn-success mt-3"
-          onclick="submitComment()"
-        >
-          <i class="fas fa-save"></i> 저장하기
+        <button id="btnCommentSubmit" type="button" class="btn btn-success mt-3" onclick="submitComment()">
+            <i class="fas fa-pencil-alt"></i> 작성하기
         </button>
       </div>
     </div>
@@ -572,32 +548,14 @@
                 }
 
                 console.log(`Found comment section container: #commentSection`);
-
-                // 수정 폼 HTML
                 const editFormHtml = `
-        <div
-          id="edit-comment-form-${commentId}"
-          class="mt-2 p-3 border rounded"
-          style="background-color: #f9f9f9;"
-        >
-          <textarea
-            id="edit-comment-content-${commentId}"
-            class="form-control mb-2"
-            rows="4"
-          >${data.content}</textarea>
+        <div id="edit-comment-form-${commentId}" class="mt-2 p-3 border rounded" style="background-color: #f9f9f9;">
+          <textarea id="edit-comment-content-${commentId}" class="form-control mb-2"  rows="4" >${data.content}</textarea>
           <div class="text-end">
-            <button
-              id="save-comment-btn-${commentId}"
-              class="btn btn-primary btn-sm me-2"
-              data-comment-id="${data.commentUID}"
-              data-feed-id="${data.feedUID}"
-            >
+            <button id="save-comment-btn-${commentId}" class="btn btn-primary btn-sm me-2" data-comment-id="${data.commentUID}"data-feed-id="${data.feedUID}" >
               Save
             </button>
-            <button
-              id="cancel-edit-btn-${commentId}"
-              class="btn btn-secondary btn-sm"
-            >
+            <button id="cancel-edit-btn-${commentId}" class="btn btn-secondary btn-sm">
               Cancel
             </button>
           </div>
@@ -801,61 +759,64 @@
 
 
     let debounceTimeout;
+    function submitComment() {
+        if (debounceTimeout) clearTimeout(debounceTimeout);
 
-        function submitComment() {
-            if (debounceTimeout) clearTimeout(debounceTimeout);
+        // 버튼 비활성화 (연속 클릭 방지)
+        const submitButton = document.getElementById("submitCommentBtn");
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
 
-            debounceTimeout = setTimeout(() => {
-                const content = document.getElementById("content").value.trim();
-                const username = document.getElementById("username").value.trim();
-                const token = localStorage.getItem("token");
-                // const isAnonymous = document.getElementById("anonymous-toggle").checked;
-
-                if (!content) {
-                    alert("댓글 내용을 입력하세요!");
-                    return;
-                }
-                // const finalUsername = isAnonymous ? "익명" : username || "익명";
-                const urlParams = new URLSearchParams(window.location.search);
-                const feedUID = urlParams.get('id');
-                const headers = {
-                    "Content-Type": "application/json",
-                };
-                if (token) {
-                    headers["Authorization"] = `Bearer ${token}`;
-                }
-
-                fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
-                    method: "POST",
-                    headers: headers,
-                    body: JSON.stringify({
-                        content: content,
-                        username: username,
-                    }),
+        debounceTimeout = setTimeout(() => {
+            const content = document.getElementById("content").value.trim();
+            const username = document.getElementById("username").value.trim();
+            const token = localStorage.getItem("token");
+            if (!content) {
+                alert("댓글 내용을 입력하세요!");
+                if (submitButton) submitButton.disabled = false;
+                return;
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const feedUID = urlParams.get('id');
+            const headers = { "Content-Type": "application/json" };
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+            fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({
+                    content: content,
+                    username: username,
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("댓글 저장 실패: " + response.status);
+                    }
+                    return response.json();
                 })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error("댓글 저장 실패: " + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        console.log(data)
-                        const redirectUrl = data.redirectUrl;
-                        if (redirectUrl) {
-                            setTimeout(() => {
-                                window.location.href = redirectUrl;
-                            }, 1000);
-                        } else {
-                            console.error("리다이렉트 URL이 없습니다.");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("댓글 저장 중 오류 발생:", error);
-                        alert("댓글 저장 중 문제가 발생했습니다.");
-                    });
-            }, 1000);
-         }
+                .then((data) => {
+                    console.log(data);
+                    const redirectUrl = data.redirectUrl;
+                    if (redirectUrl) {
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, 500);
+                    } else {
+                        console.error("리다이렉트 URL이 없습니다.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("댓글 저장 중 오류 발생:", error);
+                    alert("댓글 저장 중 문제가 발생했습니다.");
+                })
+                .finally(() => {
+                    if (submitButton) submitButton.disabled = false;
+                });
+        }, 1000);
+    }
     function renderReplies(replyList) {
         if (!replyList || replyList.length === 0) {
             return "";
@@ -895,12 +856,11 @@
             commentContainer.innerHTML = '<p>댓글이 없습니다.</p>';
             return;
         }
-
         let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
 
         comments.forEach((cmt) => {
             const displayedUsername = cmt.author
-                ? `<strong style="color:#888;">작성자</strong>`
+                ? `<strong style="color:#888;">작성자(${cmt.username})</strong>`
                 : `<strong>${cmt.username}</strong>`;
 
             html += `
@@ -984,6 +944,7 @@
 
         if (!token) {
             console.warn("로그인하지 않은 상태입니다. 익명으로 고정됩니다.");
+
 
             if (anonymousToggle) {
                 anonymousToggle.checked = true;

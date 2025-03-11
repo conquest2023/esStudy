@@ -11,5 +11,5 @@ public interface ReplyService {
     Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId);
 
     void saveReply(ReplyCreate response);
-    List<ReplyRequest> getPartialReply(String id);
+    Map<String,Object> getPartialReply(String id);
 }

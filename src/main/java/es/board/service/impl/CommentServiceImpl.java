@@ -8,6 +8,7 @@ import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
+import es.board.repository.ReplyDAO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
 
     private  final PostRepository postRepository;
 
+    private  final ReplyDAO replyDAO;
 
 
     private  final NotificationService notificationService;
@@ -132,10 +135,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Map<String, Double> getPagingComment(List<String> feedUIDs, int num, int size) {
-        return commentDAO.findPagingComment(feedUIDs, num, size);
+    public Map<String, Double> getCommentAndReplyAggregation(List<String> feedUIDs, int num, int size) {
+        return getStringDoubleMap(feedUIDs, replyDAO.findAggregationReply(feedUIDs),
+                commentDAO.findPagingComment(feedUIDs, num, size));
     }
-
     @Override
     public Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) {
         return commentDAO.findPagingCommentDESC(feedUIDs, num, size);
@@ -192,5 +195,15 @@ public class CommentServiceImpl implements CommentService {
     }
     private static boolean isEmpty(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private static Map<String, Double> getStringDoubleMap(List<String> feedUIDs, Map<String, Double> replyCounts, Map<String, Double> commentCounts) {
+        Map<String, Double> aggregatedData = new HashMap<>();
+        for (String feedUID : feedUIDs) {
+            double replyCount = replyCounts.getOrDefault(feedUID, 0.0);
+            double commentCount = commentCounts.getOrDefault(feedUID, 0.0);
+            aggregatedData.put(feedUID, replyCount + commentCount);
+        }
+        return aggregatedData;
     }
 }

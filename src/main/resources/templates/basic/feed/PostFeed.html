@@ -14,9 +14,6 @@
             background-color: #f8f9fa;
             padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-        }
         .form-container {
             background: white;
             padding: 20px;
@@ -66,11 +63,6 @@
             font-size: 16px;
             resize: none;
             outline: none;
-        }
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
         }
         .toolbar button {
             background: none;
@@ -145,6 +137,9 @@
                                 <option value="공부">공부</option>
                                 <option value="기술">기술</option>
                                 <option value="취업">취업</option>
+                                <option value="Q/A">질문</option>
+                                <option value="자료">자료</option>
+
                             </select>
                             <div id="category-error" style="color: red; display: none;">카테고리를 선택해 주세요.</div>
                         </div>
@@ -206,10 +201,10 @@
 
         document.querySelector("form").addEventListener("submit", function(event) {
             if (categorySelect.value === "") {
-                event.preventDefault(); // 폼 제출 방지
-                categoryError.style.display = "block"; // 에러 메시지 표시
+                event.preventDefault();
+                categoryError.style.display = "block";
             } else {
-                categoryError.style.display = "none"; // 에러 메시지 숨기기
+                categoryError.style.display = "none";
             }
         });
     });
@@ -259,7 +254,7 @@
                     userIdInput.value = data.userId;
                 } else {
                     anonymousCheckbox.checked = true;
-                    anonymousCheckbox.style.display = "none"; // 체크박스 숨김
+                    anonymousCheckbox.style.display = "none";
                     usernameInput.value = "익명";
                 }
             })

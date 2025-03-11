@@ -160,7 +160,7 @@ public class AjaxController {
             @RequestParam(defaultValue = "10") int size) {
         Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
         List<FeedRequest> data = feedService.getPagingFeed(page, size);
-        Map<String,Double> countMap = commentService.getPagingComment(feedService.getfeedUIDList(data), page, size);
+        Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
         Long totalPage = (Long) feedCount.get("totalFeedCount");
         return ResponseEntity.ok(Map.of(
                 "viewCount", (Long) feedCount.get("totalViewCount"),
