@@ -3,6 +3,7 @@ package es.board.repository.entity;
 
 import es.board.controller.model.req.VoteResponse;
 import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,14 +45,5 @@ public class Vote {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public Vote voteToEntity(VoteResponse voteResponse, String userId) {
-        return Vote.builder()
-                .id(id)
-                .userId(userId)
-                .username(voteResponse.getUsername())
-                .title(voteResponse.getTitle())
-                .description(voteResponse.getDescription())
-                .upvote(voteResponse.getUpvote())
-                .build();
-    }
+
 }

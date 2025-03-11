@@ -1,6 +1,7 @@
 package es.board.repository.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

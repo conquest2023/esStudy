@@ -9,7 +9,6 @@ import es.board.repository.*;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
 import es.board.repository.entity.User;
-import es.board.repository.entity.Vote;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.repository.entity.entityrepository.TistoryPostRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -148,8 +147,21 @@ public class AsyncService {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
-            voteDAO.saveAgreeVote(vote,id);
+            voteDAO.saveVoteContent(vote,id);
             log.info("비동기 Vote Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> saveAggregationVoteAsync(VoteResponse vote, Long id) {
+        log.info("비동기 Vote Elasticsearch 저장 집계 시작 - 스레드: {}", Thread.currentThread().getName());
+
+        try {
+            voteDAO.saveAggregationAgreeVote(vote,id);
+            log.info("비동기 Vote Elasticsearch 집계 저장 완료 - 스레드: {}", Thread.currentThread().getName());
         } catch (Exception e) {
             log.error("Elasticsearch 저장 실패", e);
         }

@@ -7,6 +7,7 @@ import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
 import es.board.repository.entity.Likes;
 import es.board.repository.entity.Notice;
+import es.board.repository.entity.UserVote;
 import es.board.repository.entity.Vote;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -138,6 +139,16 @@ public class FeedMapper {
                 .build();
     }
 
+    public VoteResponse userVoteToDTO(UserVote vote , String username, String userId) {
+        return VoteResponse.builder()
+                .id(vote.getId())
+                .voteId(vote.getVoteId())
+                .userId(userId)
+                .username(username)
+                .upvote(vote.isUpvote())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
     public VoteResponse voteToDTOMain(Vote vote) {
         return VoteResponse.builder()
@@ -160,6 +171,16 @@ public class FeedMapper {
                         .createdAt(vote1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public  UserVote userVoteToEntity(VoteResponse voteResponse,String  username, String userId) {
+        return UserVote.builder()
+                .voteId(voteResponse.getVoteId())
+                .userId(userId)
+                .upvote(voteResponse.getUpvote())
+                .username(username)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
 }

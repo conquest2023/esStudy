@@ -1,9 +1,14 @@
 package es.board.repository;
 
 import es.board.controller.model.req.VoteResponse;
-import es.board.repository.entity.Vote;
+
+import java.util.Map;
 
 public interface VoteDAO {
 
-    void saveAgreeVote(VoteResponse voteResponse, Long id);
+    Map<String, Object> getVoteStatistics(String id);
+    void saveVoteContent(VoteResponse voteResponse, Long id);
+
+    void saveAggregationAgreeVote(VoteResponse voteResponse, Long id);
+
 }

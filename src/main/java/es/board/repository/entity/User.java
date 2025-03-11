@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 //import jakarta.persistence.Column;
 import es.board.controller.model.res.SignUpResponse;
 import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

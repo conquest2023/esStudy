@@ -4,6 +4,7 @@ package es.board.repository.entity;
 
 import es.board.controller.model.res.FeedCreateResponse;
 import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 

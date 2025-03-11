@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,7 +26,7 @@ public class VoteController {
 
     @PostMapping("/save/vote")
     @ResponseBody
-    public ResponseEntity<?> saveAgreeVote(@RequestBody VoteResponse vote, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> saveVote(@RequestBody VoteResponse vote, @RequestHeader(value = "Authorization", required = false) String token) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -36,6 +37,45 @@ public class VoteController {
         voteService.saveVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(response);
+    }
+
+
+
+
+    @PostMapping("/save/aggregation/vote")
+    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteResponse vote,
+                                                 @RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        voteService.saveAgreeVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "투표 완료");
+        response.put("voteStatus", "completed");
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/get/aggregation/vote/{id}")
+    public ResponseEntity<?> getAggregationVote( @RequestHeader(value = "Authorization", required = false) String token,@PathVariable Long  id) {
+        Map<String,Object> aggregation =voteService.getVoteAggregation(id);
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalVotes",aggregation.get("totalVotes"));
+        response.put("upvotes", aggregation.get("upvotes"));
+        response.put("downvotes",aggregation.get("downvotes"));
+        List<String> userIds=(List<String>) aggregation.get("userIds");
+        if(!token.isEmpty()) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                boolean hasVoted = userIds.contains(jwtTokenProvider.getUserId(token));
+                response.put("hasVoted", hasVoted);
+                return ResponseEntity.ok(response);
+            }
+        }
+         response.put("hasVoted", false);
+         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/get/vote")
