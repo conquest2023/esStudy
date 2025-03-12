@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -23,25 +24,26 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long todo_id;
 
-    private String userId;          // 해당 Todo가 어느 사용자의 것인지
-
+    private String userId;
     private String title;
 
     private String description;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dueDate;         // 마감일
+    private Date dueDate;
 
     @Enumerated(EnumType.STRING)
-    private TodoStatus status;    // 예: TODO, IN_PROGRESS, DONE
+    private TodoStatus status;
 
     private String category;
 
-    private Integer priority;     // 우선순위 (1 높음, 5 낮음 등)
+    private Integer priority;
+
+    private Boolean project;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    // getters/setters
+    private LocalDate end;
 }

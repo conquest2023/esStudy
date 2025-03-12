@@ -36,8 +36,9 @@ public class CalenderServiceImpl implements CalenderService {
     public void saveRepeatSchedule(String token, ScheduleDTO scheduleDTO) {
         CompletableFuture.supplyAsync(() -> {
 
-            List<Schedule> schedulesToInsert = new ArrayList<>(toDoMapper.generateRepeatSchedules(jwtTokenProvider.getUserId(token), scheduleDTO));
 
+            List<Schedule> schedulesToInsert = new ArrayList<>(toDoMapper.generateRepeatSchedules(jwtTokenProvider.getUserId(token), scheduleDTO));
+            log.info(schedulesToInsert.toString());
             List<Schedule> savedSchedules = scheduleRepository.saveAll(schedulesToInsert);
 
 

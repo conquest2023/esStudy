@@ -96,7 +96,7 @@
 
     <!-- Todo 목록 -->
     <div class="card shadow-sm">
-        <div class="card-header bg-white"><strong>오늘의 할 일</strong></div>
+        <div class="card-header bg-white"><strong>오늘의 할일</strong></div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -110,6 +110,31 @@
                     </thead>
                     <tbody id="todo-table-body">
 
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>장기 목표 및 프로젝트</strong>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                <i class="fas fa-clock"></i> 프로젝트 추가
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 30%;">제목</th>
+                        <th>상태</th>
+                        <th>우선순위</th>
+                        <th>마감일</th>
+                        <th class="text-end">작업</th>
+                    </tr>
+                    </thead>
+                    <tbody id="project-table-body">
                     </tbody>
                 </table>
             </div>
@@ -193,7 +218,50 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="addProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">프로젝트 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>제목</label>
+                <input type="text" id="projectTitle" class="form-control">
 
+                <label class="mt-2">설명</label>
+                <textarea id="projectDescription" class="form-control"></textarea>
+
+                <label class="mt-2">카테고리</label>
+                <select id="projectCategory" class="form-select">
+                    <option value="공부">공부</option>
+                    <option value="공부">목표</option>
+                    <option value="업무">업무</option>
+                    <option value="업무">과제</option>
+                    <option value="업무">프로젝트</option>
+                    <option value="취미">취미</option>
+                </select>
+
+                <label class="mt-2">마감일</label>
+                <input type="date" id="projectDueDate" class="form-control">
+
+                <label class="mt-2">우선순위 (1~5)</label>
+                <input type="number" id="projectPriority" class="form-control" min="1" max="5">
+
+                <label class="mt-2">상태</label>
+                <select id="projectStatus" class="form-select">
+                    <option value="IN_PROGRESS">예정</option>
+                    <option value="IN_PROGRESS">진행 중</option>
+                    <option value="DONE">완료</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -202,6 +270,7 @@
 
 
 <script>
+
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("compareButton").addEventListener("click", function () {
             let modal = new bootstrap.Modal(document.getElementById("compareModal"));
@@ -410,7 +479,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log(" 불러온 Todo 데이터:", data);
 
                     const todos = data.todos;
                     const completedCount = data.completedCount || 0;
@@ -686,6 +754,121 @@
                         alert("D-DAY 목록을 가져올 수 없습니다.");
                     });
             })
+    document.addEventListener("DOMContentLoaded", function () {
+        loadProjects();
+
+        document.getElementById("saveProjectBtn").addEventListener("click", function () {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+            const project = {
+                title: document.getElementById("projectTitle").value,
+                description: document.getElementById("projectDescription").value,
+                category: document.getElementById("projectCategory").value,
+                end: document.getElementById("projectDueDate").value,
+                project:true,
+                priority: parseInt(document.getElementById("projectPriority").value),
+                status: document.getElementById("projectStatus").value
+            };
+
+            fetch("/save/project/todo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json",
+                           "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify(project)
+            }).then(response => {
+                if (response.ok) {
+                    alert("프로젝트가 추가되었습니다.");
+                    location.reload();
+                } else {
+                    alert("프로젝트 추가 실패");
+                }
+            });
+        });
+    });
+
+    function loadProjects() {
+        const token = localStorage.getItem("token");
+
+        fetch("/search/project/todo", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                const tableBody = document.getElementById("project-table-body");
+                tableBody.innerHTML = "";
+
+                if (data.todos && Array.isArray(data.todos)) {
+                    data.todos.forEach(project => {
+                        tableBody.innerHTML += `
+                <tr>
+                    <td>${project.title}</td>
+                    <td>${project.status}</td>
+                    <td>${project.priority}</td>
+                    <td>${project.end || 'N/A'}</td>
+                    <td class="text-end">
+                        <button class="btn btn-danger btn-sm" onclick="deleteProject(${project.todo_id})">
+                            삭제
+                        </button>
+                    </td>
+                </tr>`;
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center">등록된 프로젝트가 없습니다.</td></tr>`;
+                }
+            })
+            .catch(error => {
+                console.error(" 프로젝트 불러오기 실패:", error);
+            });
+    }
+
+
+
+    function deleteProject(id) {
+        if (!confirm("⚠정말로 삭제하시겠습니까?")) {
+            return;
+        }
+
+        console.log("삭제 요청 ID:", id);
+
+        const token = localStorage.getItem("token");
+
+        fetch(`/todo/delete/${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("프로젝트가 삭제되었습니다.");
+                    window.location.reload();
+                } else {
+                    alert("삭제 실패");
+                }
+            })
+            .catch(error => {
+                console.error("프로젝트 삭제 실패:", error);
+            });
+    }
+
+
+
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

@@ -652,7 +652,8 @@
                 const startTime = document.getElementById("repeatEventStartTime")?.value || "";
                 const endTime = document.getElementById("repeatEventEndTime")?.value || "";
                 const description = document.getElementById("repeatEventDescription")?.value || "";
-
+                const repeatFrequency = document.getElementById("repeatFrequency").value;
+                const repeatInterval = document.getElementById("repeatInterval").value;
                 const repeatDays = [...document.querySelectorAll(".repeat-days:checked")]
                     .map(day => day.value)
                     .join(",");
@@ -671,11 +672,13 @@
                     startTime,
                     endTime,
                     repeatDays,
+                    repeatFrequency,
+                    repeatInterval,
                     repeatStartDate: startDate + "T00:00:00",
                     repeatEndDate: endDate ? endDate + "T23:59:59" : null,
                     description
                 };
-            fetch('/save/calendar/schedule', {
+            fetch('/save/repeat/schedule', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -735,7 +738,7 @@
 
         function applyFilter(filterType) {
             if (!allEvents || allEvents.length === 0) {
-                console.error("🚨 이벤트가 없습니다!");
+                console.error("이벤트가 없습니다!");
                 return;
             }
 

@@ -56,9 +56,10 @@ public class MainFunctionMapper {
                 .priority(todoResponse.getPriority())
                 .category(todoResponse.getCategory())
                 .status(TodoStatus.IN_PROGRESS)
+                .project(todoResponse.getProject())
                 .description(todoResponse.getDescription())
-                .dueDate(todoResponse.getDueDate())
                 .createdAt(LocalDateTime.now())
+                .end(todoResponse.getEnd() != null ? todoResponse.getEnd() : LocalDate.now())
                 .build();
     }
 
@@ -66,14 +67,12 @@ public class MainFunctionMapper {
         return todo.stream()
                 .map(todo1 -> TodoRequest.builder()
                         .todo_id(todo1.getTodo_id())
-//                        .userId(todo1.getUserId())
                         .title(todo1.getTitle())
                         .description(todo1.getDescription())
                         .category(todo1.getCategory())
                         .priority(todo1.getPriority())
                         .status(todo1.getStatus())
-                        .dueDate(todo1.getDueDate())
-                        .createdAt(todo1.getCreatedAt())
+                        .end(todo1.getEnd())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -208,10 +207,16 @@ public class MainFunctionMapper {
 
 
     public List<Schedule> generateRepeatSchedules(String userId, ScheduleDTO scheduleDTO) {
+        if (scheduleDTO.getRepeatFrequency()!=null){
+            log.info("test1={}",scheduleDTO.toString());
+
+            return generateRepeatFrequencySchedules(userId,scheduleDTO);
+        }
+
         List<Schedule> repeatSchedules = new ArrayList<>();
 
         LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();
-        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate(); //  전체 반복 종료일 사용
+        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate();
         Set<DayOfWeek> repeatDaysSet = convertToDayOfWeekSet(scheduleDTO.getRepeatDays());
 
         LocalDate currentDate = start;
@@ -278,5 +283,57 @@ public class MainFunctionMapper {
             }
         }
         return daysSet;
+    }
+
+    public List<Schedule> generateRepeatFrequencySchedules(String userId, ScheduleDTO scheduleDTO) {
+        List<Schedule> repeatSchedules = new ArrayList<>();
+
+        LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();
+        LocalDate end = scheduleDTO.getRepeatEndDate().toLocalDate();
+        LocalDate currentDate = start;
+
+        String frequency = scheduleDTO.getRepeatFrequency();
+        int interval = scheduleDTO.getRepeatInterval();
+
+        Set<DayOfWeek> repeatDaysSet = new HashSet<>();
+        if ("weekly".equals(frequency)) {
+            repeatDaysSet = convertToDayOfWeekSet(scheduleDTO.getRepeatDays());
+        }
+
+        while (currentDate != null && !currentDate.isAfter(end)) {
+            if ("daily".equals(frequency)) {
+                repeatSchedules.add(createSchedule(userId, scheduleDTO, currentDate));
+                currentDate = currentDate.plusDays(interval);
+
+            } else if ("weekly".equals(frequency)) {
+                if (repeatDaysSet.contains(currentDate.getDayOfWeek())) {
+                    repeatSchedules.add(createSchedule(userId, scheduleDTO, currentDate));
+                }
+                currentDate = currentDate.plusDays(1);
+
+            } else if ("monthly".equals(frequency)) {
+                repeatSchedules.add(createSchedule(userId, scheduleDTO, currentDate));
+                currentDate = currentDate.plusMonths(interval);
+            }
+        }
+
+        return repeatSchedules;
+    }
+    private Schedule createSchedule(String userId, ScheduleDTO scheduleDTO, LocalDate currentDate) {
+        return Schedule.builder()
+                .userId(userId)
+                .title(scheduleDTO.getTitle())
+                .startDatetime(LocalDateTime.of(currentDate, scheduleDTO.getStartDatetime().toLocalTime()))
+                .endDatetime(LocalDateTime.of(currentDate, scheduleDTO.getEndDatetime().toLocalTime()))
+                .allDay(scheduleDTO.getAllDay())
+                .location(scheduleDTO.getLocation())
+                .category(scheduleDTO.getCategory())
+                .description(scheduleDTO.getDescription())
+                .createdAt(LocalDateTime.now())
+                .isRepeat(true)
+                .repeatDays(scheduleDTO.getRepeatDays())
+                .repeatStartDate(scheduleDTO.getRepeatStartDate())
+                .repeatEndDate(scheduleDTO.getRepeatEndDate())
+                .build();
     }
 }

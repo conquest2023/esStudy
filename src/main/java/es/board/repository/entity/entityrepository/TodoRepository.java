@@ -27,21 +27,25 @@ public interface TodoRepository  extends JpaRepository<Todo,Long> {
     @Query("UPDATE Todo u SET u.status = :status WHERE u.todo_id = :todo_id")
     void updateStatus(@Param("status") TodoStatus status, @Param("todo_id") Long todo_id);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.createdAt) = :today AND t.status = 'DONE'")
-    Long countByUserIdClearToDo(@Param("userId") String userId, @Param("today") LocalDate today);
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.status = 'DONE'" )
+    Long countByUserIdClearTodo(@Param("userId") String userId, @Param("today") LocalDate today);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.createdAt) = :today")
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today")
     Long countGraphByUserAllId(@Param("userId") String userId, @Param("today") LocalDate today);
 
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND DATE(t.createdAt) = :today")
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.project IS NULL ")
     List<Todo> findTodayTodos(@Param("userId") String userId, @Param("today") LocalDate today);
 
     @Query("SELECT t FROM Todo t WHERE t.userId = :userId")
     List<Todo> findAllByTodos(@Param("userId") String userId);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS' AND DATE(t.createdAt) = :today")
-    Long countByUserIdAndStatusYetToDo(@Param("userId") String userId, LocalDate today);
+
+    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.project =true")
+    List<Todo> findProjectTodo(@Param("userId") String userId);
+
+    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS' AND DATE(t.end) = :today")
+    Long countByUserIdAndStatusYetTodo(@Param("userId") String userId, LocalDate today);
 
 
     @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'" )
@@ -50,6 +54,6 @@ public interface TodoRepository  extends JpaRepository<Todo,Long> {
     @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.createdAt) = :today")
     List<String> findAllTodoUserTodayIds(LocalDate today);
 
-    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.createdAt) = :today")
+    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.end) = :today")
     Set<String> findSETAllTodoUserTodayIds(LocalDate today);
 }

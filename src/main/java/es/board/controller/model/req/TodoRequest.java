@@ -38,5 +38,7 @@ public class TodoRequest {
 
     private LocalDateTime createdAt;
 
+    private LocalDate end;
+
     private LocalDateTime updatedAt;
 }

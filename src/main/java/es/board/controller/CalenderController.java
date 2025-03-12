@@ -36,7 +36,7 @@ public class CalenderController {
         }
 
     }
-    @PostMapping("/save/calendar/schedule")
+    @PostMapping("/save/repeat/schedule")
     public void saveRepeatCalendar(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -46,6 +46,8 @@ public class CalenderController {
         }
 
     }
+
+
 
 
     @GetMapping("/search/repeat/schedule")

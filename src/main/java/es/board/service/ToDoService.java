@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ToDoService {
 
-
+    List<TodoRequest> getProjectTodo(String userId);
     List<TodoRequest> getUserToDo(String userId);
 
     List<TodoRequest> getUserAllToDo(String userId);
@@ -25,8 +25,10 @@ public interface ToDoService {
 
     void updateTodoCache(String userId) ;
 
-        void completeTodo(String token, Long id);
+    void completeTodo(String token, Long id);
 
     Long getDoneTodo(String userId);
+
+    void saveProjectTodo(String userId, TodoResponse todoResponse);
 
 }

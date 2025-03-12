@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Todo {
-//    @Id
-//    private String id;
+
 
     private String userId;
 

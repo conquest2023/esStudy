@@ -61,12 +61,10 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public void addToDo(String token, TodoResponse todoResponse) {
-
         todoRepository.save(toDoMapper.TodoToEntity(jwtTokenProvider.getUserId(token), todoResponse));
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().increment(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
-
     }
 
     @Override
@@ -88,7 +86,7 @@ public class ToDoServiceImpl implements ToDoService {
         if (cachedCount != null) {
             return cachedCount;
         }
-        Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
+        Long remainingCount = todoRepository.countByUserIdAndStatusYetTodo(userId,LocalDate.now());
         if(remainingCount>0) {
             redisTemplate.opsForValue().set(redisKey, remainingCount, Duration.ofSeconds(60));
             notificationService.sendTodoNotification(userId, " 남은 Todo: " + remainingCount + "개");
@@ -106,7 +104,7 @@ public class ToDoServiceImpl implements ToDoService {
     @Override
     public void updateTodoCache(String userId) {
         String redisKey = REDIS_TODO_COUNT_KEY + userId;
-        Long newCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
+        Long newCount = todoRepository.countByUserIdAndStatusYetTodo(userId,LocalDate.now());
         redisTemplate.opsForValue().set(redisKey, newCount, Duration.ofSeconds(60));
     }
 
@@ -122,14 +120,25 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public Long getDoneTodo(String userId) {
-       return   todoRepository.countByUserIdClearToDo(userId,LocalDate.now());
+       return   todoRepository.countByUserIdClearTodo(userId,LocalDate.now());
     }
-    @Scheduled(fixedRate = 600000) // 10분마다 실행
+
+    @Override
+    public void saveProjectTodo(String userId, TodoResponse todoResponse) {
+        todoRepository.save(toDoMapper.TodoToEntity(userId,todoResponse));
+    }
+
+    @Override
+    public List<TodoRequest> getProjectTodo(String userId) {
+      return  toDoMapper.EntityToTodo(todoRepository.findProjectTodo(userId));
+    }
+
+    @Scheduled(fixedRate = 600000)
     public void syncRedisWithDatabase() {
         Set<String> allUserIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now());
         log.info(allUserIds.toString());
         for (String userId : allUserIds) {
-            Long remainingCount = todoRepository.countByUserIdAndStatusYetToDo(userId,LocalDate.now());
+            Long remainingCount = todoRepository.countByUserIdAndStatusYetTodo(userId,LocalDate.now());
             redisTemplate.opsForValue().set(REDIS_TODO_COUNT_KEY + userId, remainingCount, Duration.ofSeconds(60));
         }
     }
@@ -143,7 +152,7 @@ public class ToDoServiceImpl implements ToDoService {
 
             for (String userId : userIds) {
                 long totalTodos = todoRepository.countGraphByUserAllId(userId,LocalDate.now());
-                long completedTodos = todoRepository.countByUserIdClearToDo(userId,LocalDate.now());
+                long completedTodos = todoRepository.countByUserIdClearTodo(userId,LocalDate.now());
                 double completionRate = totalTodos > 0 ? (double) completedTodos / totalTodos * 100 : 0;
 
                 Todo rate = new Todo(userId, completionRate, LocalDateTime.now());

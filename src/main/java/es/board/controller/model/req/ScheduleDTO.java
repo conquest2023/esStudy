@@ -63,4 +63,9 @@ public class ScheduleDTO {
     @JsonSerialize(using = XssSafeSerializer.class)
     private LocalDateTime repeatEndDate;
 
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private String repeatFrequency;
+
+    @JsonSerialize(using = XssSafeSerializer.class)
+    private Integer repeatInterval;
 }
