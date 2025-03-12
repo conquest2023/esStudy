@@ -4,22 +4,49 @@ import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.req.VoteResponse;
+import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Reply;
-import es.board.repository.entity.Likes;
-import es.board.repository.entity.Notice;
-import es.board.repository.entity.UserVote;
-import es.board.repository.entity.Vote;
+import es.board.repository.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class FeedMapper {
+    public Post PostToEntity(FeedCreateResponse feedSaveDTO) {
+        return Post.builder()
+                .userId(feedSaveDTO.getUserId())
+                .feedUID(UUID.randomUUID().toString())
+                .username(feedSaveDTO.getUsername())
+                .title(feedSaveDTO.getTitle())
+                .imageUrl(feedSaveDTO.getImageURL())
+                .anonymous(feedSaveDTO.isAnonymous())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public Board BoardToDocument(FeedCreateResponse response, int id ,String feedUID) {
+        log.info(response.toString());
+        return Board.builder()
+                .feedUID(feedUID)
+                .id(id)
+                .userId(response.getUserId())
+                .username(response.getUsername())
+                .imageURL(response.getImageURL())
+                .title(response.getTitle())
+                .description(response.getDescription().replace("\\n", "\n"))
+                .category(response.getCategory())
+                .viewCount(response.getViewCount())
+                .likeCount(response.getLikeCount())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
     public List<FeedRequest> BoardListToDTO(List<Board> boards) {
         return boards.stream()
@@ -38,25 +65,6 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-
-    public FeedRequest isAuthorList(Board board, Boolean isAuthor) {
-        return      FeedRequest.builder()
-                        .feedUID(board.getFeedUID())
-                        .id(board.getId())
-                        .userId(board.getUserId())
-                        .username(board.getUsername())
-                        .imageURL(board.getImageURL())
-                        .title(board.getTitle())
-                        .description(board.getDescription())
-                        .likeCount(board.getLikeCount())
-                        .category(board.getCategory())
-                        .viewCount(board.getViewCount())
-                        .isAuthor(isAuthor)
-                        .createdAt(board.getCreatedAt())
-                        .build();
-    }
-
-
     public FeedRequest BoardToDTO(Board board) {
         return FeedRequest.builder()
                 .feedUID(board.getFeedUID())
@@ -65,7 +73,7 @@ public class FeedMapper {
                 .username(board.getUsername())
                 .imageURL(board.getImageURL())
                 .title(board.getTitle())
-                .description(board.getDescription())
+                .description(board.getDescription().replace("\n", "<br>"))
                 .category(board.getCategory())
                 .viewCount(board.getViewCount())
                 .likeCount(board.getLikeCount())

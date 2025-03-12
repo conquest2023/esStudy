@@ -4,11 +4,9 @@ package es.board.controller.model.mapper;
 import es.board.controller.model.req.D_DayDTO;
 import es.board.controller.model.req.ScheduleDTO;
 import es.board.controller.model.req.TodoRequest;
+import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.controller.model.res.TodoResponse;
-import es.board.repository.entity.D_Day;
-import es.board.repository.entity.Schedule;
-import es.board.repository.entity.Todo;
-import es.board.repository.entity.TodoStatus;
+import es.board.repository.entity.*;
 import lombok.Data;
 
 import java.time.DayOfWeek;
@@ -28,8 +26,28 @@ import java.util.stream.Collectors;
 @Data
 @Slf4j
 @Component
-public class ToDoMapper {
+public class MainFunctionMapper {
 
+    public InterviewAnswerDTO fromInterviewDTO(InterviewAnswer answer) {
+        return InterviewAnswerDTO.builder()
+                .id(answer.getId())
+                .questionId(answer.getQuestionId())
+                .userId(answer.getUserId())
+                .answer(answer.getAnswer())
+                .likes(answer.getLikes())
+                .createdAt(answer.getCreatedAt())
+                .build();
+    }
+
+    public  InterviewAnswer toInterviewEntity(InterviewAnswerDTO dto,String userId) {
+        return InterviewAnswer.builder()
+                .questionId(dto.getQuestionId())
+                .userId(userId)
+                .answer(dto.getAnswer())
+                .likes(dto.getLikes())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
     public Todo TodoToEntity(String userId, TodoResponse todoResponse) {
         return Todo.builder()

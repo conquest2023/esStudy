@@ -365,7 +365,9 @@
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
         }
-        const formattedDescription = convertLinks(board.description);
+        const formattedDescription = convertLinks(board.description)
+            ? convertLinks(board.description).replace(/\n/g, "<br>")
+            : "";
         let deleteButtonHTML = '';
         // if (jsonData.Owner && token) {
         //     actionButtonsHTML = `

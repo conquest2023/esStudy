@@ -6,6 +6,7 @@ import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.*;
+import es.board.repository.document.Board;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
 import es.board.repository.entity.User;
@@ -170,11 +171,10 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> savePostAsync(FeedCreateResponse feedSaveDTO) {
+    public CompletableFuture<Void> savePostAsync(Board board, int postId) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
-
         try {
-            feedDAO.indexSaveFeed(feedSaveDTO);
+            feedDAO.indexSaveFeed(board,postId);
             log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
         } catch (Exception e) {
             log.error("Elasticsearch 저장 실패", e);

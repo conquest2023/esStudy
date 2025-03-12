@@ -9,20 +9,17 @@
 <div class="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
     <h2 class="text-xl font-bold mb-4">🔥 인기 투표</h2>
 
-    <!-- ✅ 기존 투표 목록 -->
     <div th:each="vote : ${votes}" class="border-b pb-4 mb-4">
         <h3 class="text-lg font-semibold" th:text="${vote.title}"></h3>
         <p class="text-gray-600" th:text="${vote.description}"></p>
         <p class="text-sm text-gray-500" th:text="'작성자: ' + ${vote.username}"></p>
 
-        <!-- ✅ 추천 버튼 (AJAX 요청) -->
         <button th:attr="data-id=${vote.id}, data-post=${vote.postId}, data-feed=${vote.feedId}"
                 class="vote-btn mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
             👍 추천 (<span th:id="'vote-count-' + ${vote.id}" th:text="${vote.upvote ? '1' : '0'}"></span>)
         </button>
     </div>
 
-    <!-- ✅ 새로운 투표 추가 폼 -->
     <div class="mt-6">
         <h3 class="text-lg font-semibold">➕ 새 투표 추가</h3>
         <form id="addVoteForm" class="mt-4">
@@ -38,7 +35,6 @@
 <script>
 
 
-    // ✅ 투표 추천 (AJAX 요청)
     document.querySelectorAll('.vote-btn').forEach(button => {
         button.addEventListener('click', function () {
             const voteId = this.getAttribute('data-id');

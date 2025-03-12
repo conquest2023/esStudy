@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.ToDoMapper;
+import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.req.D_DayDTO;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     private  final ToDoDAO toDoDAO;
 
-    private  final ToDoMapper toDoMapper;
+    private  final MainFunctionMapper toDoMapper;
 
     private final NotificationService notificationService;
 

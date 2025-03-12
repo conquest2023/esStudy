@@ -49,17 +49,5 @@ public class Post {
 
 
 
-    public Post PostToEntity(FeedCreateResponse feedSaveDTO) {
-        return Post.builder()
-                .id(id)
-                .userId(feedSaveDTO.getUserId())
-                .feedUID(feedSaveDTO.getFeedUID())
-                .username(feedSaveDTO.getUsername())
-                .title(feedSaveDTO.getTitle())
-                .imageUrl(feedSaveDTO.getImageURL())
-                .anonymous(feedSaveDTO.isAnonymous())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
 
 }

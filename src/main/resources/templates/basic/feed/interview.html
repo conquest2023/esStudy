@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>면접 질문 UI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .nav-tabs .nav-link {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .question-card {
+            margin-bottom: 20px;
+        }
+        .answer-area {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
+<div class="container my-5">
+    <h1 class="text-center">면접 질문</h1>
+
+    <!-- 탭 네비게이션 -->
+    <ul class="nav nav-tabs justify-content-center" id="interviewTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="private-tab" data-bs-toggle="tab" data-bs-target="#private" type="button" role="tab" aria-controls="private" aria-selected="true">
+                사기업
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="it-tab" data-bs-toggle="tab" data-bs-target="#it" type="button" role="tab" aria-controls="it" aria-selected="false">
+                IT
+            </button>
+        </li>
+    </ul>
+
+    <!-- 탭 콘텐츠 -->
+    <div class="tab-content mt-4" id="interviewTabContent">
+        <div class="tab-pane fade show active" id="private" role="tabpanel" aria-labelledby="private-tab">
+            <div id="privateQuestions"></div>
+        </div>
+
+        <!-- IT 탭 -->
+        <div class="tab-pane fade" id="it" role="tabpanel" aria-labelledby="it-tab">
+            <div id="itQuestions"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 스크립트 (AJAX 호출은 필요에 따라 구현) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function fetchInterviewQuestions() {
+        try {
+            // ✅ 백엔드에서 IT & 사기업 질문 한 번에 가져옴
+            const response = await fetch('/interview/test');
+            const data = await response.json();
+            console.log(data);
+
+            if (!Array.isArray(data) || data.length === 0) {
+                console.error("면접 질문이 없습니다.");
+                return;
+            }
+
+            // ✅ IT & 사기업 질문을 각각 할당
+            const itQuestion = data.find(q => q.category === "IT");
+            const privateQuestion = data.find(q => q.category === "일반");
+
+            if (itQuestion) renderQuestion(itQuestion, "itQuestions");
+            if (privateQuestion) renderQuestion(privateQuestion, "privateQuestions");
+
+        } catch (error) {
+            console.error("면접 질문 로딩 오류:", error);
+        }
+    }
+
+    // ✅ 질문을 렌더링하는 함수
+    function renderQuestion(question, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+        <div class="card question-card">
+            <div class="card-header">
+                <h5 class="mb-0">${question.question}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">${question.question}</p>
+                <div class="answer-area">
+                    <textarea class="form-control answer-input" rows="3"
+                        placeholder="여기에 답변을 입력하세요..." data-question-id="${question.id}"></textarea>
+                    <button class="btn btn-primary mt-2 submit-answer" data-question-id="${question.id}">
+                        답변 제출
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+        // ✅ 버튼 클릭 이벤트 추가 (중복 방지)
+        const submitButton = container.querySelector(".submit-answer");
+        submitButton.addEventListener("click", handleSubmitAnswer);
+    }
+
+    // ✅ 답변 제출 함수 (중복 등록 방지)
+    async function handleSubmitAnswer(event) {
+        const submitButton = event.target;
+        const questionId = submitButton.getAttribute("data-question-id");
+        const answerTextarea = document.querySelector(`textarea[data-question-id="${questionId}"]`);
+        const answer = answerTextarea.value.trim();
+
+        if (!answer) {
+            alert("답변을 입력해주세요.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        submitButton.disabled = true;
+
+        const requestData = {
+            questionId: questionId,
+            answer: answer
+        };
+
+        try {
+            const response = await fetch("/save/interview/question", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("답변이 성공적으로 저장되었습니다.");
+                answerTextarea.value = "";
+            } else {
+                alert(`오류 발생: ${result.error}`);
+            }
+        } catch (error) {
+            console.error("답변 저장 오류:", error);
+            alert("서버 오류가 발생했습니다.");
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchInterviewQuestions);
+
+
+
+
+</script>
+</body>
+</html>

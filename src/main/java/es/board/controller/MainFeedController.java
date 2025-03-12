@@ -195,6 +195,12 @@ public class MainFeedController {
         return "basic/feed/TeamCalendar";
     }
 
+    @GetMapping("/interview/question")
+    public String getInterview() {
+
+        return "basic/feed/interview";
+    }
+
 
     @GetMapping("/resume/template/3")
     public String getResume3() {

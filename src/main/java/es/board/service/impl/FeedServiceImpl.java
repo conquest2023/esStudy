@@ -15,6 +15,7 @@ import es.board.repository.entity.entityrepository.LikeRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceContext;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -112,9 +110,8 @@ public class FeedServiceImpl implements FeedService {
     public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(feedSaveDTO);
-            int savedPostId = savePost(feedSaveDTO);
-            esSettingId(feedSaveDTO, savedPostId);
-            asyncService.savePostAsync(feedSaveDTO);
+            Map<String,Object> Ids = savePost(feedSaveDTO);
+            asyncService.savePostAsync(feedMapper.BoardToDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
             return feedSaveDTO;
         });
     }
@@ -315,13 +312,12 @@ public class FeedServiceImpl implements FeedService {
         return boards;
     }
 
-    private int savePost(FeedCreateResponse feedSaveDTO) {
-
-        Post post = new Post();
-        feedSaveDTO.setFeedUID(UUID.randomUUID().toString());
-        Post savedPost = postRepository.save(post.PostToEntity(feedSaveDTO));
-
-        return savedPost.getId();
+    private Map<String,Object>  savePost(FeedCreateResponse feedSaveDTO) {
+        Map<String,Object> Ids=new HashMap<>();
+        Post savedPost = postRepository.save(feedMapper.PostToEntity(feedSaveDTO));
+        Ids.put("postId",savedPost.getId());
+        Ids.put("feedUID",savedPost.getFeedUID());
+        return Ids;
     }
 
     private List<String> extractFeedUID(List<FeedRequest> requests) {
@@ -332,7 +328,6 @@ public class FeedServiceImpl implements FeedService {
     }
 
     public void esSettingId(FeedCreateResponse feedSaveDTO, int id) {
-        feedSaveDTO.setId(id);
     }
     private static void checkValueFeed(FeedCreateResponse feedSaveDTO) {
         log.info(feedSaveDTO.toString());

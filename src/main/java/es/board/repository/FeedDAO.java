@@ -30,7 +30,7 @@ public interface FeedDAO {
 
     List<Board> saveBulkFeed(List<Board> pages) ;
 
-    FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) ;
+    Board indexSaveFeed(Board board,int postId) ;
 
 
     List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;

@@ -303,6 +303,10 @@
                             formData.set("username", usernameValue);
                         }
                         try {
+                            const description = formData.get("description");
+                            if (description) {
+                                formData.set("description", description.replace(/\n/g, "\\n"));
+                            }
                             const response = await fetch("/search/view/feed/save", {
                                 method: "POST",
                                 body: formData,

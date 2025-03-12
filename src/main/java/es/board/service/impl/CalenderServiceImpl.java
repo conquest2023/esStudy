@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.ToDoMapper;
+import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.req.ScheduleDTO;
 import es.board.repository.ScheduleDAO;
 import es.board.repository.entity.Schedule;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class CalenderServiceImpl implements CalenderService {
 
     private  final ScheduleDAO scheduleDAO;
 
-    private  final ToDoMapper toDoMapper;
+    private  final MainFunctionMapper toDoMapper;
 
     @Override
     public void saveRepeatSchedule(String token, ScheduleDTO scheduleDTO) {

@@ -86,15 +86,14 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public FeedCreateResponse indexSaveFeed(FeedCreateResponse dto) {
-        dto.TimePush();
+    public Board indexSaveFeed(Board board,int postId) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
-                    .id(String.valueOf(dto.getId()))
-                    .document(dto));
+                    .id(String.valueOf(postId))
+                    .document(board));
             log.info(response.toString());
-            return dto;
+            return board;
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the document", e);
