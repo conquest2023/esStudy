@@ -61,12 +61,10 @@
     </div>
 </div>
 
-<!-- 스크립트 (AJAX 호출은 필요에 따라 구현) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     async function fetchInterviewQuestions() {
         try {
-            // ✅ 백엔드에서 IT & 사기업 질문 한 번에 가져옴
             const response = await fetch('/interview/test');
             const data = await response.json();
             console.log(data);
@@ -76,7 +74,6 @@
                 return;
             }
 
-            // ✅ IT & 사기업 질문을 각각 할당
             const itQuestion = data.find(q => q.category === "IT");
             const privateQuestion = data.find(q => q.category === "일반");
 
@@ -88,7 +85,6 @@
         }
     }
 
-    // ✅ 질문을 렌더링하는 함수
     function renderQuestion(question, containerId) {
         const container = document.getElementById(containerId);
         container.innerHTML = `
@@ -101,7 +97,8 @@
                 <div class="answer-area">
                     <textarea class="form-control answer-input" rows="3"
                         placeholder="여기에 답변을 입력하세요..." data-question-id="${question.id}"></textarea>
-                    <button class="btn btn-primary mt-2 submit-answer" data-question-id="${question.id}">
+                    <button class="btn btn-primary mt-2 submit-answer"
+                        data-question-id="${question.id}" data-category="${question.category}">
                         답변 제출
                     </button>
                 </div>
@@ -109,12 +106,9 @@
         </div>
     `;
 
-        // ✅ 버튼 클릭 이벤트 추가 (중복 방지)
         const submitButton = container.querySelector(".submit-answer");
         submitButton.addEventListener("click", handleSubmitAnswer);
     }
-
-    // ✅ 답변 제출 함수 (중복 등록 방지)
     async function handleSubmitAnswer(event) {
         const submitButton = event.target;
         const questionId = submitButton.getAttribute("data-question-id");
@@ -134,9 +128,12 @@
 
         submitButton.disabled = true;
 
+        const category = submitButton.getAttribute("data-category");
+
         const requestData = {
             questionId: questionId,
-            answer: answer
+            answer: answer,
+            category: category
         };
 
         try {
@@ -154,6 +151,8 @@
             if (response.ok) {
                 alert("답변이 성공적으로 저장되었습니다.");
                 answerTextarea.value = "";
+
+                checkQuestionStatus();
             } else {
                 alert(`오류 발생: ${result.error}`);
             }
@@ -164,9 +163,41 @@
             submitButton.disabled = false;
         }
     }
+    async function checkQuestionStatus() {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-    document.addEventListener("DOMContentLoaded", fetchInterviewQuestions);
+        try {
+            const response = await fetch("/interview/check", {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
 
+            const data = await response.json();
+
+            if (data.IT_written) {
+                document.getElementById("itQuestions").innerHTML = `
+                <div class="alert alert-success text-center">
+                    ✅ 질문을 작성해 주셔서 감사합니다.
+                </div>`;
+            }
+
+            if (data.GENERAL_written) {
+                document.getElementById("privateQuestions").innerHTML = `
+                <div class="alert alert-success text-center">
+                    ✅ 질문을 작성해 주셔서 감사합니다.
+                </div>`;
+            }
+        } catch (error) {
+            console.error("질문 상태 확인 실패:", error);
+        }
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchInterviewQuestions();
+        checkQuestionStatus();
+    });
 
 
 

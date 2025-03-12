@@ -1405,8 +1405,6 @@
                     <input type="text" id="searchInput" class="form-control border-0 shadow-none flex-grow-1"
                            placeholder="관심있는 내용을 검색해보세요!">
                 </div>
-
-
             <div class="mb-3 d-flex justify-content-end">
                 <p>조회수 :<span id="viewCount"></span></p>
             </div>
@@ -1414,11 +1412,32 @@
                     <span class="fw-bold text-dark">중요한 일정 & 실시간 정보 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
                 </div>
-                <div id="interviewQuestionContainer" class="aert alert-info text-center fw-bold" style="display: none;"></div>
+                <div class="container mt-3">
+                    <div class="card shadow-sm">
+                        <!-- 카드 헤더: 탭 (왼쪽) + 작성하기 버튼 (오른쪽) -->
+                        <div class="card-header d-flex align-items-center p-2">
+                            <ul class="nav nav-tabs flex-grow-1" id="interviewTabs">
+                                <li class="nav-item">
+                                    <button class="nav-link active" id="itTab" onclick="showQuestions('IT')">IT 기업</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" id="generalTab" onclick="showQuestions('일반')">일반 기업</button>
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary rounded-pill px-4 d-flex align-items-center"
+                                    onclick="location.href='/interview/question'">
+                                <i class="fas fa-edit me-2"></i> 작성하기
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <section class="my-5">
                     <h2 class="section-title">읽어볼만한 글</h2>
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="recommendedPosts">
-
                     </div>
                 </section>
                 <div class="card shadow-sm mt-3" id="voteSection">
@@ -1682,7 +1701,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                console.log("집계 데이터:", data);
                 // data = { totalVotes, upvotes, downvotes, hasVoted ... }
                 updateVoteUI(voteId, data.totalVotes, data.upvotes, data.downvotes, data.hasVoted);
             })
@@ -1733,7 +1751,6 @@
             });
     }
 
-    // 7️⃣ 애니메이션 후 데이터 리로드
     function animateVoteCount(voteId, isUpvote) {
         const target = isUpvote
             ? document.getElementById(`upvote-count-${voteId}`)
@@ -1913,32 +1930,53 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-            fetch("/interview/random")
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.question) {
-                        showInterviewQuestion(data.question);
-                    }
-                })
-                .catch(error => console.error("면접 질문 로드 실패:", error));
-        });
+    let categorizedQuestions = {
+        "IT": [],
+        "일반": []
+    };
 
-        function showInterviewQuestion(question) {
-            const container = document.getElementById("interviewQuestionContainer");
-            container.innerText = `💡 예상 면접 질문: ${question}`;
-            container.style.display = "block";
+    // 페이지 로드 시 한 번만 API 호출
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("/interview/random")
+            .then(response => response.json())
+            .then(data => {
+                console.log("응답 데이터:", data);
+                if (data && data.question) {
+                    data.question.forEach(q => {
+                        if (q.category === "IT") {
+                            categorizedQuestions["IT"].push(q.question);
+                        } else if (q.category === "일반") {
+                            categorizedQuestions["일반"].push(q.question);
+                        }
+                    });
+                }
+                // IT 탭 기본 표시
+                showInterviewQuestion("IT");
+                setActiveTab("IT");
+            })
+            .catch(error => console.error("면접 질문 로드 실패:", error));
+    });
+    function showQuestions(category) {
+        showInterviewQuestion(category);
+        setActiveTab(category);
+    }
 
-            setTimeout(() => {
-                container.style.transition = "opacity 1s";
-                container.style.opacity = "0";
-                setTimeout(() => {
-                    container.style.display = "none";
-                    container.style.opacity = "1";
-                }, 1000);
-            }, 15000);
-        }
+    function showInterviewQuestion(category) {
+        const container = document.getElementById("interviewQuestionContainer");
+        const questionsArray = categorizedQuestions[category];
 
+        const questionToShow = (questionsArray && questionsArray.length > 0)
+            ? questionsArray[0]
+            : "질문 없음";
+
+        container.innerText = `💡 예상 면접 질문: ${questionToShow}`;
+        container.style.display = "block";
+    }
+
+    function setActiveTab(category) {
+        document.getElementById("itTab").classList.toggle("active", category === "IT");
+        document.getElementById("generalTab").classList.toggle("active", category === "일반");
+    }
     document.addEventListener("DOMContentLoaded", function () {
         let rightMenuToggle = document.getElementById("rightMenuToggle");
         let bookmarkToggle = document.getElementById("bookmarkToggle");

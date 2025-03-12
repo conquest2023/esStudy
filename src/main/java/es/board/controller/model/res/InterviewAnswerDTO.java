@@ -15,6 +15,9 @@ public class InterviewAnswerDTO {
     private Long id;
     private Long questionId;
     private String userId;
+
+    private String  category;
+
     private String answer;
     private int likes;
     private LocalDateTime createdAt;
