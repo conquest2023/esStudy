@@ -66,7 +66,7 @@ public class CertificateServiceImpl implements CertificateService {
             long currentTime = System.currentTimeMillis();
 
             if (lastSearchTime != null && (currentTime - lastSearchTime) < SEARCH_REQUEST_DELAY) {
-                log.info("⏳ 검색 제한 적용 ({}ms 이내 중복 요청 차단)", SEARCH_REQUEST_DELAY);
+                log.info("검색 제한 적용 ({}ms 이내 중복 요청 차단)", SEARCH_REQUEST_DELAY);
                 return redisTemplate.opsForValue().get(redisKey) != null
                         ? objectMapper.readValue((String) redisTemplate.opsForValue().get(redisKey), new TypeReference<List<Certificate>>() {})
                         : new ArrayList<>();
@@ -79,7 +79,7 @@ public class CertificateServiceImpl implements CertificateService {
             String cachedJson = (String) redisTemplate.opsForValue().get(redisKey);
             if (cachedJson != null) {
                 List<Certificate> cachedResults = objectMapper.readValue(cachedJson, new TypeReference<List<Certificate>>() {});
-                log.info("✅ 캐시 결과: {}", cachedResults);
+                log.info("캐시 결과: {}", cachedResults);
                 return cachedResults;
             }
         } catch (Exception e) {

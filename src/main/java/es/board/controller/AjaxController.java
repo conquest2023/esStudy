@@ -129,9 +129,10 @@ public class AjaxController {
     @GetMapping("/today/arrgegation")
     @ResponseBody
     public ResponseEntity<?> getTodayAggregation() {
+        Map<String,Double> aggregation= feedService.getDayAggregation();
         return ResponseEntity.ok(Map.of(
-                "todayPosts", feedService.getDayAggregation().get("postCount"),
-                "todayViews", feedService.getDayAggregation().get("viewCount"),
+                "todayPosts", aggregation.get("postCount"),
+                "todayViews", aggregation.get("viewCount"),
                 "todayComments", commentService.getTodayCommentAggregation().get("commentCount")
         ));
     }

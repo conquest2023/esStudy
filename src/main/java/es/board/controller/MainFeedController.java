@@ -36,7 +36,6 @@ public class MainFeedController {
 
     private final FeedService feedService;
 
-    private final CommentService commentService;
 
     private final S3Uploader s3Uploader;
 
@@ -223,7 +222,13 @@ public class MainFeedController {
 
     @GetMapping("/search/view/feed/vote")
     public  String  getVoteFeed(){
+
         return  "basic/feed/VoteAdd";
+    }
+
+    @GetMapping("/site")
+    public  String  getSite(){
+        return  "basic/feed/site";
     }
 
     @GetMapping("/post/page")

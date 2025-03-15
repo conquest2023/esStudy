@@ -31,7 +31,6 @@ public class InterviewQuestionController {
 
     @GetMapping("/interview/random")
     public ResponseEntity<?> getRandomQuestion() {
-        log.info(interviewService.getRandomQuestions().toString());
         return ResponseEntity.ok(Map.of("question", interviewService.getRandomQuestions()));
     }
 

@@ -821,6 +821,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             .sum(sum -> sum
                                                     .field("viewCount")))),
                     Board.class);
+            log.info("Top5={}",response.toString());
             return response.aggregations()
                     .get("top_writers")
                     .sterms()

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>취업 사이트 모음</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <h2 class="fw-bold text-center mb-4">인기 취업 사이트 모음</h2>
+
+    <div class="d-flex justify-content-center mb-4">
+        <button class="btn btn-outline-primary me-2" onclick="filterSites('all')">전체</button>
+        <button class="btn btn-outline-success me-2" onclick="filterSites('it')">IT</button>
+        <button class="btn btn-outline-secondary me-2" onclick="filterSites('general')">일반</button>
+        <button class="btn btn-outline-warning me-2" onclick="filterSites('intern')">신입</button>
+        <button class="btn btn-outline-info" onclick="filterSites('activity')">대외활동</button>
+    </div>
+
+
+    <!--    <div class="input-group mb-4">-->
+<!--        <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요...">-->
+<!--        <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">초기화</button>-->
+<!--    </div>-->
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="siteList"></div>
+</div>
+
+<script>
+    const jobSites = [
+        {
+            name: "잡코리아",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/JobKorea_logo.svg/512px-JobKorea_logo.svg.png",
+            description: "채용 정보 및 연봉 정보 제공",
+            link: "https://www.jobkorea.co.kr",
+            category: ["general", "it"]
+        },
+        {
+            name: "사람인",
+            logo: "https://www.saraminimage.co.kr/common/logo.png",
+            description: "국내 대표 취업 사이트",
+            link: "https://www.saramin.co.kr",
+            category: ["general", "it"]
+        },
+        {
+            name: "원티드",
+            logo: "https://static.wanted.co.kr/images/logo_wanted.png",
+            description: "이력서 등록 후 AI 매칭 추천",
+            link: "https://www.wanted.co.kr",
+            category: ["it"]
+        },
+        {
+            name: "로켓펀치",
+            logo: "https://rocketpunch.com/static/img/meta_og.png",
+            description: "스타트업 및 IT 취업 정보",
+            link: "https://www.rocketpunch.com",
+            category: ["it"]
+        },
+        {
+            name: "점핏",
+            logo: "https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1574966246/noticon/ehxzhlsfemcaox0rgqgt.png",
+            description: "IT 개발자 전문 취업 플랫폼",
+            link: "https://www.jumpit.co.kr",
+            category: ["it"]
+        },
+        {
+            name: "OKKY",
+            logo: "https://okky.kr/static/logo/logo.png",
+            description: "IT 개발자 커뮤니티 및 채용 정보",
+            link: "https://okky.kr",
+            category: ["it"]
+        },
+        {
+            name: "프로그래머스",
+            logo: "https://programmers.co.kr/assets/img/meta/main-visual.jpg",
+            description: "코딩 테스트 & IT 채용 플랫폼",
+            link: "https://programmers.co.kr",
+            category: ["it"]
+        },
+        {
+            name: "직행",
+            logo: "https://jikhaeng.com/static/images/favicon/favicon-32x32.png",
+            description: "IT 개발자를 위한 커리어 성장 플랫폼",
+            link: "https://www.jikhaeng.com",
+            category: ["it"]
+        },
+        {
+            name: "부트텐트",
+            logo: "https://www.bootcamp.co.kr/favicon.ico",
+            description: "IT 부트캠프 & 취업 지원 서비스",
+            link: "https://www.bootcamp.co.kr",
+            category: ["it"]
+        },
+        {
+            name: "잡플래닛",
+            logo: "https://www.jobplanet.co.kr/favicon.ico",
+            description: "기업 리뷰 & 연봉 정보 제공",
+            link: "https://www.jobplanet.co.kr",
+            category: ["it", "general"]
+        },
+        {
+            name: "블라인드",
+            logo: "https://www.teamblind.com/favicon.ico",
+            description: "익명 직장인 커뮤니티",
+            link: "https://www.teamblind.com",
+            category: ["general"]
+        },
+        {
+            name: "링커리어",
+            logo: "https://careerly.co.kr/favicon.ico",
+            description: "대외활동과 인턴 공고가 많은 플랫폼",
+            link: "https://www.linkareer.com",
+            category: ["general", "intern"]
+        },
+        {
+            name: "워크넷",
+            logo: "https://www.work.go.kr/images/common/favicon.ico",
+            description: "정부에서 운영하는 종합 취업 지원 플랫폼",
+            link: "https://www.work.go.kr",
+            category: ["general"]
+        },
+
+        // ✅ 신입 전용 사이트
+        {
+            name: "슈퍼루키",
+            logo: "https://superookie.com/favicon.ico",
+            description: "인턴·신입·계약직 채용 공고가 많음. 직무 찾기 용이",
+            link: "https://www.superookie.com",
+            category: ["intern"]
+        },
+        {
+            name: "자소설닷컴",
+            logo: "https://www.jasoseol.com/favicon.ico",
+            description: "달력형 채용 공고 제공, 지원자 수 확인 가능",
+            link: "https://www.jasoseol.com",
+            category: ["intern"]
+        },
+
+        // ✅ 대외활동 사이트
+        {
+            name: "요즘것들",
+            logo: "https://yozm.wishket.com/favicon.ico",
+            description: "청년·밀레니얼 세대를 위한 대외활동 & 공모전 정보",
+            link: "https://yozm.wishket.com",
+            category: ["activity"]
+        },
+        {
+            name: "캠퍼스",
+            logo: "https://www.campus.co.kr/favicon.ico",
+            description: "대학생 및 청년 대상 대외활동·인턴십·공모전 정보 제공",
+            link: "https://www.campus.co.kr",
+            category: ["activity"]
+        },
+        {
+            name: "위비티",
+            logo: "https://www.wevity.com/favicon.ico",
+            description: "스타트업·IT 업계 대외활동 중심 구직 정보 플랫폼",
+            link: "https://www.wevity.com",
+            category: ["activity"]
+        },
+        {
+            name: "여기부터",
+            logo: "https://www.yogiboot.com/favicon.ico",
+            description: "청년 창업가를 위한 지원 프로그램 및 창업 정보 제공",
+            link: "https://www.yogiboot.com",
+            category: ["activity"]
+        }
+    ];
+    function renderJobSites(filter = "all") {
+        const siteList = document.getElementById("siteList");
+        siteList.innerHTML = "";
+
+        jobSites
+            .filter(site => filter === "all" || site.category.includes(filter))
+            .forEach(site => {
+                const siteHTML = `
+                <div class="col job-site" data-category="${site.category.join(' ')}">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="${site.logo}" class="me-3" alt="사이트 로고" style="width: 50px; height: 50px;">
+                                <h5 class="card-title fw-bold mb-1">${site.name}</h5>
+                            </div>
+                            <p class="card-text text-muted">${site.description}</p>
+                            <a href="${site.link}" class="btn btn-primary btn-sm w-100" target="_blank">
+                                방문하기 <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+                siteList.innerHTML += siteHTML;
+            });
+    }
+
+    function filterSites(category) {
+        renderJobSites(category);
+    }
+
+    // document.getElementById("searchInput").addEventListener("input", function () {
+    //     const query = this.value.toLowerCase();
+    //     document.querySelectorAll(".job-site").forEach(site => {
+    //         const siteName = site.querySelector(".card-title").innerText.toLowerCase();
+    //         const siteDescription = site.querySelector(".card-text").innerText.toLowerCase();
+    //         const category = site.getAttribute("data-category");
+    //
+    //         if (siteName.includes(query) || siteDescription.includes(query) || category.includes(query)) {
+    //             site.style.display = "block";
+    //         } else {
+    //             site.style.display = "none";
+    //         }
+    //     });
+    // });
+
+    function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        document.querySelectorAll(".job-site").forEach(site => site.style.display = "block");
+    }
+    document.addEventListener("DOMContentLoaded", () => renderJobSites("all"));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

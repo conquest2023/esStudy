@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ninfo</title>
     <div class="container">
-        <!-- 카테고리 카드 -->
-
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
@@ -38,7 +35,6 @@
 
         }
 
-        /* 게시판 */
         #feedTable thead th {
             background-color: #f8f9fa;
         }
@@ -46,46 +42,93 @@
             background-color: #f1f3f5;
             cursor: pointer;
         }
-        .badge-view {
-            background-color: #6c757d;
-        }
-        .badge-like {
-            background-color: #198754;
-        }
-        .wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
         @media (max-width: 1400px) {
             .container-custom {
                 max-width: 95%;
             }
         }
-
-        /* ✅ 모바일에서만 적용되는 스타일 */
         @media (max-width: 768px) {
             .balloon {
                 opacity: 1;
             }
-            .bookmark-btn {
-                position: fixed;
-                top: 50%;
-                right: 10px;
-                background: #007bff;
-                color: white;
-                border: none;
-                padding: 8px 12px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 18px;
-                z-index: 1000;
+            .modern-tabs {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                white-space: nowrap;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                padding-bottom: 5px;
             }
-            /*.menu-toggle, #rightMenuToggle {*/
-            /*    display: flex !important;*/
-            /*}*/
+
+            .d-flex.align-items-center {
+                flex-direction: row;
+                justify-content: flex-end;
+                flex-wrap: nowrap;
+                gap: 8px;
+            }
+            .notification-container {
+                margin-right: 0 !important;
+            }
+
+            .btn {
+                width: auto;
+                white-space: nowrap;
+            }
+
+            #user-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            #user-menu-btn {
+                width: auto;
+            }
+            #recommendedPosts {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                gap: 10px;
+                padding-bottom: 10px;
+                padding-left: 100px;
+            }
+
+            .card-custom {
+                flex: 0 0 auto;
+                width: 80%;
+                max-width: 230px;
+                min-width: 200px;
+                scroll-snap-align: start
+            }
+            .card-title a {
+                font-size: 0.9rem;
+            }
+
+            .card-text {
+                font-size: 0.8rem;
+                -webkit-line-clamp: 3;
+            }
+            #interviewQuestionContainer {
+                height: 30px;
+                max-width: 300px;
+                padding: 20px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                background-color: #f8f9fa;
+                font-size: 18px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                word-wrap: break-word;
+                overflow: hidden;
+                white-space: normal;
+            }
             #rightMenuToggle {
-                width: 100%;  /* 부모 요소의 가로폭에 맞춤 */
+                width: 100%;
                 background: #f8f9fa;
                 padding: 10px;
                 border-radius: 5px;
@@ -95,25 +138,10 @@
                 justify-content: space-between;
                 align-items: center;
             }
-            /*#rightMenuToggle {*/
-            /*    position: fixed;*/
-            /*    top: 100px;*/
-            /*    right: 100px;*/
-            /*    background: white;*/
-            /*    border-radius: 8px;*/
-            /*    padding: 10px 15px;*/
-            /*    display: flex !important;*/
-            /*    align-items: center;*/
-            /*    gap: 10px;*/
-            /*    cursor: pointer;*/
-            /*    z-index: 1500;*/
-            /*    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);*/
-            /*    transition: opacity 0.5s ease-in-out;*/
-            /*}*/
             .hidden {
                 opacity: 0;
                 transform: translateY(10px);
-                pointer-events: none; /* 클릭 방지 */
+                pointer-events: none;
             }
             #expandSidebar {
                 background: #007bff;
@@ -162,6 +190,10 @@
             }
             #navbarNav {
                 display: none;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                transition: max-height 0.3s ease-in-out;
             }
             #rightSidebar .card {
                 display: block;
@@ -189,13 +221,14 @@
                 transform: translateX(1000px);
             }
             #navbarNav.show {
-                display: block;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
             }
 
 
-            /*#rightSidebar.show {*/
-            /*    transform: translateX(-250px);*/
-            /*}*/
 
             .menu-toggle, .right-menu-toggle {
                 display: flex;
@@ -258,24 +291,6 @@
             .vertical-menu a:last-child {
                 border-bottom: none;
             }
-            .left-sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 22vw;
-                min-width: 200px;
-                max-width: 280px;
-                height: 100vh;
-                background: white;
-                box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
-                padding: 15px;
-                z-index: 9998;
-                overflow-y: auto;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-            }
-
-
             .right-sidebar {
                 display: block !important;
                 position: fixed;
@@ -309,7 +324,7 @@
             .right-sidebar.active ~ .main-content {
                 margin-left: 22vw;
                 width: calc(100% - 22vw);
-                /*transition: margin-right 0.3s ease-in-out;*/
+
             }
 
 
@@ -317,32 +332,12 @@
                 display: block;
             }
 
-            .main-content {
-                margin-left: 22vw;
-                width: calc(100% - 22vw);
-                transition: margin-left 0.3s ease-in-out;
-            }
-
-
-            #searchForm {
-                flex-direction: column;
-                align-items: center;
-            }
 
             #searchInput {
                 width: 100%;
             }
 
 
-            .login-container {
-                width: 100%;
-                max-width: 230px;
-                background-color: white;
-                padding: 15px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-                margin-bottom: 20px;
-            }
 
             .btn {
                 font-size: 14px;
@@ -382,34 +377,19 @@
 
         }
 
-        #searchForm {
-            max-width: 600px;
-            margin: 0 auto;
-        }
 
         #searchInput {
             min-width: 200px;
             max-width: 300px;
         }
-        .mb-4 {
-            margin-bottom: 20px;
-        }
+
         input[type="date"] {
             width: auto;
             max-width: 150px;
             display: inline-block;
             margin: 5px;
         }
-        .form-control[type="date"] {
-            width: auto !important;
-            max-width: 150px;
-        }
-        .date-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+
         a {
             color: black;
             text-decoration: none;
@@ -421,9 +401,6 @@
             text-decoration: underline;
         }
 
-        .input-group {
-            position: relative;
-        }
         .input-group select,
         .input-group input,
         .input-group button {
@@ -466,7 +443,7 @@
             color: white;
         }
         .btn-group-sm .btn {
-            min-width: 80px; /* 버튼 폭 균일화 */
+            min-width: 80px;
             text-align: center;
         }
         .btn-group .btn:hover {
@@ -552,13 +529,6 @@
             font-size: 14px;
             font-weight:bold;
             color:#333333;
-        }
-        .visitor-stats {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            background: #f8f9fa;
-            margin-bottom: 20px;
         }
 
         .visitor-item {
@@ -661,16 +631,6 @@
             position: sticky;
             top: 20px;
         }
-        .aside-container {
-            width: 300px;
-            height: 100vh;
-            background-color: #f4f4f4;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
 
         .form-group input {
             width: 100%;
@@ -690,16 +650,6 @@
             float: left;
             width: calc(100% - 25%);
         }
-        .notice-container {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
         .notice-container a {
             color: #007bff;
             text-decoration: none;
@@ -724,11 +674,6 @@
             display: flex;
             align-items: center;
         }
-
-
-
-
-
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -777,14 +722,6 @@
         .notification-dropdown li:hover {
             background-color: #f5f5f5;
         }
-        .sidebar-search {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-        }
-
-
         .sidebar-search input {
             flex: 1;
             padding: 6px 10px;
@@ -819,26 +756,12 @@
         .sidebar-search button i {
             font-size: 16px;
         }
-
-        .menu-category {
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-        }
-        .section-header {
-            border-radius: 8px;
-        }
         .section-header h3 {
             display: flex;
             align-items: center;
         }
         .section-header .fas.fa-clipboard-list {
             margin-right: 6px;
-        }
-
-        .menu-subitems {
-            display: none;
-            flex-direction: column;
-            padding-left: 15px;
         }
 
         .menu-subitems a {
@@ -859,11 +782,6 @@
         }
         #profile-info ul li {
             margin-bottom: 5px;
-        }
-        .search-box {
-            position: relative;
-            width: 400px;
-            max-width: 100%;
         }
         .search-box input {
             width: 100%;
@@ -977,19 +895,20 @@
         }
         .balloon {
             position: absolute;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ffcc00;
-            color: #333;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 14px;
+            left: 50%; /* 부모 요소 기준으로 중앙 정렬 */
+            transform: translateX(-50%); /* 중앙 정렬 보정 */
+            bottom: -35px; /* 말풍선 위치 조정 */
             white-space: nowrap;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
-            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: none; /* 기본적으로 숨김 */
+        }
+
+        .nav-item:hover .balloon {
+            display: block; /* 마우스를 올리면 보이도록 */
         }
 
 
@@ -1030,26 +949,11 @@
             flex-direction: column;
             gap: 10px;
         }
-        .ranking-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-        .rank-icon {
-            width: 22px;
-            height: 22px;
-        }
         .rank-name {
             font-weight: bold;
             font-size: 16px;
         }
-        .post-count {
-            font-size: 14px;
-            color: #777;
-        }
+
         .badge-container {
             display: flex;
             gap: 10px;
@@ -1100,28 +1004,11 @@
             font-weight: 600;
         }
 
-        .tag-btn {
-            background: #f2f4f7;
-            color: #555;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.95rem;
-            transition: background 0.2s;
-        }
+
 
         .tag-btn:hover {
             background: #e2e6ea;
         }
-        .description-clamp {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.9rem;
-        }
-
 
         .text-secondary small {
             display: flex;
@@ -1184,13 +1071,6 @@
             border-radius: 3px;
             font-size: 11px;
         }
-        .vote-message {
-            text-align: center;
-            font-weight: bold;
-            color: #27ae60;
-            padding: 10px;
-        }
-
         .calendar-day.has-event {
             background-color: #ffc107;
             font-weight: bold;
@@ -1315,53 +1195,115 @@
         #voteList .list-group-item:hover {
             background: #f1f1f1;
         }
-        .vote-animate {
-            animation: pulse 0.5s ease-in-out;
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            transition: all 0.3s ease-in-out;
         }
 
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, #003f7f);
+            transform: scale(1.05);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .tagline {
+            margin-left: 20px;
+            font-size: 1rem;
+            white-space: nowrap;
+            color: #6c757d;
+        }
+        #interviewQuestionContainer {
+            height: 30px;
+            width: 750px;
+
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
+            overflow: hidden;
+            white-space: normal;
+        }
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.2); opacity: 0.8; }
             100% { transform: scale(1); opacity: 1; }
         }
-
-
-        .badge-view { background: #e3e3e3; color: #333; }
-        .badge-like { background: #FF6B6B; color: white; }
     </style>
     </div>
 </head>
-<button id="leftMenuToggle" class="menu-toggle d-md-none">📂 info</button>
-
-
+<button id="leftMenuToggle" class="menu-toggle d-md-none">📂main</button>
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
-
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand fw-bold text-primary me-2 custom-logo" href="/">Ninfo</a>
+            <span class="tagline d-none d-md-inline">미래를 준비하는 사람들을 위한 사이트</span>
+        </div>
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul class="navbar-nav">
-
-                <li class="nav-item">
-                    <a class="nav-link fw-bold" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT 취업 정보</a>
+                <li class="nav-item dropdown position-relative">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-calendar-alt"></i> 취업 사이트
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT 취업 정보</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item fw-bold" href="/site">
+                                <i class="fas fa-calendar-alt"></i> 취업사이트
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <li class="nav-item position-relative">
-                    <a class="nav-link fw-bold" href="/todo"><i class="fas fa-check"></i>투두 & D-Day 매니저</a>
-                    <div id="todoBalloon" class="balloon below show">오늘 23명이 이용함!</div>
+
+                <li class="nav-item dropdown position-relative">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-calendar-alt"></i> 일정 관리
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
+                        <li>
+                            <a class="dropdown-item fw-bold" href="/todo">
+                                <i class="fas fa-check"></i> 투두 & D-Day 매니저
+                            </a>
+                            <div id="todoBalloon" class="balloon below show">오늘 23명이 이용함!</div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item fw-bold" href="/calendar">
+                                <i class="fas fa-calendar-alt"></i> 캘린더
+                            </a>
+                            <div id="calendarBalloon" class="balloon below show">31명이 이용중!!</div>
+                        </li>
+                    </ul>
                 </li>
 
-
-                <li class="nav-item position-relative">
-                    <a class="nav-link fw-bold" href="/calendar"><i class="fas fa-calendar-alt"></i> 캘린더</a>
-                    <div id="calendarBalloon" class="balloon below show">31명이 이용중!!</div>
-                </li>
-
-                <li class="nav-item position-relative">
-                    <a class="nav-link fw-bold" href="/certificate/list"><i class="fas fa-check"></i> 자격증 분석</a>
-                </li>
-                <li class="nav-item position-relative">
-                    <a class="nav-link fw-bold" href="/certificate/calendar"><i class="fas fa-calendar-alt"></i> 자격증 캘린더</a>
-                    <div id="calendarBalloon2" class="balloon below show">자격증 일정을 확인해보세요!</div>
+                <li class="nav-item dropdown position-relative">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="certificateDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-certificate"></i> 자격증
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="certificateDropdown">
+                        <li>
+                            <a class="dropdown-item fw-bold" href="/certificate/list">
+                                <i class="fas fa-check"></i> 자격증 분석
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item fw-bold" href="/certificate/calendar">
+                                <i class="fas fa-calendar-alt"></i> 자격증 캘린더
+                            </a>
+                            <div id="calendarBalloon2" class="balloon below show">자격증 일정을 확인해보세요!</div>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -1397,7 +1339,7 @@
 </nav>
 
 
-<div class="container-custom">
+        <div class="container-custom">
             <main class="container-custom">
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
                     <div id="todo-alert" class="alert alert-info mt-2" style="display: none;"></div>
@@ -1405,16 +1347,18 @@
                     <input type="text" id="searchInput" class="form-control border-0 shadow-none flex-grow-1"
                            placeholder="관심있는 내용을 검색해보세요!">
                 </div>
-            <div class="mb-3 d-flex justify-content-end">
-                <p>조회수 :<span id="viewCount"></span></p>
-            </div>
+                <div class="mb-3 d-flex align-items-center">
+                    <button id="showVoteButton" class="btn btn-outline-primary btn-sm me-auto" onclick="toggleVoteSection()" style="display: none;">
+                        🗳️ 투표 결과가 궁금하지 않으세요?
+                    </button>
+                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>
+                </div>
                 <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
-                    <span class="fw-bold text-dark">중요한 일정 & 실시간 정보 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
+                    <span class="fw-bold text-dark">중요한 일정 & 실시간 사용자 통계를 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
                 </div>
                 <div class="container mt-3">
                     <div class="card shadow-sm">
-                        <!-- 카드 헤더: 탭 (왼쪽) + 작성하기 버튼 (오른쪽) -->
                         <div class="card-header d-flex align-items-center p-2">
                             <ul class="nav nav-tabs flex-grow-1" id="interviewTabs">
                                 <li class="nav-item">
@@ -1424,10 +1368,11 @@
                                     <button class="nav-link" id="generalTab" onclick="showQuestions('일반')">일반 기업</button>
                                 </li>
                             </ul>
-                            <button class="btn btn-primary rounded-pill px-4 d-flex align-items-center"
+                            <button class="btn btn-primary btn-lg fw-bold rounded-4 px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
                                     onclick="location.href='/interview/question'">
-                                <i class="fas fa-edit me-2"></i> 작성하기
+                                <i class="fas fa-pen-to-square"></i> 작성하기
                             </button>
+
                         </div>
                         <div class="card-body">
                             <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;">
@@ -1450,6 +1395,7 @@
                         </ul>
                     </div>
                 </div>
+
 
 
 
@@ -1489,11 +1435,15 @@
         </main>
 
             <div id="rightSidebarTooltip" class="tooltip-box">
-                 중요한 일정 & 실시간 정보 한눈에!
+                 중요한 일정 & 오늘 사용자 통계치를 한눈에!
             </div>
+
             <aside id="rightSidebar" class="right-sidebar col-md-2 side-container" style="z-index: 10;">
                 <div class="card shadow-sm mt-3">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <button id="closeSidebarBtn" class="btn btn-outline-danger btn-sm d-md-none position-absolute top-0 end-0 m-2">
+                            ✖ 닫기
+                        </button>
                         <ul class="nav nav-tabs card-header-tabs" id="sidebarTabs">
                             <li class="nav-item">
                                 <a class="nav-link active" id="todoTab" data-bs-toggle="tab" href="#todoSection">📋 Todo & D-Day</a>
@@ -1555,16 +1505,15 @@
                         </div>
                     </div>
                 </div>
-                    <div class="card shadow-sm mt-3" id="topWritersCard">
-                <div class="p-3 bg-white rounded shadow-sm">
-                    <h3 class="fw-bold text-primary"> Top 5</h3>
-                    <div id="topWritersList" class="ranking-container"></div>
+                <div class="card shadow-sm mt-3" id="topWritersCard">
+                    <div class="p-3 bg-white rounded shadow-sm">
+                        <h3 class="fw-bold text-primary"> Top 5</h3>
+                        <div id="topWritersList" class="ranking-container"></div>
+                    </div>
                 </div>
-            </div>
-        </aside>
-    </div>
+            </aside>
+        </div>
 </div>
-
 <div class="modal fade" id="dDayTodoModal" tabindex="-1" aria-labelledby="dDayTodoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1589,15 +1538,80 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("rightSidebar");
+        const closeSidebarBtn = document.getElementById("closeSidebarBtn");
+
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener("click", function () {
+                sidebar.classList.remove("show"); // Bootstrap 클래스로 닫기
+                sidebar.style.transform = "translateX(100%)"; // 애니메이션으로 숨김
+            });
+        }
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".dropdown-toggle").forEach((dropdownToggle) => {
+            dropdownToggle.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                let parentDropdown = this.closest(".dropdown");
+                let dropdownMenu = parentDropdown.querySelector(".dropdown-menu");
+
+
+                let isOpen = dropdownMenu.classList.contains("show");
+
+
+                document.querySelectorAll(".dropdown-menu.show").forEach((menu) => {
+                    menu.classList.remove("show");
+                });
+
+                document.querySelectorAll(".dropdown.show").forEach((dropdown) => {
+                    dropdown.classList.remove("show");
+                });
+
+
+                if (!isOpen) {
+                    parentDropdown.classList.add("show");
+                    dropdownMenu.classList.add("show");
+                }
+            });
+        });
+
+        document.addEventListener("click", function () {
+            document.querySelectorAll(".dropdown-menu.show").forEach((menu) => {
+                menu.classList.remove("show");
+            });
+
+            document.querySelectorAll(".dropdown.show").forEach((dropdown) => {
+                dropdown.classList.remove("show");
+            });
+        });
+    });
 
     function closeVoteSection() {
         document.getElementById("voteSection").style.display = "none";
+        document.getElementById("showVoteButton").style.display = "block";
+        localStorage.setItem("voteSectionHidden", "true");
+    }
+    function toggleVoteSection() {
+        document.getElementById("voteSection").style.display = "block";
+        document.getElementById("showVoteButton").style.display = "none";
+        localStorage.removeItem("voteSectionHidden");
     }
     document.addEventListener("DOMContentLoaded", function () {
         fetchVotes();
+
+        if (localStorage.getItem("voteSectionHidden") === "true") {
+            document.getElementById("voteSection").style.display = "none";
+            document.getElementById("showVoteButton").style.display = "block";
+        }
     });
 
     function fetchVotes() {
@@ -1633,8 +1647,6 @@
     function createVoteItem(vote) {
         const voteItem = document.createElement("li");
         voteItem.classList.add("list-group-item");
-
-        // ⚠ data-vote-container 추가 (버튼 비활성화 시 찾기 용)
         voteItem.setAttribute("data-vote-container", vote.id);
 
         voteItem.innerHTML = `
@@ -1707,7 +1719,6 @@
             .catch(error => console.error("Error fetching vote data:", error));
     }
 
-    // 6️⃣ 투표 요청
     let isVoting = false;
     function castVote(voteId, isUpvote) {
         if (isVoting) return;
@@ -1739,7 +1750,6 @@
                     alert(data.error);
                 } else {
                     animateVoteCount(voteId, isUpvote);
-                    // 투표 후 곧바로 최신 데이터 반영
                     setTimeout(() => fetchVoteData(voteId), 600);
                 }
             })
@@ -1773,7 +1783,6 @@
         const voteItem = document.querySelector(`[data-vote-container="${voteId}"]`);
         if (!voteItem) return;
 
-        // ✅ 버튼을 제거하고 찬성/반대 텍스트만 유지
         const voteButtons = voteItem.querySelector(".vote-buttons");
         if (voteButtons) {
             voteButtons.innerHTML = `
@@ -1784,16 +1793,16 @@
     }
 
 
-    // 9️⃣ UI 업데이트
+
     function updateVoteUI(voteId, totalVotes, upvotes, downvotes, hasVoted) {
         console.log(`updateVoteUI: voteId=${voteId}, total=${totalVotes}, up=${upvotes}, down=${downvotes}, hasVoted=${hasVoted}`);
 
-        // null/undefined 대비
+
         totalVotes = totalVotes ?? 0;
         upvotes = upvotes ?? 0;
         downvotes = downvotes ?? 0;
 
-        // 참여자/찬성/반대 표시
+
         const totalElem = document.getElementById(`total-votes-${voteId}`);
         const upElem = document.getElementById(`upvote-count-${voteId}`);
         const downElem = document.getElementById(`downvote-count-${voteId}`);
@@ -1802,7 +1811,7 @@
         if (upElem) upElem.innerText = upvotes;
         if (downElem) downElem.innerText = downvotes;
 
-        // 이미 투표했다면 버튼 비활성화 후 텍스트로 표시
+
         if (hasVoted) {
             disableVoteButtons(voteId, upvotes, downvotes);
         }
@@ -1934,8 +1943,6 @@
         "IT": [],
         "일반": []
     };
-
-    // 페이지 로드 시 한 번만 API 호출
     document.addEventListener("DOMContentLoaded", function() {
         fetch("/interview/random")
             .then(response => response.json())
@@ -1950,7 +1957,7 @@
                         }
                     });
                 }
-                // IT 탭 기본 표시
+
                 showInterviewQuestion("IT");
                 setActiveTab("IT");
             })
@@ -1968,7 +1975,8 @@
         const questionToShow = (questionsArray && questionsArray.length > 0)
             ? questionsArray[0]
             : "질문 없음";
-
+        container.style.display = "flex";
+        container.style.height = "100px";
         container.innerText = `💡 예상 면접 질문: ${questionToShow}`;
         container.style.display = "block";
     }
@@ -1977,6 +1985,9 @@
         document.getElementById("itTab").classList.toggle("active", category === "IT");
         document.getElementById("generalTab").classList.toggle("active", category === "일반");
     }
+
+
+
     document.addEventListener("DOMContentLoaded", function () {
         let rightMenuToggle = document.getElementById("rightMenuToggle");
         let bookmarkToggle = document.getElementById("bookmarkToggle");
@@ -1999,15 +2010,15 @@
             const token = localStorage.getItem("token");
             if (!calendarContainer) return;
 
-            let calendarEvents = []; // 일정 저장할 배열
+            let calendarEvents = [];
             try {
-                const response = await fetch("/search/schedule", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": token ? `Bearer ${token}` : ""
-                    }
-                });
+                // const response = await fetch("/search/schedule", {
+                //     method: "GET",
+                //     headers: {
+                //         "Content-Type": "application/json",
+                //         "Authorization": token ? `Bearer ${token}` : ""
+                //     }
+                // });
                 if (response.ok) {
                     const jsonData = await response.json();
                     if (jsonData.todos) {
@@ -2534,6 +2545,46 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // 모든 드롭다운 요소 가져오기
+        const dropdowns = document.querySelectorAll(".dropdown");
+
+        dropdowns.forEach((dropdown) => {
+            dropdown.addEventListener("click", function (event) {
+                event.stopPropagation(); // 클릭 이벤트 전파 방지
+
+                // 다른 드롭다운이 열려 있다면 닫기
+                dropdowns.forEach((item) => {
+                    if (item !== dropdown) {
+                        item.classList.remove("show");
+                        item.querySelector(".dropdown-menu").classList.remove("show");
+                    }
+                });
+
+                // 현재 드롭다운 토글
+                const menu = dropdown.querySelector(".dropdown-menu");
+                const isOpen = menu.classList.contains("show");
+
+                if (isOpen) {
+                    menu.classList.remove("show");
+                    dropdown.classList.remove("show");
+                } else {
+                    menu.classList.add("show");
+                    dropdown.classList.add("show");
+                }
+            });
+        });
+
+        // 다른 곳을 클릭하면 드롭다운 닫기
+        document.addEventListener("click", function () {
+            dropdowns.forEach((dropdown) => {
+                dropdown.classList.remove("show");
+                dropdown.querySelector(".dropdown-menu").classList.remove("show");
+            });
+        });
+    });
+
     $(document).ready(function () {
 
         $('#searchForm').submit(function (e) {
@@ -2664,10 +2715,8 @@
             }
         }
 
-        // 처음 한 번 적용
         applyLayout();
 
-        // 화면 크기 변경 시 자동 조정
         window.addEventListener("resize", applyLayout);
     });
 
@@ -2735,7 +2784,7 @@
 
 
     function handleLogout() {
-        const loginButton = document.getElementById("login-button"); // 수정
+        const loginButton = document.getElementById("login-button");
         const logoutButton = document.getElementById("logout-button");
         const userInfo = document.getElementById("user-info");
         const profileInfo = document.getElementById("profile-info");
@@ -2895,21 +2944,21 @@
                 });
         });
     })}
-    document.addEventListener('DOMContentLoaded', function () {
-        const token = localStorage.getItem('token');
-
-        fetch('/todo/remaining', {
-            method: 'GET',
-            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.remainingCount !== undefined) {
-                    document.getElementById("todo-alert").innerText = `📌 오늘 해야 할 일이 ${data.remainingCount}개 남았습니다!`;
-                }
-            })
-            .catch(error => console.error("Todo 개수 불러오기 실패:", error));
-    });
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const token = localStorage.getItem('token');
+    //
+    //     fetch('/todo/remaining', {
+    //         method: 'GET',
+    //         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.remainingCount !== undefined) {
+    //                 document.getElementById("todo-alert").innerText = `📌 오늘 해야 할 일이 ${data.remainingCount}개 남았습니다!`;
+    //             }
+    //         })
+    //         .catch(error => console.error("Todo 개수 불러오기 실패:", error));
+    // });
 
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -2923,7 +2972,7 @@
             const isVisible = notificationDropdown.style.display === "block";
             notificationDropdown.style.display = isVisible ? "none" : "block";
 
-            // 새 알림 확인 시 배지 숨김
+
             if (!isVisible) {
                 notificationBadge.style.display = "none";
             }
@@ -3109,17 +3158,14 @@
                 const postHTML = `
             <div class="col">
             <div class="card card-custom p-3 h-100 shadow-sm border-0">
-
                 ${post.imageURL ? `
                 <img src="${post.imageURL}" class="card-img-top rounded" alt="이미지" style="height: 150px; object-fit: cover;">
                 ` : ''}
-
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge badge-pick">GOOD</span>
                         <small class="text-muted">추천글</small>
                     </div>
-
                       <h5 class="card-title fw-bold">
            <a href="/search/view/feed/id?id=${post.feedUID}" class="text-decoration-none text-dark">
                 ${post.title} </a> </h5>
@@ -3172,33 +3218,33 @@
     }
 
 
-    function fetchQuickTodoList(token) {
-        fetch("/search/today/todo", {
-            method: "GET",
-            headers: { "Authorization": "Bearer " + token }
-        })
-            .then(response => response.json())
-            .then(data => {
-                const list = document.getElementById("quickTodoList");
-                list.innerHTML = "";
-
-                if (data.length === 0) {
-                    list.innerHTML = `<li class="list-group-item text-muted">오늘의 Todo가 없습니다.</li>`;
-                    return;
-                }
-
-                data.forEach(todo => {
-                    const statusIcon = getStatusIcon(todo.status);
-                    const item = `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>${statusIcon} ${todo.title}</span>
-                    <span class="badge bg-secondary">${todo.priority}</span>
-                </li>`;
-                    list.innerHTML += item;
-                });
-            })
-            .catch(err => console.error("Todo 불러오기 실패:", err));
-    }
+    // function fetchQuickTodoList(token) {
+    //     fetch("/search/today/todo", {
+    //         method: "GET",
+    //         headers: { "Authorization": "Bearer " + token }
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const list = document.getElementById("quickTodoList");
+    //             list.innerHTML = "";
+    //
+    //             if (data.length === 0) {
+    //                 list.innerHTML = `<li class="list-group-item text-muted">오늘의 Todo가 없습니다.</li>`;
+    //                 return;
+    //             }
+    //
+    //             data.forEach(todo => {
+    //                 const statusIcon = getStatusIcon(todo.status);
+    //                 const item = `
+    //             <li class="list-group-item d-flex justify-content-between align-items-center">
+    //                 <span>${statusIcon} ${todo.title}</span>
+    //                 <span class="badge bg-secondary">${todo.priority}</span>
+    //             </li>`;
+    //                 list.innerHTML += item;
+    //             });
+    //         })
+    //         .catch(err => console.error("Todo 불러오기 실패:", err));
+    // }
 
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -3233,7 +3279,7 @@
                     .then(data => {
                         todoList = data.todos || [];
                         remainingTodos = data.remainingCount || 0;
-                        setTimeout(() => renderQuickTodos(todoList, remainingTodos), 100); // **🔥 딜레이 추가**
+                        setTimeout(() => renderQuickTodos(todoList, remainingTodos), 100);
                     })
             ]).catch(err => console.error("데이터 불러오기 실패:", err));
         }

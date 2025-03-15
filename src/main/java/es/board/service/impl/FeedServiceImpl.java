@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.controller.model.mapper.FeedMapper;
@@ -20,12 +21,15 @@ import jakarta.persistence.PersistenceContext;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +44,8 @@ public class FeedServiceImpl implements FeedService {
 
     private final FeedMapper feedMapper;
 
+    private  final RedisTemplate redisTemplate;
+
     private final S3Uploader s3Uploader;
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -50,10 +56,16 @@ public class FeedServiceImpl implements FeedService {
 
     private final AsyncService asyncService;
 
-
     private final LikeDAO likeDAO;
 
     private final LikeRepository likeRepository;
+
+    private  final ObjectMapper objectMapper;
+
+    private  static  final String TOP5_USER_KEY= "TOP5_USER_feed_key";
+
+    private  static  final String RECOMMEND_KEY= "Recommend_feed_key";
+
 
 
     @Override
@@ -74,8 +86,17 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<TopWriter> getTopWriters() {
+        ValueOperations<String, List<TopWriter>> valueOps = redisTemplate.opsForValue();
 
-        return feedDAO.findTopWriters();
+        List<TopWriter> cachedData = valueOps.get(TOP5_USER_KEY);
+
+        if (cachedData != null) {
+            return cachedData;
+        }
+        List<TopWriter> topWriters = feedDAO.findTopWriters();
+
+        valueOps.set(TOP5_USER_KEY, topWriters, 6, TimeUnit.HOURS);
+        return topWriters;
 
     }
 
@@ -118,7 +139,18 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<FeedRequest> getRecommendFeed() {
-        return feedMapper.BoardListToDTO(feedDAO.findRecommendFeed());
+
+        ValueOperations<String, List<FeedRequest>> valueOps = redisTemplate.opsForValue();
+
+        List<FeedRequest> cachedData = valueOps.get(RECOMMEND_KEY);
+
+        if (cachedData != null) {
+            return cachedData;
+        }
+        List<FeedRequest> feedRequests = feedMapper.BoardListToDTO(feedDAO.findRecommendFeed());
+
+        valueOps.set(RECOMMEND_KEY, feedRequests, 6, TimeUnit.HOURS);
+        return feedRequests;
     }
 
     @Override
@@ -199,6 +231,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public Map<String, Double> getDayAggregation(){
+
         return  feedDAO.findDayAggregation();
     }
 

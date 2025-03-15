@@ -599,23 +599,23 @@ public class CommentDAOImpl implements CommentDAO {
                                                     .terms(v -> v.value(fieldValues))))))
                             .aggregations("feed_comment_count", a -> a
                                     .terms(t -> t
-                                            .field("feedUID.keyword") // 게시글 ID별 댓글 수 집계
-                                            .size(feedUIDs.size()) // 최대 게시글 수만큼 집계
+                                            .field("feedUID.keyword")
+                                            .size(feedUIDs.size())
                                     )
                                     .aggregations("comment_count", ag -> ag
-                                            .valueCount(v -> v.field("feedUID")) // 각 게시글에 해당하는 댓글 수를 집계
+                                            .valueCount(v -> v.field("feedUID"))
                                     )
                             ),
                     Comment.class);
 
             return response.aggregations()
-                    .get("feed_comment_count") // 상위 terms 집계 이름
-                    .sterms()                  // String Terms 집계로 변환
-                    .buckets().array().stream() // 버킷 리스트 스트림 생성
+                    .get("feed_comment_count")
+                    .sterms()
+                    .buckets().array().stream()
                     .collect(Collectors.toMap(
-                            bucket -> bucket.key().stringValue(), // feedUID 값 (키)
+                            bucket -> bucket.key().stringValue(),
                             bucket -> bucket.aggregations()
-                                    .get("comment_count")         // 중첩된 value_count 집계 이름
+                                    .get("comment_count")
                                     .valueCount().value()));
         } catch (IOException e) {
             log.error("Error searching for paginated comments in descending order", e);

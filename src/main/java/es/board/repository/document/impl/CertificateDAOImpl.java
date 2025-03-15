@@ -54,10 +54,9 @@ public class CertificateDAOImpl  implements CertificateDAO {
     @Override
         public List<String> findTop5CertificateCount() {
             try {
-                // ✅ Elasticsearch 검색 실행
                 SearchResponse<Void> response = client.search(s -> s
                                 .index("certificate_states")
-                                .size(0) // 🔹 문서 검색 결과 불필요
+                                .size(0)
                                 .aggregations("top_5_certificates", a -> a
                                         .terms(t -> t
                                                 .field("jmFldNm.keyword")
@@ -116,8 +115,8 @@ public class CertificateDAOImpl  implements CertificateDAO {
         try {
             SearchResponse<Certificate> response = client.search(s -> s
                             .index("certificate")
-                            .query(q -> q.matchAll(m -> m)) // match_all 쿼리 사용
-                            .size(600), // 최대 600개 데이터 조회
+                            .query(q -> q.matchAll(m -> m))
+                            .size(600),
                     Certificate.class);
 
             log.info("🔍 Elasticsearch에서 자격증 600개 조회 완료!");

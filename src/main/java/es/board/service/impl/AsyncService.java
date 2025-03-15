@@ -104,7 +104,7 @@ public class AsyncService {
                             postList.clear();
                         }
                     } catch (Exception e) {
-                        log.warn("⚠️ 일부 요소를 찾을 수 없음: {}", e.getMessage());
+                        log.warn("⚠일부 요소를 찾을 수 없음: {}", e.getMessage());
                     }
                 }
 
@@ -113,7 +113,7 @@ public class AsyncService {
                     savePostsInBatch(postList);
                 }
 
-                log.info("✅ '{}' 키워드 크롤링 완료 ({}개 게시글)", keyword, postList.size());
+                log.info("'{}' 키워드 크롤링 완료 ({}개 게시글)", keyword, postList.size());
 
 
                 Thread.sleep(10000);
