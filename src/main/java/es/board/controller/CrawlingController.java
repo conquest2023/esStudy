@@ -80,16 +80,15 @@ public class CrawlingController {
 //    }
 
 
-    @GetMapping("/ex/{keyword}")
-    public ResponseEntity<?> getGoogleTipdasd(@PathVariable String keyword) {
-        ResponseEntity<List<TistoryPost>> ok = ResponseEntity.ok(crawlingService.crawlTistoryPostEx(keyword));
-        return ResponseEntity.ok(ok);
-    }
+//    @GetMapping("/ex/{keyword}")
+//    public ResponseEntity<?> getGoogleTipdasd(@PathVariable String keyword) {
+//        ResponseEntity<List<TistoryPost>> ok = ResponseEntity.ok(crawlingService.crawlTistoryPostEx(keyword));
+//        return ResponseEntity.ok(ok);
+//    }
 
     @GetMapping("/exss")
     public CompletableFuture<Void> getEx(String keyword) {
-        log.info(certificateDAO.getCertificationNames().toString());
-//          asyncService.crawlTistoryPostsAsync();
+          crawlingService.crawlTistoryPosts("Sda");
           return  null;
     }
 

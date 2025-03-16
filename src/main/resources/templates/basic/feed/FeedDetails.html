@@ -357,6 +357,7 @@
         });
     }
     function renderFeedDetail(jsonData) {
+        fetchTopWriters()
         const token = localStorage.getItem("token");
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
@@ -368,6 +369,9 @@
         const formattedDescription = convertLinks(board.description)
             ? convertLinks(board.description).replace(/\n/g, "<br>")
             : "";
+
+        let rank = topWriters[board.username] || 0;
+        let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
         let deleteButtonHTML = '';
         // if (jsonData.Owner && token) {
         //     actionButtonsHTML = `
@@ -389,7 +393,7 @@
                 ${deleteButtonHTML ? `<div class="text-end mb-3">${deleteButtonHTML}</div>` : ""}
                 <h2 class="feed-title">${board.title}</h2>
                 <p class="feed-meta">
-                    <strong>작성자:</strong> ${board.username} &nbsp;|&nbsp;
+                    <strong>작성자:</strong> ${badge} ${board.username} &nbsp;|&nbsp;
                     <strong>작성일자:</strong> ${formatDate(board.createdAt)}
                 </p>
                 <div class="feed-content">${formattedDescription|| ""}</div>
@@ -825,13 +829,15 @@
         }
         let html = `<div class="mt-2">`;
         replyList.forEach((rp) => {
+            let rank = topWriters[rp.username] || 0;
+            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
             html += `
-      <div class="border-start ps-3 mb-2" style="font-size:0.9rem;">
-        <strong>${rp.username}</strong>
-        <small class="text-muted ms-2">${formatDate(rp.createdAt)}</small>
-        <div>${rp.content}</div>
-      </div>
-    `;
+          <div class="border-start ps-3 mb-2" style="font-size:0.9rem;">
+            <strong>${badge}${rp.username}</strong>
+            <small class="text-muted ms-2">${formatDate(rp.createdAt)}</small>
+            <div>${rp.content}</div>
+          </div>
+        `;
         });
         html += `</div>`;
         return html;
@@ -861,9 +867,11 @@
         let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
 
         comments.forEach((cmt) => {
+            let rank = topWriters[cmt.username] || 0;
+            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
             const displayedUsername = cmt.author
-                ? `<strong style="color:#888;">작성자(${cmt.username})</strong>`
-                : `<strong>${cmt.username}</strong>`;
+                ? `<strong style="color:#888;">${badge}작성자(${cmt.username})</strong>`
+                : `<strong>${badge} ${cmt.username}</strong>`;
 
             html += `
         <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
@@ -873,14 +881,10 @@
                     <small class="text-muted ms-2">${formatDate(cmt.createdAt)}</small>
                 </div>
                 <div>
-                    ${
-                cmt.commentOwner
-                    ? `
-                            <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
+                    ${cmt.commentOwner ? `
+                           <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
                             <button class="btn btn-sm btn-link text-danger delete-comment-btn" data-comment-id="${cmt.commentUID}">삭제</button>
-                        `
-                    : ""
-            }
+                        ` : ""}
                 </div>
             </div>
 
@@ -888,7 +892,6 @@
             <div id="comment-content-${cmt.commentUID}" style="white-space:pre-wrap; text-align: left; margin-left: 0; padding-left: 0;">
                 ${convertLinks(cmt.content)}
             </div>
-
             <div class="mt-3 ms-3">
                 ${renderReplies(replies[cmt.commentUID] || [])}
                 <button class="btn btn-sm btn-outline-primary reply-toggle" data-comment-id="${cmt.commentUID}">답글 달기</button>
@@ -1013,22 +1016,22 @@
                  let likeCurrentCount = parseInt(likeCountSpan.textContent, 10) || 0;
                  let isLiked = heartIcon.classList.contains("fas");
 
-                 // ✅ 좋아요 상태 토글
+
                  if (isLiked) {
                      heartIcon.classList.remove("fas");
                      heartIcon.classList.add("far");
-                     likeCurrentCount -= 1; // ✅ 좋아요 취소 (-1)
+                     likeCurrentCount -= 1;
                  } else {
                      heartIcon.classList.remove("far");
                      heartIcon.classList.add("fas");
-                     likeCurrentCount += 1; // ✅ 좋아요 추가 (+1)
+                     likeCurrentCount += 1;
                  }
 
                  likeCountSpan.textContent = likeCurrentCount;
 
              let url = isLiked
-                 ? `/search/view/feed/cancel-like/${feedUID}`  // 좋아요 취소 API
-                 : `/search/view/feed/increase-like/${feedUID}`; // 좋아요 추가 API
+                 ? `/search/view/feed/cancel-like/${feedUID}`
+                 : `/search/view/feed/increase-like/${feedUID}`;
 
              fetch(url, {
                  method: 'POST',
@@ -1040,14 +1043,13 @@
                  .then(response => response.json())
                  .then(data => {
                      if (data.newLikeCount !== undefined) {
-                         likeCountSpan.textContent = data.newLikeCount; // ✅ 서버에서 받은 최신 좋아요 개수 반영
+                         likeCountSpan.textContent = data.newLikeCount;
                      }
                  })
                  .catch(error => {
                      console.error("Error toggling like:", error);
                  });
          }
-        // 모든 토글 버튼에 이벤트 추가
         document.querySelectorAll(".toggle-btn").forEach(button => {
             button.addEventListener("click", function () {
                 const targetId = this.getAttribute("data-id");
@@ -1064,6 +1066,39 @@
                 }
             });
         });
+
+    let topWriters = {};
+
+    function fetchTopWriters() {
+        let cachedData = localStorage.getItem("topWriters");
+        let cachedTime = localStorage.getItem("topWritersTimestamp");
+
+        if (cachedData && cachedTime && (Date.now() - cachedTime) < 3600000) {
+            console.log("캐싱된 Top Writers 사용");
+            topWriters = JSON.parse(cachedData);
+            return Promise.resolve(topWriters);
+        }
+
+        return fetch("/top-writers")
+            .then(response => response.json())
+            .then(data => {
+                topWriters = {};
+                data.forEach((writer, index) => {
+                    topWriters[writer.username] = index + 1;
+                });
+
+                console.log("새로 가져온 TopWriters:", topWriters);
+                localStorage.setItem("topWriters", JSON.stringify(topWriters));
+                localStorage.setItem("topWritersTimestamp", Date.now());
+
+                return topWriters;
+            })
+            .catch(error => {
+                console.error("Top 유저 데이터 가져오기 실패:", error);
+                return {};
+            });
+    }
+
 
 
 </script>

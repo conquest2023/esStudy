@@ -1,5 +1,6 @@
 package es.board.repository;
 
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.CommentCreate;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -11,6 +12,8 @@ import java.util.Map;
 
 @Repository
 public interface CommentDAO {
+
+    List<TopWriter> findTopCommentWriters();
     Map<String,Long> findTodayCommentAggregation();
     Map<String, Object> findCommentsWithCount(String feedUID);
     Comment findCommentUID(String commentId);

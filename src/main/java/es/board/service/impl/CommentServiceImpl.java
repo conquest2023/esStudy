@@ -136,6 +136,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Map<String, Double> getCommentAndReplyAggregation(List<String> feedUIDs, int num, int size) {
+//        log.info(commentDAO.findTopCommentWriters().toString());
         return getStringDoubleMap(feedUIDs, replyDAO.findAggregationReply(feedUIDs),
                 commentDAO.findPagingComment(feedUIDs, num, size));
     }

@@ -26,11 +26,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
@@ -65,32 +68,32 @@ public class AsyncService {
     public CompletableFuture<List<TistoryPost>> crawlTistoryPostsAsync() {
         List<String> certificationNames = certificateDAO.getCertificationNames();
         List<TistoryPost> postList = new ArrayList<>();
+        Map<String, Integer> keywordCount = new HashMap<>();
 
         for (String keyword : certificationNames) {
+            if (keywordCount.getOrDefault(keyword, 0) >= 10) {
+                log.warn("'{}' 키워드 크롤링 제한 (최대 10개) - 스킵", keyword);
+                continue;
+            }
             try {
-                log.info("비동기 크롤링 시작 - 키워드: {}", keyword);
-
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions options = new ChromeOptions();
                 options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
-
                 WebDriver driver = new ChromeDriver(options);
                 driver.get(TISTORY_SEARCH_URL + keyword.replace(" ", "%20"));
-
                 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
                 wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.item_group")));
-
                 List<WebElement> items = driver.findElements(By.cssSelector("div.item_group"));
 
                 for (WebElement item : items) {
                     try {
+
                         String blogName = item.findElement(By.cssSelector("div.wrap_profile a.link_blog span.txt_g")).getText();
                         String blogUrl = item.findElement(By.cssSelector("div.wrap_profile a.link_blog")).getAttribute("href");
                         String title = item.findElement(By.cssSelector("a.link_cont div.wrap_tit strong.tit_cont")).getText();
                         String postUrl = item.findElement(By.cssSelector("a.link_cont")).getAttribute("href");
 //                        String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
                         String thumbnailUrl = item.findElement(By.cssSelector("a.link_cont div.wrap_thumb img[alt='글 섬네일']")).getAttribute("src");
-                        log.info(blogUrl);
                         postList.add(TistoryPost.builder()
                                 .name(keyword)
                                 .blogName(blogName)
@@ -100,6 +103,7 @@ public class AsyncService {
                                 .thumbnailUrl(thumbnailUrl)
                                 .build());
                         if (postList.size() >= BATCH_SIZE) {
+                            log.info(String.valueOf(postList.size()));
                             savePostsInBatch(postList);
                             postList.clear();
                         }
@@ -107,17 +111,11 @@ public class AsyncService {
                         log.warn("⚠일부 요소를 찾을 수 없음: {}", e.getMessage());
                     }
                 }
-
                 driver.quit();
                 if (!postList.isEmpty()) {
                     savePostsInBatch(postList);
                 }
-
-                log.info("'{}' 키워드 크롤링 완료 ({}개 게시글)", keyword, postList.size());
-
-
                 Thread.sleep(10000);
-
             } catch (Exception e) {
                 log.error("크롤링 중 오류 발생: ", e);
             }
@@ -126,22 +124,19 @@ public class AsyncService {
         return CompletableFuture.completedFuture(postList);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void savePostsInBatch(List<TistoryPost> posts) {
-        for (TistoryPost post : posts) {
-            tistoryPostRepository.bulkInsert(
-                    post.getName(),
-                    post.getBlogName(),
-                    post.getBlogUrl(),
-                    post.getTitle(),
-                    post.getPostUrl(),
-                    post.getThumbnailUrl()
-            );
+        int batchSize = 20;
+
+        for (int i = 0; i < posts.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, posts.size());
+            List<TistoryPost> batch = posts.subList(i, end);
+            tistoryPostRepository.bulkInsertBatch(batch);
         }
+
         entityManager.flush();
         entityManager.clear();
     }
-
 
     @Async("taskExecutor")
     public CompletableFuture<Void> saveVoteAsync(VoteResponse vote, Long id) {

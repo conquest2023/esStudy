@@ -6,9 +6,12 @@ import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipDTO;
 import es.board.controller.model.req.TistoryPost;
 import es.board.controller.model.req.WantedJobData;
+import es.board.repository.CertificateDAO;
 import es.board.repository.entity.entityrepository.TistoryPostRepository;
 import es.board.service.ItCrawlingService;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -27,6 +30,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -50,6 +55,12 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     private final AsyncService asyncService;
 
     private  final TistoryPostRepository tistoryPostRepository;
+
+    private final CertificateDAO certificateDAO;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private static final int BATCH_SIZE = 100;
 
 
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?q=";
@@ -114,7 +125,6 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     public List<Map<String, Object>> programmersList() {
         List<Map<String, Object>> jobList = new ArrayList<>();
         try {
-            // 🌟 HTTP 요청 헤더 설정
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
             headers.set("Accept", "application/json");
@@ -310,44 +320,110 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     }
 
     @Override
-    public CompletableFuture<Void> crawlTistoryPosts(String keyword) {
-            asyncService.crawlTistoryPostsAsync();
-            return  null;
+    public  void crawlTistoryPosts(String keywords) {
+        List<String> certificationNames = certificateDAO.getCertificationNames();
+        List<es.board.repository.entity.TistoryPost> postList = new ArrayList<>();
+        Map<String, Integer> keywordCount = new HashMap<>();
+        for (String keyword : certificationNames) {
+            if (keywordCount.getOrDefault(keyword, 0) >= 10) {
+                log.warn("'{}' 키워드 크롤링 제한 (최대 10개) - 스킵", keyword);
+                continue;
+            }
+            try {
+                WebDriverManager.chromedriver().setup();
+                ChromeOptions options = new ChromeOptions();
+                options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+                WebDriver driver = new ChromeDriver(options);
+                driver.get(TISTORY_SEARCH_URL + keyword.replace(" ", "%20"));
+                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.item_group")));
+                List<WebElement> items = driver.findElements(By.cssSelector("div.item_group"));
+
+                for (WebElement item : items) {
+                    try {
+
+                        String blogName = item.findElement(By.cssSelector("div.wrap_profile a.link_blog span.txt_g")).getText();
+                        String blogUrl = item.findElement(By.cssSelector("div.wrap_profile a.link_blog")).getAttribute("href");
+                        String title = item.findElement(By.cssSelector("a.link_cont div.wrap_tit strong.tit_cont")).getText();
+                        String postUrl = item.findElement(By.cssSelector("a.link_cont")).getAttribute("href");
+//                        String description = item.findElement(By.cssSelector("a.link_cont div.wrap_tit div.wrap_desc p.desc_g")).getText();
+                        String thumbnailUrl = item.findElement(By.cssSelector("a.link_cont div.wrap_thumb img[alt='글 섬네일']")).getAttribute("src");
+                        postList.add(es.board.repository.entity.TistoryPost.builder()
+                                .name(keyword)
+                                .blogName(blogName)
+                                .blogUrl(blogUrl)
+                                .title(title)
+                                .postUrl(postUrl)
+                                .thumbnailUrl(thumbnailUrl)
+                                .build());
+                        if (postList.size() >= BATCH_SIZE) {
+                            log.info(String.valueOf(postList.size()));
+                            savePostsInBatch(postList);
+                            postList.clear();
+                        }
+                    } catch (Exception e) {
+                        log.warn("⚠일부 요소를 찾을 수 없음: {}", e.getMessage());
+                    }
+                }
+                driver.quit();
+                if (!postList.isEmpty()) {
+                    savePostsInBatch(postList);
+                }
+                Thread.sleep(10000);
+            } catch (Exception e) {
+                log.error("크롤링 중 오류 발생: ", e);
+            }
+        }
+        log.info("비동기 크롤링 완료!");
     }
 
-    public List<TistoryPost> crawlTistoryPostEx(String keyword) {
-        List<TistoryPost> postList = new ArrayList<>();
-        String searchUrl = "https://tistory.com/search?q=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+//    public List<TistoryPost> crawlTistoryPostEx(String keyword) {
+//        List<TistoryPost> postList = new ArrayList<>();
+//        String searchUrl = "https://tistory.com/search?q=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+//
+//        try {
+//            Document doc = Jsoup.connect(searchUrl)
+//                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+//                    .timeout(15000)  // 타임아웃 증가
+//                    .get();
+//
+//            Elements items = doc.select("list_tistory_top");
+//
+//            log.info(items.toString());
+//            for (Element item : items) {
+//                try {
+//                    String blogName = item.select("div.wrap_profile a.link_blog span.txt_g").text();
+//                    String blogUrl = item.select("div.wrap_profile a.link_blog").attr("href");
+//                    String title = item.select("a.link_cont div.wrap_tit strong.tit_cont").text();
+//                    String postUrl = item.select("a.link_cont").attr("href");
+//                    String description = item.select("a.link_cont div.wrap_tit div.wrap_desc p.desc_g").text();
+//                    String date = item.select("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child").text();
+//                    String thumbnailUrl = item.select("a.link_cont div.wrap_thumb img").attr("src");
+//
+//                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, description, date, thumbnailUrl));
+//                } catch (Exception e) {
+//                    continue;
+//                }
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return postList;
+//    }
 
-        try {
-            Document doc = Jsoup.connect(searchUrl)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                    .timeout(15000)  // 타임아웃 증가
-                    .get();
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void savePostsInBatch(List<es.board.repository.entity.TistoryPost> posts) {
+        int batchSize = 20;
 
-            Elements items = doc.select("list_tistory_top");
-
-            log.info(items.toString());
-            for (Element item : items) {
-                try {
-                    String blogName = item.select("div.wrap_profile a.link_blog span.txt_g").text();
-                    String blogUrl = item.select("div.wrap_profile a.link_blog").attr("href");
-                    String title = item.select("a.link_cont div.wrap_tit strong.tit_cont").text();
-                    String postUrl = item.select("a.link_cont").attr("href");
-                    String description = item.select("a.link_cont div.wrap_tit div.wrap_desc p.desc_g").text();
-                    String date = item.select("a.link_cont div.wrap_tit div.wrap_info span.txt_g:last-child").text();
-                    String thumbnailUrl = item.select("a.link_cont div.wrap_thumb img").attr("src");
-
-                    postList.add(new TistoryPost(blogName, blogUrl, title, postUrl, description, date, thumbnailUrl));
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < posts.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, posts.size());
+            List<es.board.repository.entity.TistoryPost> batch = posts.subList(i, end);
+            tistoryPostRepository.bulkInsertBatch(batch);
         }
 
-        return postList;
+        entityManager.flush();
+        entityManager.clear();
     }
 
 }

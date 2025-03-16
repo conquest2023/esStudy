@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.CommentCreate;
 import es.board.ex.IndexException;
 import es.board.repository.CommentDAO;
@@ -643,7 +644,43 @@ public class CommentDAOImpl implements CommentDAO {
 
     }
 
+    @Override
+    public List<TopWriter> findTopCommentWriters() {
+        try {
+            SearchResponse<Comment> response = client.search(
+                    s -> s.index("comment")
+                            .size(0)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .must(m -> m.exists(e -> e.field("userId")))))
+                            .aggregations("top_writers", a -> a
+                                    .terms(t -> t
+                                            .field("username.keyword")
+                                            .size(10))
+                                    .aggregations("total_comments", subAgg -> subAgg
+                                            .sum(sum -> sum
+                                                    .field("commentUID.keyword")))),
+                    Comment.class);
+            return response.aggregations()
+                    .get("top_writers")
+                    .sterms()
+                    .buckets()
+                    .array()
+                    .stream()
+                    .map(bucket -> new TopWriter(
+                            bucket.key().stringValue(),
+                            bucket.aggregations().get("total_comments").sum().value()
+                    ))
+                    .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("asd") && !writer.getUsername().equals("undefined") && !writer.getUsername().equals("익명") && !writer.getUsername().equals("작성자"))
+                    .sorted(Comparator.comparingDouble(TopWriter::getViewCount).reversed())
+                    .collect(Collectors.toList());
 
+
+        } catch (IOException e) {
+            log.error("Top 유저 가져오기 실패!", e);
+            throw new IndexException(e);
+        }
+    }
     private Map<String, Long> aggregationCountComment(List<Comment> comments) {
 
         return comments.stream()

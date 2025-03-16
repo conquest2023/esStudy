@@ -44,6 +44,7 @@ public class MainFeedController {
 
     @GetMapping("/top-writers")
     public ResponseEntity<List<TopWriter>> getTopWriters() {
+
         return ResponseEntity.ok(feedService.getTopWriters());
     }
 

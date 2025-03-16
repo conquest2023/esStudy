@@ -13,7 +13,7 @@ public interface ItCrawlingService {
 
      List<Map<String, Object>> jumPitList();
 
-     CompletableFuture<Void> crawlTistoryPosts(String keyword);
+//     CompletableFuture<Void> crawlTistoryPosts(String keyword);
      List<Map<String, Object>> programmersList();
 
      List<JobListing> jobPlanetList();
@@ -24,6 +24,6 @@ public interface ItCrawlingService {
 
      List<StudyTipDTO> crawlGoogleStudyTips(String keyword);
 
-     List<TistoryPost> crawlTistoryPostEx(String keyword);
+     void crawlTistoryPosts(String keyword);
 
 }

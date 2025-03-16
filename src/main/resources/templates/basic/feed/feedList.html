@@ -1349,9 +1349,9 @@
                 </div>
                 <div class="mb-3 d-flex align-items-center">
                     <button id="showVoteButton" class="btn btn-outline-primary btn-sm me-auto" onclick="toggleVoteSection()" style="display: none;">
-                        🗳️ 투표 결과가 궁금하지 않으세요?
+                        🗳️ 투표 결과!
                     </button>
-                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>
+<!--                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>-->
                 </div>
                 <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
                     <span class="fw-bold text-dark">중요한 일정 & 실시간 사용자 통계를 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
@@ -1372,14 +1372,20 @@
                                     onclick="location.href='/interview/question'">
                                 <i class="fas fa-pen-to-square"></i> 작성하기
                             </button>
-
                         </div>
+
                         <div class="card-body">
+
                             <div id="interviewQuestionContainer" class="alert alert-info text-center fw-bold" style="display: none;">
                             </div>
+<!--                            <div id="bestInterviewQuestionsContainer" class="mt-3">-->
+<!--                                <h5 class="fw-bold text-center text-primary">지난 면접 베스트 대답</h5>-->
+<!--                                <ul id="bestInterviewQuestionsList" class="list-group"></ul>-->
+<!--                            </div>-->
                         </div>
                     </div>
                 </div>
+
                 <section class="my-5">
                     <h2 class="section-title">읽어볼만한 글</h2>
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="recommendedPosts">
@@ -1542,14 +1548,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    function fetchBestInterviewQuestions() {
+        $.ajax({
+            url: "/interview/best-questions",
+            type: "GET",
+            success: function (data) {
+                const listContainer = $("#bestInterviewQuestionsList");
+                listContainer.empty();
+
+                if (data.length === 0) {
+                    listContainer.html("<p class='text-center'>베스트 면접 질문이 없습니다.</p>");
+                } else {
+                    data.forEach(q => {
+                        listContainer.append(`<li class="list-group-item">🔥 ${q.question}</li>`);
+                    });
+                }
+            },
+            error: function () {
+                $("#bestInterviewQuestionsList").html("<p class='text-center text-danger'>베스트 질문을 불러오지 못했습니다.</p>");
+            }
+        });
+    }
     document.addEventListener("DOMContentLoaded", function () {
         const sidebar = document.getElementById("rightSidebar");
         const closeSidebarBtn = document.getElementById("closeSidebarBtn");
 
         if (closeSidebarBtn) {
             closeSidebarBtn.addEventListener("click", function () {
-                sidebar.classList.remove("show"); // Bootstrap 클래스로 닫기
-                sidebar.style.transform = "translateX(100%)"; // 애니메이션으로 숨김
+                sidebar.classList.remove("show");
+                sidebar.style.transform = "translateX(100%)";
             });
         }
     });
@@ -2140,11 +2167,23 @@
                 renderFeeds(data);
             });
     }
+    let topWriters = {};
     function fetchTopWriters() {
-        fetch("/top-writers")
+        let cachedData = sessionStorage.getItem("topWriters");
+        if (cachedData) {
+            console.log("세션 캐싱된 Top Writers 사용");
+            topWriters = JSON.parse(cachedData);
+            Promise.resolve(topWriters);
+        }
+        return fetch("/top-writers")
             .then(response => response.json())
             .then(data => {
-                updateTopWriters(data)
+                topWriters = {};
+                data.forEach((writer, index) => {
+                    topWriters[writer.username] = index + 1;
+                });
+                updateTopWriters(data);
+                sessionStorage.setItem("topWriters", JSON.stringify(topWriters));
             })
             .catch(error => console.error("Top 유저 데이터 가져오기 실패:", error));
     }
@@ -2169,19 +2208,15 @@
 
             const itemDiv = document.createElement('div');
             itemDiv.className = `ranking-item`;
-
             itemDiv.innerHTML = `
             <div class="rank-badge ${rankClass}">${rankText}</div>
-            <span class="rank-name">${writer.username}</span>
+            <span class="rank-name">${writer.username} </span>
             <span class="rank-details">${writer.viewCount}점</span>
         `;
 
             topWritersList.appendChild(itemDiv);
         });
     }
-
-
-
 
     document.addEventListener("DOMContentLoaded", function () {
         var dropdowns = document.querySelectorAll('.dropdown-toggle');
@@ -2373,9 +2408,9 @@
         await  loadPage(page);
     }
     function renderFeeds(jsonData,count) {
-        let pinnedNotices = "";
-        document.getElementById('viewCount').textContent = jsonData.viewCount;
+        // document.getElementById('viewCount').textContent = jsonData.viewCount;
         loadVisitorStats();
+        fetchTopWriters();
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
         const normalPostsContainer = document.getElementById('normalPostsContainer');
 
@@ -2401,6 +2436,12 @@
                 let normalPosts = "";
                 jsonData.data.forEach(board => {
                     let isPinned = board.pinned === true;
+                    let rank = topWriters[board.username] || 0;
+                    let badge = "";
+                    if (rank === 1) badge = "🥇";
+                    else if (rank === 2) badge = "🥈";
+                    else if (rank === 3) badge = "🥉";
+                    else if (rank >= 4 && rank <= 5) badge = "🔥";
                     normalPosts += `
                     <div class="list-item ${isPinned ? 'notice-item' : ''}">
                         <div>
@@ -2408,7 +2449,7 @@
                             <a href="/search/view/feed/id?id=${board.feedUID}">${board.title}</a>
                             ${count && count[board.feedUID] > 0 ?
                         `<span style="color: red; font-weight: bold;">[${count[board.feedUID]}]</span>` : ""}
-                            <span class="text-muted">(${board.username} · ${formatDate(board.createdAt)})</span>
+                           <span class="text-muted">(${badge} ${board.username} · ${formatDate(board.createdAt)})</span>
                         </div>
                        <td class="text-center">
                     <div class="badge-container d-flex align-items-center">
@@ -2430,8 +2471,8 @@
                 alert("공지사항을 불러올수없습니다!");
             }
         });
-        fetchTopWriters();
     }
+
         // // 3. 인기 게시물(month)
         // const popularFeedsList = document.getElementById("monthFeedsList");
         // popularFeedsList.innerHTML = '';

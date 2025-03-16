@@ -87,7 +87,6 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public List<TopWriter> getTopWriters() {
         ValueOperations<String, List<TopWriter>> valueOps = redisTemplate.opsForValue();
-
         List<TopWriter> cachedData = valueOps.get(TOP5_USER_KEY);
 
         if (cachedData != null) {

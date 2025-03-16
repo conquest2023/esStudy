@@ -816,7 +816,7 @@ public class FeedDAOImpl implements FeedDAO {
                             .aggregations("top_writers", a -> a
                                     .terms(t -> t
                                             .field("username.keyword")
-                                            .size(7))
+                                            .size(10))
                                     .aggregations("total_views", subAgg -> subAgg
                                             .sum(sum -> sum
                                                     .field("viewCount")))),
@@ -832,7 +832,7 @@ public class FeedDAOImpl implements FeedDAO {
                             bucket.key().stringValue(),
                             bucket.aggregations().get("total_views").sum().value()
                     ))
-                    .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명") && !writer.getUsername().equals("asd"))
+                    .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명") && !writer.getUsername().equals("asd")  && !writer.getUsername().equals("호문무권신"))
                     .sorted(Comparator.comparingDouble(TopWriter::getViewCount).reversed())
                     .collect(Collectors.toList());
 
