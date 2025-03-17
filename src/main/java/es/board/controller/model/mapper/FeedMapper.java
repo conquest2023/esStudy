@@ -132,6 +132,7 @@ public class FeedMapper {
     public Vote voteToEntity(VoteResponse voteResponse,String  username, String userId) {
         return Vote.builder()
                 .userId(userId)
+                .feedId(UUID.randomUUID().toString())
                 .username(username)
                 .title(voteResponse.getTitle())
                 .description(voteResponse.getDescription())
@@ -139,12 +140,39 @@ public class FeedMapper {
                 .build();
     }
 
+
+    public Vote voteUserToEntity(VoteResponse voteResponse,String  username, String userId) {
+        return Vote.builder()
+                .userId(userId)
+                .feedId(UUID.randomUUID().toString())
+                .username(username)
+                .title(voteResponse.getTitle())
+                .description(voteResponse.getDescription())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+
+
     public VoteResponse voteToDTO(Vote vote ,String username, String userId) {
         return VoteResponse.builder()
                 .userId(userId)
                 .username(username)
                 .title(vote.getTitle())
                 .description(vote.getDescription())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public VoteResponse voteToDocument(VoteResponse voteResponse, String feedUID ,String username, String userId) {
+        return VoteResponse.builder()
+                .userId(userId)
+                .feedUID(feedUID)
+                .username(username)
+                .title(voteResponse.getTitle())
+                .description(voteResponse.getDescription())
+                .voteType(voteResponse.getVoteType())
+                .selectedOption(voteResponse.getSelectedOption())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

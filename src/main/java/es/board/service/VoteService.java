@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface VoteService {
 
-
+    CompletableFuture<Void> saveUserVote(VoteResponse vote,String  username, String userId);
 
     CompletableFuture<Void> saveVote(VoteResponse vote,String  username, String userId);
 

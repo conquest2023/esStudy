@@ -227,6 +227,12 @@ public class MainFeedController {
         return  "basic/feed/VoteAdd";
     }
 
+    @GetMapping("/search/view/feed/voteex")
+    public  String  getVoteExFeed(){
+
+        return  "basic/feed/voteEx";
+    }
+
     @GetMapping("/site")
     public  String  getSite(){
         return  "basic/feed/site";

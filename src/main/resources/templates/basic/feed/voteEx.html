@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>투표 생성</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            max-width: 700px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin: auto;
+        }
+        .btn-custom-green {
+            background-color: #198754;
+            color: white;
+        }
+        .btn-custom-green:hover {
+            background-color: #157347;
+        }
+        .vote-option-container input {
+            background-color: #f8f9fa;
+        }
+        .disabled-placeholder::placeholder {
+            color: #adb5bd !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+    <div class="form-container">
+        <h4 class="mb-3 fw-bold">글쓰기</h4>
+
+        <form id="voteForm">
+            <!-- 카테고리 선택 -->
+            <div class="mb-3">
+                <select id="category" name="category" class="form-select" required>
+                    <option value="" disabled selected>게시판을 선택해 주세요.</option>
+                    <option value="자유">자유</option>
+                    <option value="자격증">자격증</option>
+                    <option value="기술">기술</option>
+                    <option value="취업">취업</option>
+                    <option value="Q/A">질문</option>
+                    <option value="자료">자료</option>
+                </select>
+            </div>
+
+            <!-- 제목 입력 -->
+            <div class="mb-3">
+                <input type="text" id="title" name="title" class="form-control disabled-placeholder" placeholder="제목을 입력해 주세요." required />
+            </div>
+
+            <!-- 내용 입력 -->
+            <div class="mb-3">
+                <textarea id="description" name="description" class="form-control disabled-placeholder" rows="5" placeholder="내용을 입력하세요." required></textarea>
+            </div>
+
+            <!-- 투표 항목 입력 (최대 5개) -->
+            <label class="fw-bold mb-2">투표 항목 (최대 5개)</label>
+            <div id="voteOptionsContainer">
+                <div class="input-group mb-2 vote-option-container">
+                    <input type="text" name="voteOption[]" class="form-control" placeholder="투표 항목 1" required />
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVoteOption(this)">X</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addVoteOption()">+ 항목 추가</button>
+
+            <!-- 작성하기 버튼 -->
+            <div class="text-start">
+                <button type="submit" class="btn btn-custom-green">작성하기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let optionCount = 1;
+
+    function addVoteOption() {
+        if (optionCount < 5) {
+            optionCount++;
+            const container = document.getElementById('voteOptionsContainer');
+            const newOptionRow = document.createElement('div');
+            newOptionRow.className = 'input-group mb-2 vote-option-container';
+            newOptionRow.innerHTML = `
+              <input type="text" name="voteOption[]" class="form-control" placeholder="투표 항목 ${optionCount}" required />
+              <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVoteOption(this)">X</button>
+            `;
+            container.appendChild(newOptionRow);
+        } else {
+            alert('투표 항목은 최대 5개까지 추가할 수 있습니다.');
+        }
+    }
+
+    function removeVoteOption(button) {
+        const container = document.getElementById('voteOptionsContainer');
+        if (container.childElementCount > 1) {
+            button.parentElement.remove();
+            optionCount--;
+        } else {
+            alert('최소한 하나의 투표 항목은 있어야 합니다.');
+        }
+    }
+
+    document.getElementById('voteForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const category = document.getElementById('category').value;
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const voteOptions = Array.from(document.querySelectorAll('[name="voteOption[]"]'))
+            .map(input => input.value.trim())
+            .filter(val => val !== '');
+
+        if (!category || !title || !description || voteOptions.length === 0) {
+            alert('모든 필드를 입력해주세요.');
+            return;
+        }
+        const formData = {
+            category,
+            title,
+            description,
+            voteType: voteOptions
+        };
+
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+            const response = await fetch("/save/user/vote", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("투표가 성공적으로 저장되었습니다!");
+                console.log("서버 응답:", result);
+                this.reset();
+                optionCount = 1;
+                document.getElementById('voteOptionsContainer').innerHTML = `
+                  <div class="input-group mb-2 vote-option-container">
+                    <input type="text" name="voteOption[]" class="form-control" placeholder="투표 항목 1" required />
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVoteOption(this)">X</button>
+                  </div>
+                `;
+            } else {
+                alert(result.error || "투표 저장에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("투표 저장 오류:", error);
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+</script>
+</body>
+</html>

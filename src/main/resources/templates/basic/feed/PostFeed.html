@@ -114,7 +114,12 @@
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10 col-sm-12">
                 <div class="form-container">
-                    <h3 class="mb-3">글쓰기</h3>
+                    <h3 class="mb-3 d-flex justify-content-between">
+                        글쓰기
+                        <button type="button" class="btn btn-outline-primary btn-sm float-end"  onclick="window.location.href='/search/view/feed/voteex';" data-bs-toggle="modal" data-bs-target="#voteModal">
+                            + 투표 작성하기
+                        </button>
+                    </h3>
                     <div id="anonymous-info" style="display: none; color: gray;">
                         익명으로 자동 처리됩니다.
                     </div>

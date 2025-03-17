@@ -12,6 +12,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,6 +36,18 @@ public class VoteDocument {
 
     @Field(type = FieldType.Text, name = "username")
     private String username;
+
+    @Field(type = FieldType.Text, fielddata = true)
+    private String description;
+
+    @Field(type = FieldType.Keyword)
+    private String category;
+
+    @Field(type = FieldType.Keyword)
+    private String selectedOption;
+
+    @Field(type = FieldType.Keyword)
+    private List<String> voteType;
 
     @Field(type = FieldType.Boolean, name = "upvote")
     private boolean upvote;

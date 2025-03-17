@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.repository.document.Like;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Data
@@ -24,22 +26,27 @@ public class VoteResponse {
 
     private Long voteId;
 
+    private  String feedUID;
+
     private Long postId;
-
-
-    private String feedId;
-
 
     private String userId;
 
     private String  username;
 
 
-    private Boolean upvote;
-
     private String title;
 
+    private String selectedOption;
+
     private String description;
+
+    private  String  category;
+
+    private List<String> voteType;
+
+    private Boolean upvote;
+
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

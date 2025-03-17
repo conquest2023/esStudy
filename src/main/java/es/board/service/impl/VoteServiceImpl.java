@@ -34,6 +34,14 @@ public class VoteServiceImpl implements VoteService {
     private final FeedMapper feedMapper;
 
     @Override
+    public CompletableFuture<Void> saveUserVote(VoteResponse vote,String  username, String userId) {
+        return CompletableFuture.supplyAsync(() -> {
+            Vote savedVoteId = getSavedVoteId(vote,username, userId);
+            asyncService.saveVoteAsync(feedMapper.voteToDocument(vote,savedVoteId.getFeedId(),username,userId), savedVoteId.getId());
+            return null;
+        });
+    }
+    @Override
     public CompletableFuture<Void> saveVote(VoteResponse vote,String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
