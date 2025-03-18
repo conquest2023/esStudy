@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투표 상세보기</title>
+
+    <!-- FontAwesome, Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        tr {
+            border-bottom: 1px solid #ddd;
+        }
+        .comment-box input,
+        .comment-box textarea {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            background: #f5f5f5;
+        }
+        .comment-box button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .comment-box button:hover {
+            background: #0056b3;
+        }
+        .comment-table th, .comment-table td {
+            padding: 8px;
+            text-align: left;
+        }
+        .comment-options a, .comment-options form {
+            display:inline-block;
+            margin-bottom: 5px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+        p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .description-box {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #333;
+            width: 100%;
+            max-width: 100%;
+            min-height: 250px;
+            word-break: break-word;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+        .like-comment-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .like-comment-box .fa-comment {
+            color: #007bff;
+        }
+        /* 좋아요 기능 제거 → 관련 스타일 삭제 */
+        .btn-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+        .edit-btn, .delete-btn {
+            display: inline-block;
+        }
+        tr {
+            margin-bottom: 20px;
+        }
+        .like-comment-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .like-comment-box button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .like-comment-box button:hover {
+            text-decoration: underline;
+        }
+        .comment-box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            max-width: 1200px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .comment-box input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            background: #f5f5f5;
+        }
+        .comment-box button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .comment-box button:hover {
+            background: #0056b3;
+        }
+        .comment-content {
+            text-align: left;
+            margin-left: 0;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            padding-left: 0 !important;
+        }
+        .feed-card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .feed-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .feed-meta {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .feed-content {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            margin-top: 15px;
+        }
+        .feed-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        /* 좋아요 버튼 제거 → 관련 스타일 삭제 */
+        .delete-btn-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .delete-feed-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .delete-feed-btn:hover {
+            background: darkred;
+        }
+        .reply-toggle {
+            margin-left: auto;
+            display: block;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<!-- 네비게이션(FeedDetail.html과 동일) -->
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
+<div class="container my-4">
+    <div id="voteDetailContainer"></div>
+    <div id="commentSection"></div>
+    <div id="commentForm"></div>
+
+    <div class="text-center mt-4">
+        <a href="/search/view/feed?index=board" class="btn btn-secondary">
+            <i class="fas fa-home"></i> 메인으로 돌아가기
+        </a>
+    </div>
+</div>
+<script>
+    // 투표 상세 데이터를 렌더링하는 함수
+    function renderVoteDetail(jsonData) {
+        fetchTopWriters();
+        const container = document.getElementById('voteDetailContainer');
+        const vote = jsonData.data;  // jsonData.data에 투표 정보가 담김
+        container.innerHTML = '';
+
+        if (!vote) {
+            container.innerHTML = '<p>투표 정보를 불러오지 못했습니다.</p>';
+            return;
+        }
+
+        // 투표 상세보기에 필요한 데이터
+        const formattedDescription = vote.description ? vote.description.replace(/\n/g, "<br>") : "";
+        let badge = "";
+        const rank = topWriters[vote.username] || 0;
+        if (rank === 1) badge = "🥇";
+        else if (rank === 2) badge = "🥈";
+        else if (rank === 3) badge = "🥉";
+        else if (rank >= 4 && rank <= 5) badge = "🔥";
+
+        let voteOptionsHtml = "";
+        if (vote.voteOptions && Array.isArray(vote.voteOptions)) {
+            voteOptionsHtml = vote.voteOptions.map(option =>
+                `<button class="btn btn-outline-primary btn-sm vote-option-btn" data-option="${option}">${option}</button>`
+            ).join('');
+        }
+
+        let voteResultsHtml = "";
+        if (vote.voteResults && Array.isArray(vote.voteResults)) {
+            voteResultsHtml = vote.voteResults.map(result =>
+                `<div>${result.option}: <strong>${result.count}</strong>표</div>`
+            ).join('');
+        }
+
+        const html = `
+      <div class="card feed-card">
+        <div class="card-body">
+          <h2 class="feed-title">${vote.title}</h2>
+          <p class="feed-meta">
+            <strong>작성자:</strong> ${badge} ${vote.username} &nbsp;|&nbsp;
+            <strong>작성일자:</strong> ${formatDate(vote.createdAt)}
+          </p>
+          <div class="feed-content">${formattedDescription || ""}</div>
+          <div class="mt-3">
+            <h5>투표 항목</h5>
+            <div class="vote-options">
+              ${voteOptionsHtml}
+            </div>
+          </div>
+          <div class="mt-3">
+            <h5>현재 투표 결과</h5>
+            <div class="vote-results">
+              ${voteResultsHtml}
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-primary vote-submit-btn" onclick="submitVote('${vote.voteId}')">투표하기</button>
+          </div>
+        </div>
+      </div>
+    `;
+        container.innerHTML = html;
+
+        document.querySelectorAll(".vote-option-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelectorAll(".vote-option-btn").forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+            });
+        });
+    }
+
+    // 투표 제출 함수
+    function submitVote(voteId) {
+        const selectedButton = document.querySelector(".vote-option-btn.active");
+        if (!selectedButton) {
+            alert("투표 항목을 선택해주세요.");
+            return;
+        }
+        const selectedOption = selectedButton.getAttribute("data-option");
+        fetch(`/save/user/vote`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                voteId: voteId,
+                selectedOption: selectedOption
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("투표가 완료되었습니다.");
+                    location.reload();
+                } else {
+                    alert("투표 중 오류 발생: " + (data.error || "알 수 없는 오류"));
+                }
+            })
+            .catch(error => {
+                console.error("투표 제출 중 오류:", error);
+                alert("투표 제출 중 문제가 발생했습니다.");
+            });
+    }
+
+    // 포맷 함수
+    function formatDate(dateTimeString) {
+        if (!dateTimeString) return '';
+
+        const date = new Date(dateTimeString);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        let hour = date.getHours();
+        const minute = date.getMinutes();
+        const period = hour >= 12 ? '오후' : '오전';
+        hour = hour % 12 || 12;
+        const formattedMinute = minute < 10 ? `0${minute}` : minute;
+        return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
+    }
+
+    function renderCommentForm(jsonData) {
+        const commentFormDiv = document.getElementById('commentForm');
+        const vote = jsonData?.data;
+        const html = `
+        <div class="card shadow-sm p-3">
+          <div class="card-body">
+            <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
+            <input type="hidden" id="feedAuthorId"/>
+            <input type="hidden" id="currentUserId" />
+            <div class="form-group mt-3">
+              <label for="username" class="form-label">이름</label>
+              <input type="text" id="username" class="form-control" required />
+              <small class="text-muted d-block mt-1">
+                로그인하지 않으면 자동으로 <strong>익명</strong> 처리됩니다.
+              </small>
+            </div>
+            <div class="form-group mt-3">
+              <label for="content" class="form-label">내용</label>
+              <textarea id="content" rows="4" class="form-control" required></textarea>
+            </div>
+            <button id="btnCommentSubmit" type="button" class="btn btn-success mt-3" onclick="submitComment()">
+              <i class="fas fa-pencil-alt"></i> 작성하기
+            </button>
+          </div>
+        </div>
+      `;
+        commentFormDiv.innerHTML = html;
+    }
+
+    function renderCommentSection(jsonData) {
+        const commentContainer = document.getElementById('commentSection');
+        commentContainer.innerHTML = '';
+        const comments = jsonData.comment;
+        const replies = jsonData.replies;
+        if (!comments || comments.length === 0) {
+            commentContainer.innerHTML = '<p>댓글이 없습니다.</p>';
+            return;
+        }
+        let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
+        comments.forEach((cmt) => {
+            let rank = topWriters[cmt.username] || 0;
+            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+            const displayedUsername = cmt.author
+                ? `<strong style="color:#888;">${badge}작성자(${cmt.username})</strong>`
+                : `<strong>${badge} ${cmt.username}</strong>`;
+            html += `
+          <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
+              <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                      ${displayedUsername}
+                      <small class="text-muted ms-2">${formatDate(cmt.createdAt)}</small>
+                  </div>
+                  <div>
+                      ${cmt.commentOwner ? `
+                          <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
+                          <button class="btn btn-sm btn-link text-danger delete-comment-btn" data-comment-id="${cmt.commentUID}">삭제</button>
+                      ` : ""}
+                  </div>
+              </div>
+              <div id="comment-content-${cmt.commentUID}" style="white-space:pre-wrap; text-align: left;">
+                  ${convertLinks(cmt.content)}
+              </div>
+              <div class="mt-3 ms-3">
+                  ${renderReplies(replies[cmt.commentUID] || [])}
+                  <button class="btn btn-sm btn-outline-primary reply-toggle" data-comment-id="${cmt.commentUID}">답글 달기</button>
+                  <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
+                      <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
+                      <button class="btn btn-sm btn-primary submit-reply-btn" data-comment-id="${cmt.commentUID}">답글 작성</button>
+                  </div>
+              </div>
+          </div>`;
+        });
+        commentContainer.innerHTML = html;
+        comments.forEach((cmt) => {
+            const commentElement = document.getElementById(`comment-content-${cmt.commentUID}`);
+            if (commentElement) {
+                commentElement.innerHTML = convertLinks(cmt.content);
+            }
+        });
+        initializeCommentEvents(jsonData.feedId);
+    }
+
+    function convertLinks(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    }
+
+    // function formatDate(dateTimeString) {
+    //     if (!dateTimeString) return '';
+    //     const date = new Date(dateTimeString);
+    //     const month = date.getMonth() + 1;
+    //     const day = date.getDate();
+    //     let hour = date.getHours();
+    //     const minute = date.getMinutes();
+    //     const period = hour >= 12 ? '오후' : '오전';
+    //     hour = hour % 12 || 12;
+    //     const formattedMinute = minute < 10 ? `0${minute}` : minute;
+    //     return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
+    // }
+
+    let topWriters = {};
+
+    function fetchTopWriters() {
+        let cachedData = localStorage.getItem("topWriters");
+        let cachedTime = localStorage.getItem("topWritersTimestamp");
+        if (cachedData && cachedTime && (Date.now() - cachedTime) < 3600000) {
+            console.log("캐싱된 Top Writers 사용");
+            topWriters = JSON.parse(cachedData);
+            return Promise.resolve(topWriters);
+        }
+        return fetch("/top-writers")
+            .then(response => response.json())
+            .then(data => {
+                topWriters = {};
+                data.forEach((writer, index) => {
+                    topWriters[writer.username] = index + 1;
+                });
+                console.log("새로 가져온 TopWriters:", topWriters);
+                localStorage.setItem("topWriters", JSON.stringify(topWriters));
+                localStorage.setItem("topWritersTimestamp", Date.now());
+                return topWriters;
+            })
+            .catch(error => {
+                console.error("Top 유저 데이터 가져오기 실패:", error);
+                return {};
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const voteId = urlParams.get('id');
+        if (!voteId) {
+            alert("투표 ID가 없습니다.");
+            return;
+        }
+        fetch(`/get/user/vote/details?voteId=${voteId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`서버 응답 실패: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                renderVoteDetail(data);
+                renderCommentSection(data);
+                renderCommentForm(data);
+            })
+            .catch(error => {
+                console.error("투표 데이터를 불러오는 중 오류 발생:", error);
+                alert("투표 데이터를 불러오는 중 문제가 발생했습니다.");
+            });
+    });
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>

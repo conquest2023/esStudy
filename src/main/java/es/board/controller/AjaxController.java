@@ -5,6 +5,7 @@ import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.LoginResponse;
 import es.board.repository.document.Comment;
 import es.board.service.*;
@@ -49,6 +50,8 @@ public class AjaxController {
     private  final CommentService commentService;
 
     private  final CommentMapper commentMapper;
+
+    private  final VoteService voteService;
 
 
     @GetMapping("/get-ip")
@@ -167,11 +170,13 @@ public class AjaxController {
                 "viewCount", (Long) feedCount.get("totalViewCount"),
                 "count", countMap,
                 "page", page,
+                "vote",voteService.getVotePageFeed(page,size),
                 "maxPage",totalPage,
                 "totalPage", totalPage,
                 "data", data
         ));
     }
+
 
     @GetMapping("/data/feed")
     public ResponseEntity<?> getPagingDataFeed(
@@ -229,6 +234,24 @@ public class AjaxController {
         }
         return handleUnauthenticatedRequest( commentRes.get("comments"),feedRequest, response);
     }
+
+    @GetMapping("/vote/detail")
+    public ResponseEntity<?> getVoteDetailInfo(HttpServletRequest request,
+                                           @RequestParam(value = "id") String feedUID) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
+        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
+        response.put("count",commentRes.get("commentCount"));
+        VoteResponse req=voteService.getVoteDetail(feedUID);
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                return handleAuthenticatedVoteRequest(req, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
+            }
+        }
+        return handleUnauthenticatedVoteRequest(commentRes.get("comments"),req, response);
+    }
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedRequest.getUserId()));
@@ -260,6 +283,35 @@ public class AjaxController {
         return ResponseEntity.ok(response);
     }
 
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteResponse req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
+        response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
+        response.put("username", jwtTokenProvider.getUsername(token));
+        response.put("comment", userService.getCommentOwnerList(comments, commentOwner,req.getFeedUID(),jwtTokenProvider.getUserId(token)));
+        response.put("isLoggedIn", true);
+        response.put("data", req);
+        return ResponseEntity.ok(response);
+    }
 
+
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteResponse req, Map<String, Object> response) {
+
+        if (!(comments instanceof List<?>)) {
+            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+        }
+        List<CommentRequest> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+        List<CommentRequest> requests=  commentList
+                .stream()
+                .peek(comment -> {
+                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
+                })
+                .collect(Collectors.toList());
+        response.put("isLiked",false);
+        response.put("comment",requests);
+        response.put("Owner", req.getUserId());
+        response.put("isLoggedIn", false);
+        response.put("data", req);
+        return ResponseEntity.ok(response);
+    }
 
 }

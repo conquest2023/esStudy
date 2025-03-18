@@ -51,7 +51,7 @@ public class VoteController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        voteService.saveUserVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
+        voteService.saveFeedVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(response);
     }
@@ -72,15 +72,16 @@ public class VoteController {
         response.put("voteStatus", "completed");
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/get/aggregation/vote/{id}")
-    public ResponseEntity<?> getAggregationVote( @RequestHeader(value = "Authorization", required = false) String token,@PathVariable Long  id) {
-        Map<String,Object> aggregation =voteService.getVoteAggregation(id);
+    public ResponseEntity<?> getAggregationVote(@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long id) {
+        Map<String, Object> aggregation = voteService.getVoteAggregation(id);
         Map<String, Object> response = new HashMap<>();
-        response.put("totalVotes",aggregation.get("totalVotes"));
+        response.put("totalVotes", aggregation.get("totalVotes"));
         response.put("upvotes", aggregation.get("upvotes"));
-        response.put("downvotes",aggregation.get("downvotes"));
-        List<String> userIds=(List<String>) aggregation.get("userIds");
-        if(!token.isEmpty()) {
+        response.put("downvotes", aggregation.get("downvotes"));
+        List<String> userIds = (List<String>) aggregation.get("userIds");
+        if (!token.isEmpty()) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 boolean hasVoted = userIds.contains(jwtTokenProvider.getUserId(token));
@@ -88,18 +89,29 @@ public class VoteController {
                 return ResponseEntity.ok(response);
             }
         }
-         response.put("hasVoted", false);
-         return ResponseEntity.ok(response);
+        response.put("hasVoted", false);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/get/vote")
     public ResponseEntity<?> getVote() {
+
         return ResponseEntity.ok(voteService.getVoteContent());
     }
+
     @GetMapping("/get/vote/all")
     public ResponseEntity<?> getVoteAll() {
         return ResponseEntity.ok(Map.of(
                 "vote", voteService.getVoteAll()));
-        }
     }
 
+    @GetMapping("/get/user/vote")
+    public ResponseEntity<?> getUserVote() {
+        return ResponseEntity.ok((Map.of("data", voteService.getVoteUserAll())));
+        }
+    }
+//    @GetMapping("/get/user/vote/details")
+//    public ResponseEntity<?> getUserVoteDetail(@RequestParam String feedUID) {
+//        return ResponseEntity.ok((Map.of("data", voteService.getVoteUserAll())));
+//       }
+//    }

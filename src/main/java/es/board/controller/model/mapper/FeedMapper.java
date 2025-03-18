@@ -5,9 +5,9 @@ import es.board.controller.model.req.NoticeDTO;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.req.VoteResponse;
 import es.board.controller.model.res.FeedCreateResponse;
-import es.board.controller.model.res.LikeResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Reply;
+import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -159,6 +159,7 @@ public class FeedMapper {
                 .userId(userId)
                 .username(username)
                 .title(vote.getTitle())
+                .category("투표")
                 .description(vote.getDescription())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -169,6 +170,7 @@ public class FeedMapper {
                 .userId(userId)
                 .feedUID(feedUID)
                 .username(username)
+                .category("투표")
                 .title(voteResponse.getTitle())
                 .description(voteResponse.getDescription())
                 .voteType(voteResponse.getVoteType())
@@ -176,6 +178,24 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+
+    public  List<VoteResponse> voteDocumentToDTOList(List<VoteDocument> voteDocument) {
+        return voteDocument.stream()
+                .map(vote->VoteResponse.builder()
+//                        .id(vote.getId())
+                        .userId(vote.getUserId())
+                        .feedUID(vote.getFeedUID())
+                        .username(vote.getUsername())
+                        .title(vote.getTitle())
+                        .description(vote.getDescription())
+                        .voteType(vote.getVoteType())
+                        .selectedOption(vote.getSelectedOption())
+                        .createdAt(vote.getCreatedAt())
+                        .build())
+                        .collect(Collectors.toList());}
+
+
 
     public VoteResponse userVoteToDTO(UserVote vote , String username, String userId) {
         return VoteResponse.builder()
@@ -188,12 +208,26 @@ public class FeedMapper {
                 .build();
     }
 
-    public VoteResponse voteToDTOMain(Vote vote) {
+    public VoteResponse EntityToVoteDTO(Vote vote) {
         return VoteResponse.builder()
                 .id(vote.getId())
                 .username(vote.getUsername())
                 .title(vote.getTitle())
                 .description(vote.getDescription())
+                .createdAt(vote.getCreatedAt())
+                .build();
+    }
+
+    public VoteResponse DocumentToVoteDTO(VoteDocument vote) {
+        return VoteResponse.builder()
+                .id(vote.getId())
+                .feedUID(vote.getFeedUID())
+                .userId(vote.getUserId())
+                .username(vote.getUsername())
+                .voteType(vote.getVoteType())
+                .title(vote.getTitle())
+                .description(vote.getDescription())
+                .selectedOption(vote.getSelectedOption())
                 .createdAt(vote.getCreatedAt())
                 .build();
     }

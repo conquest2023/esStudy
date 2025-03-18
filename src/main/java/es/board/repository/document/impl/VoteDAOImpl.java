@@ -1,6 +1,7 @@
 package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
@@ -8,12 +9,15 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.controller.model.req.VoteResponse;
 import es.board.ex.IndexException;
 import es.board.repository.VoteDAO;
+import es.board.repository.document.Board;
 import es.board.repository.document.VoteAnalytics;
+import es.board.repository.document.VoteDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.lang.management.LockInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +46,6 @@ public class VoteDAOImpl implements VoteDAO {
 
     @Override
     public void saveAggregationAgreeVote(VoteResponse voteResponse, Long id) {
-        log.info(voteResponse.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("vote_analytics")
@@ -52,6 +55,27 @@ public class VoteDAOImpl implements VoteDAO {
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the document", e);
+        }
+    }
+
+    @Override
+    public List<VoteDocument> findFeedVoteAll() {
+        try {
+            SearchResponse<VoteDocument> response = client.search(s -> s
+                            .index("data_votes")
+                            .query(q->q
+                                    .bool(b->b
+                                    .filter(f -> f
+                                            .term(t -> t
+                                                    .field("category")
+                                                    .value("투표"))))),
+                   VoteDocument.class);
+            return  response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch popular feed", e);
         }
     }
 
@@ -93,4 +117,48 @@ public class VoteDAOImpl implements VoteDAO {
             return Map.of("error", "Elasticsearch 조회 실패");
         }
     }
-}
+
+    @Override
+    public List<VoteDocument> findVotePageFeed(int page, int size) {
+        try {
+            SearchResponse<VoteDocument> response = client.search(s -> s
+                    .index("data_votes")
+                    .from(page * size)
+                    .size(size)
+                            .sort(sort -> sort.field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Desc)
+                            ))
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            st -> st.term(t -> t
+                                                    .field("category")
+                                                    .value("투표"))))), VoteDocument.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error data Vote feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to Vote feed", e);
+        }
+    }
+
+    @Override
+    public VoteDocument findVoteFeedDetail(String feedUID) {
+        try {
+            SearchResponse<VoteDocument> response = client.search(s -> s
+                    .index("data_votes")
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            st -> st.term(t -> t
+                                                    .field("feedUID.keyword")
+                                                    .value(feedUID))))), VoteDocument.class);
+            return  response.hits().hits().get(0).source();
+        } catch (IOException e) {
+            log.error("Error data Vote feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to Vote feed", e);
+            }
+        }
+    }

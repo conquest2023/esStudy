@@ -579,8 +579,6 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public List<Board> findDataFeed(int page, int size) {
-        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
-        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -797,7 +795,6 @@ public class FeedDAOImpl implements FeedDAO {
                     .get("totalViews")
                     .sum()
                     .value();
-
         } catch (IOException e) {
             log.info("조회수 가져오기 실패");
             throw new IndexException(e);

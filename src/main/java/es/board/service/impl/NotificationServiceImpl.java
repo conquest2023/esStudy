@@ -26,11 +26,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
 
-    // ✅ SSE 구독 요청 처리
+
     @Override
     public SseEmitter subscribe(String userId) {
         log.info("SSE 구독 요청 - userId: {}", userId);
-        SseEmitter emitter = new SseEmitter(60 * 1000L);
+        SseEmitter emitter = new SseEmitter(60 * 100000L);
         emitters.put(userId, emitter);
 
 

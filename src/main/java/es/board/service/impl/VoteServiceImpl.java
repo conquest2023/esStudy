@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +35,7 @@ public class VoteServiceImpl implements VoteService {
     private final FeedMapper feedMapper;
 
     @Override
-    public CompletableFuture<Void> saveUserVote(VoteResponse vote,String  username, String userId) {
+    public CompletableFuture<Void> saveFeedVote(VoteResponse vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
             asyncService.saveVoteAsync(feedMapper.voteToDocument(vote,savedVoteId.getFeedId(),username,userId), savedVoteId.getId());
@@ -63,17 +64,43 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
+    public List<VoteResponse> getVotePageFeed(int page, int size) {
+        List<VoteResponse> votes= feedMapper.voteDocumentToDTOList(voteDAO.findVotePageFeed(page,size));
+        if (votes == null || votes.isEmpty()) {
+            votes = new ArrayList<>();
+        }
+        return votes;
+    }
+
+    @Override
+    public List<VoteResponse> getVoteUserAll() {
+        return feedMapper.voteDocumentToDTOList(voteDAO.findFeedVoteAll());
+    }
+
+    @Override
+    public List<VoteResponse> getVoteFeedDetail(String feedUID) {
+        return null;
+    }
+
+    @Override
     public Map<String, Object> getVoteAggregation(Long id) {
         return  voteDAO.getVoteStatistics(String.valueOf(id));
     }
 
     @Override
     public VoteResponse getVoteContent() {
-           return feedMapper.voteToDTOMain(voteRepository.findLatestVote());
+
+        return feedMapper.EntityToVoteDTO(voteRepository.findLatestVote());
+    }
+
+    @Override
+    public VoteResponse getVoteDetail(String feedUID) {
+        return feedMapper.DocumentToVoteDTO(voteDAO.findVoteFeedDetail(feedUID));
     }
 
     @Override
     public List<VoteResponse> getVoteAll(){
+
         return  feedMapper.voteToDTOMainList(voteRepository.findAll());
     }
 

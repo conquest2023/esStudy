@@ -116,8 +116,8 @@ public class MainFeedController {
     }
 
     @PostMapping("/search/view/feed/cancel-like/{feedUID}")
-    public ResponseEntity<Map<String, Integer>>  cancelLikeCount(@PathVariable String feedUID,
-                                                                 @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String, Integer>> cancelLikeCount(@PathVariable String feedUID,
+                                                                @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
@@ -126,7 +126,7 @@ public class MainFeedController {
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        feedService.cancelLike(userId,feedUID);
+        feedService.cancelLike(userId, feedUID);
 
         Map<String, Integer> response = new HashMap<>();
 
@@ -140,8 +140,8 @@ public class MainFeedController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Map<String,Object> feedCount = feedService.getFetchTotalFeedStats();
-        Double totalFeeds= (double) feedCount.get("totalFeedCount");
+        Map<String, Object> feedCount = feedService.getFetchTotalFeedStats();
+        Double totalFeeds = (double) feedCount.get("totalFeedCount");
         int maxPage = (int) Math.ceil((double) totalFeeds / size);
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -222,26 +222,27 @@ public class MainFeedController {
     }
 
     @GetMapping("/search/view/feed/vote")
-    public  String  getVoteFeed(){
+    public String getVoteFeed() {
 
-        return  "basic/feed/VoteAdd";
+        return "basic/feed/VoteAdd";
     }
 
     @GetMapping("/search/view/feed/voteex")
-    public  String  getVoteExFeed(){
+    public String getVoteExFeed() {
 
-        return  "basic/feed/voteEx";
+        return "basic/feed/voteEx";
     }
 
     @GetMapping("/site")
-    public  String  getSite(){
-        return  "basic/feed/site";
+    public String getSite() {
+        return "basic/feed/site";
     }
 
     @GetMapping("/post/page")
     public String getNoticeOne() {
-        return  "basic/feed/PostFeedList";
+        return "basic/feed/PostFeedList";
     }
+
     @GetMapping("/search/view/feed/list/{category}")
     public String getCategoryListFeed(Model model, @PathVariable String category) {
         model.addAttribute("data", feedService.getCategoryFeed(category));
@@ -250,7 +251,7 @@ public class MainFeedController {
 
     @GetMapping("/search/view/feed/recommend")
     @ResponseBody
-    public  ResponseEntity<?> getRecommendFeed() {
+    public ResponseEntity<?> getRecommendFeed() {
         return ResponseEntity.ok(Map.of("recommend", feedService.getRecommendFeed()));
     }
 
@@ -277,7 +278,7 @@ public class MainFeedController {
         Map<String, Object> response = new HashMap<>();
         try {
             processFileUpload(file, res);
-            authService.extractUserIdFromToken(token,res);
+            authService.extractUserIdFromToken(token, res);
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);
             response.put("redirectUrl", "/search/view/feed?index=board");
@@ -295,7 +296,7 @@ public class MainFeedController {
 
     @GetMapping("/search/view/feed/list/job")
     public String getProgrammersList() {
-        return  "basic/feed/ItCrawlingFeed";
+        return "basic/feed/ItCrawlingFeed";
     }
 
 
@@ -314,21 +315,19 @@ public class MainFeedController {
     }
 
 
-
     @GetMapping("/search/view/feed/best")
-    public  ResponseEntity<?> getWeekBestFeed( @RequestParam(defaultValue = "0") int page,
-                                                 @RequestParam(defaultValue = "10") int size){
+    public ResponseEntity<?> getWeekBestFeed(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
 
         Map<String, Object> response = new HashMap<>();
-        response.put("data", feedService.findWeekBestFeed(page,size));
+        response.put("data", feedService.findWeekBestFeed(page, size));
         return ResponseEntity.ok(response);
     }
 
 
-
     @PostMapping("/search/view/feed/delete")
     @ResponseBody
-    public ResponseEntity<?> deleteFeed(@RequestBody Map<String, String> requestData,@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> deleteFeed(@RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization", required = false) String token) {
 
 
         String id = requestData.get("id");
@@ -345,20 +344,25 @@ public class MainFeedController {
         response.put("redirectUrl", "/");
         return ResponseEntity.ok(response);
     }
-        @GetMapping("/search/view/feed/reload")
-        public String reloadViewCount(Model model) {
 
-            model.addAttribute("data", feedService.getFeed());
-            return "basic/feed/feedList?index=board";
-        }
+    @GetMapping("/search/view/feed/reload")
+    public String reloadViewCount(Model model) {
 
+        model.addAttribute("data", feedService.getFeed());
+        return "basic/feed/feedList?index=board";
+    }
+
+    @GetMapping("/get/user/vote/details")
+    public String getUserVoteDetail() {
+        return "basic/feed/VoteDetail";
+    }
 
     private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
         if (file != null && !file.isEmpty()) {
             log.info("File upload started");
             feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
+            }
         }
     }
-}
 
 

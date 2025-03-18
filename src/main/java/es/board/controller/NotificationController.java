@@ -40,7 +40,6 @@ public class NotificationController {
             return new ResponseEntity<>(emitter, HttpStatus.OK);
         }
 
-        // 401 Unauthorized 반환
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
