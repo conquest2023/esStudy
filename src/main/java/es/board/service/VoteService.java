@@ -1,31 +1,33 @@
 package es.board.service;
 
-import es.board.controller.model.req.VoteResponse;
+import es.board.controller.model.req.VoteDTO;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface VoteService {
+    CompletableFuture<Void> saveFeedTicket(VoteDTO vote, String  username, String userId);
+    CompletableFuture<Void> createdFeedVote(VoteDTO vote, String  username, String userId);
 
-    CompletableFuture<Void> saveFeedVote(VoteResponse vote, String  username, String userId);
-
-    CompletableFuture<Void> saveVote(VoteResponse vote,String  username, String userId);
+    CompletableFuture<Void> saveVote(VoteDTO vote, String  username, String userId);
 
 
-    CompletableFuture<Void> saveAgreeVote(VoteResponse vote,String  username, String userId);
-    void oppositeVote();
+    CompletableFuture<Void> saveAgreeVote(VoteDTO vote, String  username, String userId);
 
-    List<VoteResponse> getVotePageFeed(int page, int size);
-    List<VoteResponse> getVoteUserAll();
+    List<VoteDTO> getVotePageFeed(int page, int size);
+    List<VoteDTO> getVoteUserAll();
 
-    List<VoteResponse> getVoteFeedDetail(String feedUID);
+    Map<String, Object> getVoteTicketAll(String  id);
+
+
+    List<VoteDTO> getVoteFeedDetail(String feedUID);
 
     Map<String,Object> getVoteAggregation(Long id);
 
-    VoteResponse getVoteContent();
+    VoteDTO getVoteContent();
 
-    VoteResponse getVoteDetail(String feedUID);
+    VoteDTO getVoteDetail(String feedUID);
 
-    List<VoteResponse> getVoteAll();
+    List<VoteDTO> getVoteAll();
 }

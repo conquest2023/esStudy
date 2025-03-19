@@ -15,6 +15,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(indexName = "vote_analytics")
 @Data
@@ -35,6 +36,15 @@ public class VoteAnalytics {
 
     @Field(type = FieldType.Integer)
     private int upvoteCount;
+
+    @Field(type = FieldType.Keyword)
+    private String selectedOption;
+
+    @Field(type = FieldType.Keyword)
+    private List<String> voteOptions;
+
+    @Field(type = FieldType.Keyword)
+    private List<String> voteType;
 
 
     @Field(type = FieldType.Integer)

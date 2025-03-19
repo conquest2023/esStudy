@@ -32,9 +32,14 @@
     </style>
 </head>
 <body>
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
 <div class="container my-5">
     <div class="form-container">
-        <h4 class="mb-3 fw-bold">글쓰기</h4>
+        <h4 class="mb-3 fw-bold">투표 작성</h4>
 
         <form id="voteForm">
             <!-- 카테고리 선택 -->
@@ -150,14 +155,16 @@
             if (response.ok) {
                 alert("투표가 성공적으로 저장되었습니다!");
                 console.log("서버 응답:", result);
-                this.reset();
-                optionCount = 1;
-                document.getElementById('voteOptionsContainer').innerHTML = `
-                  <div class="input-group mb-2 vote-option-container">
-                    <input type="text" name="voteOption[]" class="form-control" placeholder="투표 항목 1" required />
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVoteOption(this)">X</button>
-                  </div>
-                `;
+                window.location.href = "/";
+                // this.reset();
+                //
+                // optionCount = 1;
+                // document.getElementById('voteOptionsContainer').innerHTML = `
+                //   <div class="input-group mb-2 vote-option-container">
+                //     <input type="text" name="voteOption[]" class="form-control" placeholder="투표 항목 1" required />
+                //     <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVoteOption(this)">X</button>
+                //   </div>
+                // `;
             } else {
                 alert(result.error || "투표 저장에 실패했습니다.");
             }

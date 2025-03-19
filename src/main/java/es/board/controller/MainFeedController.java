@@ -233,6 +233,12 @@ public class MainFeedController {
         return "basic/feed/voteEx";
     }
 
+    @GetMapping("/search/view/vote/detail")
+    public String getVoteDetail(@RequestParam String  id) {
+
+        return "basic/feed/VoteDetail";
+    }
+
     @GetMapping("/site")
     public String getSite() {
         return "basic/feed/site";

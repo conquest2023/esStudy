@@ -2065,7 +2065,6 @@
         fetch("/interview/random")
             .then(response => response.json())
             .then(data => {
-                console.log("응답 데이터:", data);
                 if (data && data.question) {
                     data.question.forEach(q => {
                         if (q.category === "IT") {
@@ -2262,7 +2261,6 @@
     function fetchTopWriters() {
         let cachedData = sessionStorage.getItem("topWriters");
         if (cachedData) {
-            console.log("세션 캐싱된 Top Writers 사용");
             topWriters = JSON.parse(cachedData);
             Promise.resolve(topWriters);
         }
@@ -2501,34 +2499,29 @@
 
         pinnedNoticesContainer.innerHTML = '';
         normalPostsContainer.innerHTML = '';
-
-        // $.ajax({
-        //     url: "/list/noitce",
-        //     type: "GET",
-        //     success: function (noticeData) {
-        //         let pinnedNotices = "";
-        //         noticeData.forEach(notice => {
-        //             pinnedNotices += `
-        //             <div class="list-item notice-item">
-        //                 <div>
-        //                     📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
-        //                     <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
-        //                 </div>
-        //             </div>`;
-        //         });
-        //         pinnedNoticesContainer.innerHTML = pinnedNotices;
-        console.log(jsonData)
-        console.log(jsonData.data)
+        $.ajax({
+            url: "/list/noitce",
+            type: "GET",
+            success: function (noticeData) {
+                let pinnedNotices = "";
+                noticeData.forEach(notice => {
+                    pinnedNotices += `
+                    <div class="list-item notice-item">
+                        <div>
+                            📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
+                            <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
+                        </div>
+                    </div>`;
+                });
+                pinnedNoticesContainer.innerHTML = pinnedNotices;
         let sortedPosts = [...jsonData.data, ...jsonData.vote].sort((a, b) => {
             return new Date(b.createdAt) - new Date(a.createdAt);
         });
-
         let normalPosts = "";
         sortedPosts.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
             let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
-
             if (post.id) {
                 normalPosts += `
             <div class="list-item ${isPinned ? 'notice-item' : ''}">
@@ -2556,7 +2549,7 @@
                 normalPosts += `
             <div class="list-item vote-item">
                 <div>
-                    🗳️ <a href="#" onclick="fetchVoteDetails('${post.feedUID}')">${post.title}</a>
+                    🗳️ <a href="/search/view/vote/detail?id=${post.feedUID}">${post.title}</a>
                     <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
                 </div>
             </div>`;
@@ -2564,27 +2557,23 @@
         });
 
         normalPostsContainer.innerHTML = normalPosts;
+    },
+            error: function () {
+                alert("공지사항을 불러올수없습니다!");
+            }
+        });
     }
+
     // <div class="vote-options">
     //     ${post.voteType.map(option => `
     //         <button class="btn btn-outline-primary btn-sm">${option}</button>
     //     `).join('')}
     // </div>
-
-        //     },
-        //     error: function () {
-        //         alert("공지사항을 불러올수없습니다!");
-        //     }
-        // });
-    // }
-
     function fetchVoteDetails(voteId) {
         $.ajax({
             url: `/get/user/vote/details?feedUID=${voteId}`,
             type: "GET",
             success: function (response) {
-                console.log("투표 상세 데이터:", response);
-                showVoteModal(response);
             },
             error: function () {
                 alert("투표 데이터를 불러올 수 없습니다.");
@@ -2649,7 +2638,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('[debug] 검색 결과 (뒤로가기):', data);
 
                     if (data.data.length === 0) {
                         alert('검색 결과가 없습니다.');

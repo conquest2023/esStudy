@@ -1,7 +1,6 @@
 package es.board.repository.entity;
 
 
-import es.board.controller.model.req.VoteResponse;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.AllArgsConstructor;

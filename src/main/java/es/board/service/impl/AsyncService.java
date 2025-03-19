@@ -2,8 +2,7 @@ package es.board.service.impl;
 
 
 import es.board.controller.model.req.NoticeDTO;
-import es.board.controller.model.req.VoteResponse;
-import es.board.controller.model.res.FeedCreateResponse;
+import es.board.controller.model.req.VoteDTO;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.*;
 import es.board.repository.document.Board;
@@ -139,7 +138,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveVoteAsync(VoteResponse vote, Long id) {
+    public CompletableFuture<Void> saveVoteAsync(VoteDTO vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
@@ -152,7 +151,19 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveAggregationVoteAsync(VoteResponse vote, Long id) {
+    public CompletableFuture<Void> saveVoteTicketAsync(VoteDTO vote) {
+        log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
+        try {
+            voteDAO.saveVoteTicket(vote);
+            log.info("비동기 Vote Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
+        } catch (Exception e) {
+            log.error("Elasticsearch 저장 실패", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> saveAggregationVoteAsync(VoteDTO vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 집계 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {

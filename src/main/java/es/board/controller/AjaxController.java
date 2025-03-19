@@ -5,7 +5,7 @@ import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.req.VoteResponse;
+import es.board.controller.model.req.VoteDTO;
 import es.board.controller.model.res.LoginResponse;
 import es.board.repository.document.Comment;
 import es.board.service.*;
@@ -242,7 +242,7 @@ public class AjaxController {
         Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
-        VoteResponse req=voteService.getVoteDetail(feedUID);
+        VoteDTO req=voteService.getVoteDetail(feedUID);
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -283,7 +283,7 @@ public class AjaxController {
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteResponse req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO req, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
@@ -294,7 +294,7 @@ public class AjaxController {
     }
 
 
-    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteResponse req, Map<String, Object> response) {
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO req, Map<String, Object> response) {
 
         if (!(comments instanceof List<?>)) {
             throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
