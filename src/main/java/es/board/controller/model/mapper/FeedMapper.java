@@ -175,12 +175,12 @@ public class FeedMapper {
                 .build();
     }
 
-    public VoteDTO voteToDocument(VoteDTO voteResponse, String feedUID , String username, String userId) {
+    public VoteDTO voteToDocument(VoteDTO voteResponse, String feedUID , String username, String userId,Long id) {
         return VoteDTO.builder()
+                .id(id)
                 .userId(userId)
                 .feedUID(feedUID)
                 .username(username)
-                .category("투표")
                 .title(voteResponse.getTitle())
                 .description(voteResponse.getDescription())
                 .voteType(voteResponse.getVoteType())

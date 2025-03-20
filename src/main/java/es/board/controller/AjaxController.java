@@ -284,7 +284,8 @@ public class AjaxController {
     }
 
     private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO req, String commentOwner, Map<String, Object> response, String token, Object comments) {
-        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
+//        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
+        log.info( String.valueOf(jwtTokenProvider.getUserId(token).equals(req.getUserId())));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
         response.put("comment", userService.getCommentOwnerList(comments, commentOwner,req.getFeedUID(),jwtTokenProvider.getUserId(token)));

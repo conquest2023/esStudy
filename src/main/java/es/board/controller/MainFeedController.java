@@ -333,9 +333,8 @@ public class MainFeedController {
 
     @PostMapping("/search/view/feed/delete")
     @ResponseBody
-    public ResponseEntity<?> deleteFeed(@RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization", required = false) String token) {
-
-
+    public ResponseEntity<?> deleteFeed(
+            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
         String id = requestData.get("id");
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));

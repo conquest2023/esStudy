@@ -44,7 +44,6 @@ public class VoteController {
     @PostMapping("/save/user/vote")
     @ResponseBody
     public ResponseEntity<?> saveUserVote(@RequestBody VoteDTO vote, @RequestHeader(value = "Authorization") String token) {
-        log.info(vote.toString());
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -61,7 +60,6 @@ public class VoteController {
     @PostMapping("/save/ticket/vote")
     @ResponseBody
     public ResponseEntity<?> saveFeedVote(@RequestBody VoteDTO vote, @RequestHeader(value = "Authorization") String token) {
-        log.info(vote.toString());
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -131,7 +129,6 @@ public class VoteController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid Token"));
         }
-        log.info(objectMap.get("selectOption").toString());
         Object userIds = objectMap.get("users");
         return ResponseEntity.ok(Map.of(
                 "hasVoted", checkTicketOwner(userIds,jwtTokenProvider.getUserId(token)),
@@ -143,10 +140,26 @@ public class VoteController {
         return ResponseEntity.ok(Map.of(
                 "vote", voteService.getVoteAll()));
     }
+    @PostMapping("/search/view/vote/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteVoteFeed(
+            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
+        String id = requestData.get("id");
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        voteService.deleteVoteFeed(id, jwtTokenProvider.getUserId(token));
 
+        Map<String, String> response = new HashMap<>();
+        response.put("redirectUrl", "/");
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/get/user/vote")
     public ResponseEntity<?> getUserVote() {
-
         return ResponseEntity.ok((Map.of("data", voteService.getVoteUserAll())));
         }
 

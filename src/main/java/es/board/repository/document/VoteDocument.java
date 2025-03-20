@@ -54,8 +54,6 @@ public class VoteDocument {
     @Field(type = FieldType.Text, name = "title")
     private String title;
 
-    @Field(type = FieldType.Text, name = "description")
-
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")

@@ -44,11 +44,31 @@ public class CommentController {
         } else {
             response.commentAnonymousBasicSetting(id);
         }
-
         commentService.indexComment(response);
-
         Map<String, String> res = new HashMap<>();
         res.put("redirectUrl", "/search/view/feed/id?id=" + id);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/search/view/vote/comment/id")
+    @ResponseBody
+    public ResponseEntity<?> saveVoteCommentId(
+            @RequestParam("feedUID") String id,
+            @RequestBody CommentCreate response,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                response.commentBasicSetting(id, jwtTokenProvider.getUserId(token));
+            } else {
+                response.commentAnonymousBasicSetting(id);
+            }
+        } else {
+            response.commentAnonymousBasicSetting(id);
+        }
+        commentService.indexComment(response);
+        Map<String, String> res = new HashMap<>();
+        res.put("redirectUrl", "/search/view/vote/detail?id=" + id);
         return ResponseEntity.ok(res);
     }
 

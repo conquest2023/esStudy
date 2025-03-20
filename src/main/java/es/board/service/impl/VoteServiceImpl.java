@@ -38,7 +38,7 @@ public class VoteServiceImpl implements VoteService {
     public CompletableFuture<Void> createdFeedVote(VoteDTO vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
-            asyncService.saveVoteAsync(feedMapper.voteToDocument(vote,savedVoteId.getFeedId(),username,userId), savedVoteId.getId());
+            asyncService.saveVoteAsync(feedMapper.voteToDocument(vote,savedVoteId.getFeedId(),username,userId,savedVoteId.getId()), savedVoteId.getId());
             return null;
         });
     }
@@ -57,6 +57,11 @@ public class VoteServiceImpl implements VoteService {
             asyncService.saveAggregationVoteAsync(feedMapper.userVoteToDTO(savedUserVoteId,username,userId), savedUserVoteId.getId());
             return null;
         });
+    }
+
+    @Override
+    public void deleteVoteFeed(String id, String userId) {
+         voteDAO.deleteVoteFeed(id);
     }
     @Override
     public CompletableFuture<Void> saveFeedTicket(VoteDTO vote, String  username, String userId) {

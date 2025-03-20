@@ -1479,11 +1479,11 @@
                             <i class="fas fa-list"></i> 전체 글
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold" id="vote-tab" data-bs-toggle="tab"  data-bs-target="#voteTabPane">
-                            <i class="fas fa-book"></i> 투표
-                        </button>
-                    </li>
+<!--                    <li class="nav-item" role="presentation">-->
+<!--                        <button class="nav-link fw-bold" id="vote-tab" data-bs-toggle="tab"  data-bs-target="#voteTabPane">-->
+<!--                            <i class="fas fa-book"></i> 투표-->
+<!--                        </button>-->
+<!--                    </li>-->
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane" type="button" role="tab">
                             <i class="fas fa-question-circle"></i> Q&A
@@ -1703,29 +1703,29 @@
         document.getElementById("showVoteButton").style.display = "block";
         localStorage.setItem("voteSectionHidden", "true");
     }
-    function toggleVoteSection() {
-        document.getElementById("voteSection").style.display = "block";
-        document.getElementById("showVoteButton").style.display = "none";
-        localStorage.removeItem("voteSectionHidden");
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchVotes();
+    // function toggleVoteSection() {
+    //     document.getElementById("voteSection").style.display = "block";
+    //     document.getElementById("showVoteButton").style.display = "none";
+    //     localStorage.removeItem("voteSectionHidden");
+    // }
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     fetchVotes();
+    //
+    //     if (localStorage.getItem("voteSectionHidden") === "true") {
+    //         document.getElementById("voteSection").style.display = "none";
+    //         document.getElementById("showVoteButton").style.display = "block";
+    //     }
+    // });
 
-        if (localStorage.getItem("voteSectionHidden") === "true") {
-            document.getElementById("voteSection").style.display = "none";
-            document.getElementById("showVoteButton").style.display = "block";
-        }
-    });
-
-    function fetchVotes() {
-        fetch("/get/vote")
-            .then(response => response.json())
-            .then(data => {
-                const votes = Array.isArray(data) ? data : [data];
-                renderFeeds(votes);
-            })
-            .catch(error => console.error("Error fetching votes:", error));
-    }
+    // function fetchVotes() {
+    //     fetch("/get/vote")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const votes = Array.isArray(data) ? data : [data];
+    //             renderFeeds(votes);
+    //         })
+    //         .catch(error => console.error("Error fetching votes:", error));
+    // }
 
     // function renderVotes(votes) {
     //     const voteList = document.getElementById("voteList");
@@ -1982,12 +1982,6 @@
 
     let isFetchingVote = false;
 
-    document.getElementById("vote-tab").addEventListener("click", function () {
-        if (!isFetchingVote) {
-            fetchVoteFeed();
-        }
-    });
-
 
     document.getElementById("all-tab").addEventListener("click", function () {
         loadPage(0)
@@ -2001,7 +1995,7 @@
             data: { page: 0, size: 10 },
             success: function (response) {
                 if (response.data) {
-                    renderFeeds(response);
+                    categoryFeeds(response);
                     $("#pagination").hide();
                 } else {
                     alert("자료집을 불러올 수 없습니다.");
@@ -2023,7 +2017,6 @@
             success: function (response) {
                 if (response && response.data && Array.isArray(response.data)) {
                     renderFeeds(response);
-                    $("#pagination").hide();
                 } else {
                     console.warn("투표 데이터를 찾을 수 없습니다:", response);
                     alert("투표를 불러올 수 없습니다.");
@@ -2045,7 +2038,7 @@
             data: { page: 0, size: 10 },
             success: function (response) {
                 if (response.data) {
-                    renderFeeds(response);
+                    categoryFeeds(response);
                     $("#pagination").hide();
                 } else {
                     alert("이번 주 인기글을 불러올 수 없습니다.");
@@ -2279,34 +2272,21 @@
     function updateTopWriters(topWriters) {
         const topWritersList = document.getElementById("topWritersList");
         topWritersList.innerHTML = '';
-
         topWriters.forEach((writer, index) => {
-            let rankClass = "rank-default";
             let rankText = index + 1;
-
-            if (index === 0) {
-                rankClass = "rank-gold";
-                rankText = "🥇";
-            } else if (index === 1) {
-                rankClass = "rank-silver";
-                rankText = "🥈";
-            } else if (index === 2) {
-                rankClass = "rank-bronze";
-                rankText = "🥉";
-            }
-
+            if (index === 0) rankText = "🥇";
+            else if (index === 1) rankText = "🥈";
+            else if (index === 2) rankText = "🥉";
             const itemDiv = document.createElement('div');
             itemDiv.className = `ranking-item`;
             itemDiv.innerHTML = `
-            <div class="rank-badge ${rankClass}">${rankText}</div>
-            <span class="rank-name">${writer.username} </span>
+            <span class="rank-badge">${rankText}</span>
+            <span class="rank-name">${writer.username}</span>
             <span class="rank-details">${writer.viewCount}점</span>
         `;
-
             topWritersList.appendChild(itemDiv);
         });
     }
-
     document.addEventListener("DOMContentLoaded", function () {
         var dropdowns = document.querySelectorAll('.dropdown-toggle');
         dropdowns.forEach(dropdown => {
@@ -2486,6 +2466,74 @@
 
         handlePageClick(currentPage);
     });
+    function categoryFeeds(jsonData, count) {
+        loadVisitorStats();
+        fetchTopWriters();
+
+        const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
+        const normalPostsContainer = document.getElementById('normalPostsContainer');
+
+        pinnedNoticesContainer.innerHTML = '';
+        normalPostsContainer.innerHTML = '';
+
+        $.ajax({
+            url: "/list/noitce",
+            type: "GET",
+            success: function (noticeData) {
+                let pinnedNotices = "";
+                noticeData.forEach(notice => {
+                    pinnedNotices += `
+                <div class="list-item notice-item">
+                    <div>
+                        📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
+                        <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
+                    </div>
+                </div>`;
+                });
+                pinnedNoticesContainer.innerHTML = pinnedNotices;
+            },
+            error: function () {
+                alert("공지사항을 불러올 수 없습니다!");
+            }
+        });
+
+
+        let filteredPosts = jsonData.data.filter(post => !post.voteType);
+
+        let sortedPosts = filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        let normalPosts = "";
+        sortedPosts.forEach(post => {
+            let isPinned = post.pinned === true;
+            let rank = topWriters[post.username] || 0;
+            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+
+            normalPosts += `
+        <div class="list-item ${isPinned ? 'notice-item' : ''}">
+            <div>
+                ${isPinned ? '📢 ' : ''}
+                <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
+                ${count && count[post.feedUID] > 0 ?
+                `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>` : ""}
+               <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+            </div>
+            <td class="text-center">
+                <div class="badge-container d-flex align-items-center">
+                    <div class="icon-container">
+                        <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
+                        <span class="count">${post.viewCount || 0}</span>
+                    </div>
+                    <div class="icon-container">
+                        <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
+                        <span class="count">${post.likeCount || 0}</span>
+                    </div>
+                </div>
+            </td>
+        </div>`;
+        });
+
+        normalPostsContainer.innerHTML = normalPosts;
+    }
 
     async  function handlePageClick(page) {
         sessionStorage.setItem('currentPage', page);
@@ -2569,17 +2617,6 @@
     //         <button class="btn btn-outline-primary btn-sm">${option}</button>
     //     `).join('')}
     // </div>
-    function fetchVoteDetails(voteId) {
-        $.ajax({
-            url: `/get/user/vote/details?feedUID=${voteId}`,
-            type: "GET",
-            success: function (response) {
-            },
-            error: function () {
-                alert("투표 데이터를 불러올 수 없습니다.");
-            }
-        })
-    }
         // // 3. 인기 게시물(month)
         // const popularFeedsList = document.getElementById("monthFeedsList");
         // popularFeedsList.innerHTML = '';
@@ -2694,14 +2731,12 @@
 <script>
 
     document.addEventListener("DOMContentLoaded", function () {
-        // 모든 드롭다운 요소 가져오기
         const dropdowns = document.querySelectorAll(".dropdown");
 
         dropdowns.forEach((dropdown) => {
             dropdown.addEventListener("click", function (event) {
-                event.stopPropagation(); // 클릭 이벤트 전파 방지
+                event.stopPropagation();
 
-                // 다른 드롭다운이 열려 있다면 닫기
                 dropdowns.forEach((item) => {
                     if (item !== dropdown) {
                         item.classList.remove("show");
@@ -2709,7 +2744,6 @@
                     }
                 });
 
-                // 현재 드롭다운 토글
                 const menu = dropdown.querySelector(".dropdown-menu");
                 const isOpen = menu.classList.contains("show");
 
@@ -2723,7 +2757,6 @@
             });
         });
 
-        // 다른 곳을 클릭하면 드롭다운 닫기
         document.addEventListener("click", function () {
             dropdowns.forEach((dropdown) => {
                 dropdown.classList.remove("show");

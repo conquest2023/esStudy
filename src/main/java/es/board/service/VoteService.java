@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface VoteService {
+
+    void deleteVoteFeed(String id, String userId);
     CompletableFuture<Void> saveFeedTicket(VoteDTO vote, String  username, String userId);
     CompletableFuture<Void> createdFeedVote(VoteDTO vote, String  username, String userId);
 

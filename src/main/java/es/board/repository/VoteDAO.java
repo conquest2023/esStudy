@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface VoteDAO {
-
+    void deleteVoteFeed(String id);
     Map<String, Object> getVoteFeedStatistics(String id);
     void saveVoteTicket(VoteDTO voteResponse);
     List<VoteDocument> findFeedVoteAll();

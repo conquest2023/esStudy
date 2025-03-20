@@ -1,9 +1,11 @@
 package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.controller.model.req.VoteDTO;
@@ -28,6 +30,7 @@ public class VoteDAOImpl implements VoteDAO {
 
     @Override
     public void saveVoteContent(VoteDTO voteResponse, Long id) {
+        log.info(id.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("data_votes")
@@ -166,13 +169,7 @@ public class VoteDAOImpl implements VoteDAO {
                             .sort(sort -> sort.field(f -> f
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
-                            ))
-                    .query(q -> q
-                            .bool(b -> b
-                                    .filter(
-                                            st -> st.term(t -> t
-                                                    .field("category")
-                                                    .value("투표"))))), VoteDocument.class);
+                            )), VoteDocument.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -199,4 +196,27 @@ public class VoteDAOImpl implements VoteDAO {
             throw new IndexException("Failed to Vote feed", e);
             }
         }
+
+    @Override
+    public void deleteVoteFeed(String id) {
+        try {
+            DeleteResponse deleteResponse = client.delete(d -> d
+                    .index("data_votes")
+                    .id(id)
+            );
+            if (deleteResponse.result().toString().equals("NotFound")) {
+                log.warn("삭제할 문서를 찾을 수 없습니다: {}", id);
+                throw new IllegalArgumentException("해당 게시글을 찾을 수 없습니다.");
+            }
+
+            log.info("게시글 삭제 완료 (ID: {})", id);
+
+        } catch (ElasticsearchException e) {
+            log.error("Elasticsearch 삭제 오류 (ID: {}): {}", id, e.getMessage(), e);
+            throw new RuntimeException("Elasticsearch 삭제 중 오류 발생", e);
+        } catch (Exception e) {
+            log.error("게시글 삭제 실패 (ID: {}): {}", id, e.getMessage(), e);
+            throw new RuntimeException("게시글 삭제 중 오류 발생", e);
+        }
     }
+}
