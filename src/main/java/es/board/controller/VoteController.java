@@ -169,7 +169,6 @@ public class VoteController {
             Set<String> userSet = (Set<String>) userIds;
             hasVoted = userSet.contains(userId);
         }
-        log.info(String.valueOf(hasVoted));
         return hasVoted;
     }
 

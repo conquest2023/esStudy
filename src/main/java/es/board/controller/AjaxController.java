@@ -252,6 +252,7 @@ public class AjaxController {
         }
         return handleUnauthenticatedVoteRequest(commentRes.get("comments"),req, response);
     }
+
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedRequest.getUserId()));
@@ -285,7 +286,6 @@ public class AjaxController {
 
     private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO req, String commentOwner, Map<String, Object> response, String token, Object comments) {
 //        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
-        log.info( String.valueOf(jwtTokenProvider.getUserId(token).equals(req.getUserId())));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
         response.put("comment", userService.getCommentOwnerList(comments, commentOwner,req.getFeedUID(),jwtTokenProvider.getUserId(token)));
@@ -293,8 +293,6 @@ public class AjaxController {
         response.put("data", req);
         return ResponseEntity.ok(response);
     }
-
-
     private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO req, Map<String, Object> response) {
 
         if (!(comments instanceof List<?>)) {

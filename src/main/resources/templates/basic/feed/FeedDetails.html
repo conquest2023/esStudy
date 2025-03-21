@@ -785,7 +785,7 @@
             if (token) {
                 headers["Authorization"] = `Bearer ${token}`;
             }
-            fetch(`/search/view/vote/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
+            fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify({
@@ -883,8 +883,6 @@
                         ` : ""}
                 </div>
             </div>
-
-            <!-- 댓글 내용 -->
             <div id="comment-content-${cmt.commentUID}" style="white-space:pre-wrap; text-align: left; margin-left: 0; padding-left: 0;">
                 ${convertLinks(cmt.content)}
             </div>

@@ -46,4 +46,22 @@ public class ReplyController {
         replyService.saveReply(response);
         return ResponseEntity.ok("/search/view/feed/id?id=" + response.getFeedUID());
     }
+
+
+
+    @PostMapping("/search/view/vote/reply/save")
+    public ResponseEntity<String> postVoteReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                response.replyBasicSetting(jwtTokenProvider.getUserId(token));
+            } else {
+                response.replyAnonymousBasicSetting();
+            }
+        } else {
+            response.replyAnonymousBasicSetting();
+        }
+        replyService.saveReply(response);
+        return ResponseEntity.ok("/search/view/vote/detail?id=" + response.getFeedUID());
+    }
 }
