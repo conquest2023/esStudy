@@ -22,9 +22,7 @@ public interface AuthService {
 
     Boolean checkId(SignUpResponse sign);
     List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner, String  feedUID,String userId);
-    boolean checkFeedOwner(String token,String feedUID) ;
     Long findVisitCount(String  userId);
 
     Authentication authenticate(LoginResponse login);
-    String getUsername(String userId);
 }

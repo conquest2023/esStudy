@@ -7,12 +7,18 @@ import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Reply;
+import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.service.NotificationService;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,14 +31,15 @@ public class ReplyServiceImpl implements ReplyService {
 
     private final ReplyDAO replyDAO;
 
-
     private  final CommentDAO commentDAO;
 
     private  final FeedMapper feedMapper;
 
     private  final NotificationService notificationService;
 
+    private  final StringRedisTemplate stringRedisTemplate;
 
+    private  final PointHistoryRepository pointHistoryRepository;
     @Override
     public Map<String,Object> getPartialReply(String id){
         return replyDAO.findPartialReply(id);
@@ -42,6 +49,7 @@ public class ReplyServiceImpl implements ReplyService {
         checkValueReply(response);
         String userId=commentDAO.findCommentUID(response.getCommentUID()).getUserId();
         replyDAO.saveReply(response);
+        grantReplyPoint(response.getUserId());
         if (userId == null) {
             log.info("답글이 작성됨: {}", response.getFeedUID());
         } else {
@@ -51,7 +59,6 @@ public class ReplyServiceImpl implements ReplyService {
             }
         }
     }
-
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
         List<ReplyRequest> replies =feedMapper.ReplyListToDTO((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
         return replies.stream()
@@ -63,6 +70,31 @@ public class ReplyServiceImpl implements ReplyService {
         if (isEmpty(response.getUsername()) || isEmpty(response.getContent())) {
             throw new IllegalArgumentException("답글은 필수 입력값입니다.");
         }
+    }
+
+    public void grantReplyPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "reply:point:" + userId + ":" + today;
+        Long currentCount = stringRedisTemplate.opsForValue().increment(key);
+        if (currentCount == 1) {
+            stringRedisTemplate.expire(key, Duration.ofDays(1));
+        }
+        if (currentCount > 15) {
+            log.info("{}님은 오늘 답글 작성 포인트 한도(10개)를 초과했습니다.", userId);
+            return;
+        }
+        createPointHistory(userId);
+        log.info("답글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+    }
+
+    public void createPointHistory(String userId) {
+        PointHistory history = PointHistory.builder()
+                .userId(userId)
+                .pointChange(3)
+                .reason("답글")
+                .createdAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(history);
     }
     private static boolean isEmpty(String value) {
         return value == null || value.trim().isEmpty();

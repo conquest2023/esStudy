@@ -55,32 +55,5 @@ public class Comment{
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
-//    @JsonSerialize(using = LocalDateTimeSerializer.class)
-//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-//    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-//    private LocalDateTime deletedAt;
-
-
-
-    public Comment CommentToEntity(CommentCreate commentSaveDTO) {
-        return Comment.builder()
-                .commentUID(commentSaveDTO.getCommentUID())
-                .username(commentSaveDTO.getUsername())
-                .content(commentSaveDTO.getContent())
-                .likeCount(commentSaveDTO.getLikeCount())
-                .createdAt(LocalDateTime.now()).build();
-    }
-
-
-
-    public Comment convertDtoToEntity(CommentUpdate eq) {
-            return  Comment.builder()
-                    .commentUID(eq.getCommentUID())
-                    .username(eq.getUsername())
-                    .content(eq.getContent())
-                    .build();
-    }
-
-
 
 }

@@ -2,6 +2,7 @@ package es.board.controller.model.mapper;
 
 
 import es.board.controller.model.req.CommentRequest;
+import es.board.controller.model.req.CommentUpdate;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Component;
 
@@ -50,5 +51,12 @@ public class CommentMapper {
                 .content(comment.getContent())
                 .build();
 
+    }
+    public Comment convertDtoToEntity(CommentUpdate eq) {
+        return  Comment.builder()
+                .commentUID(eq.getCommentUID())
+                .username(eq.getUsername())
+                .content(eq.getContent())
+                .build();
     }
 }

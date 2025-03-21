@@ -10,6 +10,8 @@ import es.board.repository.CommentDAO;
 import es.board.repository.FeedDAO;
 import es.board.repository.UserDAO;
 import es.board.repository.document.Comment;
+import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.repository.entity.User;
 import es.board.service.AuthService;
@@ -18,12 +20,15 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +39,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private  final  JwtTokenProvider jwtTokenProvider;
 
-    private  final  FeedDAO feedDAO;
-
-    private  final CommentDAO commentDAO;
 
     private  final AuthenticationManagerBuilder authenticationManagerBuilder;
 
@@ -49,7 +49,11 @@ public class AuthServiceImpl implements AuthService {
 
     private final CommentMapper commentMapper;
 
+    private  final PointHistoryRepository pointHistoryRepository;
+
     private  final UserDAO userDAO;
+
+    private  final StringRedisTemplate redisTemplate;
 
     private  final  AsyncService asyncService;
 
@@ -71,11 +75,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public boolean login(LoginResponse login) {
-
         userRepository.updateLastLogin(login.getUserId(),LocalDateTime.now());
         UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(login.getUserId(),login.getPassword());
         authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        return  true;}
+        grantLoginPoint(login.getUserId());
+        return  true;
+    }
 
 
     @Override
@@ -83,15 +88,9 @@ public class AuthServiceImpl implements AuthService {
         if(userRepository.findByUserid(sign.getUserId())==null){
             return  true;
         }
-            return  false;}
-
-    @Override
-    public boolean checkFeedOwner(String token,String feedUID) {
-        if (jwtTokenProvider.getUserId(token).equals(feedDAO.findFeedDetail(feedUID).getUserId())){
-            return  true;
-        }
             return  false;
     }
+
 
     @Override
     public List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner,String feedUID, String userId) {
@@ -114,7 +113,6 @@ public class AuthServiceImpl implements AuthService {
                 return  true;
             }
             token = token.substring(7);
-            log.info(token);
             if (!jwtTokenProvider.validateToken(token)) {
                 throw new IllegalStateException("유효하지 않은 토큰입니다.");
             }
@@ -127,22 +125,33 @@ public class AuthServiceImpl implements AuthService {
         return  userDAO.findVisitCount(userId);
     }
 
-
-
     @Override
     public Authentication authenticate(LoginResponse login) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
 
-        // 인증 수행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         return authentication;
     }
 
-
-    @Override
-    public String getUsername(String userId) {
-
-        return  userRepository.findByUsername(userId);
+    public void grantLoginPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "login:point:" + userId + ":" + today;
+        if (redisTemplate.hasKey(key)) {
+            log.info("이미 로그인 포인트를 받은 유저입니다: {}", userId);
+            return;
+        }
+        createPointHistory(userId);
+        redisTemplate.opsForValue().set(key, "done", Duration.ofDays(1));
+        log.info("로그인 포인트 지급 완료: {}", userId);
     }
 
+    public void createPointHistory(String userId) {
+        PointHistory history = PointHistory.builder()
+                .userId(userId)
+                .pointChange(2)
+                .reason("로그인")
+                .createdAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(history);
+    }
 }

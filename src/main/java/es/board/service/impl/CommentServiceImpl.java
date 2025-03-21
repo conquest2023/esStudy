@@ -10,13 +10,18 @@ import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Comment;
+import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +46,9 @@ public class CommentServiceImpl implements CommentService {
 
     private  final ReplyDAO replyDAO;
 
+    private  final StringRedisTemplate stringRedisTemplate;
+
+    private  final PointHistoryRepository pointHistoryRepository;
 
     private  final NotificationService notificationService;
 
@@ -69,7 +77,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public String saveDocument(String indexName, CommentCreate dto) {
 
-
         return commentDAO.createCommentOne(indexName, dto);
     }
 
@@ -85,8 +92,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment editComment(String id, CommentUpdate eq) {
-        Comment comment = new Comment();
-        return commentDAO.modifyComment(id, comment.convertDtoToEntity(eq));
+        return commentDAO.modifyComment(id, commentMapper.convertDtoToEntity(eq));
     }
 
     @Override
@@ -100,6 +106,7 @@ public class CommentServiceImpl implements CommentService {
         checkValueComment(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
+        grantCommentPoint(dto.getUserId());
         if (userId == null) {
             log.info("공지사항에 댓글 작성됨: {}", dto.getFeedUID());
         } else {
@@ -136,7 +143,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Map<String, Double> getCommentAndReplyAggregation(List<String> feedUIDs, int num, int size) {
-//        log.info(commentDAO.findTopCommentWriters().toString());
         return getStringDoubleMap(feedUIDs, replyDAO.findAggregationReply(feedUIDs),
                 commentDAO.findPagingComment(feedUIDs, num, size));
     }
@@ -206,5 +212,30 @@ public class CommentServiceImpl implements CommentService {
             aggregatedData.put(feedUID, replyCount + commentCount);
         }
         return aggregatedData;
+    }
+
+    public void grantCommentPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "comment:point:" + userId + ":" + today;
+        Long currentCount = stringRedisTemplate.opsForValue().increment(key);
+        if (currentCount == 1) {
+            stringRedisTemplate.expire(key, Duration.ofDays(1));
+        }
+        if (currentCount > 10) {
+            log.info("{}님은 오늘 댓글 작성 포인트 한도(10개)를 초과했습니다.", userId);
+            return;
+        }
+        createPointHistory(userId);
+        log.info("댓글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+    }
+
+    public void createPointHistory(String userId) {
+        PointHistory history = PointHistory.builder()
+                .userId(userId)
+                .pointChange(3)
+                .reason("댓글")
+                .createdAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(history);
     }
 }

@@ -8,8 +8,10 @@ import es.board.controller.model.req.InterviewQuestionDTO;
 
 import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.repository.entity.InterviewQuestion;
+import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.entityrepository.InterviewQuestionAnswerRepository;
 import es.board.repository.entity.entityrepository.InterviewQuestionRepository;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -33,6 +37,8 @@ public class InterviewServiceImpl implements InterviewService {
     private final StringRedisTemplate redisTemplate;
 
     private  final ObjectMapper objectMapper;
+
+    private  final PointHistoryRepository pointHistoryRepository;
 
     private  final InterviewQuestionAnswerRepository answerRepository;
 
@@ -81,6 +87,7 @@ public class InterviewServiceImpl implements InterviewService {
         String cacheKey = (dto.getCategory().equals("IT") ? "IT_" : "GENERAL_") + ANSWER_CACHE_KEY + "_" + userId;
         redisTemplate.opsForValue().set(cacheKey, "true", Duration.ofDays(1));
         answerRepository.save(mapper.toInterviewEntity(dto,userId));
+        grantInterviewPoint(userId);
     }
 
     private String fetchRandomQuestion() {
@@ -105,5 +112,29 @@ public class InterviewServiceImpl implements InterviewService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void grantInterviewPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "comment:point:" + userId + ":" + today;
+        Long currentCount = redisTemplate.opsForValue().increment(key);
+        if (currentCount == 1) {
+         redisTemplate.expire(key, Duration.ofDays(1));
+        }
+        if (currentCount > 10) {
+            log.info("{}님은 오늘 댓글 작성 포인트 한도(10개)를 초과했습니다.", userId);
+            return;
+        }
+        createPointHistory(userId);
+        log.info("댓글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+    }
+    public void createPointHistory(String userId) {
+        PointHistory history = PointHistory.builder()
+                .userId(userId)
+                .pointChange(15)
+                .reason("면접대답")
+                .createdAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(history);
     }
 }

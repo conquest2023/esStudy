@@ -11,8 +11,10 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Post;
 import es.board.repository.entity.entityrepository.LikeRepository;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
@@ -22,10 +24,13 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +48,8 @@ public class FeedServiceImpl implements FeedService {
 
 
     private final FeedMapper feedMapper;
+
+    private  final PointHistoryRepository pointHistoryRepository;
 
     private  final RedisTemplate redisTemplate;
 
@@ -66,7 +73,7 @@ public class FeedServiceImpl implements FeedService {
 
     private  static  final String RECOMMEND_KEY= "Recommend_feed_key";
 
-
+    private  final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public double getUserFeedCount(String userId) {
@@ -110,27 +117,12 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-//    @Override
-//    public FeedCreateResponse saveFeed(FeedCreateResponse feedSaveDTO) {
-//        validateUsername(feedSaveDTO.getUsername());
-//        CompletableFuture<Integer> future =  asyncService.savePostAsync(feedSaveDTO);
-//        future.thenAccept(savedPost -> {
-//            try {
-//                esSettingId(feedSaveDTO,future.get());
-//
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//            feedDAO.indexSaveFeed(feedSaveDTO);
-//        });
-//        return  feedSaveDTO;
-//    }
-
     @Override
     public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(feedSaveDTO);
             Map<String,Object> Ids = savePost(feedSaveDTO);
+            grantFeedPoint(feedSaveDTO.getUserId());
             asyncService.savePostAsync(feedMapper.BoardToDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
             return feedSaveDTO;
         });
@@ -371,6 +363,32 @@ public class FeedServiceImpl implements FeedService {
     private static boolean isEmpty(String value) {
         return value == null || value.trim().isEmpty();
     }
+
+    public void grantFeedPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "feed:point:" + userId + ":" + today;
+
+        Long currentCount = stringRedisTemplate.opsForValue().increment(key);
+
+        if (currentCount == 1) {
+            stringRedisTemplate.expire(key, Duration.ofDays(1));
+        }
+        if (currentCount > 5) {
+            log.info("{}님은 오늘 피드 작성 포인트 한도(5개)를 초과했습니다.", userId);
+            return;
+        }
+        createPointHistory(userId);
+        log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+    }
+        public void createPointHistory(String userId) {
+           PointHistory history = PointHistory.builder()
+                    .userId(userId)
+                    .pointChange(3)
+                    .reason("피드")
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            pointHistoryRepository.save(history);
+        }
 }
 
 

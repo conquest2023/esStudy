@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +22,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final RedisTemplate<String, String> redisTemplate;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
 
@@ -30,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public SseEmitter subscribe(String userId) {
         log.info("SSE 구독 요청 - userId: {}", userId);
-        SseEmitter emitter = new SseEmitter(60 * 100000L);
+        SseEmitter emitter = new SseEmitter(60 * 100L);
         emitters.put(userId, emitter);
 
 
@@ -119,4 +122,5 @@ public class NotificationServiceImpl implements NotificationService {
         String redisKey = "notifications:" + userId;
         return redisTemplate.opsForList().range(redisKey, 0, -1);
     }
+
 }

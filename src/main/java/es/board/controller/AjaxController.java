@@ -213,7 +213,7 @@ public class AjaxController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 Refresh Token입니다.");
         }
         String userId = jwtTokenProvider.getUserId(refreshToken);
-        String username=userService.getUsername(userId);
+        String username=jwtTokenProvider.getUsername(refreshToken);
         String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
