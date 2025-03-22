@@ -18,7 +18,6 @@ import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceContext;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +104,6 @@ public class FeedServiceImpl implements FeedService {
         return topWriters;
 
     }
-
     @Override
     public List<FeedRequest> getUserRangeTimeFeed(String userId) {
         return feedMapper.BoardListToDTO(feedDAO.findUserRangeTimeFeed(userId));
@@ -146,6 +144,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<String> getfeedUIDList(List<FeedRequest> requests) {
+
         return extractFeedUID(requests);
     }
 
@@ -232,6 +231,11 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<FeedRequest> findNoticeFeed(int page, int size) {
+        return  feedMapper.BoardListToDTO(feedDAO.findNoticeFeed(page,size));
+    }
+
+    @Override
     public List<FeedRequest> getLikeCount() {
 
         return feedMapper.BoardListToDTO(feedDAO.findLikeCount());
@@ -256,7 +260,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public void deleteFeed(String id, String userId) {
-        feedDAO.deleteFeedOne(id);
+        feedDAO.deleteFeed(id);
         asyncService.deletePostAsync(id, userId);
     }
 
@@ -302,8 +306,13 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedRequest getFeedDetail(String id) {
-
         return feedMapper.BoardToDTO(feedDAO.findFeedDetail(id));
+    }
+
+    @Override
+    public int getPointAll(String userId) {
+
+        return pointHistoryRepository.findByUserId(userId);
     }
 
     @Override

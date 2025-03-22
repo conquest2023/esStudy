@@ -13,4 +13,9 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
     @Transactional
     @Query("UPDATE PointHistory u SET u.pointChange = u.pointChange + :amount WHERE u.userId = :userId")
     void incrementPoint(@Param("userId") String userId, @Param("amount") int amount);
+
+
+
+    @Query("SELECT sum(u.pointChange) FROM PointHistory  u where  u.userId=:userId")
+    int findByUserId(@Param("userId") String userId);
 }

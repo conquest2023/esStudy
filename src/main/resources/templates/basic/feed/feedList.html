@@ -1479,11 +1479,11 @@
                             <i class="fas fa-list"></i> 전체 글
                         </button>
                     </li>
-<!--                    <li class="nav-item" role="presentation">-->
-<!--                        <button class="nav-link fw-bold" id="vote-tab" data-bs-toggle="tab"  data-bs-target="#voteTabPane">-->
-<!--                            <i class="fas fa-book"></i> 투표-->
-<!--                        </button>-->
-<!--                    </li>-->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="notice-tab" data-bs-toggle="tab" data-bs-target="#noticeTabPane">
+                            <i class="fas fa-bullhorn"></i> 공지사항
+                        </button>
+                    </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane" type="button" role="tab">
                             <i class="fas fa-question-circle"></i> Q&A
@@ -1979,6 +1979,9 @@
     document.getElementById("data-tab").addEventListener("click", function () {
         fetchDataFeed();
     });
+    document.getElementById("notice-tab").addEventListener("click", function () {
+        fetchNoticeFeed();
+    });
 
     let isFetchingVote = false;
 
@@ -1987,7 +1990,24 @@
         loadPage(0)
         $("#pagination").show();
     });
-
+    function fetchNoticeFeed() {
+        $.ajax({
+            url: "/notice/feed",
+            type: "GET",
+            data: { page: 0, size: 10 },
+            success: function (response) {
+                if (response.data) {
+                    categoryFeeds(response);
+                    $("#pagination").hide();
+                } else {
+                    alert("공지사항을 불러올 수 없습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류: 공지사항을 불러올 수 없습니다.");
+            }
+        });
+    }
     function fetchDataFeed() {
         $.ajax({
             url: "/data/feed",

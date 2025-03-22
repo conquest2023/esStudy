@@ -17,14 +17,14 @@ public class Notice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 공지사항 ID
+    private Long id;
 
     private  String feedUID;
 
     @Column(name = "user_id")
     private  String userId;
 
-
+    private  String  category;
 
     @Column(nullable = false, length = 255)
     private String title;

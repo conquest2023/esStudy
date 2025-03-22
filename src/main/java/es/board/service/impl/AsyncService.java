@@ -251,9 +251,9 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveNoticeAsync(NoticeDTO noticeDTO,Long id) {
+    public CompletableFuture<Void> saveNoticeAsync(NoticeDTO notice,Long id) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
-            feedDAO.saveNoticeFeed(noticeDTO,id);
+            feedDAO.saveNoticeFeed(notice,id);
         try {
             log.info("비동기 Elasticsearch 저장 완료 - 스레드: {}", Thread.currentThread().getName());
         } catch (Exception e) {

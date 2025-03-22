@@ -26,7 +26,6 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
 
-
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
 
 

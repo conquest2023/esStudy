@@ -103,10 +103,10 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public void saveNoticeFeed(NoticeDTO dto, Long id) {
+        log.info(dto.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
-                    .id(String.valueOf(id))
                     .document(dto));
             log.info(response.toString());
         } catch (IOException e) {
@@ -338,7 +338,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public void deleteFeedOne(String id) {
+    public void deleteFeed(String id) {
         try {
 
             DeleteResponse deleteResponse = client.delete(d -> d
@@ -590,6 +590,29 @@ public class FeedDAOImpl implements FeedDAO {
                                                     st -> st.term(t -> t
                                                             .field("category")
                                                             .value("자료"))))), Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error data feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to data feed", e);
+        }
+    }
+
+
+    @Override
+    public List<Board> findNoticeFeed(int page, int size) {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                    .index("board")
+                    .from(page * size)
+                    .size(size)
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            st -> st.term(t -> t
+                                                    .field("category")
+                                                    .value("공지사항"))))), Board.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());

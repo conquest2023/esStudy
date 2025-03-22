@@ -119,12 +119,27 @@ public class FeedMapper {
     public  Notice ToNotice(NoticeDTO notice,String userId) {
         return Notice.builder()
                 .id(notice.getId())
-                .feedUID(notice.getFeedUID())
+                .feedUID(UUID.randomUUID().toString())
+                .category("공지")
                 .userId(userId)
                 .title(notice.getTitle())
                 .description(notice.getDescription())
                 .imageURL(notice.getImageURL())
                 .username("관리자")
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public  NoticeDTO ToNoticeDocument(Notice notice, String userId) {
+        return NoticeDTO.builder()
+                .id(notice.getId())
+                .username("관리자")
+                .feedUID(notice.getFeedUID())
+                .category("공지")
+                .userId(userId)
+                .title(notice.getTitle())
+                .description(notice.getDescription())
+                .imageURL(notice.getImageURL())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

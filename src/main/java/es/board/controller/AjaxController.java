@@ -70,8 +70,6 @@ public class AjaxController {
 
         if (!viewedFeeds.contains(id)) {
             feedService.saveViewCountFeed(id);
-
-
             String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
             String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("viewedFeeds", encodedValue);
@@ -184,6 +182,14 @@ public class AjaxController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(Map.of(
                 "data", feedService.findDataFeed(page,size)));
+    }
+
+    @GetMapping("/notice/feed")
+    public ResponseEntity<?> getPagingNoticeFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(Map.of(
+                "data", feedService.findNoticeFeed(page,size)));
     }
 
     @GetMapping("/auth/status")

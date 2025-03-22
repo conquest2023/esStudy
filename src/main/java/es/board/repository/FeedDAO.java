@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Repository
 public interface FeedDAO {
-
+    List<Board> findNoticeFeed(int page, int size);
 
     List<Board> findDataFeed(int page, int size);
     Map<String, Double> findDayAggregation();
@@ -23,7 +23,6 @@ public interface FeedDAO {
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
-
 
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;
@@ -66,8 +65,5 @@ public interface FeedDAO {
     List<Board> findMostViewFeed(int page, int size) ;
     Map<String, Object> fetchTotalFeedStats();
 
-    void deleteFeedOne(String id);
-//   Board getFeed(String id);
-
-
+    void deleteFeed(String id);
 }

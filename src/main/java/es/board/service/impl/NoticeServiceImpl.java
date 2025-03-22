@@ -48,22 +48,17 @@ public class NoticeServiceImpl  implements NoticeService {
     public List<NoticeDTO> getAllNotices() {
         String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
 
-        if (cachedNotices != null) {
-
-            return deserializeNotices(cachedNotices);
-        }
-
-        List<NoticeDTO> notices = feedMapper.fromNoticeList(noticeRepository.findAll());
-
-        redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofDays(1));
-
+//        if (cachedNotices != null) {
+//            return deserializeNotices(cachedNotices);
+//        }
+        List<NoticeDTO> notices = feedMapper.fromNoticeList(noticeRepository.findNoticeByCreatedAtDESC());
+//      redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
         return notices;
-
     }
+
 
     @Override
     public NoticeDTO getOneNotice(Long id) {
-
         return feedMapper.fromNotice(noticeRepository.findByNoticeOne(id));
     }
 
@@ -75,26 +70,17 @@ public class NoticeServiceImpl  implements NoticeService {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
         CompletableFuture.supplyAsync(() -> {
-            Long savedNoticeId = NoticeSaveId(noticeDTO, token);
-            asyncService.saveNoticeAsync(noticeDTO, savedNoticeId);
+            NoticeDTO notice=feedMapper.ToNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
+            asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
         });
     }
-
     private boolean isAdmin(String userId) {
-        String admin = noticeRepository.findByUserId(userId);
-
-
-        return admin != null && Objects.equals(userId, admin);
+        return noticeRepository.existsByUserId(userId);
     }
-
-    private Long NoticeSaveId(NoticeDTO noticeDTO, String token) {
-
-        noticeDTO.setFeedUID(UUID.randomUUID().toString());
-        Notice notice = noticeRepository.save(feedMapper.ToNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
-        return notice.getId();
+    private Notice NoticeSaveId(NoticeDTO noticeDTO, String token) {
+       return noticeRepository.save(feedMapper.ToNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
     }
-
     private String serializeNotices(List<NoticeDTO> notices) {
         try {
             return objectMapper.writeValueAsString(notices);

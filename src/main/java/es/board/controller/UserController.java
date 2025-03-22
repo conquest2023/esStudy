@@ -21,7 +21,7 @@ import java.util.Map;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class LoginController {
+public class UserController {
 
 
 
@@ -32,6 +32,7 @@ public class LoginController {
     private final AuthService userService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
 
 
     @GetMapping("/login")
@@ -119,10 +120,12 @@ public class LoginController {
                 String userId = jwtTokenProvider.getUserId(token);
                 Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
                 Map<String,Object> commentStats= commentService.getUserComments(userId);
+                int point= feedService.getPointAll(jwtTokenProvider.getUserId(token));
                 Map<String, Object> response = Map.of(
                         "like", boardStats.get("totalLikes"),
                         "commentCount", commentStats.get("totalComments"),
                         "feedCount",  boardStats.get("totalBoards"),
+                        "point",point,
                         "username",jwtTokenProvider.getUsername(token),
                         "userId",jwtTokenProvider.getUserId(token),
                         "visitCount", userService.findVisitCount(userId));
