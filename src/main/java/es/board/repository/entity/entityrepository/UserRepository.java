@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +21,10 @@ public interface UserRepository  extends  JpaRepository<User,Integer> {
 
     @Query("select u.userId from User u where u.userId = :id")
     String findByUserid(@Param("id") String id);
+
+
+    @Query("SELECT u.userId FROM User u")
+    List<String> findAllUserIds();
 
     @Modifying
     @Transactional

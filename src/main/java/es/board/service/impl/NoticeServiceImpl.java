@@ -11,7 +11,9 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.entity.Notice;
 import es.board.repository.entity.entityrepository.NoticeRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
+import es.board.repository.entity.entityrepository.UserRepository;
 import es.board.service.NoticeService;
+import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,7 +39,10 @@ public class NoticeServiceImpl  implements NoticeService {
 
     private final StringRedisTemplate redisTemplate;
 
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+
+    private  final NotificationService notificationService;
 
     private static final String NOTICE_KEY = "notice_daily";
 
@@ -74,7 +79,10 @@ public class NoticeServiceImpl  implements NoticeService {
             asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
         });
+        List<String> userIds = userRepository.findAllUserIds();
+        notificationService.sendNoticeNotification(userIds, "📢 새로운 공지사항이 등록되었습니다!");
     }
+
     private boolean isAdmin(String userId) {
         return noticeRepository.existsByUserId(userId);
     }

@@ -22,13 +22,12 @@ public class NotificationServiceImpl implements NotificationService {
     private final RedisTemplate<String, String> redisTemplate;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
 
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
 
-
+    private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
     @Override
     public SseEmitter subscribe(String userId) {
         log.info("SSE 구독 요청 - userId: {}", userId);
@@ -41,6 +40,8 @@ public class NotificationServiceImpl implements NotificationService {
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
 
         sendPendingNotifications(userId,REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
+
+        sendPendingNotifications(userId,NOTICE_NOTIFICATION_KEY, "notice-notification", emitter);
 
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
@@ -73,7 +74,12 @@ public class NotificationServiceImpl implements NotificationService {
         sendNotification(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
     }
 
-
+    @Override
+    public void sendNoticeNotification(List<String> userIds, String message) {
+        for (String userId : userIds) {
+            sendNotification(userId, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
+        }
+    }
     @Override
     public void sendTodoNotification(String userId, String message) {
         sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
@@ -100,7 +106,6 @@ public class NotificationServiceImpl implements NotificationService {
             log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
             return;
         }
-
         try {
             log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
             emitter.send(SseEmitter.event().name(eventType).data(message));

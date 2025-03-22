@@ -66,8 +66,6 @@ public class AjaxController {
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
                                                @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
         String id = request.get("id");
-
-
         if (!viewedFeeds.contains(id)) {
             feedService.saveViewCountFeed(id);
             String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
@@ -79,7 +77,6 @@ public class AjaxController {
             cookie.setMaxAge(60 * 30);
             response.addCookie(cookie);
         }
-
         return ResponseEntity.ok("조회수 증가 성공");
     }
     @PostMapping("/authlogout")

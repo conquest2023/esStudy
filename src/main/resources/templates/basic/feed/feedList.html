@@ -3208,6 +3208,10 @@
                     console.log("📩 답글 알림 수신:", event.data);
                     addNotification(event.data);
                 });
+                eventSource.addEventListener("notice-notification", (event) => {
+                    console.log("📩공지사항 수신:", event.data);
+                    addNotification(event.data);
+                });
             eventSource.onerror = function () {
                 console.error("SSE 연결이 끊어졌습니다. 10초 후 재연결 시도 중...");
                 eventSource.close();
