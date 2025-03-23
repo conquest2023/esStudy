@@ -507,14 +507,14 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public List<Comment> findCommentId(String commentUid) {
+    public List<Comment> findCommentId(String commentUID) {
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
                             .query(q ->q.bool(t -> t.filter(f->
                                             f.term(
                                                     p->p.field("feedUID")
-                                            .value(commentUid))))),
+                                            .value(commentUID))))),
                     Comment.class);
             log.info(response.toString());
             return response.hits().hits().stream()

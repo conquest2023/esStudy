@@ -10,7 +10,9 @@ public interface InterviewService {
     String getTodayQuestion();
 
     List<InterviewQuestionDTO> getRandomQuestions();
-//    InterviewQuestionDTO getTestQuestion();
+
+
+    List<InterviewAnswerDTO> getBestAnswer();
 
 
     void saveQuestion(InterviewAnswerDTO dto,String userId);

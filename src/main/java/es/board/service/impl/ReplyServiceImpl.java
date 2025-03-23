@@ -2,11 +2,9 @@ package es.board.service.impl;
 
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.ReplyRequest;
-import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
-import es.board.repository.document.Reply;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.service.NotificationService;
@@ -60,7 +58,7 @@ public class ReplyServiceImpl implements ReplyService {
         }
     }
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
-        List<ReplyRequest> replies =feedMapper.ReplyListToDTO((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
+        List<ReplyRequest> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
         return replies.stream()
                 .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
     }
@@ -86,7 +84,6 @@ public class ReplyServiceImpl implements ReplyService {
         createPointHistory(userId);
         log.info("답글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
-
     public void createPointHistory(String userId) {
         PointHistory history = PointHistory.builder()
                 .userId(userId)

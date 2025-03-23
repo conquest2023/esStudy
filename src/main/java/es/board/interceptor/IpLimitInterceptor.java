@@ -24,37 +24,32 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class IpLimitInterceptor implements HandlerInterceptor {
 
-
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-
     @Autowired
     private VisitorService visitorService;
-
     private final Cache<String, LocalDateTime> visitCache = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.DAYS)
             .maximumSize(10000)
             .build();
 
+    private static final String VISIT_KEY_PREFIX = "visit:";
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
         String userId = (token != null && token.startsWith("Bearer "))
-                ? jwtTokenProvider.getUserId(token.substring(7))
-                : "guest";
+                ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
         String uniqueKey = userId.equals("guest") ? ipAddress : userId;
-//        String uniqueKey = userId.equals("guest")
-//                ? ipAddress + ":" + userAgent
-//                : userId + ":" + ipAddress;
-
-        if (visitCache.getIfPresent(uniqueKey) == null || !Objects.equals(ipAddress, "127.0.0.1")) {
-            visitCache.put(uniqueKey, LocalDateTime.now());
+        String visitKey = VISIT_KEY_PREFIX + uniqueKey;
+        Boolean hasVisited = redisTemplate.hasKey(visitKey);
+        if (!"127.0.0.1".equals(ipAddress) && (hasVisited == null || !hasVisited)) {
+            redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));
             CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, userAgent));
             log.info("새로운 방문자 기록 - {}", uniqueKey);
         } else {
@@ -68,14 +63,12 @@ public class IpLimitInterceptor implements HandlerInterceptor {
 
         private String getClientIpAddress(HttpServletRequest request) {
             String ip = request.getHeader("CF-Connecting-IP");
-
             if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getHeader("CF-Connecting-IP");
             }
             if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
-
             return ip;
         }
 

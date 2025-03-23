@@ -81,7 +81,6 @@ public class CalenderController {
         List<ScheduleDTO> scheduleDTOS = calenderService.getSchedule(token);
         Map<String, Object> response = new HashMap<>();
         response.put("todos", scheduleDTOS);
-
         return ResponseEntity.ok(response);
     }
 
@@ -105,10 +104,8 @@ public class CalenderController {
         }
 
 
-        // ✅ 검색 수행
         List<ScheduleDTO> scheduleDTOS = calenderService.searchSchedule(token, query, searchType, sortType);
 
-        // ✅ 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
 
         response.put("schedules", scheduleDTOS);

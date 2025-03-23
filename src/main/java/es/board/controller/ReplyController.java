@@ -24,7 +24,6 @@ public class ReplyController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
-    private  final FeedMapper feedMapper;
 
 //    @GetMapping("/search/view/reply")
 //    public List<ReplyRequest> getReplyAll(@RequestParam String id) {

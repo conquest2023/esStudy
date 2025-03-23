@@ -95,7 +95,6 @@ public class MainFunctionMapper {
                 .collect(Collectors.toList());
     }
 
-    // DTO -> 엔터티 변환 메서드
     public Schedule toScheduleEntity(String userId, ScheduleDTO scheduleDTO) {
         return Schedule.builder()
                 .userId(userId)
@@ -203,6 +202,23 @@ public class MainFunctionMapper {
                         .endDatetime(schedule1.getEndDatetime())
                         .build())
                 .collect(Collectors.toList());
+    }
+    private Schedule createSchedule(String userId, ScheduleDTO scheduleDTO, LocalDate currentDate) {
+        return Schedule.builder()
+                .userId(userId)
+                .title(scheduleDTO.getTitle())
+                .startDatetime(LocalDateTime.of(currentDate, scheduleDTO.getStartDatetime().toLocalTime()))
+                .endDatetime(LocalDateTime.of(currentDate, scheduleDTO.getEndDatetime().toLocalTime()))
+                .allDay(scheduleDTO.getAllDay())
+                .location(scheduleDTO.getLocation())
+                .category(scheduleDTO.getCategory())
+                .description(scheduleDTO.getDescription())
+                .createdAt(LocalDateTime.now())
+                .isRepeat(true)
+                .repeatDays(scheduleDTO.getRepeatDays())
+                .repeatStartDate(scheduleDTO.getRepeatStartDate())
+                .repeatEndDate(scheduleDTO.getRepeatEndDate())
+                .build();
     }
 
 
@@ -318,22 +334,5 @@ public class MainFunctionMapper {
         }
 
         return repeatSchedules;
-    }
-    private Schedule createSchedule(String userId, ScheduleDTO scheduleDTO, LocalDate currentDate) {
-        return Schedule.builder()
-                .userId(userId)
-                .title(scheduleDTO.getTitle())
-                .startDatetime(LocalDateTime.of(currentDate, scheduleDTO.getStartDatetime().toLocalTime()))
-                .endDatetime(LocalDateTime.of(currentDate, scheduleDTO.getEndDatetime().toLocalTime()))
-                .allDay(scheduleDTO.getAllDay())
-                .location(scheduleDTO.getLocation())
-                .category(scheduleDTO.getCategory())
-                .description(scheduleDTO.getDescription())
-                .createdAt(LocalDateTime.now())
-                .isRepeat(true)
-                .repeatDays(scheduleDTO.getRepeatDays())
-                .repeatStartDate(scheduleDTO.getRepeatStartDate())
-                .repeatEndDate(scheduleDTO.getRepeatEndDate())
-                .build();
     }
 }

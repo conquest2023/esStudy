@@ -16,13 +16,15 @@ import java.util.Map;
 public interface FeedDAO {
     List<Board> findNoticeFeed(int page, int size);
 
-    List<Board> findDataFeed(int page, int size);
+    List<Board> findDataFeed(int page, int size,String category);
     Map<String, Double> findDayAggregation();
     List<Board> findWeekBestFeed(int page, int size);
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
+
+    List<Board> findStudyFeed(int page, int size,String category);
 
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;

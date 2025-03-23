@@ -47,7 +47,7 @@
 
 
         .fc-daygrid-day-number {
-            color: #000 ; /* 검은색 숫자 */
+            color: #000 ;
             /*font-weight: bold;*/
         }
 
@@ -352,7 +352,6 @@
                     "Content-Type": "application/json"
                 }
             });
-
             if (!response.ok) {
                 throw new Error("유저 정보를 가져올 수 없습니다.");
             }
@@ -561,7 +560,6 @@
 
                         const today = new Date().toISOString();
 
-                        // ✅ 📌 Todo 데이터 변환
                         if (todoData.todos && Array.isArray(todoData.todos)) {
                             todoEvents = todoData.todos.map(todo => {
                                 const {backgroundColor, borderColor} = getStatusColor(todo.status);
@@ -569,7 +567,7 @@
                                     id: todo.todo_id,
                                     title: `[TODO] ${todo.title}`,
                                     description: todo.description,
-                                    start: formatToISO(todo.createdAt) || new Date().toISOString(),
+                                    start: todo.createdAt || new Date(),
                                     allDay: false,
                                     status: todo.status,
                                     backgroundColor: backgroundColor,

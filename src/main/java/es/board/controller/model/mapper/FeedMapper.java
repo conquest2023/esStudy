@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class FeedMapper {
-    public Post PostToEntity(FeedCreateResponse feedSaveDTO) {
+    public Post toPostEntity(FeedCreateResponse feedSaveDTO) {
         return Post.builder()
                 .userId(feedSaveDTO.getUserId())
                 .feedUID(UUID.randomUUID().toString())
@@ -31,8 +31,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public Board BoardToDocument(FeedCreateResponse response, int id ,String feedUID) {
-        log.info(response.toString());
+    public Board toBoardDocument(FeedCreateResponse response, int id , String feedUID) {
         return Board.builder()
                 .feedUID(feedUID)
                 .id(id)
@@ -48,7 +47,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public List<FeedRequest> BoardListToDTO(List<Board> boards) {
+    public List<FeedRequest> fromBoardDtoList(List<Board> boards) {
         return boards.stream()
                 .map(board -> FeedRequest.builder()
                         .feedUID(board.getFeedUID())
@@ -65,7 +64,8 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public FeedRequest BoardToDTO(Board board) {
+    public FeedRequest fromBoardDto(Board board) {
+        log.info(board.toString());
         return FeedRequest.builder()
                 .feedUID(board.getFeedUID())
                 .id(board.getId())
@@ -81,7 +81,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public Likes LikeToEntity(String feedUID, String userId) {
+    public Likes toLikeEntity(String feedUID, String userId) {
         return Likes.builder()
                 .feedUID(feedUID)
                 .userId(userId)
@@ -109,42 +109,42 @@ public class FeedMapper {
                 .feedUID(notice.getFeedUID())
                 .title(notice.getTitle())
                 .imageURL(notice.getImageURL())
-                .description(notice.getDescription())
+                .description(notice.getDescription().replace("\\n", "\n"))
                 .username(notice.getUsername())
                 .createdAt(notice.getCreatedAt())
                 .updatedAt(notice.getUpdatedAt())
                 .build();
     }
 
-    public  Notice ToNotice(NoticeDTO notice,String userId) {
+    public  Notice toNotice(NoticeDTO notice, String userId) {
         return Notice.builder()
                 .id(notice.getId())
                 .feedUID(UUID.randomUUID().toString())
-                .category("공지")
+                .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())
-                .description(notice.getDescription())
+                .description(notice.getDescription().replace("\\n", "\n"))
                 .imageURL(notice.getImageURL())
                 .username("관리자")
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public  NoticeDTO ToNoticeDocument(Notice notice, String userId) {
+    public  NoticeDTO fromNoticeDocument(Notice notice, String userId) {
         return NoticeDTO.builder()
                 .id(notice.getId())
                 .username("관리자")
                 .feedUID(notice.getFeedUID())
-                .category("공지")
+                .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())
-                .description(notice.getDescription())
+                .description(notice.getDescription().replace("\\n", "\n"))
                 .imageURL(notice.getImageURL())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public Vote voteToEntity(VoteDTO voteResponse, String  username, String userId) {
+    public Vote toVoteEntity(VoteDTO voteResponse, String  username, String userId) {
         return Vote.builder()
                 .userId(userId)
                 .feedId(UUID.randomUUID().toString())
@@ -166,7 +166,7 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    public VoteDTO voteDTOToAnalytics(VoteDTO vote , String username, String userId) {
+    public VoteDTO changeVoteDTOToAnalytics(VoteDTO vote , String username, String userId) {
         return VoteDTO.builder()
                 .userId(userId)
                 .feedUID(vote.getFeedUID())
@@ -179,7 +179,7 @@ public class FeedMapper {
     }
 
 
-    public VoteDTO voteToDTO(Vote vote , String username, String userId) {
+    public VoteDTO fromVoteDto(Vote vote , String username, String userId) {
         return VoteDTO.builder()
                 .userId(userId)
                 .username(username)
@@ -190,7 +190,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public VoteDTO voteToDocument(VoteDTO voteResponse, String feedUID , String username, String userId,Long id) {
+    public VoteDTO changeVoteDtoToDocument(VoteDTO voteResponse, String feedUID , String username, String userId, Long id) {
         return VoteDTO.builder()
                 .id(id)
                 .userId(userId)
@@ -205,7 +205,7 @@ public class FeedMapper {
     }
 
 
-    public  List<VoteDTO> voteDocumentToDTOList(List<VoteDocument> voteDocument) {
+    public  List<VoteDTO> fromVoteDTOList(List<VoteDocument> voteDocument) {
         return voteDocument.stream()
                 .map(vote-> VoteDTO.builder()
 //                        .id(vote.getId())
@@ -222,7 +222,7 @@ public class FeedMapper {
 
 
 
-    public VoteDTO userVoteToDTO(UserVote vote , String username, String userId) {
+    public VoteDTO fromUserVoteDTO(UserVote vote , String username, String userId) {
         return VoteDTO.builder()
                 .id(vote.getId())
                 .voteId(vote.getVoteId())
@@ -233,7 +233,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public VoteDTO EntityToVoteDTO(Vote vote) {
+    public VoteDTO fromVoteDTO(Vote vote) {
         return VoteDTO.builder()
                 .id(vote.getId())
                 .username(vote.getUsername())
@@ -243,7 +243,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public VoteDTO DocumentToVoteDTO(VoteDocument vote) {
+    public VoteDTO fromDocumentVoteDTO(VoteDocument vote) {
         return VoteDTO.builder()
                 .id(vote.getId())
                 .feedUID(vote.getFeedUID())
@@ -279,7 +279,7 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    public List<ReplyRequest> ReplyListToDTO(List<Reply> reply) {
+    public List<ReplyRequest> fromReplyDtoList(List<Reply> reply) {
         return reply.stream()
                 .map(reply1 -> ReplyRequest.builder()
                         .feedUID(reply1.getFeedUID())

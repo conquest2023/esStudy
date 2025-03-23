@@ -15,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
 
-    List<FeedRequest> findNoticeFeed(int page, int size);
+    List<FeedRequest> getNoticeFeed(int page, int size);
     int getPointAll(String userId);
     Map<String, Double> getDayAggregation();
 
-    List<FeedRequest> findDataFeed(int page, int size);;
+    List<FeedRequest> getDataFeed(int page, int size,String category);;
     double getUserFeedCount(String userId);
 
     List<FeedRequest>  findWeekBestFeed(int page, int size);
@@ -27,9 +27,9 @@ public interface FeedService {
     Map<String, Object> getUserMapageLikeAndFeedCount(String userId);
     List<FeedRequest> getRecommendFeed();
     List<TopWriter>  getTopWriters();
-    List<FeedRequest> getUserRangeTimeFeed(String userId);
+//    List<FeedRequest> getUserRangeTimeFeed(String userId);
     Map<String, Object> getFeedUserList(String userId,int page,int size);
-    Integer getUserLikeCount(String userId);
+//    Integer getUserLikeCount(String userId);
     CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO);
 
     List<FeedRequest> getCategoryFeed(String category);
@@ -39,9 +39,9 @@ public interface FeedService {
     List<FeedRequest> getMonthPopularFeed();
 
     List<FeedRequest>  getPopularFeedDESC(int page,int size);
-    double getSumLikeByPageOne(int page, int size);
+//    double getSumLikeByPageOne(int page, int size);
 
-    int getViewCountAll();
+//    int getViewCountAll();
 
      void plusLike(String id,String userId);
 
@@ -57,9 +57,9 @@ public interface FeedService {
 
     List<FeedCreateResponse> createBulkFeed(List<FeedCreateResponse> comments);
 
-    String createFeed(String indexName, FeedCreateResponse dto);
+//    String createFeed(String indexName, FeedCreateResponse dto);
 
-    List<FeedRequest> getFeed();
+//    List<FeedRequest> getFeed();
 
     double getTotalPage(int page, int size);
 

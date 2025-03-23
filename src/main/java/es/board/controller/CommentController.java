@@ -4,7 +4,6 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.res.CommentCreate;
 import es.board.service.CommentService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,7 +43,7 @@ public class CommentController {
         } else {
             response.commentAnonymousBasicSetting(id);
         }
-        commentService.indexComment(response);
+        commentService.saveComment(response);
         Map<String, String> res = new HashMap<>();
         res.put("redirectUrl", "/search/view/feed/id?id=" + id);
         return ResponseEntity.ok(res);
@@ -66,7 +65,7 @@ public class CommentController {
         } else {
             response.commentAnonymousBasicSetting(id);
         }
-        commentService.indexComment(response);
+        commentService.saveComment(response);
         Map<String, String> res = new HashMap<>();
         res.put("redirectUrl", "/search/view/vote/detail?id=" + id);
         return ResponseEntity.ok(res);

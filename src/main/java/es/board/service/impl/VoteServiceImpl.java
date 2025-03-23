@@ -38,7 +38,7 @@ public class VoteServiceImpl implements VoteService {
     public CompletableFuture<Void> createdFeedVote(VoteDTO vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
-            asyncService.saveVoteAsync(feedMapper.voteToDocument(vote,savedVoteId.getFeedId(),username,userId,savedVoteId.getId()), savedVoteId.getId());
+            asyncService.saveVoteAsync(feedMapper.changeVoteDtoToDocument(vote,savedVoteId.getFeedId(),username,userId,savedVoteId.getId()), savedVoteId.getId());
             return null;
         });
     }
@@ -46,7 +46,7 @@ public class VoteServiceImpl implements VoteService {
     public CompletableFuture<Void> saveVote(VoteDTO vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
-            asyncService.saveVoteAsync(feedMapper.voteToDTO(savedVoteId,username,userId), savedVoteId.getId());
+            asyncService.saveVoteAsync(feedMapper.fromVoteDto(savedVoteId,username,userId), savedVoteId.getId());
             return null;
         });
     }
@@ -54,7 +54,7 @@ public class VoteServiceImpl implements VoteService {
     public CompletableFuture<Void> saveAgreeVote(VoteDTO vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             UserVote savedUserVoteId = getSavedAggregationVoteId(vote,username, userId);
-            asyncService.saveAggregationVoteAsync(feedMapper.userVoteToDTO(savedUserVoteId,username,userId), savedUserVoteId.getId());
+            asyncService.saveAggregationVoteAsync(feedMapper.fromUserVoteDTO(savedUserVoteId,username,userId), savedUserVoteId.getId());
             return null;
         });
     }
@@ -67,13 +67,13 @@ public class VoteServiceImpl implements VoteService {
     public CompletableFuture<Void> saveFeedTicket(VoteDTO vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
 //            UserVote savedVoteId = getSavedAggregationVoteId(vote,username, userId);
-            asyncService.saveVoteTicketAsync(feedMapper.voteDTOToAnalytics(vote,username,userId));
+            asyncService.saveVoteTicketAsync(feedMapper.changeVoteDTOToAnalytics(vote,username,userId));
             return null;
         });
     }
     @Override
     public List<VoteDTO> getVotePageFeed(int page, int size) {
-        List<VoteDTO> votes= feedMapper.voteDocumentToDTOList(voteDAO.findVotePageFeed(page,size));
+        List<VoteDTO> votes= feedMapper.fromVoteDTOList(voteDAO.findVotePageFeed(page,size));
         if (votes == null || votes.isEmpty()) {
             votes = new ArrayList<>();
         }
@@ -81,7 +81,7 @@ public class VoteServiceImpl implements VoteService {
     }
     @Override
     public List<VoteDTO> getVoteUserAll() {
-        return feedMapper.voteDocumentToDTOList(voteDAO.findFeedVoteAll());
+        return feedMapper.fromVoteDTOList(voteDAO.findFeedVoteAll());
     }
 
     @Override
@@ -102,12 +102,12 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public VoteDTO getVoteContent() {
 
-        return feedMapper.EntityToVoteDTO(voteRepository.findLatestVote());
+        return feedMapper.fromVoteDTO(voteRepository.findLatestVote());
     }
 
     @Override
     public VoteDTO getVoteDetail(String feedUID) {
-        return feedMapper.DocumentToVoteDTO(voteDAO.findVoteFeedDetail(feedUID));
+        return feedMapper.fromDocumentVoteDTO(voteDAO.findVoteFeedDetail(feedUID));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     private Vote getSavedVoteId(VoteDTO vote, String username, String userId) {
-        return voteRepository.save(feedMapper.voteToEntity(vote,username, userId));
+        return voteRepository.save(feedMapper.toVoteEntity(vote,username, userId));
     }
 
     private UserVote getSavedAggregationVoteId(VoteDTO vote, String username, String userId) {

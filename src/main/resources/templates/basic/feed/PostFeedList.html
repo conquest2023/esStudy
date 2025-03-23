@@ -59,18 +59,23 @@
         formData.append("title", $("#title").val());
         formData.append("description", $("#content").val());
 
-        // ✅ 단일 이미지 파일 추가
         let file = $("#imageFiles")[0].files[0];
         if (file) {
             formData.append("imageFile", file);
         }
+
+        const description = formData.get("description");
+        if (description) {
+            formData.set("description", description.replace(/\n/g, "\\n"));
+        }
+
 
         $.ajax({
             url: "/add/notice",
             type: "POST",
             processData: false,
             contentType: false,
-            headers: { "Authorization": "Bearer " + token },
+            headers: {"Authorization": "Bearer " + token},
             data: formData,
             success: function () {
                 alert("✅ 공지사항이 등록되었습니다!");

@@ -17,21 +17,21 @@ public interface CommentService {
     Map<String, Object> getUserComments(String userId);
     List<CommentRequest> getUserRangeTimeActive(String userId);
     List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size);
-    public String saveDocument(String indexName, CommentCreate dto) ;
+//    String saveDocument(String indexName, CommentCreate dto) ;
 
     List<Comment> getSearchComment(String text) ;
 
-    double getUserCommentCount(String userId);
+//    double getUserCommentCount(String userId);
     Comment editComment(String id, CommentUpdate eq) ;
 
     List<CommentRequest> getRecentComment() ;
 
-    void indexComment(CommentCreate dto) ;
+    void saveComment(CommentCreate dto) ;
 
     List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);
     Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
-    List<CommentCreate> createBulkComment(List<CommentCreate> comments) ;
+    List<CommentCreate> saveBulkComment(List<CommentCreate> comments) ;
 
     List<Comment> getMyPageComment(String  userId, int num ,int size);
     Map<String, Object> findCommentsWithCount(String feedUID);
@@ -41,10 +41,10 @@ public interface CommentService {
     Map<String, Double> getCommentAndReplyAggregation(List<String> feedUIDs , int num, int size) ;
 
 
-    List<CommentRequest> getComment() ;
+//    List<CommentRequest> getComment() ;
 
 
-    List<Comment> getCommentId(String id) ;
+//    List<Comment> getCommentId(String id) ;
 
 
    // List<CommentSearchRequest> SearchComment(String keyword);

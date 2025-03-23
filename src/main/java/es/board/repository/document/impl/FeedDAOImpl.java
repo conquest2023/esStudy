@@ -13,19 +13,13 @@ import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
-import es.board.repository.entity.entityrepository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.elasticsearch.core.AggregationContainer;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -86,7 +80,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Board indexSaveFeed(Board board,int postId) {
+    public Board indexSaveFeed(Board board, int postId) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
@@ -578,18 +572,41 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findDataFeed(int page, int size) {
+    public List<Board> findDataFeed(int page, int size, String category) {
         try {
             SearchResponse<Board> response = client.search(s -> s
-                            .index("board")
-                            .from(page * size)
-                            .size(size)
-                            .query(q -> q
-                                    .bool(b -> b
-                                            .filter(
-                                                    st -> st.term(t -> t
-                                                            .field("category")
-                                                            .value("자료"))))), Board.class);
+                    .index("board")
+                    .from(page * size)
+                    .size(size)
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            st -> st.term(t -> t
+                                                    .field("category")
+                                                    .value(category))))), Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error data feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to data feed", e);
+        }
+    }
+
+
+    @Override
+    public List<Board> findStudyFeed(int page, int size,String category) {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                    .index("board")
+                    .from(page * size)
+                    .size(size)
+                    .query(q -> q
+                            .bool(b -> b
+                                    .filter(
+                                            st -> st.term(t -> t
+                                                    .field("category")
+                                                    .value(category))))), Board.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -827,39 +844,48 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<TopWriter> findTopWriters() {
         try {
-            SearchResponse<Board> response = client.search(
-                    s -> s.index("board")
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
                             .size(0)
                             .query(q -> q
                                     .bool(b -> b
-                                            .must(m -> m.exists(e -> e.field("userId")))))
-                            .aggregations("top_writers", a -> a
+                                            .must(m -> m.exists(e -> e.field("userId")))
+                                    )
+                            )
+                            .aggregations("top_writers", topWriters -> topWriters
                                     .terms(t -> t
                                             .field("username.keyword")
-                                            .size(10))
-                                    .aggregations("total_views", subAgg -> subAgg
-                                            .sum(sum -> sum
-                                                    .field("viewCount")))),
-                    Board.class);
-            log.info("Top5={}",response.toString());
-            return response.aggregations()
+                                            .size(30))
+                                    .aggregations("total_views", totalViews -> totalViews
+                                            .sum(sum -> sum.field("viewCount")))
+                                    .aggregations("sort_bucket", sortBucket -> sortBucket
+                                            .bucketSort(bs -> bs
+                                                    .sort(t -> t
+                                                            .field(f -> f
+                                                                    .field("total_views")
+                                                                    .order(SortOrder.Desc)))
+                                                    .size(15)))), Board.class);
+            List<StringTermsBucket> buckets = response.aggregations()
                     .get("top_writers")
                     .sterms()
                     .buckets()
-                    .array()
-                    .stream()
+                    .array();
+            return buckets.stream()
                     .map(bucket -> new TopWriter(
                             bucket.key().stringValue(),
-                            bucket.aggregations().get("total_views").sum().value()
-                    ))
-                    .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("익명") && !writer.getUsername().equals("asd")  && !writer.getUsername().equals("호문무권신"))
-                    .sorted(Comparator.comparingDouble(TopWriter::getViewCount).reversed())
-                    .collect(Collectors.toList());
-
-
+                            bucket.aggregations().get("total_views").sum().value()))
+                    .filter(writer ->
+                            writer.getUsername() != null &&
+                                    !writer.getUsername().isEmpty() &&
+                                    !writer.getUsername().equals("익명") &&
+                                    !writer.getUsername().equals("asd") &&
+                                    !writer.getUsername().equals("호문무권신") &&
+                                    !writer.getUsername().equals("hoeng"))
+                                    .limit(5)
+                                    .collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Top 유저 가져오기 실패!", e);
-            throw new IndexException(e);
+            return Collections.emptyList();
         }
     }
 }

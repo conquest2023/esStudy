@@ -22,12 +22,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProvider jwtTokenProvider;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-        String token=resolveToken((HttpServletRequest)request);
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authorizationHeader = httpRequest.getHeader("Authorization");
-
-
+        String uri = httpRequest.getRequestURI();
+        if (uri.startsWith("/css/") || uri.startsWith("/js/") ||
+                uri.startsWith("/images/") || uri.equals("/favicon.ico")) {
+            chain.doFilter(request, response);
+            return;
+        }
+        String token=resolveToken((HttpServletRequest)request);
         if(token !=null&& jwtTokenProvider.validateToken(token)){
             if (jwtTokenProvider.isTokenBlacklisted(token)) {
                 log.info("[DEBUG] 블랙리스트에 등록된 토큰 요청 차단: " + token);
@@ -37,7 +39,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             }
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+        }
         chain.doFilter(request, response);
 }
 
@@ -45,13 +47,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            return null; // 토큰이 없거나 잘못된 경우 처리
-        }
-
-        if (bearerToken.length() < 8) { // "Bearer " 포함 최소 길이 검사
             return null;
         }
 
-        return bearerToken.substring(7); // "Bearer " 제거 후 토큰 반환
+        if (bearerToken.length() < 8) {
+            return null;
+        }
+
+        return bearerToken.substring(7);
     }
 }

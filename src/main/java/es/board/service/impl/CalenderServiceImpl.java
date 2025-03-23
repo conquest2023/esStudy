@@ -4,13 +4,18 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.req.ScheduleDTO;
 import es.board.repository.ScheduleDAO;
+import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Schedule;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.ScheduleRepository;
 import es.board.service.CalenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,10 @@ public class CalenderServiceImpl implements CalenderService {
 
     private  final ScheduleDAO scheduleDAO;
 
+    private  final StringRedisTemplate stringRedisTemplate;
+
+    private final PointHistoryRepository pointHistoryRepository;
+
     private  final MainFunctionMapper toDoMapper;
 
     @Override
@@ -48,6 +57,7 @@ public class CalenderServiceImpl implements CalenderService {
 
             return null;
         });
+        grantCalendarPoint(jwtTokenProvider.getUserId(token));
     }
 
     @Override
@@ -58,6 +68,7 @@ public class CalenderServiceImpl implements CalenderService {
              asyncService.saveScheduleAsync((toDoMapper.toScheduleDocument(jwtTokenProvider.getUserId(token),scheduleDTO,saveScheduleId)));
              return null;
          });
+            grantCalendarPoint(jwtTokenProvider.getUserId(token));
     }
 
     @Override
@@ -100,5 +111,30 @@ public class CalenderServiceImpl implements CalenderService {
         Schedule savedPost = scheduleRepository.save(toDoMapper.toScheduleEntity(jwtTokenProvider.getUserId(token),scheduleDTO));
 
         return savedPost.getScheduleId();
+    }
+
+    public void grantCalendarPoint(String userId) {
+        String today = LocalDate.now().toString();
+        String key = "calendar:point:" + userId + ":" + today;
+        Long currentCount = stringRedisTemplate.opsForValue().increment(key);
+        if (currentCount == 1) {
+            stringRedisTemplate.expire(key, Duration.ofDays(1));
+        }
+        if (currentCount > 3) {
+            log.info("{}님은 오늘 캘린더 작성 포인트 한도를 초과했습니다.", userId);
+            return;
+        }
+        createPointHistory(userId);
+        log.info("캘린더 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+    }
+
+    public void createPointHistory(String userId) {
+        PointHistory history = PointHistory.builder()
+                .userId(userId)
+                .pointChange(5)
+                .reason("캘린더")
+                .createdAt(LocalDateTime.now())
+                .build();
+        pointHistoryRepository.save(history);
     }
 }

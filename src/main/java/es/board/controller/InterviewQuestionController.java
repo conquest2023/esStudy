@@ -44,6 +44,15 @@ public class InterviewQuestionController {
         return ResponseEntity.ok(questionDTO);
     }
 
+    @GetMapping("/interview/best/answer")
+    public ResponseEntity<?> getBestAnswer() {
+        List<InterviewQuestionDTO> questionDTO = interviewService.getRandomQuestions();
+        if (questionDTO == null) {
+            return ResponseEntity.ok(Map.of("message", "오늘의 질문을 찾을 수 없습니다."));
+        }
+        return ResponseEntity.ok(questionDTO);
+    }
+
     @PostMapping("/save/interview/question")
     public ResponseEntity<?> getRepeatSchedule(@RequestBody InterviewAnswerDTO dto, @RequestHeader(value = "Authorization") String token) {
         if (token == null) {
@@ -68,13 +77,14 @@ public class InterviewQuestionController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        boolean IT_written = redisTemplate.hasKey("IT_" + ANSWER_CACHE_KEY + "_" +jwtTokenProvider.getUserId(token));
-        boolean GENERAL_written = redisTemplate.hasKey("GENERAL_" + ANSWER_CACHE_KEY + "_" + jwtTokenProvider.getUserId(token));
-        log.info(String.valueOf(IT_written));
-        Map<String, Boolean> response = Map.of(
-                "IT_written", IT_written,
-                "GENERAL_written", GENERAL_written
-        );
-        return ResponseEntity.ok(response);
+        String userId = jwtTokenProvider.getUserId(token);
+        String itKey = "IT_" + ANSWER_CACHE_KEY + "_" + userId;
+        String generalKey = "GENERAL_" + ANSWER_CACHE_KEY + "_" + userId;
+        int itCount = redisTemplate.opsForValue().get(itKey) == null ? 0 : (int) redisTemplate.opsForValue().get(itKey);
+        int generalCount = redisTemplate.opsForValue().get(generalKey) == null ? 0 : (int) redisTemplate.opsForValue().get(generalKey);
+        return ResponseEntity.ok(Map.of(
+                "IT_count", itCount,
+                "GENERAL_count", generalCount
+        ));
     }
 }

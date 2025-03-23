@@ -67,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size) {
 
-        return  feedMapper.BoardListToDTO(commentDAO.findFeedAndCommentMypage(userId,page,size));
+        return  feedMapper.fromBoardDtoList(commentDAO.findFeedAndCommentMypage(userId,page,size));
     }
 
     @Override
@@ -75,20 +75,10 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findMyPagePagingComment(userId,num,size);
     }
     @Override
-    public String saveDocument(String indexName, CommentCreate dto) {
-
-        return commentDAO.createCommentOne(indexName, dto);
-    }
-
-    @Override
     public List<Comment> getSearchComment(String text) {
         return commentDAO.findSearchComment(text);
     }
 
-    @Override
-    public double getUserCommentCount(String userId) {
-        return commentDAO.findUserCommentCount(userId);
-    }
 
     @Override
     public Comment editComment(String id, CommentUpdate eq) {
@@ -102,7 +92,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void indexComment(CommentCreate dto) {
+    public void saveComment(CommentCreate dto) {
         checkValueComment(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
@@ -125,7 +115,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentCreate> createBulkComment(List<CommentCreate> comments) {
+    public List<CommentCreate> saveBulkComment(List<CommentCreate> comments) {
         commentDAO.CreateManyComment(BulkToEntity(comments));
         return comments;
     }
@@ -134,7 +124,6 @@ public class CommentServiceImpl implements CommentService {
     public  Map<String, Object> findCommentsWithCount(String feedUID){
         return commentDAO.findCommentsWithCount(feedUID);
     }
-
     @Override
     public List<CommentRequest> getLikeCount() {
 
@@ -151,11 +140,6 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findPagingCommentDESC(feedUIDs, num, size);
     }
 
-    @Override
-    public List<CommentRequest> getComment() {
-
-        return commentMapper.changeCommentListDTO(commentDAO.findCommentAll());
-    }
 
     @Override
     public List<CommentRequest> getCommentOne(String commentUID){
@@ -168,11 +152,6 @@ public class CommentServiceImpl implements CommentService {
             return commentDAO.findTodayCommentAggregation();
     }
 
-    @Override
-    public List<Comment> getCommentId(String id) {
-
-        return commentDAO.findDetailComment(id);
-    }
 
     @Override
     public void deleteComment(String id) {
@@ -201,6 +180,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
     private static boolean isEmpty(String value) {
+
         return value == null || value.trim().isEmpty();
     }
 

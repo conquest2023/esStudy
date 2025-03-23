@@ -320,7 +320,6 @@ public class MainFeedController {
         return feedService.createBulkFeed(comments);
     }
 
-
     @GetMapping("/search/view/feed/best")
     public ResponseEntity<?> getWeekBestFeed(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size) {
@@ -330,32 +329,6 @@ public class MainFeedController {
         return ResponseEntity.ok(response);
     }
 
-
-    @PostMapping("/search/view/feed/delete")
-    @ResponseBody
-    public ResponseEntity<?> deleteFeed(
-            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
-        String id = requestData.get("id");
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
-        }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
-
-        Map<String, String> response = new HashMap<>();
-        response.put("redirectUrl", "/");
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/view/feed/reload")
-    public String reloadViewCount(Model model) {
-
-        model.addAttribute("data", feedService.getFeed());
-        return "basic/feed/feedList?index=board";
-    }
 
     @GetMapping("/get/user/vote/details")
     public String getUserVoteDetail() {

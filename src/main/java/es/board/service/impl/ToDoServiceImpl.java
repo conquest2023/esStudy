@@ -7,14 +7,17 @@ import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.repository.ToDoDAO;
 import es.board.repository.document.Todo;
+import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.TodoStatus;
 import es.board.repository.entity.entityrepository.D_DayRepository;
+import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.TodoRepository;
 import es.board.service.NotificationService;
 import es.board.service.ToDoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +35,10 @@ import java.util.Set;
 public class ToDoServiceImpl implements ToDoService {
 
     private  final TodoRepository todoRepository;
+
+    private  final PointHistoryRepository pointHistoryRepository;
+
+    private  final StringRedisTemplate stringRedisTemplate;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -65,12 +72,13 @@ public class ToDoServiceImpl implements ToDoService {
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().increment(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
+        grantTodoPoint(jwtTokenProvider.getUserId(token));
     }
 
     @Override
     public void addD_Day(String token, D_DayDTO dDayDTO) {
-
         dayRepository.save(toDoMapper.toEntityD_Day(jwtTokenProvider.getUserId(token),dDayDTO));
+        grantTodoPoint(jwtTokenProvider.getUserId(token));
     }
 
     @Override
@@ -115,7 +123,7 @@ public class ToDoServiceImpl implements ToDoService {
         redisTemplate.opsForValue().decrement(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
         Object remainingCount = redisTemplate.opsForValue().get(redisKey);
-        notificationService.sendTodoNotification(jwtTokenProvider.getUserId(token), "✅ Todo 완료! 남은 Todo: " + remainingCount + "개");
+        notificationService.sendTodoNotification(jwtTokenProvider.getUserId(token), "Todo 완료! 남은 Todo: " + remainingCount + "개");
     }
 
     @Override
@@ -124,8 +132,9 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public void saveProjectTodo(String userId, TodoResponse todoResponse) {
+    public void addProjectTodo(String userId, TodoResponse todoResponse) {
         todoRepository.save(toDoMapper.TodoToEntity(userId,todoResponse));
+        grantTodoPoint(userId);
     }
 
     @Override
@@ -160,6 +169,31 @@ public class ToDoServiceImpl implements ToDoService {
             }
 
             toDoDAO.savePercentTodo(completionRates);
-            log.info("✅ Todo 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
+            log.info("Todo 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
         }
-    }
+
+        public void grantTodoPoint(String userId) {
+            String today = LocalDate.now().toString();
+            String key = "todo:point:" + userId + ":" + today;
+            Long currentCount = stringRedisTemplate.opsForValue().increment(key);
+            if (currentCount == 1) {
+                stringRedisTemplate.expire(key, Duration.ofDays(1));
+            }
+            if (currentCount > 3) {
+                log.info("{}님은 오늘 Todo 작성 포인트 한도를 초과했습니다.", userId);
+                return;
+            }
+            createPointHistory(userId);
+            log.info("Todo 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+        }
+
+        public void createPointHistory(String userId) {
+            PointHistory history = PointHistory.builder()
+                    .userId(userId)
+                    .pointChange(5)
+                    .reason("Todo")
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            pointHistoryRepository.save(history);
+        }
+}

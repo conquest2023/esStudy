@@ -20,21 +20,19 @@ public class SecurityConfig {
 
 
     private final JwtTokenProvider jwtTokenProvider;
-    
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        return  httpSecurity
+        return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-//                .headers(headers -> headers
-//
-//                        .xssProtection(xss -> xss.disable())
-//
-//                )
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
+
 
 
     @Bean

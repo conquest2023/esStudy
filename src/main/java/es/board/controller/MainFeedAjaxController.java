@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-public class AjaxController {
+public class MainFeedAjaxController {
 
 
     private  final AuthService userService;
@@ -157,36 +157,40 @@ public class AjaxController {
     public ResponseEntity<?> getPagingMainFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
-        List<FeedRequest> data = feedService.getPagingFeed(page, size);
-        Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
-        Long totalPage = (Long) feedCount.get("totalFeedCount");
-        return ResponseEntity.ok(Map.of(
-                "viewCount", (Long) feedCount.get("totalViewCount"),
-                "count", countMap,
-                "page", page,
-                "vote",voteService.getVotePageFeed(page,size),
-                "maxPage",totalPage,
-                "totalPage", totalPage,
-                "data", data
-        ));
-    }
+            Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
+            List<VoteDTO> vote=voteService.getVotePageFeed(page,size);
+            List<FeedRequest> data = feedService.getPagingFeed(page, size);
+            Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
+            Long totalPage = (Long) feedCount.get("totalFeedCount");
+            return ResponseEntity.ok(Map.of(
+                    "viewCount", (Long) feedCount.get("totalViewCount"),
+                    "count", countMap,
+                    "page", page,
+                    "vote",vote,
+                    "maxPage",totalPage,
+                    "totalPage", totalPage,
+                    "data", data
+            ));
+        }
 
 
     @GetMapping("/data/feed")
     public ResponseEntity<?> getPagingDataFeed(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size
+            ,@RequestParam String  category) {
         return ResponseEntity.ok(Map.of(
-                "data", feedService.findDataFeed(page,size)));
+                "data", feedService.getDataFeed(page,size,category)));
     }
+
+
 
     @GetMapping("/notice/feed")
     public ResponseEntity<?> getPagingNoticeFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(Map.of(
-                "data", feedService.findNoticeFeed(page,size)));
+                "data", feedService.getNoticeFeed(page,size)));
     }
 
     @GetMapping("/auth/status")
@@ -315,5 +319,22 @@ public class AjaxController {
         response.put("data", req);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/search/view/feed/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteFeed(
+            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
+        String id = requestData.get("id");
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
 
+        Map<String, String> response = new HashMap<>();
+        response.put("redirectUrl", "/");
+        return ResponseEntity.ok(response);
+    }
 }

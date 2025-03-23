@@ -2,7 +2,6 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.D_DayDTO;
-import es.board.controller.model.req.ScheduleDTO;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.service.ToDoService;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +169,7 @@ public class ToDoController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                toDoService.saveProjectTodo(jwtTokenProvider.getUserId(token), todoResponse);
+                toDoService.addProjectTodo(jwtTokenProvider.getUserId(token), todoResponse);
             }
         }
     }

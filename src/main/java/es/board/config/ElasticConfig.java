@@ -52,14 +52,11 @@ public class ElasticConfig {
                                 .setSocketTimeout(50000))
                 .build();
     }
-
-    // ElasticsearchTransport 설정
     @Bean
     public ElasticsearchTransport elasticsearchTransport(RestClient restClient) {
         return new RestClientTransport(restClient, new JacksonJsonpMapper());
     }
 
-    // ElasticsearchClient 설정
     @Bean
     public ElasticsearchClient elasticsearchClient(ElasticsearchTransport elasticsearchTransport) {
         return new ElasticsearchClient(elasticsearchTransport);

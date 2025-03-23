@@ -72,21 +72,25 @@ public class InterviewServiceImpl implements InterviewService {
         return questions;
     }
 
-    private List<InterviewQuestionDTO> getCollect() {
-        return questionRepository.findRandomITAndGeneralQuestions().stream()
-                .map(question -> InterviewQuestionDTO.builder()
-                        .id(question.getId())
-                        .question(question.getQuestion())
-                        .category(question.getCategory())
-                        .build())
-                .collect(Collectors.toList());
+    @Override
+    public List<InterviewAnswerDTO> getBestAnswer() {
+        return null;
     }
 
     @Override
     public void saveQuestion(InterviewAnswerDTO dto,String  userId) {
-        String cacheKey = (dto.getCategory().equals("IT") ? "IT_" : "GENERAL_") + ANSWER_CACHE_KEY + "_" + userId;
-        redisTemplate.opsForValue().set(cacheKey, "true", Duration.ofDays(1));
-        answerRepository.save(mapper.toInterviewEntity(dto,userId));
+        checkQuestion(dto.getAnswer());
+        String categoryPrefix = dto.getCategory().equals("IT") ? "IT_" : "GENERAL_";
+        String cacheKey = categoryPrefix + ANSWER_CACHE_KEY + "_" + userId;
+
+        Integer count = redisTemplate.opsForValue().get(cacheKey) == null ? 0 :
+                Integer.parseInt(redisTemplate.opsForValue().get(cacheKey));
+
+        if (count >= 3) {
+            throw new IllegalStateException("오늘은 더 이상 답변을 작성할 수 없습니다.");
+        }
+        redisTemplate.opsForValue().set(cacheKey, String.valueOf(count + 1), Duration.ofDays(1));
+        answerRepository.save(mapper.toInterviewEntity(dto, userId));
         grantInterviewPoint(userId);
     }
 
@@ -104,6 +108,15 @@ public class InterviewServiceImpl implements InterviewService {
             return getCollect();
         }
     }
+    private List<InterviewQuestionDTO> getCollect() {
+        return questionRepository.findRandomITAndGeneralQuestions().stream()
+                .map(question -> InterviewQuestionDTO.builder()
+                        .id(question.getId())
+                        .question(question.getQuestion())
+                        .category(question.getCategory())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     private void cacheData(List<InterviewQuestionDTO> questions) {
         try {
@@ -116,17 +129,17 @@ public class InterviewServiceImpl implements InterviewService {
 
     public void grantInterviewPoint(String userId) {
         String today = LocalDate.now().toString();
-        String key = "comment:point:" + userId + ":" + today;
+        String key = "interview:point:" + userId + ":" + today;
         Long currentCount = redisTemplate.opsForValue().increment(key);
         if (currentCount == 1) {
          redisTemplate.expire(key, Duration.ofDays(1));
         }
-        if (currentCount > 10) {
-            log.info("{}님은 오늘 댓글 작성 포인트 한도(10개)를 초과했습니다.", userId);
+        if (currentCount > 3) {
+            log.info("{}님은 오늘 인터뷰 작성 포인트 한도를 초과했습니다.", userId);
             return;
         }
         createPointHistory(userId);
-        log.info("댓글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+        log.info("인터뷰 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
     public void createPointHistory(String userId) {
         PointHistory history = PointHistory.builder()
@@ -137,4 +150,22 @@ public class InterviewServiceImpl implements InterviewService {
                 .build();
         pointHistoryRepository.save(history);
     }
+    private boolean checkQuestion(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            throw new RuntimeException("답변을 입력해 주세요");
+        }
+        if (content.length() < 35) {
+            throw new RuntimeException("35자 이상 써주세요");
+        }
+        long totalLength = content.length();
+        long chosungCount = content.chars()
+                .filter(ch -> ch >= 0x3131 && ch <= 0x314E)
+                .count();
+
+        if ((double) chosungCount / totalLength > 0.5) {
+            throw new RuntimeException("초성은 제외시켜주세요");
+        }
+        return true;
+    }
+
 }
