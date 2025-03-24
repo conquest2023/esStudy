@@ -1296,6 +1296,7 @@
             border-color: #007bff;
             box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.6);
         }
+
     </style>
     </div>
 </head>
@@ -1448,6 +1449,21 @@
 <!--                        </ul>-->
 <!--                    </div>-->
 <!--                </div>-->
+                <div class="card shadow-sm" id="jobSiteRankingSection" style="position: fixed; top: 100px; left: 20px; width: 280px; z-index: 1000;">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-ranking-star"></i> 취업사이트 랭킹</h5>
+                            <a href="/site" class="btn btn-link btn-sm ms-2">더 보기</a>
+                        </div>
+                        <button class="btn-close" onclick="document.getElementById('jobSiteRankingSection').style.display='none'" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group small" id="jobSiteRankingList">
+                            <li class="list-group-item">로딩 중...</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <ul class="nav nav-tabs modern-tabs" id="boardTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active fw-bold" id="all-tab" data-bs-toggle="tab" data-bs-target="#allTabPane" type="button" role="tab">
@@ -1598,20 +1614,133 @@
         </div>
     </div>
 </div>
+<div id="bestAnswerCardsContainer" class="my-3"></div>
+
+<div class="modal fade" id="bestAnswerModal" tabindex="-1" aria-labelledby="bestAnswerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bestAnswerModalLabel">베스트 답변</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" id="bestAnswerModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    document.getElementById("viewBestAnswerBtn").addEventListener("click", async function () {
-        const res = await fetch("/interview/best-answer");
-        const data = await res.json();
-        if (data && data.answer) {
-            alert(`💡 베스트 답변:\n\n${data.answer}`);
-        } else {
-            alert("아직 베스트 답변이 등록되지 않았습니다.");
-        }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadJobSiteRanking();
     });
 
+    function loadJobSiteRanking() {
+        fetch("/search/site/log", {
+            method: "GET",
+            headers: {
+                "Authorization": localStorage.getItem("accessToken") || "",
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const rankingList = document.getElementById("jobSiteRankingList");
+                rankingList.innerHTML = "";
+                if (data.success && data.ranking && data.ranking.length > 0) {
+                    data.ranking.forEach((site, index) => {
+                        const li = document.createElement("li");
+                        li.className = "list-group-item d-flex align-items-center";
+                        li.innerHTML = `
+          <span class="me-2 fw-bold text-primary">${index + 1}위</span>
+          <a href="${site.link}" target="_blank" class="text-decoration-none">${site.siteName}</a>
+<!--          <span class="ms-auto text-muted small">${site.count || 0}회 클릭</span>-->
+        `;
+                        rankingList.appendChild(li);
+                    });
+                } else {
+                    rankingList.innerHTML = '<li class="list-group-item text-muted">데이터가 없습니다.</li>';
+                }
+            })
+            .catch(error => {
+                console.error("랭킹 조회 실패:", error);
+                document.getElementById("jobSiteRankingList").innerHTML =
+                    '<li class="list-group-item text-danger">랭킹 불러오기 실패</li>';
+            });
+    }
+
+    let allBestAnswers = [];
+    let currentIndex = 0;
+
+    document.getElementById("viewBestAnswerBtn").addEventListener("click", async function () {
+        const questionIds = ["263", "87", "93"].join(",");
+        const response = await fetch("/interview/best/answer", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Question-Ids": questionIds
+            }
+
+        });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            allBestAnswers = data;
+            currentIndex = 0;
+            showBestAnswerModal(data[currentIndex]);
+        } else {
+            alert("베스트 답변이 없습니다.");
+        }
+    });
+    function renderBestAnswerCards(bestAnswers) {
+        const container = document.getElementById('bestAnswerCardsContainer');
+        container.innerHTML = "";
+        console.log(bestAnswers)
+        bestAnswers.forEach((answer, i) => {
+            const card = document.createElement('div');
+            card.className = 'card best-answer-card mb-3';
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+            <div class="card-body">
+                <h6 class="card-title">💬 ${answer.title}</h6>
+                <p class="card-text">${(answer.answer || "내용 없음").substring(0, 30)}...</p>
+            </div>
+        `;
+            card.addEventListener('click', () => showBestAnswerModal(answer));
+            container.appendChild(card);
+        });
+    }
+
+    let bestAnswerModalInstance = null;
+
+    function showBestAnswerModal(answer) {
+        const label = document.getElementById("bestAnswerModalLabel");
+        const body = document.getElementById("bestAnswerModalBody");
+
+        label.innerText = `💬 ${answer.title}`;
+        body.innerHTML = `
+        <p><strong>작성자:</strong> ${answer.username || "익명"}</p>
+        <hr>
+        <p>${answer.answer}</p>
+        <div class="text-end">
+            <button class="btn btn-sm btn-outline-primary mt-3" onclick="showNextAnswer()">다음 답변</button>
+        </div>
+    `;
+        if (!bestAnswerModalInstance) {
+            bestAnswerModalInstance = new bootstrap.Modal(document.getElementById("bestAnswerModal"));
+        }
+
+        bestAnswerModalInstance.show();
+    }
+
+    function showNextAnswer() {
+        currentIndex = (currentIndex + 1) % allBestAnswers.length;
+        showBestAnswerModal(allBestAnswers[currentIndex]);
+    }
 
     document.addEventListener("DOMContentLoaded", function () {
         const sidebar = document.getElementById("rightSidebar");
@@ -3385,11 +3514,7 @@
         function renderRecommendedPosts(data) {
             const container = document.getElementById("recommendedPosts");
             container.innerHTML = '';
-
-            console.log(data);
-
             const posts = data.recommend || [];
-
             posts.forEach(post => {
                 const postHTML = `
             <div class="col">

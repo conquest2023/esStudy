@@ -26,10 +26,6 @@
     </div>
 
 
-    <!--    <div class="input-group mb-4">-->
-<!--        <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요...">-->
-<!--        <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">초기화</button>-->
-<!--    </div>-->
 
     <div class="row row-cols-1 row-cols-md-3 g-4" id="siteList"></div>
 </div>
@@ -128,7 +124,6 @@
             category: ["general"]
         },
 
-        // ✅ 신입 전용 사이트
         {
             name: "슈퍼루키",
             logo: "https://superookie.com/favicon.ico",
@@ -144,7 +139,6 @@
             category: ["intern"]
         },
 
-        // ✅ 대외활동 사이트
         {
             name: "요즘것들",
             logo: "https://yozm.wishket.com/favicon.ico",
@@ -190,8 +184,11 @@
                                 <h5 class="card-title fw-bold mb-1">${site.name}</h5>
                             </div>
                             <p class="card-text text-muted">${site.description}</p>
-                            <a href="${site.link}" class="btn btn-primary btn-sm w-100" target="_blank">
-                                방문하기 <i class="fas fa-external-link-alt"></i>
+                           <a href="${site.link}"
+                               class="btn btn-primary btn-sm w-100"
+                               target="_blank"
+                               onclick="logSiteClick(event, '${site.name}', '${site.link}')">
+                               방문하기 <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
                     </div>
@@ -200,29 +197,29 @@
                 siteList.innerHTML += siteHTML;
             });
     }
-
+    function logSiteClick(e, siteName, link) {
+        const token = localStorage.getItem("token");
+        fetch('/site/log', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ""
+            },
+            body: JSON.stringify({
+                siteName: siteName,
+                link: link
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('클릭 로그 저장됨:', data);
+            })
+            .catch(error => {
+                console.error('로그 저장 에러:', error);
+            });
+    }
     function filterSites(category) {
         renderJobSites(category);
-    }
-
-    // document.getElementById("searchInput").addEventListener("input", function () {
-    //     const query = this.value.toLowerCase();
-    //     document.querySelectorAll(".job-site").forEach(site => {
-    //         const siteName = site.querySelector(".card-title").innerText.toLowerCase();
-    //         const siteDescription = site.querySelector(".card-text").innerText.toLowerCase();
-    //         const category = site.getAttribute("data-category");
-    //
-    //         if (siteName.includes(query) || siteDescription.includes(query) || category.includes(query)) {
-    //             site.style.display = "block";
-    //         } else {
-    //             site.style.display = "none";
-    //         }
-    //     });
-    // });
-
-    function clearSearch() {
-        document.getElementById("searchInput").value = "";
-        document.querySelectorAll(".job-site").forEach(site => site.style.display = "block");
     }
     document.addEventListener("DOMContentLoaded", () => renderJobSites("all"));
 </script>

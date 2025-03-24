@@ -12,7 +12,7 @@ public interface InterviewService {
     List<InterviewQuestionDTO> getRandomQuestions();
 
 
-    List<InterviewAnswerDTO> getBestAnswer();
+    List<InterviewAnswerDTO> getBestAnswer(List<String> ids);
 
 
     void saveQuestion(InterviewAnswerDTO dto,String userId);

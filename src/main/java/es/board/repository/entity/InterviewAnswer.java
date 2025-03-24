@@ -27,8 +27,12 @@ public class InterviewAnswer {
     @Column(name = "user_id", nullable = false, length = 50)
     private String userId;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "answer", nullable = false, columnDefinition = "TEXT")
     private String answer;
+
     @Column(name = "likes")
     private int likes;
 

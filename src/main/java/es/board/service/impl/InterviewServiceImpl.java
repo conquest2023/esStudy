@@ -73,8 +73,8 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public List<InterviewAnswerDTO> getBestAnswer() {
-        return null;
+    public List<InterviewAnswerDTO> getBestAnswer(List<String> ids) {
+        return mapper.fromAnswerList(answerRepository.findInterviewAnswerByQuestion(ids));
     }
 
     @Override

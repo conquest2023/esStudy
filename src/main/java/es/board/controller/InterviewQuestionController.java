@@ -45,16 +45,17 @@ public class InterviewQuestionController {
     }
 
     @GetMapping("/interview/best/answer")
-    public ResponseEntity<?> getBestAnswer() {
-        List<InterviewQuestionDTO> questionDTO = interviewService.getRandomQuestions();
-        if (questionDTO == null) {
-            return ResponseEntity.ok(Map.of("message", "오늘의 질문을 찾을 수 없습니다."));
+    public ResponseEntity<?> getBestAnswer(@RequestHeader("X-Question-Ids") List<String> questionIds) {
+        List<InterviewAnswerDTO> answer = interviewService.getBestAnswer(questionIds);
+        if (answer == null) {
+            return ResponseEntity.ok(Map.of("message", "베스트 대답을 찾을 수 없습니다."));
         }
-        return ResponseEntity.ok(questionDTO);
+        return ResponseEntity.ok(answer);
     }
 
     @PostMapping("/save/interview/question")
     public ResponseEntity<?> getRepeatSchedule(@RequestBody InterviewAnswerDTO dto, @RequestHeader(value = "Authorization") String token) {
+        log.info(dto.toString());
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }

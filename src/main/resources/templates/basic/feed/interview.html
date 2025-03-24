@@ -89,17 +89,15 @@
 
     function renderQuestion(question, containerId, answeredCount) {
         const container = document.getElementById(containerId);
-
-        // 이미 3회 이상이면 질문 숨기고 완료 메시지
         if (answeredCount >= 3) {
             container.innerHTML = `
             <div class="alert alert-success text-center">
-                ✅ 오늘 ${question.category} 분야 질문에 모두 답변하셨습니다. 감사합니다!
+                오늘 ${question.category} 분야 질문에 모두 답변하셨습니다. 감사합니다!
             </div>`;
             return;
         }
 
-        container.innerHTML = `
+                container.innerHTML = `
         <div class="card question-card">
             <div class="card-header">
                 <h5 class="mb-0">${question.question}</h5>
@@ -110,14 +108,16 @@
                     <textarea class="form-control answer-input" rows="3"
                         placeholder="여기에 답변을 입력하세요..." data-question-id="${question.id}"></textarea>
                     <button class="btn btn-primary mt-2 submit-answer"
-                        data-question-id="${question.id}" data-category="${question.category}">
+                        data-question-id="${question.id}"
+                        data-category="${question.category}"
+                        data-title="${question.question}">
                         답변 제출
                     </button>
                 </div>
                 <div class="mt-2 text-muted text-end">📝 남은 답변 횟수: ${3 - answeredCount}회</div>
             </div>
-        </div>
-    `;
+        </div>`;
+
 
         const submitButton = container.querySelector(".submit-answer");
         submitButton.addEventListener("click", handleSubmitAnswer);
@@ -128,7 +128,8 @@
         const questionId = submitButton.getAttribute("data-question-id");
         const answerTextarea = document.querySelector(`textarea[data-question-id="${questionId}"]`);
         const answer = answerTextarea.value.trim();
-
+        const title = submitButton.getAttribute("data-title");
+        console.log(title)
         if (!answer) {
             alert("답변을 입력해주세요.");
             return;
@@ -147,6 +148,7 @@
         const requestData = {
             questionId: questionId,
             answer: answer,
+            title: title,
             category: category
         };
 
