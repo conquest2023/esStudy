@@ -169,7 +169,7 @@ public class ToDoController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                toDoService.addProjectTodo(jwtTokenProvider.getUserId(token), todoResponse);
+                toDoService.addProjectTodo(jwtTokenProvider.getUserId(token), todoResponse,jwtTokenProvider.getUsername(token));
             }
         }
     }

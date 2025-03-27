@@ -865,6 +865,7 @@ public class FeedDAOImpl implements FeedDAO {
                                                                     .field("total_views")
                                                                     .order(SortOrder.Desc)))
                                                     .size(15)))), Board.class);
+            log.info(response.toString());
             List<StringTermsBucket> buckets = response.aggregations()
                     .get("top_writers")
                     .sterms()
@@ -879,9 +880,9 @@ public class FeedDAOImpl implements FeedDAO {
                                     !writer.getUsername().isEmpty() &&
                                     !writer.getUsername().equals("익명") &&
                                     !writer.getUsername().equals("asd") &&
-                                    !writer.getUsername().equals("호문무권신") &&
+                                    !writer.getUsername().equals("안녕") &&
                                     !writer.getUsername().equals("hoeng"))
-                                    .limit(5)
+                                    .limit(6)
                                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Top 유저 가져오기 실패!", e);

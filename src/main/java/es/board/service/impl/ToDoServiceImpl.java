@@ -72,13 +72,13 @@ public class ToDoServiceImpl implements ToDoService {
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().increment(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
-        grantTodoPoint(jwtTokenProvider.getUserId(token));
+        grantTodoPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
 
     @Override
     public void addD_Day(String token, D_DayDTO dDayDTO) {
         dayRepository.save(toDoMapper.toEntityD_Day(jwtTokenProvider.getUserId(token),dDayDTO));
-        grantTodoPoint(jwtTokenProvider.getUserId(token));
+        grantTodoPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
 
     @Override
@@ -132,9 +132,9 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public void addProjectTodo(String userId, TodoResponse todoResponse) {
+    public void addProjectTodo(String userId, TodoResponse todoResponse,String username) {
         todoRepository.save(toDoMapper.TodoToEntity(userId,todoResponse));
-        grantTodoPoint(userId);
+        grantTodoPoint(userId,username);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class ToDoServiceImpl implements ToDoService {
             log.info("Todo 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
         }
 
-        public void grantTodoPoint(String userId) {
+        public void grantTodoPoint(String userId,String username) {
             String today = LocalDate.now().toString();
             String key = "todo:point:" + userId + ":" + today;
             Long currentCount = stringRedisTemplate.opsForValue().increment(key);
@@ -183,13 +183,14 @@ public class ToDoServiceImpl implements ToDoService {
                 log.info("{}님은 오늘 Todo 작성 포인트 한도를 초과했습니다.", userId);
                 return;
             }
-            createPointHistory(userId);
+            createPointHistory(userId,username);
             log.info("Todo 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
         }
 
-        public void createPointHistory(String userId) {
+        public void createPointHistory(String userId,String username) {
             PointHistory history = PointHistory.builder()
                     .userId(userId)
+                    .username(username)
                     .pointChange(5)
                     .reason("Todo")
                     .createdAt(LocalDateTime.now())

@@ -828,6 +828,7 @@
         }
 
         .navbar-brand {
+            margin-right: 10px;
             font-size: 1.5rem;
             font-weight: bold;
         }
@@ -844,6 +845,7 @@
 
         }
         .dropdown-menu {
+            padding: 0.25rem 0.5rem;
             visibility: visible !important;
             box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
         }
@@ -1302,20 +1304,32 @@
 </head>
 <button id="leftMenuToggle" class="menu-toggle d-md-none">📂main</button>
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <a class="navbar-brand fw-bold text-primary me-2 custom-logo" href="/">Ninfo</a>
-            <span class="tagline d-none d-md-inline">미래를 준비하는 사람들을 위한 사이트</span>
-        </div>
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul class="navbar-nav">
+    <div class="container-fluid d-flex align-items-center">
+        <a class="navbar-brand fw-bold text-primary me-2 custom-logo" href="/">Ninfo</a>
+        <span class="tagline d-none d-md-inline text-muted me-4">
+      미래를 준비하는 사람들을 위한 사이트
+    </span>
+<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"-->
+<!--                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">-->
+<!--            <span class="navbar-toggler-icon"></span>-->
+<!--        </button>-->
+
+        <!-- 중앙/왼쪽: 메뉴 영역 -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- ‘gap-3’나 ‘gap-4’로 메뉴 간격 조절 가능 -->
+            <ul class="navbar-nav align-items-center gap-3">
+
+                <!-- ▼ 취업 사이트 드롭다운 ▼ -->
                 <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-calendar-alt"></i> 취업 사이트
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        취업 사이트
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
                         <li class="nav-item">
-                            <a class="nav-link fw-bold" href="/search/view/feed/list/job"><i class="fas fa-briefcase"></i> IT 취업 정보</a>
+                            <a class="nav-link fw-bold" href="/search/view/feed/list/job">
+                                <i class="fas fa-briefcase"></i> IT 취업 정보
+                            </a>
                         </li>
                         <li>
                             <a class="dropdown-item fw-bold" href="/site">
@@ -1324,11 +1338,13 @@
                         </li>
                     </ul>
                 </li>
+                <!-- ▲ 취업 사이트 -->
 
-
+                <!-- ▼ 일정 관리 드롭다운 ▼ -->
                 <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-calendar-alt"></i> 일정 관리
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        일정 관리
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
                         <li>
@@ -1345,10 +1361,10 @@
                         </li>
                     </ul>
                 </li>
-
                 <li class="nav-item dropdown position-relative">
-                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="certificateDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-award me-1"></i> 자격증
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="certificateDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        자격증
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="certificateDropdown">
                         <li>
@@ -1360,11 +1376,12 @@
                             <a class="dropdown-item fw-bold" href="/certificate/calendar">
                                 <i class="fas fa-calendar-alt"></i> 자격증 캘린더
                             </a>
-                            <div id="calendarBalloon2" class="balloon below show">자격증 일정을 확인해보세요!</div>
+                            <div id="calendarBalloon2" class="balloon below show">
+                                자격증 일정을 확인해보세요!
+                            </div>
                         </li>
                     </ul>
                 </li>
-            </ul>
         </div>
         <div class="d-flex align-items-center me-3">
             <div class="notification-container position-relative" style="margin-right: 50px;">
@@ -1394,8 +1411,6 @@
         </div>
     </div>
 </nav>
-
-
         <div class="container-custom">
             <main class="container-custom">
                 <div class="search-bar d-flex align-items-center p-3 mb-3 rounded shadow-sm">
@@ -1404,12 +1419,12 @@
                     <input type="text" id="searchInput" class="form-control border-0 shadow-none flex-grow-1"
                            placeholder="관심있는 내용을 검색해보세요!">
                 </div>
-                <div class="mb-3 d-flex align-items-center">
-                    <button id="showVoteButton" class="btn btn-outline-primary btn-sm me-auto" onclick="toggleVoteSection()" style="display: none;">
-                        🗳️ 투표 결과!
-                    </button>
-<!--                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>-->
-                </div>
+<!--                <div class="mb-3 d-flex align-items-center">-->
+<!--                    <button id="showVoteButton" class="btn btn-outline-primary btn-sm me-auto" onclick="toggleVoteSection()" style="display: none;">-->
+<!--                        🗳️ 투표 결과!-->
+<!--                    </button>-->
+<!--&lt;!&ndash;                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>&ndash;&gt;-->
+<!--                </div>-->
                 <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
                     <span class="fw-bold text-dark">중요한 일정 & 실시간 사용자 통계를 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
@@ -1459,7 +1474,7 @@
                     </div>
                     <div class="card-body">
                         <ul class="list-group small" id="jobSiteRankingList">
-                            <li class="list-group-item">로딩 중...</li>
+                            <li class="list-group-item">로딩 중.../<li>
                         </ul>
                     </div>
                 </div>
@@ -2102,11 +2117,8 @@
         filtered.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
-            let badge = rank === 1 ? "🥇"
-                : rank === 2 ? "🥈"
-                    : rank === 3 ? "🥉"
-                        : rank >= 4 && rank <= 5 ? "🔥" : "";
 
+            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
             normalPosts += `
             <div class="list-item ${isPinned ? 'notice-item' : ''}">
                 <div>
@@ -2488,20 +2500,22 @@
             .catch(error => console.error("Top 유저 데이터 가져오기 실패:", error));
     }
     function updateTopWriters(topWriters) {
+        console.log(topWriters)
         const topWritersList = document.getElementById("topWritersList");
         topWritersList.innerHTML = '';
         topWriters.forEach((writer, index) => {
             let rankText = index + 1;
-            if (index === 0) rankText = "🥇";
-            else if (index === 1) rankText = "🥈";
-            else if (index === 2) rankText = "🥉";
+            if (index === 0) rankText = "👑";
+            else if (index === 1) rankText = "🥇";
+            else if (index === 2) rankText = "🥈";
+            else if (index === 3) rankText = "🥉";
             const itemDiv = document.createElement('div');
             itemDiv.className = `ranking-item`;
             itemDiv.innerHTML = `
-            <span class="rank-badge">${rankText}</span>
-            <span class="rank-name">${writer.username}</span>
-            <span class="rank-details">${writer.viewCount}점</span>
-        `;
+        <span class="rank-badge">${rankText}</span>
+        <span class="rank-name">${writer.username}</span>
+        ${index === 0 ? `<span class="rank-crown"></span>` : `<span class="rank-details">${writer.viewCount}점</span>`}
+    `;
             topWritersList.appendChild(itemDiv);
         });
     }
@@ -2728,7 +2742,8 @@
         sortedPosts.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
-            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
+
 
             normalPosts += `
         <div class="list-item ${isPinned ? 'notice-item' : ''}">
@@ -2793,7 +2808,8 @@
         sortedPosts.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
-            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
+
             if (post.id) {
                 normalPosts += `
             <div class="list-item ${isPinned ? 'notice-item' : ''}">

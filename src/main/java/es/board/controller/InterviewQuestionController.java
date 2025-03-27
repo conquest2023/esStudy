@@ -64,7 +64,7 @@ public class InterviewQuestionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
 
-        interviewService.saveQuestion(dto,jwtTokenProvider.getUserId(token));
+        interviewService.saveQuestion(dto,jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
         return ResponseEntity.ok(Map.of("success", true, "message", "답변이 성공적으로 저장되었습니다."));
     }
 

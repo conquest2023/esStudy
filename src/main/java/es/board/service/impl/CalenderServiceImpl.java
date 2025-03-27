@@ -57,7 +57,7 @@ public class CalenderServiceImpl implements CalenderService {
 
             return null;
         });
-        grantCalendarPoint(jwtTokenProvider.getUserId(token));
+        grantCalendarPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
 
     @Override
@@ -68,7 +68,8 @@ public class CalenderServiceImpl implements CalenderService {
              asyncService.saveScheduleAsync((toDoMapper.toScheduleDocument(jwtTokenProvider.getUserId(token),scheduleDTO,saveScheduleId)));
              return null;
          });
-            grantCalendarPoint(jwtTokenProvider.getUserId(token));
+        grantCalendarPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
+
     }
 
     @Override
@@ -113,7 +114,7 @@ public class CalenderServiceImpl implements CalenderService {
         return savedPost.getScheduleId();
     }
 
-    public void grantCalendarPoint(String userId) {
+    public void grantCalendarPoint(String userId,String username) {
         String today = LocalDate.now().toString();
         String key = "calendar:point:" + userId + ":" + today;
         Long currentCount = stringRedisTemplate.opsForValue().increment(key);
@@ -124,14 +125,15 @@ public class CalenderServiceImpl implements CalenderService {
             log.info("{}님은 오늘 캘린더 작성 포인트 한도를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId);
+        createPointHistory(userId,username);
         log.info("캘린더 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
 
-    public void createPointHistory(String userId) {
+    public void createPointHistory(String userId,String username) {
         PointHistory history = PointHistory.builder()
                 .userId(userId)
                 .pointChange(5)
+                .username(username)
                 .reason("캘린더")
                 .createdAt(LocalDateTime.now())
                 .build();

@@ -29,6 +29,6 @@ public interface ToDoService {
 
     Long getDoneTodo(String userId);
 
-    void addProjectTodo(String userId, TodoResponse todoResponse);
+    void addProjectTodo(String userId, TodoResponse todoResponse,String username);
 
 }

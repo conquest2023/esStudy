@@ -35,4 +35,8 @@ public class PointHistory {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    public PointHistory(String username, Long pointSum) {
+        this.username=username;
+        this.pointChange = pointSum.intValue();
+    }
 }

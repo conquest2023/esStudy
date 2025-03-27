@@ -78,7 +78,7 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public void saveQuestion(InterviewAnswerDTO dto,String  userId) {
+    public void saveQuestion(InterviewAnswerDTO dto,String  userId, String username) {
         checkQuestion(dto.getAnswer());
         String categoryPrefix = dto.getCategory().equals("IT") ? "IT_" : "GENERAL_";
         String cacheKey = categoryPrefix + ANSWER_CACHE_KEY + "_" + userId;
@@ -91,7 +91,7 @@ public class InterviewServiceImpl implements InterviewService {
         }
         redisTemplate.opsForValue().set(cacheKey, String.valueOf(count + 1), Duration.ofDays(1));
         answerRepository.save(mapper.toInterviewEntity(dto, userId));
-        grantInterviewPoint(userId);
+        grantInterviewPoint(userId,username);
     }
 
     private String fetchRandomQuestion() {
@@ -127,7 +127,7 @@ public class InterviewServiceImpl implements InterviewService {
         }
     }
 
-    public void grantInterviewPoint(String userId) {
+    public void grantInterviewPoint(String userId,String username) {
         String today = LocalDate.now().toString();
         String key = "interview:point:" + userId + ":" + today;
         Long currentCount = redisTemplate.opsForValue().increment(key);
@@ -138,12 +138,13 @@ public class InterviewServiceImpl implements InterviewService {
             log.info("{}님은 오늘 인터뷰 작성 포인트 한도를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId);
+        createPointHistory(userId,username);
         log.info("인터뷰 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
-    public void createPointHistory(String userId) {
+    public void createPointHistory(String userId,String username) {
         PointHistory history = PointHistory.builder()
                 .userId(userId)
+                .username(username)
                 .pointChange(15)
                 .reason("면접대답")
                 .createdAt(LocalDateTime.now())

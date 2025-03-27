@@ -96,7 +96,7 @@ public class CommentServiceImpl implements CommentService {
         checkValueComment(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
-        grantCommentPoint(dto.getUserId());
+        grantCommentPoint(dto.getUserId(),dto.getUsername());
         if (userId == null) {
             log.info("공지사항에 댓글 작성됨: {}", dto.getFeedUID());
         } else {
@@ -194,7 +194,7 @@ public class CommentServiceImpl implements CommentService {
         return aggregatedData;
     }
 
-    public void grantCommentPoint(String userId) {
+    public void grantCommentPoint(String userId,String username) {
         String today = LocalDate.now().toString();
         String key = "comment:point:" + userId + ":" + today;
         Long currentCount = stringRedisTemplate.opsForValue().increment(key);
@@ -205,13 +205,14 @@ public class CommentServiceImpl implements CommentService {
             log.info("{}님은 오늘 댓글 작성 포인트 한도(10개)를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId);
+        createPointHistory(userId,username);
         log.info("댓글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
 
-    public void createPointHistory(String userId) {
+    public void createPointHistory(String userId,String username) {
         PointHistory history = PointHistory.builder()
                 .userId(userId)
+                .username(username)
                 .pointChange(3)
                 .reason("댓글")
                 .createdAt(LocalDateTime.now())

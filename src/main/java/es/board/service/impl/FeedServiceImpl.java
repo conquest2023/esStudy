@@ -68,7 +68,7 @@ public class FeedServiceImpl implements FeedService {
 
     private  final ObjectMapper objectMapper;
 
-    private  static  final String TOP5_USER_KEY= "TOP5_USER_feed_key";
+    private  static  final String TOP5_USER_KEY= "TOP_USER_KEYS";
 
     private  static  final String RECOMMEND_KEY= "Recommend_feed_key";
 
@@ -97,16 +97,17 @@ public class FeedServiceImpl implements FeedService {
         if (cachedData != null) {
             return cachedData;
         }
-        List<TopWriter> topWriters = feedDAO.findTopWriters();
+        List<TopWriter> topWriters = getWriters();
         valueOps.set(TOP5_USER_KEY, topWriters, 3, TimeUnit.HOURS);
         return topWriters;
     }
+
     @Override
     public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(feedSaveDTO);
             Map<String,Object> Ids = savePost(feedSaveDTO);
-            grantFeedPoint(feedSaveDTO.getUserId());
+            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
             asyncService.savePostAsync(feedMapper.toBoardDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
             return feedSaveDTO;
         });
@@ -275,7 +276,6 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public int getPointAll(String userId) {
-
         return pointHistoryRepository.findByUserId(userId);
     }
 
@@ -336,7 +336,7 @@ public class FeedServiceImpl implements FeedService {
         return value == null || value.trim().isEmpty();
     }
 
-    public void grantFeedPoint(String userId) {
+    public void grantFeedPoint(String userId,String username) {
         String today = LocalDate.now().toString();
         String key = "feed:point:" + userId + ":" + today;
 
@@ -349,18 +349,36 @@ public class FeedServiceImpl implements FeedService {
             log.info("{}님은 오늘 피드 작성 포인트 한도(5개)를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId);
+        createPointHistory(userId,username);
         log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
-        public void createPointHistory(String userId) {
+        public void createPointHistory(String userId,String username) {
            PointHistory history = PointHistory.builder()
                     .userId(userId)
                     .pointChange(3)
+                    .username(username)
                     .reason("피드")
                     .createdAt(LocalDateTime.now())
                     .build();
             pointHistoryRepository.save(history);
         }
+
+    private List<TopWriter> getWriters() {
+        List<TopWriter> topWriters = feedDAO.findTopWriters();
+        List<PointHistory> pointHistories = pointHistoryRepository.findByUserAllId();
+        Map<String, Integer> pointMap = pointHistories.stream()
+                .collect(Collectors.toMap(PointHistory::getUsername, PointHistory::getPointChange));
+        for (TopWriter writer : topWriters) {
+            Integer points = pointMap.get(writer.getUsername());
+            if (points != null) {
+                writer.setViewCount(writer.getViewCount() + points);
+            }
+        }
+        topWriters.sort(Comparator.comparingDouble(TopWriter::getViewCount).reversed());
+
+        return topWriters;
+    }
+
 }
 
 

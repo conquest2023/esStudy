@@ -15,5 +15,5 @@ public interface InterviewService {
     List<InterviewAnswerDTO> getBestAnswer(List<String> ids);
 
 
-    void saveQuestion(InterviewAnswerDTO dto,String userId);
+    void saveQuestion(InterviewAnswerDTO dto,String userId,String username);
 }

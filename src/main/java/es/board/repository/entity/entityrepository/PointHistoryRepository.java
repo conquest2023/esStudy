@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface PointHistoryRepository extends JpaRepository<PointHistory, Long> {
 
     @Modifying(clearAutomatically = true)
@@ -18,4 +20,10 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
 
     @Query("SELECT sum(u.pointChange) FROM PointHistory  u where  u.userId=:userId")
     int findByUserId(@Param("userId") String userId);
+
+
+
+    @Query("SELECT new es.board.repository.entity.PointHistory(u.username, sum(u.pointChange)) FROM PointHistory u GROUP BY u.username")
+    List<PointHistory> findByUserAllId();
+
 }

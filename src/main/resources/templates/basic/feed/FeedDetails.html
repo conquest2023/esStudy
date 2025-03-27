@@ -372,7 +372,7 @@
 
 
         let rank = topWriters[board.username] || 0;
-        let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+        let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
         let deleteButtonHTML = '';
         // if (jsonData.Owner && token) {
         //     actionButtonsHTML = `
@@ -865,7 +865,7 @@
 
         comments.forEach((cmt) => {
             let rank = topWriters[cmt.username] || 0;
-            let badge = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank >= 4 && rank <= 5 ? "🔥" : "";
+            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
             const displayedUsername = cmt.author
                 ? `<strong style="color:#888;">${badge}작성자(${cmt.username})</strong>`
                 : `<strong>${badge} ${cmt.username}</strong>`;
@@ -1054,10 +1054,10 @@
                     const isCurrentlyVisible = targetElement.style.display === "block";
 
                     document.querySelectorAll(".comment-options").forEach(option => {
-                        option.style.display = "none";  // 모든 div를 숨깁니다
+                        option.style.display = "none";
                     });
 
-                    targetElement.style.display = isCurrentlyVisible ? "none" : "block";  // 상태 반전
+                    targetElement.style.display = isCurrentlyVisible ? "none" : "block";
                 }
             });
         });
