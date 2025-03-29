@@ -11,9 +11,10 @@ import java.util.List;
 @Repository
 public interface InterviewQuestionRepository extends JpaRepository<InterviewQuestion, Long> {
 
-    @Query(value = "(SELECT * FROM interview_questions WHERE category = 'IT' ORDER BY RAND() LIMIT 1) " +
+    @Query(value = "(SELECT * FROM interview_questions WHERE category = 'IT' ORDER BY RAND() LIMIT 3) " +
             "UNION ALL " +
-            "(SELECT * FROM interview_questions WHERE category = '일반' ORDER BY RAND() LIMIT 1)",
+            "(SELECT * FROM interview_questions WHERE category = '일반' ORDER BY RAND() LIMIT 3)",
             nativeQuery = true)
     List<InterviewQuestion> findRandomITAndGeneralQuestions();
+
 }

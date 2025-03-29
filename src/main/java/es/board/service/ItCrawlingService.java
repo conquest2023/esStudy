@@ -18,6 +18,11 @@ public interface ItCrawlingService {
 
      List<JobListing> jobPlanetList();
 
+
+     List<Map<String, Object>> gmarketList();
+
+
+
      List<WantedJobData> wantedList();
 
      List<StudyTipDTO> crawlNaverStudyTips(String keyword);

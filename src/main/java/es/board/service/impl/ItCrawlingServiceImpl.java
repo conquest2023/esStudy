@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -66,10 +67,12 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     private static final String GOOGLE_SEARCH_URL = "https://www.google.com/search?q=";
     private static final String JUMPIT_URL = "https://jumpit-api.saramin.co.kr/api/positions?jobCategory=1&jobCategory=2&jobCategory=3&jobCategory=9&career=0&sort=rsp_rate&highlight=false";
 
+    private  static  final String GMARKET_URL="https://m.gmarket.co.kr/n/superdeal?categoryCode=400000140";
 
     private static final String PROGRAMMERS_URL = "https://career.programmers.co.kr/api/job_positions?min_career=0&order=recent&page=1&job_category_ids[]=1&job_category_ids[]=25&tags[]=Java&tags[]=Spring";
 
     private static final String JOBPLANET_URL = "https://www.jobplanet.co.kr/job";
+
 
     private static final String TISTORY_SEARCH_URL = "https://www.tistory.com/search?keyword=";
 
@@ -82,7 +85,6 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
         List<Map<String, Object>> jobList = new ArrayList<>();
 
         try {
-            // 1. HTTP 요청 헤더 설정 (User-Agent 추가)
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
             headers.set("Accept", "application/json");
@@ -120,6 +122,51 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
         return jobList;
     }
+    @Override
+    public List<Map<String, Object>> gmarketList() {
+        List<Map<String, Object>> deals = new ArrayList<>();
+        try {
+            Connection connection = Jsoup.connect("https://www.gmarket.co.kr/n/superdeal?jaehuid=200011415")
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                    .referrer("https://www.google.com/")
+                    .header("Accept-Language", "ko-KR,ko;q=0.9")
+                    .timeout(10000)
+                    .method(Connection.Method.GET);
+
+            Document doc = connection.get();
+
+            Elements items = doc.select(".box__itemcard-superdeal--inner");
+
+            for (Element item : items) {
+                String title = item.selectFirst(".text__title") != null
+                        ? item.selectFirst(".text__title").text()
+                        : "제목 없음";
+
+                String price = item.selectFirst(".text__price") != null
+                        ? item.selectFirst(".text__price").text()
+                        : "가격 정보 없음";
+
+                String imgUrl = item.selectFirst(".box-product__img-product img") != null
+                        ? item.selectFirst(".box-product__img-product img").attr("src")
+                        : "";
+
+                Element linkElement = item.selectFirst("a.box__itemcard-superdeal--link");
+                String dealLink = linkElement != null ? linkElement.absUrl("href") : "";
+
+                Map<String, Object> deal = new HashMap<>();
+                deal.put("title", title);
+                deal.put("price", price);
+                deal.put("imgUrl", imgUrl.startsWith("http") ? imgUrl : "https:" + imgUrl);
+                deal.put("link", dealLink);
+
+                deals.add(deal);
+            }
+        } catch (Exception e) {
+            log.error("G마켓 특가 크롤링 오류", e);
+        }
+        return deals;
+    }
+
 
     @Override
     public List<Map<String, Object>> programmersList() {
@@ -149,16 +196,11 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                 jobInfo.put("companyName", position.path("company").path("name").asText());
                 jobInfo.put("companyId", position.path("company").path("id").asInt());
                 jobInfo.put("address", position.path("company").path("address").asText());
-//                jobInfo.put("careerMin", position.path("min_career").asInt());
                 jobInfo.put("careerMax", position.path("max_career").asInt());
-//                jobInfo.put("salary", position.path("salary").asText(null)); // 연봉 정보
-                jobInfo.put("jobType", position.path("employment_type").asText()); // 정규직, 계약직 등
-                jobInfo.put("applyAvailable", position.path("status").asText().equals("active")); // 지원 가능 여부
-//                jobInfo.put("createdAt", position.path("created_at").asText());
-//                jobInfo.put("updatedAt", position.path("updated_at").asText());
-                jobInfo.put("url", "https://career.programmers.co.kr/job_positions/" + position.get("id").asText()); // 채용 공고 URL
+                jobInfo.put("jobType", position.path("employment_type").asText());
+                jobInfo.put("applyAvailable", position.path("status").asText().equals("active"));
+                jobInfo.put("url", "https://career.programmers.co.kr/job_positions/" + position.get("id").asText());
 
-                // ✅ 기술 스택 추출
                 List<String> techStackList = new ArrayList<>();
                 for (JsonNode techTag : position.path("technicalTags")) {
                     techStackList.add(techTag.path("name").asText());
@@ -212,6 +254,8 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
 
         return jobList;
     }
+
+
 
     @Override
     public List<WantedJobData> wantedList() {

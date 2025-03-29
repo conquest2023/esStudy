@@ -81,6 +81,7 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board indexSaveFeed(Board board, int postId) {
+        log.info(board.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
@@ -641,7 +642,6 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board findFeedDetail(String id) {
-
         try {
             SearchResponse<Board> response = client.search(g -> g
                     .index("board")
@@ -651,7 +651,6 @@ public class FeedDAOImpl implements FeedDAO {
                                             s -> s.term(t -> t
                                                     .field("feedUID.keyword")
                                                     .value(id))))), Board.class);
-            log.info("feedDetail={}", response.toString());
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
                 return null;

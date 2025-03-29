@@ -44,7 +44,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     private  final MainFunctionMapper mapper;
 
-    private static final String INTERVIEW_CACHE_KEY = "random_interview_question";
+    private static final String INTERVIEW_CACHE_KEY = "random_interview_question_3";
 
     private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
 
@@ -86,7 +86,7 @@ public class InterviewServiceImpl implements InterviewService {
         Integer count = redisTemplate.opsForValue().get(cacheKey) == null ? 0 :
                 Integer.parseInt(redisTemplate.opsForValue().get(cacheKey));
 
-        if (count >= 3) {
+        if (count >= 5) {
             throw new IllegalStateException("오늘은 더 이상 답변을 작성할 수 없습니다.");
         }
         redisTemplate.opsForValue().set(cacheKey, String.valueOf(count + 1), Duration.ofDays(1));
@@ -151,6 +151,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .build();
         pointHistoryRepository.save(history);
     }
+
     private boolean checkQuestion(String content) {
         if (content == null || content.trim().isEmpty()) {
             throw new RuntimeException("답변을 입력해 주세요");

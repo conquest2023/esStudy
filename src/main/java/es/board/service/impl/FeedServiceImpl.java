@@ -107,10 +107,12 @@ public class FeedServiceImpl implements FeedService {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(feedSaveDTO);
             Map<String,Object> Ids = savePost(feedSaveDTO);
-            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
             asyncService.savePostAsync(feedMapper.toBoardDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
+            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
             return feedSaveDTO;
+
         });
+
     }
 
     @Override
@@ -318,7 +320,6 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-
     private List<String> extractFeedUID(List<FeedRequest> requests) {
         List<String> feedUIDs = requests.stream()
                 .map(FeedRequest::getFeedUID)
@@ -326,8 +327,6 @@ public class FeedServiceImpl implements FeedService {
         return feedUIDs;
     }
     private static void checkValueFeed(FeedCreateResponse feedSaveDTO) {
-        log.info(feedSaveDTO.toString());
-
         if (isEmpty(feedSaveDTO.getTitle()) || isEmpty(feedSaveDTO.getDescription()) || isEmpty(feedSaveDTO.getCategory())) {
             throw new IllegalArgumentException("제목, 본문, 카테고리는 필수 입력값입니다.");
         }
@@ -335,8 +334,10 @@ public class FeedServiceImpl implements FeedService {
     private static boolean isEmpty(String value) {
         return value == null || value.trim().isEmpty();
     }
-
     public void grantFeedPoint(String userId,String username) {
+        if (userId ==null || username =="익명"){
+            return;
+        }
         String today = LocalDate.now().toString();
         String key = "feed:point:" + userId + ":" + today;
 
@@ -351,7 +352,8 @@ public class FeedServiceImpl implements FeedService {
         }
         createPointHistory(userId,username);
         log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
-    }
+
+        }
         public void createPointHistory(String userId,String username) {
            PointHistory history = PointHistory.builder()
                     .userId(userId)

@@ -1299,6 +1299,16 @@
             box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.6);
         }
 
+        #jobSiteRankingList {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            list-style: none;
+        }
+        #jobSiteRankingList li:hover {
+            background-color: #f1f1f1;
+        }
+
     </style>
     </div>
 </head>
@@ -1667,27 +1677,40 @@
             .then(data => {
                 const rankingList = document.getElementById("jobSiteRankingList");
                 rankingList.innerHTML = "";
+
                 if (data.success && data.ranking && data.ranking.length > 0) {
                     data.ranking.forEach((site, index) => {
                         const li = document.createElement("li");
-                        li.className = "list-group-item d-flex align-items-center";
+                        li.className = "d-flex justify-content-between align-items-center px-2 py-2 border-bottom";
+
                         li.innerHTML = `
-          <span class="me-2 fw-bold text-primary">${index + 1}위</span>
-          <a href="${site.link}" target="_blank" class="text-decoration-none">${site.siteName}</a>
-<!--          <span class="ms-auto text-muted small">${site.count || 0}회 클릭</span>-->
-        `;
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted fw-bold me-3" style="width: 24px; text-align: center;">${index + 1}</span>
+                            <a href="${site.link}" target="_blank" class="fw-semibold text-dark text-decoration-none">
+                                ${site.siteName}
+                            </a>
+                        </div>
+                        <div class="text-end">
+                            <!-- 추후 변동 아이콘 삽입 가능 -->
+                            <span class="text-muted">-</span>
+                        </div>
+                    `;
                         rankingList.appendChild(li);
                     });
                 } else {
-                    rankingList.innerHTML = '<li class="list-group-item text-muted">데이터가 없습니다.</li>';
+                    rankingList.innerHTML = `
+                    <li class="text-muted text-center py-3">
+                        데이터가 없습니다.
+                    </li>`;
                 }
             })
             .catch(error => {
                 console.error("랭킹 조회 실패:", error);
                 document.getElementById("jobSiteRankingList").innerHTML =
-                    '<li class="list-group-item text-danger">랭킹 불러오기 실패</li>';
+                    `<li class="text-danger text-center py-3">랭킹 불러오기 실패</li>`;
             });
     }
+
 
     let allBestAnswers = [];
     let currentIndex = 0;
@@ -2430,56 +2453,8 @@
     });
 
 
-    function redirectSearch() {
-        const searchType = document.getElementById('searchType')?.value;
-        const searchText = document.getElementById('searchInput')?.value.trim();
-        const startDate = document.getElementById('startDate')?.value;
-        const endDate = document.getElementById('endDate')?.value;
+    //
 
-
-        const sidebarSearchText = document.getElementById('sidebarSearchInput')?.value.trim();
-
-        let url = '/search/content?';
-
-
-        let finalSearchText = searchText || sidebarSearchText;
-
-
-
-        if (searchType === 'text' || !searchType) {
-            url += `text=${encodeURIComponent(finalSearchText)}`;
-        } else if (searchType === 'date') {
-            if (!startDate || !endDate) {
-                alert('시작 및 종료 날짜를 입력하세요!');
-                return;
-            }
-            if (!finalSearchText) {
-                alert('검색어를 입력하세요!');
-                return;
-            }
-            url += `startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
-        } else {
-            alert('검색 유형을 선택하세요!');
-            return;
-        }
-
-        history.pushState(null, '', url);
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('검색 요청 실패');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.data.length === 0) {
-                    alert('검색 결과가 없습니다.');
-                    return;
-                }
-                renderFeeds(data);
-            });
-    }
     let topWriters = {};
     function fetchTopWriters() {
         let cachedData = sessionStorage.getItem("topWriters");
@@ -2902,39 +2877,34 @@
         //
         //     popularFeedsList.appendChild(itemDiv);
         // });
-    window.addEventListener('popstate', (event) => {
-        if (event.state && event.state.text) {
-            const searchText = event.state.text;
-            const url = `/search/content?text=${encodeURIComponent(searchText)}`;
-
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('검색 요청 실패');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-
-                    if (data.data.length === 0) {
-                        alert('검색 결과가 없습니다.');
-                        return;
-                    }
-
-                    renderFeeds(data, data.count);
-                })
-                .catch(error => {
-                    console.error('검색 요청 중 오류 발생:', error);
-                    alert('검색 중 오류가 발생했습니다.');
-                });
-        } else {
-            loadPage(0);
-        }
-    });
+    // window.addEventListener('popstate', (event) => {
+    //     if (event.state && event.state.text) {
+    //         const searchText = event.state.text;
+    //         const url = `/search/content?text=${encodeURIComponent(searchText)}`;
+    //         fetch(url)
+    //             .then(response => {
+    //                 if (!response.ok) {
+    //                     throw new Error('검색 요청 실패');
+    //                 }
+    //                 return response.json();
+    //             })
+    //             .then(data => {
+    //                 if (data.data.length === 0) {
+    //                     alert('검색 결과가 없습니다.');
+    //                     return;
+    //                 }
+    //                 renderFeeds(data, data.count);
+    //             })
+    //             .catch(error => {
+    //                 console.error('검색 요청 중 오류 발생:', error);
+    //                 alert('검색 중 오류가 발생했습니다.');
+    //             });
+    //     } else {
+    //         loadPage(0);
+    //     }
+    // });
     document.addEventListener("DOMContentLoaded", function () {
-
         document.getElementById("searchIcon").addEventListener("click", redirectSearch);
-
         document.getElementById("searchInput").addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -2942,6 +2912,12 @@
             }
         });
     });
+    function redirectSearch() {
+        const searchText = document.getElementById("searchInput").value.trim();
+        if (searchText) {
+            location.href = `/search/view/content?text=${encodeURIComponent(searchText)}`;
+        }
+    }
 
     function formatDate(dateTimeString) {
         if (!dateTimeString) return '';

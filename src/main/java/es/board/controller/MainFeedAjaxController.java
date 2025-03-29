@@ -7,6 +7,7 @@ import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.VoteDTO;
 import es.board.controller.model.res.LoginResponse;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import es.board.service.*;
 import jakarta.servlet.http.Cookie;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +136,24 @@ public class MainFeedAjaxController {
                 "todayComments", commentService.getTodayCommentAggregation().get("commentCount")
         ));
     }
+    @GetMapping("/search/content")
+    @ResponseBody
+    public ResponseEntity<?> getSearchBoardList(@RequestParam(required = false) String text,
+                                                @RequestParam(required = false) LocalDateTime startDate,
+                                                @RequestParam(required = false) LocalDateTime endDate) {
+        if (startDate != null && endDate != null) {
 
+            return ResponseEntity.ok(Map.of(
+                    "data", feedService.getRangeTimeFeed(startDate, endDate)));
+        } else {
+            List<Board> boards =  feedService.getSearchBoard(text);
+            log.info(boards.toString());
+            return ResponseEntity.ok(Map.of(
+                    "data", boards,
+                    "url", "/search/view/content"
+            ));
+        }
+    }
     @PostMapping("/authlogin")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {

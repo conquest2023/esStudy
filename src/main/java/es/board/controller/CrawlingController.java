@@ -91,6 +91,12 @@ public class CrawlingController {
           crawlingService.crawlTistoryPosts("Sda");
           return  null;
     }
+    @GetMapping("/gmarket")
+    public ResponseEntity<?> getGmarket() {
+        List<Map<String, Object>> ok = crawlingService.gmarketList();
+        log.info(ok.toString());
+        return ResponseEntity.ok(ok);
+    }
 
 }
 

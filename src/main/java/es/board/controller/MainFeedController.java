@@ -153,22 +153,13 @@ public class MainFeedController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search/content")
-    @ResponseBody
-    public ResponseEntity<?> getSearchBoardList(@RequestParam(required = false) String text,
-                                                @RequestParam(required = false) LocalDateTime startDate,
-                                                @RequestParam(required = false) LocalDateTime endDate) {
-        if (startDate != null && endDate != null) {
+    @GetMapping("/search/view/content")
+    public String getContentFeed() {
 
-            return ResponseEntity.ok(Map.of(
-                    "data", feedService.getRangeTimeFeed(startDate, endDate)));
-        } else {
-
-            return ResponseEntity.ok(Map.of(
-                    "data", feedService.getSearchBoard(text)
-            ));
-        }
+        return "basic/feed/SearchFeed";
     }
+
+
 
     @GetMapping("/search/view/feed")
     public String getFeed() {

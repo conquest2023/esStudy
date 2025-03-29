@@ -49,15 +49,23 @@
 
     <div class="tab-content mt-4" id="interviewTabContent">
         <div class="tab-pane fade show active" id="private" role="tabpanel" aria-labelledby="private-tab">
-            <div id="privateQuestions"></div>
+            <div id="privateQuestionsWrapper" class="position-relative">
+                <div id="privateQuestions"></div>
+                <div class="d-flex justify-content-between mt-2">
+                </div>
+            </div>
         </div>
 
         <div class="tab-pane fade" id="it" role="tabpanel" aria-labelledby="it-tab">
-            <div id="itQuestions"></div>
+            <div id="itQuestionsWrapper" class="position-relative">
+                <div id="itQuestions"></div>
+                <div class="d-flex justify-content-between mt-2">
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
@@ -72,56 +80,87 @@
         try {
             const questionRes = await fetch('/interview/test');
             const questions = await questionRes.json();
-
             const statusRes = await fetch("/interview/check", {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
             });
             const status = await statusRes.json();
-            const itQuestion = questions.find(q => q.category === "IT");
-            const generalQuestion = questions.find(q => q.category === "일반");
-            if (itQuestion) renderQuestion(itQuestion, "itQuestions", status.IT_count ?? 0);
-            if (generalQuestion) renderQuestion(generalQuestion, "privateQuestions", status.GENERAL_count ?? 0);
+
+            const itQuestions = questions.filter(q => q.category === "IT");
+            const generalQuestions = questions.filter(q => q.category === "일반");
+            document.getElementById("itQuestions").innerHTML = "";
+            document.getElementById("privateQuestions").innerHTML = "";
+            renderQuestions(itQuestions, "itQuestions", status.IT_count ?? 0);
+            renderQuestions(generalQuestions, "privateQuestions", status.GENERAL_count ?? 0);
 
         } catch (error) {
             console.error("면접 질문 로딩 또는 상태 확인 오류:", error);
         }
     }
+    // let privateQuestionIndex = 0;
+    // let privateQuestions = [];
+    // let privateAnsweredCount = 0;
 
-    function renderQuestion(question, containerId, answeredCount) {
+    function renderQuestions(questions, containerId, answeredCount) {
         const container = document.getElementById(containerId);
-        if (answeredCount >= 3) {
+        container.innerHTML = "";
+
+        if (answeredCount >= 5) {
             container.innerHTML = `
-            <div class="alert alert-success text-center">
-                오늘 ${question.category} 분야 질문에 모두 답변하셨습니다. 감사합니다!
-            </div>`;
+        <div class="alert alert-success text-center">
+            오늘 ${questions[0]?.category || "해당"} 분야 질문에 모두 답변하셨습니다. 감사합니다!
+        </div>`;
             return;
         }
 
-                container.innerHTML = `
-        <div class="card question-card">
-            <div class="card-header">
-                <h5 class="mb-0">${question.question}</h5>
-            </div>
-            <div class="card-body">
-                <p class="card-text">${question.question}</p>
-                <div class="answer-area">
-                    <textarea class="form-control answer-input" rows="3"
-                        placeholder="여기에 답변을 입력하세요..." data-question-id="${question.id}"></textarea>
-                    <button class="btn btn-primary mt-2 submit-answer"
-                        data-question-id="${question.id}"
-                        data-category="${question.category}"
-                        data-title="${question.question}">
-                        답변 제출
-                    </button>
+        container.innerHTML = `
+        <div id="${containerId}Wrapper" class="question-wrapper">
+            ${questions.map((q, index) => `
+                <div class="question-slide ${index === 0 ? 'active' : 'd-none'}" data-index="${index}">
+                    <div class="card question-card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">${q.question}</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control answer-input" rows="3"
+                                placeholder="여기에 답변을 입력하세요..." data-question-id="${q.id}"></textarea>
+                            <button class="btn btn-primary mt-2 submit-answer"
+                                data-question-id="${q.id}"
+                                data-category="${q.category}"
+                                data-title="${q.question}">
+                                답변 제출
+                            </button>
+                            <div class="mt-2 text-muted text-end">📝 남은 답변 횟수: ${5 - answeredCount}회</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-2 text-muted text-end">📝 남은 답변 횟수: ${3 - answeredCount}회</div>
-            </div>
-        </div>`;
+            `).join("")}
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+            <button class="btn btn-outline-secondary btn-sm prev-btn">← 이전</button>
+            <button class="btn btn-outline-secondary btn-sm next-btn">다음 →</button>
+        </div>
+    `;
 
+        container.querySelectorAll(".submit-answer").forEach(button => {
+            button.addEventListener("click", handleSubmitAnswer);
+        });
 
-        const submitButton = container.querySelector(".submit-answer");
-        submitButton.addEventListener("click", handleSubmitAnswer);
+        let currentIndex = 0;
+        const slides = container.querySelectorAll(".question-slide");
+
+        container.querySelector(".prev-btn").addEventListener("click", () => {
+            slides[currentIndex].classList.add("d-none");
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            slides[currentIndex].classList.remove("d-none");
+        });
+
+        container.querySelector(".next-btn").addEventListener("click", () => {
+            slides[currentIndex].classList.add("d-none");
+            currentIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].classList.remove("d-none");
+        });
     }
+
 
     async function handleSubmitAnswer(event) {
         const submitButton = event.target;
@@ -195,12 +234,12 @@
 
             document.getElementById("itQuestions").innerHTML = `
             <div class="alert alert-info text-center">
-                💬 IT 분야 답변: <strong>${itCount}</strong> / 3회
+                💬 IT 분야 답변: <strong>${itCount}</strong> / 5회
             </div>`;
 
             document.getElementById("privateQuestions").innerHTML = `
             <div class="alert alert-info text-center">
-                💬 일반 분야 답변: <strong>${generalCount}</strong> / 3회
+                💬 일반 분야 답변: <strong>${generalCount}</strong> / 5회
             </div>`;
         } catch (error) {
             console.error("질문 상태 확인 실패:", error);

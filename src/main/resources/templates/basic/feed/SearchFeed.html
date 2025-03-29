@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>검색한 게시물</title>
-
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 
     <style>
@@ -16,71 +12,128 @@
             background-color: #f8f9fa;
             padding: 20px;
         }
-        h1 {
-            margin-bottom: 30px;
+        .list-item {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
         }
-        .table th, .table td {
-            vertical-align: middle;
+        .icon-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
         }
-        .btn-link {
-            color: #007bff;
-            text-decoration: none;
+        .icon-container img {
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
         }
-        .btn-link:hover {
-            text-decoration: underline;
-        }
-        .pagination {
-            justify-content: center;
+        .badge-container {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 class="text-center">검색한 게시물</h1>
+<div class="container my-5">
+    <h2 class="text-center">🔍 검색 결과</h2>
+    <div id="searchResultsContainer"></div>
 
-    <!-- 게시글 리스트 -->
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>카테고리</th>
-            <th>내용</th>
-            <th>좋아요 수</th>
-            <th>작성일자</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- 게시글 리스트 출력 -->
-        <tr th:each="board : ${data}">
-            <td th:text="${board.feedUID}"></td>
-            <td th:text="${board.title}"></td>
-            <td th:text="${board.username}"></td>
-            <td th:text="${board.category}"></td>
-            <td th:text="${board.description}"></td>
-            <td th:text="${board.likeCount}"></td>
-            <!-- 작성일자 표시 -->
-            <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        </tr>
-
-        <!-- 게시글이 없을 경우 -->
-        <tr th:if="${#lists.isEmpty(data)}">
-            <td colspan="5" class="text-center">게시글이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 메인으로 돌아가기 버튼 -->
     <div class="text-center mt-4">
-        <a href="/static" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
+        <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
     </div>
-
 </div>
 
-<!-- Bootstrap JS (Optional) -->
-<script src="/webjars/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const topWriters = {};
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchText = urlParams.get("text");
+
+        if (searchText) {
+            fetchSearchResults(searchText);
+        }
+    });
+    function fetchSearchResults(searchText) {
+        const url = `/search/content?text=${encodeURIComponent(searchText)}`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('검색 요청 실패');
+                return response.json();
+            })
+            .then(data => {
+                if (!data.data || data.data.length === 0) {
+                    document.getElementById("searchResultsContainer").innerHTML = `
+                        <div class="alert alert-warning text-center">검색 결과가 없습니다.</div>`;
+                    return;
+                }
+                renderSearchFeeds(data, data.count);
+            })
+            .catch(error => {
+                console.error('검색 요청 중 오류 발생:', error);
+                alert('검색 중 오류가 발생했습니다.');
+            });
+    }
+
+    function renderSearchFeeds(jsonData, count) {
+        const container = document.getElementById('searchResultsContainer');
+        container.innerHTML = '';
+
+        let sortedPosts = [...jsonData.data]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 10);
+
+        sortedPosts.forEach(post => {
+            let rank = topWriters[post.username] || 0;
+            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
+
+            let html = '';
+            if (post.id) {
+                html = `
+                <div class="list-item">
+                    <div>
+                        <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
+                        ${count && count[post.feedUID] > 0 ? `<span class="text-danger fw-bold">[${count[post.feedUID]}]</span>` : ""}
+                        <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+                    </div>
+                    <div class="badge-container mt-2">
+                        <div class="icon-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png">
+                            <span class="count">${post.viewCount || 0}</span>
+                        </div>
+                        <div class="icon-container">
+                            <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png">
+                            <span class="count">${post.likeCount || 0}</span>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                html = `
+                <div class="list-item vote-item">
+                    <div>
+                        🗳️ <a href="/search/view/vote/detail?id=${post.feedUID}">${post.title}</a>
+                        <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+                    </div>
+                </div>`;
+            }
+
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    function formatDate(dateTimeString) {
+        if (!dateTimeString) return '';
+        const date = new Date(dateTimeString);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        let hour = date.getHours();
+        const minute = date.getMinutes();
+        const period = hour >= 12 ? '오후' : '오전';
+        hour = hour % 12 || 12;
+        const formattedMinute = minute < 10 ? `0${minute}` : minute;
+        return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
+    }
+</script>
 </body>
 </html>
