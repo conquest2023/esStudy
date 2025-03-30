@@ -25,22 +25,36 @@
         .menu-toggle  {
             display: none;
         }
-        .right-menu-toggle {
-            display: none;
-        }
         .container-custom {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
 
         }
+        #sidebarTabs .nav-link:hover {
+            background-color: transparent !important;
+            color: inherit !important;
+        }
 
+        #sidebarTabs .nav-link.active {
+            background-color: transparent !important;
+            color: #000 !important;
+            font-weight: bold;
+        }
         #feedTable thead th {
             background-color: #f8f9fa;
         }
         #feedTable tr:hover {
             background-color: #f1f3f5;
             cursor: pointer;
+        }
+        .list-item {
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+
+        .list-item:hover {
+            background: #f5f5f5;
         }
         @media (max-width: 1400px) {
             .container-custom {
@@ -50,6 +64,14 @@
         @media (max-width: 768px) {
             .balloon {
                 opacity: 1;
+            }
+            .list-item {
+                cursor: pointer;
+                transition: background 0.2s ease-in-out;
+            }
+
+            .list-item:hover {
+                background: #f5f5f5;
             }
             .question-link:hover {
                 background: #f0f8ff;
@@ -116,6 +138,7 @@
                 font-size: 0.8rem;
                 -webkit-line-clamp: 3;
             }
+
             #interviewQuestionContainer {
                 height: 30px;
                 max-width: 300px;
@@ -945,9 +968,6 @@
             border-bottom: 1px solid #ddd;
             transition: background 0.2s;
         }
-        .list-item:hover {
-            background: #f5f5f5;
-        }
         .notice-item {
             background: #FFF3CD;
             font-weight: bold;
@@ -1120,16 +1140,6 @@
             text-align: center;
         }
 
-        #voteList {
-            padding: 0;
-        }
-
-        .vote-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
         .vote-buttons button {
             min-width: 100px;
         }
@@ -1173,34 +1183,6 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
-        .upvote-btn {
-            background: #e0f7e9;
-            border: 1px solid #27ae60;
-            color: #27ae60;
-        }
-
-        .upvote-btn:hover {
-            background: #27ae60;
-            color: white;
-        }
-
-        .downvote-btn {
-            background: #fdecea;
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
-        }
-
-        .downvote-btn:hover {
-            background: #e74c3c;
-            color: white;
-        }
-        .vote-title {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-
         #voteList .list-group-item:hover {
             background: #f1f1f1;
         }
@@ -1248,6 +1230,7 @@
             border-radius: 0.75rem 0.75rem 0 0;
             font-weight: 600;
         }
+
         .nav-pills .nav-link {
             border-radius: 0.5rem;
             font-weight: 500;
@@ -1276,15 +1259,24 @@
             font-size: 1.4rem;
             color: #212529;
         }
+        /*.btn-tab {*/
+        /*    background: #f1f3f5;*/
+        /*    border: 1px solid #d1d5db;*/
+        /*    border-radius: 0.3rem;*/
+        /*    padding: 1px 4px;*/
+        /*    font-weight: 300;*/
+        /*    font-size: 0.8rem;*/
+        /*    min-width: 50px;*/
+        /*    transition: all 0.2s ease;*/
+        /*}*/
         .btn-tab {
-            background: #f1f3f5;
-            border: 1px solid #d1d5db;
-            border-radius: 0.3rem;
-            padding: 1px 4px;
-            font-weight: 300;
-            font-size: 0.8rem;
-            min-width: 50px;
-            transition: all 0.2s ease;
+            border-bottom: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-tab.active {
+            border-bottom: none !important;
+            box-shadow: none !important;
         }
         .question-link:hover {
             background: #f0f8ff;
@@ -1319,17 +1311,8 @@
         <span class="tagline d-none d-md-inline text-muted me-4">
       미래를 준비하는 사람들을 위한 사이트
     </span>
-<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"-->
-<!--                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">-->
-<!--            <span class="navbar-toggler-icon"></span>-->
-<!--        </button>-->
-
-        <!-- 중앙/왼쪽: 메뉴 영역 -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- ‘gap-3’나 ‘gap-4’로 메뉴 간격 조절 가능 -->
             <ul class="navbar-nav align-items-center gap-3">
-
-                <!-- ▼ 취업 사이트 드롭다운 ▼ -->
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
@@ -1348,9 +1331,6 @@
                         </li>
                     </ul>
                 </li>
-                <!-- ▲ 취업 사이트 -->
-
-                <!-- ▼ 일정 관리 드롭다운 ▼ -->
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
@@ -1404,14 +1384,11 @@
                 </div>
             </div>
             <button class="btn btn-danger me-2" onclick="window.location.href='/search/view/feed/Form';">글쓰기</button>
-
             <button id="login-button" class="btn btn-outline-dark" onclick="window.location.href='/login';">로그인</button>
-
             <div id="user-info" class="d-none ms-3 position-relative">
                 <button id="user-menu-btn" class="btn btn-outline-secondary">
                     <i class="fas fa-user-circle"></i>
                 </button>
-
                 <div id="user-menu" class="dropdown-menu dropdown-menu-end" style="display: none;">
                     <span class="dropdown-item-text text-secondary"><b id="username"></b>님</span>
                     <a class="dropdown-item" href="/search/view/feed/list/page"><i class="fas fa-user"></i> 마이페이지</a>
@@ -1440,8 +1417,13 @@
                     <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
                 </div>
                 <section class="my-4">
-                    <h2 class="section-title fw-bold mb-3">면접 질문</h2>
-
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                        <h2 class="section-title fw-bold mb-0 me-2 flex-grow-1">면접 질문</h2>
+                        <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 mt-2 mt-sm-0"
+                                id="viewBestAnswerBtn">
+                            <i class="fas fa-trophy"></i> 지난 베스트 답변 보기
+                        </button>
+                    </div>
                     <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
                         <div class="btn-group">
                             <button class="btn btn-tab active" id="itTab" onclick="showQuestions('IT')">
@@ -1451,11 +1433,6 @@
                                 <i class="fas fa-building"></i> 일반 기업
                             </button>
                         </div>
-                        <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1"
-                                id="viewBestAnswerBtn"
-                                style="margin-right: 150px;">
-                            <i class="fas fa-trophy"></i> 지난 베스트 답변 보기
-                        </button>
                     </div>
                     <div class="row row-cols-1 row-cols-md-3 g-3" id="interviewQuestionContainer"></div>
                 </section>
@@ -1480,11 +1457,11 @@
                             <h5 class="fw-bold mb-0"><i class="fas fa-ranking-star"></i> 취업사이트 랭킹</h5>
                             <a href="/site" class="btn btn-link btn-sm ms-2">더 보기</a>
                         </div>
-                        <button class="btn-close" onclick="document.getElementById('jobSiteRankingSection').style.display='none'" aria-label="Close"></button>
+                        <button class="btn-close" onclick="hideJobRanking()" aria-label="Close"></button>
                     </div>
                     <div class="card-body">
                         <ul class="list-group small" id="jobSiteRankingList">
-                            <li class="list-group-item">로딩 중.../<li>
+                            <li class="list-group-item">로딩 중...</li>
                         </ul>
                     </div>
                 </div>
@@ -1506,8 +1483,7 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#qaTabPane"
-                                type="button" role="tab" title="📚 다양한 학습 자료와 정보를 확인하세요!">
+                        <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#dataTabContent" type="button" role="tab" title="📚 다양한 학습 자료와 정보를 확인하세요!">
                             <i class="fas fa-book"></i> 학습 자료
                         </button>
                     </li>
@@ -1530,12 +1506,41 @@
                 </div>
                 <div class="col-12" id="pinnedNoticesContainer"></div>
                 <div class="col-12" id="normalPostsContainer"></div>
-            <nav style="text-align: center;">
-                <ul class="pagination" id="pagination"></ul>
-            </nav>
 
-        </main>
+                <div class="col-12" id="noticeTabPane" style="display:none;">
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="paginationNotice"></ul>
+                    </nav>
+                </div>
 
+                <div class="col-12" id="allTabPane" style="display:block;">
+                    <div id="allPostsContainer"></div>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="pagination"></ul>
+                    </nav>
+                </div>
+
+                <div class="col-12" id="qaTabPane" style="display:none;">
+                    <div id="qaPostsContainer"></div>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="qaPagination"></ul>
+                    </nav>
+                </div>
+
+                <div class="col-12" id="bestTabPane" style="display:none;">
+                    <div id="bestPostsContainer"></div>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="bestPagination"></ul>
+                    </nav>
+                </div>
+
+                <div class="col-12" id="dataTabPane" style="display:none;">
+                    <div id="dataPostsContainer"></div>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="dataPagination"></ul>
+                    </nav>
+                </div>
+            </main>
             <div id="rightSidebarTooltip" class="tooltip-box">
                  중요한 일정 & 오늘 사용자 통계치를 한눈에!
             </div>
@@ -1584,25 +1589,12 @@
                         </div>
                     </div>
                     <div class="card shadow-sm mt-3">
-<!--                        <div class="card-header bg-white">-->
-<!--                            <ul class="nav nav-tabs card-header-tabs">-->
-<!--                                <li class="nav-item">-->
-<!--                                    <a class="nav-link active" id="visitor-tab" data-bs-toggle="tab" href="#visitorStats">방문자</a>-->
-<!--                                </li>-->
-<!--                                <li class="nav-item">-->
-<!--                                    <a class="nav-link" id="stats-tab" data-bs-toggle="tab" href="#statsSummary">오늘의 통계</a>-->
-<!--                                </li>-->
-<!--                            </ul>-->
-<!--                        </div>-->
                         <div class="tab-content p-3">
                             <div class="tab-pane fade show active" id="visitorStats">
                                 <p><strong>현재 접속자:</strong> <span id="currentVisitors">0</span></p>
                                 <p><strong>오늘 방문자:</strong> <span id="todayVisitors">0</span></p>
                                 <p><strong>누적 방문자:</strong> <span id="totalVisitors">0</span></p>
                             </div>
-<!--                            <div class="tab-pane fade show active" id="statsSummary">-->
-<!--                                <canvas id="statsChart"></canvas>-->
-<!--                            </div>-->
                         </div>
                     </div>
                 </div>
@@ -1660,7 +1652,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    function hideJobRanking() {
+        const now = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(now.getDate() + 1);
+        localStorage.setItem("hideJobRankingUntil", tomorrow.getTime());
+        document.getElementById("jobSiteRankingSection").style.display = "none";
+    }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const hideUntil = localStorage.getItem("hideJobRankingUntil");
+        const now = new Date().getTime();
+        if (hideUntil && now < parseInt(hideUntil)) {
+            document.getElementById("jobSiteRankingSection").style.display = "none";
+        }
+    });
     document.addEventListener("DOMContentLoaded", function() {
         loadJobSiteRanking();
     });
@@ -1737,7 +1743,6 @@
     function renderBestAnswerCards(bestAnswers) {
         const container = document.getElementById('bestAnswerCardsContainer');
         container.innerHTML = "";
-        console.log(bestAnswers)
         bestAnswers.forEach((answer, i) => {
             const card = document.createElement('div');
             card.className = 'card best-answer-card mb-3';
@@ -2035,17 +2040,16 @@
     //     }
     // }
     //
-    function fetchDataFeed(category) {
+    function fetchDataFeed(category, page) {
         $.ajax({
             url: "/data/feed",
             type: "GET",
-            data: { page: 0, size: 10, category: category},
+            data: { page: page, size: 10, category: category },
             success: function (response) {
                 if (response.data) {
-                    console.log(response)
                     latestData = response;
-                    renderFilteredFeeds(category);
-                    $("#pagination").hide();
+                    renderFilteredFeeds(category, page);
+                    renderTabPagination("data", page, response.totalPage, category);
                 } else {
                     alert("자료집을 불러올 수 없습니다.");
                 }
@@ -2055,13 +2059,10 @@
             }
         });
     }
-
-
     document.addEventListener("DOMContentLoaded", function () {
         const dataTab = document.getElementById("data-tab");
         const dataTabContent = document.getElementById("dataTabContent");
 
-        // Tooltip
         const tooltip = new bootstrap.Tooltip(dataTab, {
             trigger: "manual",
             delay: { show: 0, hide: 5000 },
@@ -2071,30 +2072,37 @@
             setTimeout(() => tooltip.hide(), 5000);
         });
 
-        // 상단 탭 클릭 처리
         document.querySelectorAll("#boardTab .nav-link").forEach(tab => {
             tab.addEventListener("click", function () {
                 document.querySelectorAll("#boardTab .nav-link").forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
 
                 document.getElementById("dataTabContent").style.display = "none";
+                document.getElementById("noticeTabPane").style.display = "none";
+                document.getElementById("qaTabPane").style.display = "none";
+                document.getElementById("bestTabPane").style.display = "none";
+                document.getElementById("allTabPane").style.display = "none";
 
                 const tabId = this.id;
                 if (tabId === "data-tab") {
                     dataTabContent.style.display = "block";
-                    fetchDataFeed("자료");
+                    document.getElementById("dataTabPane").style.display = "block";
+                    fetchDataFeed("자료", 0);
                 } else if (tabId === "best-tab") {
-                    fetchWeekBestFeed();
+                    document.getElementById("bestTabPane").style.display = "block";
+                    fetchWeekBestFeed(0);
                 } else if (tabId === "notice-tab") {
-                    fetchNoticeFeed();
+                    document.getElementById("noticeTabPane").style.display = "block";
+                    fetchNoticeFeed(0);
                 } else if (tabId === "qa-tab") {
-                    fetchQnAFeed("Q/A");
+                    document.getElementById("qaTabPane").style.display = "block";
+                    fetchQnAFeed("Q/A", 0);
                 } else if (tabId === "all-tab") {
+                    document.getElementById("allTabPane").style.display = "block";
                     loadPage(0);
                 }
             });
         });
-
         document.querySelectorAll("#categoryTabs .nav-link").forEach(tab => {
             tab.addEventListener("click", function () {
                 document.querySelectorAll("#categoryTabs .nav-link").forEach(t => t.classList.remove("active"));
@@ -2104,6 +2112,26 @@
             });
         });
     });
+    function fetchWeekBestFeed(page) {
+        $.ajax({
+            url: "/search/view/feed/best",
+            type: "GET",
+            data: { page: page, size: 10 },
+            success: function (response) {
+                if (response.data) {
+                    categoryFeeds(response);
+                    renderTabPagination("best", page, response.totalPage);
+                } else {
+                    alert("이번 주 인기글을 불러올 수 없습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류: 이번 주 인기글을 불러올 수 없습니다.");
+            }
+        });
+    }
+
+
     function renderFilteredFeeds(category) {
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
         const normalPostsContainer = document.getElementById('normalPostsContainer');
@@ -2111,64 +2139,42 @@
         pinnedNoticesContainer.innerHTML = '';
         normalPostsContainer.innerHTML = '';
 
-        // 공지사항 불러오기
-        $.ajax({
-            url: "/list/noitce",
-            type: "GET",
-            success: function (noticeData) {
-                let pinnedNotices = "";
-                noticeData.forEach(notice => {
-                    pinnedNotices += `
-                    <div class="list-item notice-item">
-                        <div>
-                            📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
-                            <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
-                        </div>
-                    </div>`;
-                });
-                pinnedNoticesContainer.innerHTML = pinnedNotices;
-            },
-            error: function () {
-                alert("공지사항을 불러올 수 없습니다!");
-            }
-        });
-
         const filtered = latestData.data.filter(post => post.category === category);
         filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         const count = latestData.count || {};
         let normalPosts = "";
         filtered.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
-
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
+
             normalPosts += `
-            <div class="list-item ${isPinned ? 'notice-item' : ''}">
-                <div>
-                    ${isPinned ? '📢 ' : ''}
-                    <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
-                    ${count[post.feedUID] > 0
-                ? `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>`
-                : ""}
-                    <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
-                </div>
-                <td class="text-center">
-                    <div class="badge-container d-flex align-items-center">
-                        <div class="icon-container">
-                            <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
-                            <span class="count">${post.viewCount || 0}</span>
-                        </div>
-                        <div class="icon-container">
-                            <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
-                            <span class="count">${post.likeCount || 0}</span>
-                        </div>
+        <div class="list-item ${isPinned ? 'notice-item' : ''}">
+            <div>
+                ${isPinned ? '📢 ' : ''}
+                <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
+                ${count[post.feedUID] > 0 ? `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>` : ""}
+                <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+            </div>
+            <td class="text-center">
+                <div class="badge-container d-flex align-items-center">
+                    <div class="icon-container">
+                        <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
+                        <span class="count">${post.viewCount || 0}</span>
                     </div>
-                </td>
-            </div>`;
+                    <div class="icon-container">
+                        <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
+                        <span class="count">${post.likeCount || 0}</span>
+                    </div>
+                </div>
+            </td>
+        </div>`;
         });
 
         normalPostsContainer.innerHTML = normalPosts || "<p class='text-muted'>해당 카테고리에는 게시글이 없습니다.</p>";
     }
+
 
     // document.addEventListener("DOMContentLoaded", function () {
     //     fetch("/today/arrgegation")
@@ -2229,15 +2235,17 @@
     document.getElementById("all-tab").addEventListener("click", function () {
         loadPage(0)
         $("#pagination").show();
+        $("#paginationNotice").hide();
     });
-    function fetchNoticeFeed() {
+    function fetchNoticeFeed(page) {
         $.ajax({
             url: "/notice/feed",
             type: "GET",
-            data: { page: 0, size: 10 },
+            data: { page: page, size: 10 },
             success: function (response) {
                 if (response.data) {
                     categoryFeeds(response);
+                    renderTabPagination("notice", page, response.totalPage);
                     $("#pagination").hide();
                 } else {
                     alert("공지사항을 불러올 수 없습니다.");
@@ -2248,59 +2256,72 @@
             }
         });
     }
-    function fetchVoteFeed() {
-        isFetchingVote = true;
-        $.ajax({
-            url: "/get/user/vote",
-            type: "GET",
-            data: { page: 0, size: 10 },
-            success: function (response) {
-                if (response && response.data && Array.isArray(response.data)) {
-                    renderFeeds(response);
+    function renderTabPagination(type, currentPage, totalCount, category = null) {
+        const pageSize = 10;
+        const totalPages = Math.ceil(totalCount / pageSize);
+        let paginationId = "pagination";
+        if (type === "notice") paginationId = "paginationNotice";
+        else if (type === "best") paginationId = "bestPagination";
+        else if (type === "qa") paginationId = "qaPagination";
+        else if (type === "data") paginationId = "dataPagination";
+        const paginationDiv = document.getElementById(paginationId);
+        if (!paginationDiv) return;
+        paginationDiv.innerHTML = '';
+        paginationDiv.style.display = 'flex';
+        const maxVisiblePages = 10;
+        let startPage = Math.floor(currentPage / maxVisiblePages) * maxVisiblePages;
+        let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+        const appendBtn = (label, page, disabled = false, active = false) => {
+            const li = document.createElement("li");
+            li.className = `page-item ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
+            const a = document.createElement("a");
+            a.className = "page-link";
+            a.href = "#";
+            a.dataset.page = page;
+            a.textContent = label;
+            a.addEventListener("click", function (e) {
+                e.preventDefault();
+                if (disabled) return;
+
+                if (type === "notice") {
+                    fetchNoticeFeed(page);
+                } else if (type === "best") {
+                    fetchWeekBestFeed(page);
+                } else if (type === "qa") {
+                    fetchQnAFeed("Q/A", page);
+                } else if (type === "data") {
+                    fetchDataFeed(category, page);
                 } else {
-                    console.warn("투표 데이터를 찾을 수 없습니다:", response);
-                    alert("투표를 불러올 수 없습니다.");
+                    loadPage(page);
                 }
-            },
-            error: function () {
-                alert("서버 오류: 투표를 불러올 수 없습니다.");
-            },
-            complete: function () {
-                isFetchingVote = false;
-            }
-        });
+            });
+
+            li.appendChild(a);
+            paginationDiv.appendChild(li);
+        };
+
+        if (currentPage > 0) appendBtn("«", 0);
+        if (startPage > 0) appendBtn("‹", startPage - 1);
+
+        for (let i = startPage; i <= endPage; i++) {
+            appendBtn(i + 1, i, false, i === currentPage);
+        }
+
+        if (endPage < totalPages - 1) appendBtn("›", endPage + 1);
+        if (currentPage < totalPages - 1) appendBtn("»", totalPages - 1);
     }
 
-    function fetchWeekBestFeed() {
-        $.ajax({
-            url: "/search/view/feed/best",
-            type: "GET",
-            data: { page: 0, size: 10 },
-            success: function (response) {
-                if (response.data) {
-                    categoryFeeds(response);
-                    $("#pagination").hide();
-                } else {
-                    alert("이번 주 인기글을 불러올 수 없습니다.");
-                }
-            },
-            error: function () {
-                alert("서버 오류: 이번 주 인기글을 불러올 수 없습니다.");
-            }
-        });
-    }
-
-    function fetchQnAFeed(category) {
+    function fetchQnAFeed(category,page) {
         $.ajax({
             url: "/data/feed",
             type: "GET",
-            data: { page: 0, size: 10,
+            data: { page: page, size: 10,
                 category: category
             },
             success: function (response) {
                 if (response.data) {
                     categoryFeeds(response);
-                    $("#pagination").hide();
+                    renderTabPagination("qa", page, response.totalPage);
                 } else {
                     alert("Q/A 불러올 수 없습니다.");
                 }
@@ -2475,7 +2496,6 @@
             .catch(error => console.error("Top 유저 데이터 가져오기 실패:", error));
     }
     function updateTopWriters(topWriters) {
-        console.log(topWriters)
         const topWritersList = document.getElementById("topWritersList");
         topWritersList.innerHTML = '';
         topWriters.forEach((writer, index) => {
@@ -2583,6 +2603,8 @@
             const data = await response.json();
             renderPagination(data.page,data.totalPage,data.maxPage);
             renderFeeds(data, data.count);
+            $("#paginationNotice").hide();
+
         } catch (error) {
             console.error('[error]', error);
         } finally {
@@ -2599,7 +2621,6 @@
         let maxPage = Math.ceil(totalCount / 10) - 1;
         let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
         let endPage = Math.min(maxPage-2, startPage + maxVisiblePages - 1);
-
         if (endPage - startPage < maxVisiblePages) {
             startPage = Math.max(0, endPage - maxVisiblePages);
         }
@@ -2611,8 +2632,6 @@
                 <a class="page-link" href="#" data-page="0">&laquo;&laquo;</a>
             </li>`;
         }
-
-
         if (startPage > 0) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -2627,8 +2646,6 @@
                 <a class="page-link" href="#" data-page="${p}">${p + 1}</a>
             </li>`;
         }
-
-
         if (endPage < maxPage) {
             paginationDiv.innerHTML += `
             <li class="page-item">
@@ -2681,45 +2698,41 @@
 
         handlePageClick(currentPage);
     });
+    // $.ajax({
+    //     url: "/list/noitce",
+    //     type: "GET",
+    //     success: function (noticeData) {
+    //         let pinnedNotices = "";
+    //         noticeData.forEach(notice => {
+    //             pinnedNotices += `
+    //         <div class="list-item notice-item">
+    //             <div>
+    //                 📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
+    //                 <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
+    //             </div>
+    //         </div>`;
+    //         });
+    //         pinnedNoticesContainer.innerHTML = pinnedNotices;
+    //     },
+    //     error: function () {
+    //         alert("공지사항을 불러올 수 없습니다!");
+    //     }
+    // });
     function categoryFeeds(jsonData, count) {
         loadVisitorStats();
         fetchTopWriters();
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
         const normalPostsContainer = document.getElementById('normalPostsContainer');
-
+        const paginationContainer = document.getElementById('paginationNotice');
         pinnedNoticesContainer.innerHTML = '';
         normalPostsContainer.innerHTML = '';
-
-        $.ajax({
-            url: "/list/noitce",
-            type: "GET",
-            success: function (noticeData) {
-                let pinnedNotices = "";
-                noticeData.forEach(notice => {
-                    pinnedNotices += `
-                <div class="list-item notice-item">
-                    <div>
-                        📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
-                        <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
-                    </div>
-                </div>`;
-                });
-                pinnedNoticesContainer.innerHTML = pinnedNotices;
-            },
-            error: function () {
-                alert("공지사항을 불러올 수 없습니다!");
-            }
-        });
         let filteredPosts = jsonData.data.filter(post => !post.voteType);
         let sortedPosts = filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
         let normalPosts = "";
         sortedPosts.forEach(post => {
             let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
-
-
             normalPosts += `
         <div class="list-item ${isPinned ? 'notice-item' : ''}">
             <div>
@@ -2787,35 +2800,35 @@
 
             if (post.id) {
                 normalPosts += `
-            <div class="list-item ${isPinned ? 'notice-item' : ''}">
-                <div>
-                    ${isPinned ? '📢 ' : ''}
-                    <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
-                    ${count && count[post.feedUID] > 0 ?
+    <div class="list-item ${isPinned ? 'notice-item' : ''}" onclick="location.href='/search/view/feed/id?id=${post.feedUID}'" style="cursor: pointer;">
+        <div>
+            ${isPinned ? '📢 ' : ''}
+            <span class="post-title">${post.title}</span>
+            ${count && count[post.feedUID] > 0 ?
                     `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>` : ""}
-                   <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+           <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+        </div>
+        <td class="text-center">
+            <div class="badge-container d-flex align-items-center">
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
+                    <span class="count">${post.viewCount || 0}</span>
                 </div>
-                <td class="text-center">
-                    <div class="badge-container d-flex align-items-center">
-                        <div class="icon-container">
-                            <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
-                            <span class="count">${post.viewCount || 0}</span>
-                        </div>
-                        <div class="icon-container">
-                            <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
-                            <span class="count">${post.likeCount || 0}</span>
-                        </div>
-                    </div>
-                </td>
-            </div>`;
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
+                    <span class="count">${post.likeCount || 0}</span>
+                </div>
+            </div>
+        </td>
+    </div>`;
             } else {
                 normalPosts += `
-            <div class="list-item vote-item">
-                <div>
-                    🗳️ <a href="/search/view/vote/detail?id=${post.feedUID}">${post.title}</a>
-                    <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
-                </div>
-            </div>`;
+    <div class="list-item vote-item" onclick="location.href='/search/view/vote/detail?id=${post.feedUID}'" style="cursor: pointer;">
+        <div>
+            🗳️ <span class="post-title">${post.title}</span>
+            <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+        </div>
+    </div>`;
             }
         });
 

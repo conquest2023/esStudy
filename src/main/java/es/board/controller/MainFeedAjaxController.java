@@ -3,6 +3,7 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.mapper.CommentMapper;
+import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.VoteDTO;
@@ -55,6 +56,7 @@ public class MainFeedAjaxController {
 
     private  final VoteService voteService;
 
+    private  final FeedMapper feedMapper;
 
     @GetMapping("/get-ip")
     public ResponseEntity<?> getClientIp() {
@@ -198,8 +200,12 @@ public class MainFeedAjaxController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
             ,@RequestParam String  category) {
+        Map<String, Object> results= feedService.getDataFeed(page,size,category);
+        @SuppressWarnings("unchecked")
+        List<Board> boardList = (List<Board>) results.get("data");
         return ResponseEntity.ok(Map.of(
-                "data", feedService.getDataFeed(page,size,category)));
+                "data", feedMapper.fromBoardDtoList(boardList),
+                "totalPage", results.get("total")));
     }
 
 
@@ -208,9 +214,17 @@ public class MainFeedAjaxController {
     public ResponseEntity<?> getPagingNoticeFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
+        Map<String, Object> result = feedService.getNoticeFeed(page, size);
+
+        @SuppressWarnings("unchecked")
+        List<Board> boardList = (List<Board>) result.get("data");
         return ResponseEntity.ok(Map.of(
-                "data", feedService.getNoticeFeed(page,size)));
+                "data", feedMapper.fromBoardDtoList(boardList),
+                "totalPage", result.get("total")
+        ));
     }
+
 
     @GetMapping("/auth/status")
     @ResponseBody

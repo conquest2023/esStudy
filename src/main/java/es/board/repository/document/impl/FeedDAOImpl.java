@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
-
-
     private final int increment = 1;
 
     @Override
@@ -47,8 +45,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to index the feed document", e);
         }
     }
-
-
     @Override
     public List<Board> findUserRangeTimeFeed(String userId) {
 
@@ -73,7 +69,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to search feed by date range", e);
         }
     }
-
     @Override
     public List<Board> saveBulkFeed(List<Board> pages) {
         return null;
@@ -133,28 +128,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to search feed by date range", e);
         }
 
-    }
-
-
-    @Override
-    public List<Board> findAllFeed() {
-
-        try {
-            SearchResponse<Board> response = client.search(s -> s
-                            .index("board")
-                            .query(q -> q
-                                    .matchAll(t -> t)),
-                    Board.class);
-
-            List<Board> boards = response.hits().hits().stream()
-                    .map(hit -> hit.source())
-                    .collect(Collectors.toList());
-
-            return boards;
-        } catch (IOException e) {
-            log.error("Error fetching all feed documents: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch all feed documents", e);
-        }
     }
 
     @Override
@@ -315,24 +288,6 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public double findTotalPage(int page, int size) {
-        try {
-            SearchResponse<Board> response = client.search(s -> s
-                            .index("board")
-                            .from(page * size)
-                            .size(size)
-                            .query(q -> q.matchAll(t -> t)),
-                    Board.class);
-            log.info(response.toString());
-            return response.hits().total().value();
-        } catch (IOException e) {
-            log.error("Error fetching total page count: {}", e.getMessage(), e);
-            throw new IndexException("Failed to fetch total page count", e);
-        }
-    }
-
-
-    @Override
     public void deleteFeed(String id) {
         try {
 
@@ -356,8 +311,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new RuntimeException("게시글 삭제 중 오류 발생", e);
         }
     }
-
-
     @Override
     public List<Board> findSearchBoard(String text) {
         try {
@@ -382,7 +335,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to search feed by text", e);
         }
     }
-
     @Override
     public List<Board> findCategoryAndContent(String category) {
         try {
@@ -425,11 +377,8 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch category", e);
         }
     }
-
     @Override
     public double findSumLikeByPageOne(int page, int size) {
-
-
         try {
 
             SearchResponse<Board> response = client.search(s -> s
@@ -447,7 +396,6 @@ public class FeedDAOImpl implements FeedDAO {
             throw new IndexException("Failed to fetch sum of likes by page", e);
         }
     }
-
     @Override
     public Map<String, Object> fetchTotalFeedStats() {
         try {
@@ -548,20 +496,17 @@ public class FeedDAOImpl implements FeedDAO {
                             .index("board")
                             .from(page * size)
                             .size(size)
+                            .sort(sort -> sort.field(f -> f
+                                    .field("viewCount")
+                                    .order(SortOrder.Desc)
+                            ))
                             .query(q -> q
                                     .bool(b -> b
                                             .filter(f -> f.range(r -> r
                                                     .date(d -> d
                                                             .field("createdAt")
                                                             .gte(start)
-                                                            .lte(end)
-                                                    )))
-                                    )
-                            )
-                            .sort(sort -> sort.field(f -> f
-                                    .field("viewCount")
-                                    .order(SortOrder.Desc)
-                            ))
+                                                            .lte(end))))))
                     , Board.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -573,70 +518,65 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findDataFeed(int page, int size, String category) {
+    public Map<String, Object> findDataFeed(int page, int size, String category) {
         try {
             SearchResponse<Board> response = client.search(s -> s
                     .index("board")
                     .from(page * size)
+                    .sort(sort -> sort.field(f -> f
+                            .field("createdAt")
+                            .order(SortOrder.Desc)))
                     .size(size)
+                    .trackTotalHits(t -> t.enabled(true))
                     .query(q -> q
                             .bool(b -> b
                                     .filter(
                                             st -> st.term(t -> t
                                                     .field("category")
                                                     .value(category))))), Board.class);
-            return response.hits().hits().stream()
-                    .map(hit -> hit.source())
+                List<Board> datas = response.hits().hits().stream()
+                    .map(Hit::source)
                     .collect(Collectors.toList());
+            long totalCount = response.hits().total().value();
+            return Map.of(
+                    "data", datas,
+                    "total", totalCount
+            );
         } catch (IOException e) {
             log.error("Error data feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to data feed", e);
         }
     }
-
-
     @Override
-    public List<Board> findStudyFeed(int page, int size,String category) {
+    public Map<String, Object> findNoticeFeed(int page, int size) {
         try {
             SearchResponse<Board> response = client.search(s -> s
-                    .index("board")
-                    .from(page * size)
-                    .size(size)
-                    .query(q -> q
-                            .bool(b -> b
-                                    .filter(
-                                            st -> st.term(t -> t
-                                                    .field("category")
-                                                    .value(category))))), Board.class);
-            return response.hits().hits().stream()
-                    .map(hit -> hit.source())
+                            .index("board")
+                            .query(q -> q
+                                    .term(t -> t
+                                            .field("category")
+                                            .value("공지사항")
+                                    )
+                            )
+                            .sort(sort -> sort.field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Desc)))
+                            .from(page * size)
+                            .size(size)
+                            .trackTotalHits(t -> t.enabled(true)),
+                    Board.class
+            );
+            List<Board> notices = response.hits().hits().stream()
+                    .map(Hit::source)
                     .collect(Collectors.toList());
+            long totalCount = response.hits().total().value();
+            return Map.of(
+                    "data", notices,
+                    "total", totalCount
+            );
         } catch (IOException e) {
-            log.error("Error data feed: {}", e.getMessage(), e);
-            throw new IndexException("Failed to data feed", e);
-        }
-    }
-
-
-    @Override
-    public List<Board> findNoticeFeed(int page, int size) {
-        try {
-            SearchResponse<Board> response = client.search(s -> s
-                    .index("board")
-                    .from(page * size)
-                    .size(size)
-                    .query(q -> q
-                            .bool(b -> b
-                                    .filter(
-                                            st -> st.term(t -> t
-                                                    .field("category")
-                                                    .value("공지사항"))))), Board.class);
-            return response.hits().hits().stream()
-                    .map(hit -> hit.source())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            log.error("Error data feed: {}", e.getMessage(), e);
-            throw new IndexException("Failed to data feed", e);
+            log.error("Error getting notice feed", e);
+            throw new IndexException("Failed to get notice feed", e);
         }
     }
 

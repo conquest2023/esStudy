@@ -15,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
 
-    List<FeedRequest> getNoticeFeed(int page, int size);
+    Map<String, Object>  getNoticeFeed(int page, int size);
     int getPointAll(String userId);
     Map<String, Double> getDayAggregation();
 
-    List<FeedRequest> getDataFeed(int page, int size,String category);;
+    Map<String, Object> getDataFeed(int page, int size,String category);;
     double getUserFeedCount(String userId);
 
     List<FeedRequest>  findWeekBestFeed(int page, int size);
@@ -60,8 +60,6 @@ public interface FeedService {
 //    String createFeed(String indexName, FeedCreateResponse dto);
 
 //    List<FeedRequest> getFeed();
-
-    double getTotalPage(int page, int size);
 
     List<FeedRequest> getLikeCount();
 

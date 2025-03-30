@@ -181,10 +181,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-    @Override
-    public double getTotalPage(int page, int size) {
-        return feedDAO.findTotalPage(page, size);
-    }
+
 
     @Override
     public Map<String, Double> getDayAggregation(){
@@ -193,13 +190,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedRequest> getDataFeed(int page, int size,String  category) {
-        return  feedMapper.fromBoardDtoList(feedDAO.findDataFeed(page,size,category));
+    public Map<String, Object> getDataFeed(int page, int size,String  category) {
+        return  feedDAO.findDataFeed(page,size,category);
     }
 
     @Override
-    public List<FeedRequest> getNoticeFeed(int page, int size) {
-        return  feedMapper.fromBoardDtoList(feedDAO.findNoticeFeed(page,size));
+    public Map<String, Object>  getNoticeFeed(int page, int size) {
+        return feedDAO.findNoticeFeed(page,size);
     }
 
     @Override

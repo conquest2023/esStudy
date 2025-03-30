@@ -14,18 +14,15 @@ import java.util.Map;
 
 @Repository
 public interface FeedDAO {
-    List<Board> findNoticeFeed(int page, int size);
+    Map<String, Object> findNoticeFeed(int page, int size);
 
-    List<Board> findDataFeed(int page, int size,String category);
+    Map<String, Object> findDataFeed(int page, int size,String category);
     Map<String, Double> findDayAggregation();
     List<Board> findWeekBestFeed(int page, int size);
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO dto, Long id);
-
-    List<Board> findStudyFeed(int page, int size,String category);
-
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;
 
@@ -36,7 +33,6 @@ public interface FeedDAO {
 
     List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;
 
-    List<Board> findAllFeed();
 
     List<Board> findLikeCount();
 
@@ -62,7 +58,6 @@ public interface FeedDAO {
 
     int findAllViewCount();
     List<Board> findPopularFeedDESC(int page,int size);
-    double findTotalPage(int page, int size)  ;
 
     List<Board> findMostViewFeed(int page, int size) ;
     Map<String, Object> fetchTotalFeedStats();
