@@ -6,7 +6,7 @@ import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.req.VoteDTO;
+import es.board.controller.model.req.VoteRequest;
 import es.board.controller.model.res.LoginResponse;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -179,7 +179,7 @@ public class MainFeedAjaxController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
             Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
-            List<VoteDTO> vote=voteService.getVotePageFeed(page,size);
+            List<VoteRequest> vote=voteService.getVotePageFeed(page,size);
             List<FeedRequest> data = feedService.getPagingFeed(page, size);
             Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
             Long totalPage = (Long) feedCount.get("totalFeedCount");
@@ -282,7 +282,7 @@ public class MainFeedAjaxController {
         Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
-        VoteDTO req=voteService.getVoteDetail(feedUID);
+        VoteRequest req=voteService.getVoteDetail(feedUID);
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -324,7 +324,7 @@ public class MainFeedAjaxController {
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteRequest req, String commentOwner, Map<String, Object> response, String token, Object comments) {
 //        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
@@ -333,7 +333,7 @@ public class MainFeedAjaxController {
         response.put("data", req);
         return ResponseEntity.ok(response);
     }
-    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO req, Map<String, Object> response) {
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteRequest req, Map<String, Object> response) {
 
         if (!(comments instanceof List<?>)) {
             throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");

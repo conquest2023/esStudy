@@ -1,8 +1,8 @@
 package es.board.service.impl;
 
 
-import es.board.controller.model.req.NoticeDTO;
-import es.board.controller.model.req.VoteDTO;
+import es.board.controller.model.req.NoticeRequest;
+import es.board.controller.model.req.VoteRequest;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.*;
 import es.board.repository.document.Board;
@@ -138,7 +138,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveVoteAsync(VoteDTO vote, Long id) {
+    public CompletableFuture<Void> saveVoteAsync(VoteRequest vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
@@ -151,7 +151,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveVoteTicketAsync(VoteDTO vote) {
+    public CompletableFuture<Void> saveVoteTicketAsync(VoteRequest vote) {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
         try {
             voteDAO.saveVoteTicket(vote);
@@ -163,7 +163,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveAggregationVoteAsync(VoteDTO vote, Long id) {
+    public CompletableFuture<Void> saveAggregationVoteAsync(VoteRequest vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 집계 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
@@ -251,7 +251,7 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveNoticeAsync(NoticeDTO notice,Long id) {
+    public CompletableFuture<Void> saveNoticeAsync(NoticeRequest notice, Long id) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
             feedDAO.saveNoticeFeed(notice,id);
         try {

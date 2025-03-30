@@ -2,8 +2,6 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.CertificateDTO;
-import es.board.controller.model.req.ScheduleDTO;
 import es.board.repository.document.Certificate;
 import es.board.service.CertificateService;
 import jakarta.servlet.http.HttpServletRequest;

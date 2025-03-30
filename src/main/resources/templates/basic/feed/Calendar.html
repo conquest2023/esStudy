@@ -155,7 +155,7 @@
 </div>
 
 <div class="container py-4">
-    <h2>📆 일정 관리 캘린더</h2>
+<!--    <h2>📆 일정 관리 캘린더</h2>-->
     <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
         <select id="searchType" class="form-select w-auto">
             <option value="title">제목</option>
@@ -483,18 +483,14 @@
             }
 
         } catch (error) {
-            console.error("🚨 유저 정보를 가져오는 중 오류 발생:", error);
+            console.error("유저 정보를 가져오는 중 오류 발생:", error);
             alert("유저 정보를 불러올 수 없습니다.");
         }
     });
-
-    function formatToISO(dateString) {
-        return dateString.includes(" ") ? dateString.replace(" ", "T") : dateString;
-    }
     document.addEventListener("DOMContentLoaded", function () {
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("🚨 로그인 후 이용해주세요.");
+            alert("로그인 후 이용해주세요.");
             return;
         }
 
@@ -518,8 +514,6 @@
                 minute: '2-digit',
                 meridiem: false
             },
-
-
             forceEventDuration: true,
 
 
@@ -544,71 +538,96 @@
                 new bootstrap.Modal(document.getElementById('addEventModal')).show();
             },
             events: function (fetchInfo, successCallback, failureCallback) {
+                if (allEvents.length > 0) {
+                    // 날짜 필터링
+                    const filteredEvents = allEvents.filter(event => {
+                        const eventDate = new Date(event.start);
+                        return eventDate >= fetchInfo.start && eventDate <= fetchInfo.end;
+                    });
+                    successCallback(filteredEvents);
+                    return;
+                }
                 Promise.all([
-                    fetch('/search/alltodo', {
+                    fetch('/day', {
                         method: 'GET',
-                        headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
-                    }).then(response => response.json()),
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    }).then(res => res.json()),
                     fetch('/search/schedule', {
                         method: 'GET',
-                        headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
-                    }).then(response => response.json())
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    }).then(res => res.json()),
+                    fetch('/search/project/todo', {
+                        method: 'GET',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    }).then(res => res.json())
                 ])
-                    .then(([todoData, scheduleData]) => {
-                        let todoEvents = [];
+                    .then(([dDayData, scheduleData, projectTodoData]) => {
+                        let dDayEvents = [];
                         let scheduleEvents = [];
-
-                        const today = new Date().toISOString();
-
-                        if (todoData.todos && Array.isArray(todoData.todos)) {
-                            todoEvents = todoData.todos.map(todo => {
-                                const {backgroundColor, borderColor} = getStatusColor(todo.status);
-                                return {
-                                    id: todo.todo_id,
-                                    title: `[TODO] ${todo.title}`,
-                                    description: todo.description,
-                                    start: todo.createdAt || new Date(),
-                                    allDay: false,
-                                    status: todo.status,
-                                    backgroundColor: backgroundColor,
-                                    borderColor: borderColor,
-                                    textColor: "#ffffff"
-                                };
-                            });
+                        let projectTodoEvents = [];
+                        if (dDayData.D_Day && Array.isArray(dDayData.D_Day)) {
+                            dDayEvents = dDayData.D_Day.map(d => ({
+                                id: "dDay-" + d.id,
+                                title: `[D-DAY] ${d.examName}`,
+                                start: d.examDate,
+                                allDay: true,
+                                category: d.category || "자격증",
+                                backgroundColor: "#ffc107",
+                                borderColor: "#ffc107",
+                                textColor: "#000",
+                                extendedProps: {
+                                    goal: d.goal || "",
+                                    dDay: d.dDay
+                                }
+                            }));
                         }
-
-
                         if (scheduleData.todos && Array.isArray(scheduleData.todos)) {
                             scheduleEvents = scheduleData.todos.map(schedule => {
                                 const { backgroundColor, borderColor } = getStatusColor(schedule.status || "IN_PROGRESS");
-
                                 return {
-                                    id: schedule.scheduleId,
+                                    id: "schedule-" + schedule.scheduleId,
                                     title: `[캘린더] ${schedule.title}`,
-                                    start: schedule.endDatetime || today,
+                                    start: schedule.endDatetime,
                                     allDay: true,
-                                    status: schedule.status || "IN_PROGRESS",
-                                    category: schedule.category,
+                                    backgroundColor,
+                                    borderColor,
+                                    textColor: "#fff",
                                     extendedProps: {
-                                        location: schedule.location,
+                                        category: schedule.category,
                                         description: schedule.description
-                                    },
-                                    backgroundColor: backgroundColor,
-                                    borderColor: borderColor,
-                                    textColor: "#ffffff"
+                                    }
                                 };
                             });
                         }
 
-
-
-                        allEvents = [...todoEvents, ...scheduleEvents];
-
-
-                        successCallback(allEvents);
+                        if (projectTodoData.todos && Array.isArray(projectTodoData.todos)) {
+                            projectTodoEvents = projectTodoData.todos.map(todo => {
+                                const { backgroundColor, borderColor } = getStatusColor(todo.status || "TODO");
+                                return {
+                                    id: "todo-" + todo.todo_id,
+                                    title: `[장기목표] ${todo.title}`,
+                                    start: todo.end,
+                                    allDay: true,
+                                    backgroundColor,
+                                    borderColor,
+                                    textColor: "#fff",
+                                    extendedProps: {
+                                        description: todo.description || "",
+                                        priority: todo.priority,
+                                        category: todo.category
+                                    }
+                                };
+                            });
+                        }
+                        allEvents = [...dDayEvents, ...scheduleEvents, ...projectTodoEvents];
+                        const filtered = allEvents.filter(event => {
+                            const eventDate = new Date(event.start);
+                            return eventDate >= fetchInfo.start && eventDate <= fetchInfo.end;
+                        });
+                        successCallback(filtered);
                     })
                     .catch(error => {
-                        console.error("🚨 Todo & 일정 데이터 불러오기 실패:", error);
+                        console.error("Todo & 일정 데이터 불러오기 실패:", error);
                         failureCallback(error);
                     });
             }

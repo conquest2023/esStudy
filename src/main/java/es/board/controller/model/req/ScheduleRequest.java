@@ -1,12 +1,9 @@
 package es.board.controller.model.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import es.board.config.XssSafeSerializer;
-import es.board.repository.entity.Schedule;
 import lombok.*;
-import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,7 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ScheduleDTO {
+public class ScheduleRequest {
 
     private Long scheduleId;
 

@@ -3,8 +3,7 @@ package es.board.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.req.JobListing;
-import es.board.controller.model.req.StudyTipDTO;
-import es.board.controller.model.req.TistoryPost;
+import es.board.controller.model.req.StudyTipRequest;
 import es.board.controller.model.req.WantedJobData;
 import es.board.repository.CertificateDAO;
 import es.board.repository.entity.entityrepository.TistoryPostRepository;
@@ -36,11 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -288,8 +284,8 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     }
 
     @Override
-    public List<StudyTipDTO> crawlNaverStudyTips(String keyword) {
-        List<StudyTipDTO> studyTips = new ArrayList<>();
+    public List<StudyTipRequest> crawlNaverStudyTips(String keyword) {
+        List<StudyTipRequest> studyTips = new ArrayList<>();
         String searchUrl = NAVER_SEARCH_URL + keyword.replace(" ", "+");
 
         try {
@@ -310,7 +306,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     String image = imageElement != null ? imageElement.attr("src") : null;
                     String description = descElement != null ? descElement.text().trim() : "";
 
-                    studyTips.add(new StudyTipDTO(title, link, image, description));
+                    studyTips.add(new StudyTipRequest(title, link, image, description));
                 }
             }
         } catch (IOException e) {
@@ -320,8 +316,8 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
     }
 
     @Override
-    public List<StudyTipDTO> crawlGoogleStudyTips(String keyword) {
-        List<StudyTipDTO> studyTips = new ArrayList<>();
+    public List<StudyTipRequest> crawlGoogleStudyTips(String keyword) {
+        List<StudyTipRequest> studyTips = new ArrayList<>();
         String searchUrl = GOOGLE_SEARCH_URL + keyword;
 
         WebDriverManager.chromedriver().setup();
@@ -351,7 +347,7 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
                     WebElement descElement = result.findElement(By.cssSelector("div.VwiC3b"));
                     String description = (descElement != null) ? descElement.getText().trim() : "";
 
-                    studyTips.add(new StudyTipDTO(title, link, null, null));
+                    studyTips.add(new StudyTipRequest(title, link, null, null));
                 } catch (Exception e) {
                 }
             }

@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.req.D_DayDTO;
+import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 
@@ -16,9 +16,9 @@ public interface ToDoService {
     void addToDo(String token, TodoResponse todoResponse);
 
 
-    void addD_Day(String token,D_DayDTO dDayDTO);
+    void addD_Day(String token, D_DayRequest dDayDTO);
 
-    List<D_DayDTO> getD_Day(String  token);
+    List<D_DayRequest> getD_Day(String  token);
 
     Object getRemainingTodos(String userId);
     void  deleteToDo(Long id,String token);

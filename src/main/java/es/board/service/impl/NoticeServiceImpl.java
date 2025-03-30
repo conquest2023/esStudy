@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.NoticeRequest;
 import es.board.repository.entity.Notice;
 import es.board.repository.entity.entityrepository.NoticeRepository;
 import es.board.repository.entity.entityrepository.UserRepository;
@@ -45,33 +45,33 @@ public class NoticeServiceImpl  implements NoticeService {
     private final NoticeRepository noticeRepository;
 
     @Override
-    public List<NoticeDTO> getAllNotices() {
+    public List<NoticeRequest> getAllNotices() {
         String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
 
 //        if (cachedNotices != null) {
 //            return deserializeNotices(cachedNotices);
 //        }
-        List<NoticeDTO> notices = feedMapper.fromNoticeList(noticeRepository.findNoticeByCreatedAtDESC());
+        List<NoticeRequest> notices = feedMapper.fromNoticeList(noticeRepository.findNoticeByCreatedAtDESC());
 //      redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
         return notices;
     }
 
 
     @Override
-    public NoticeDTO getOneNotice(Long id) {
+    public NoticeRequest getOneNotice(Long id) {
 
         return feedMapper.fromNotice(noticeRepository.findByNoticeOne(id));
     }
 
     @Override
-    public void createNotice(String token, NoticeDTO noticeDTO) {
+    public void createNotice(String token, NoticeRequest noticeDTO) {
 
         String userId = jwtTokenProvider.getUserId(token);
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
         CompletableFuture.supplyAsync(() -> {
-            NoticeDTO notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
+            NoticeRequest notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
             asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
         });
@@ -82,10 +82,10 @@ public class NoticeServiceImpl  implements NoticeService {
     private boolean isAdmin(String userId) {
         return noticeRepository.existsByUserId(userId);
     }
-    private Notice NoticeSaveId(NoticeDTO noticeDTO, String token) {
+    private Notice NoticeSaveId(NoticeRequest noticeDTO, String token) {
        return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
     }
-    private String serializeNotices(List<NoticeDTO> notices) {
+    private String serializeNotices(List<NoticeRequest> notices) {
         try {
             return objectMapper.writeValueAsString(notices);
         } catch (JsonProcessingException e) {
@@ -93,9 +93,9 @@ public class NoticeServiceImpl  implements NoticeService {
         }
     }
 
-    private List<NoticeDTO> deserializeNotices(String json) {
+    private List<NoticeRequest> deserializeNotices(String json) {
         try {
-            return objectMapper.readValue(json, new TypeReference<List<NoticeDTO>>() {
+            return objectMapper.readValue(json, new TypeReference<List<NoticeRequest>>() {
             });
         } catch (JsonProcessingException e) {
             throw new RuntimeException("공지사항 역직렬화 실패", e);

@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
-import es.board.controller.model.req.D_DayDTO;
+import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.repository.ToDoDAO;
@@ -76,7 +76,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public void addD_Day(String token, D_DayDTO dDayDTO) {
+    public void addD_Day(String token, D_DayRequest dDayDTO) {
         dayRepository.save(toDoMapper.toEntityD_Day(jwtTokenProvider.getUserId(token),dDayDTO));
         grantTodoPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
@@ -87,7 +87,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public List<D_DayDTO> getD_Day(String token) {
+    public List<D_DayRequest> getD_Day(String token) {
 
       return toDoMapper.fromD_DayEntityList(dayRepository.findAll(jwtTokenProvider.getUserId(token)));
     }
@@ -147,7 +147,7 @@ public class ToDoServiceImpl implements ToDoService {
       return  toDoMapper.EntityToTodo(todoRepository.findProjectTodo(userId));
     }
 
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 1000000)
     public void syncRedisWithDatabase() {
         Set<String> allUserIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now());
         log.info(allUserIds.toString());
@@ -156,10 +156,9 @@ public class ToDoServiceImpl implements ToDoService {
             redisTemplate.opsForValue().set(REDIS_TODO_COUNT_KEY + userId, remainingCount, Duration.ofSeconds(60));
         }
     }
-
         @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")
         public void calculateAndStoreCompletionRates() {
-            log.info(" odo 완료율 계산 시작");
+            log.info("Todo 완료율 계산 시작");
 
             Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now()); // 모든 사용자 ID 조회
             List<Todo> completionRates = new ArrayList<>();

@@ -2,7 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.VoteDTO;
+import es.board.controller.model.req.VoteRequest;
 import es.board.service.VoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class VoteController {
 
     @PostMapping("/save/vote")
     @ResponseBody
-    public ResponseEntity<?> saveVote(@RequestBody VoteDTO vote, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> saveVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization", required = false) String token) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -43,7 +43,7 @@ public class VoteController {
 
     @PostMapping("/save/user/vote")
     @ResponseBody
-    public ResponseEntity<?> saveUserVote(@RequestBody VoteDTO vote, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveUserVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -59,7 +59,7 @@ public class VoteController {
 
     @PostMapping("/save/ticket/vote")
     @ResponseBody
-    public ResponseEntity<?> saveFeedVote(@RequestBody VoteDTO vote, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveFeedVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }
@@ -72,7 +72,7 @@ public class VoteController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/save/aggregation/vote")
-    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteDTO vote,
+    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteRequest vote,
                                                  @RequestHeader(value = "Authorization", required = false) String token) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));

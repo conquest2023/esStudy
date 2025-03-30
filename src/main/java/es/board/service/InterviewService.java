@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.req.InterviewQuestionDTO;
+import es.board.controller.model.req.InterviewQuestionRequest;
 import es.board.controller.model.res.InterviewAnswerDTO;
 
 import java.util.List;
@@ -9,7 +9,7 @@ public interface InterviewService {
 
     String getTodayQuestion();
 
-    List<InterviewQuestionDTO> getRandomQuestions();
+    List<InterviewQuestionRequest> getRandomQuestions();
 
 
     List<InterviewAnswerDTO> getBestAnswer(List<String> ids);

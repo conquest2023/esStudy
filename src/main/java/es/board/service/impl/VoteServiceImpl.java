@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.VoteDTO;
+import es.board.controller.model.req.VoteRequest;
 import es.board.repository.VoteDAO;
 import es.board.repository.entity.UserVote;
 import es.board.repository.entity.Vote;
@@ -35,7 +35,7 @@ public class VoteServiceImpl implements VoteService {
     private final FeedMapper feedMapper;
 
     @Override
-    public CompletableFuture<Void> createdFeedVote(VoteDTO vote, String  username, String userId) {
+    public CompletableFuture<Void> createdFeedVote(VoteRequest vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
             asyncService.saveVoteAsync(feedMapper.changeVoteDtoToDocument(vote,savedVoteId.getFeedId(),username,userId,savedVoteId.getId()), savedVoteId.getId());
@@ -43,7 +43,7 @@ public class VoteServiceImpl implements VoteService {
         });
     }
     @Override
-    public CompletableFuture<Void> saveVote(VoteDTO vote, String  username, String userId) {
+    public CompletableFuture<Void> saveVote(VoteRequest vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             Vote savedVoteId = getSavedVoteId(vote,username, userId);
             asyncService.saveVoteAsync(feedMapper.fromVoteDto(savedVoteId,username,userId), savedVoteId.getId());
@@ -51,7 +51,7 @@ public class VoteServiceImpl implements VoteService {
         });
     }
     @Override
-    public CompletableFuture<Void> saveAgreeVote(VoteDTO vote, String  username, String userId) {
+    public CompletableFuture<Void> saveAgreeVote(VoteRequest vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
             UserVote savedUserVoteId = getSavedAggregationVoteId(vote,username, userId);
             asyncService.saveAggregationVoteAsync(feedMapper.fromUserVoteDTO(savedUserVoteId,username,userId), savedUserVoteId.getId());
@@ -64,7 +64,7 @@ public class VoteServiceImpl implements VoteService {
          voteDAO.deleteVoteFeed(id);
     }
     @Override
-    public CompletableFuture<Void> saveFeedTicket(VoteDTO vote, String  username, String userId) {
+    public CompletableFuture<Void> saveFeedTicket(VoteRequest vote, String  username, String userId) {
         return CompletableFuture.supplyAsync(() -> {
 //            UserVote savedVoteId = getSavedAggregationVoteId(vote,username, userId);
             asyncService.saveVoteTicketAsync(feedMapper.changeVoteDTOToAnalytics(vote,username,userId));
@@ -72,15 +72,15 @@ public class VoteServiceImpl implements VoteService {
         });
     }
     @Override
-    public List<VoteDTO> getVotePageFeed(int page, int size) {
-        List<VoteDTO> votes= feedMapper.fromVoteDTOList(voteDAO.findVotePageFeed(page,size));
+    public List<VoteRequest> getVotePageFeed(int page, int size) {
+        List<VoteRequest> votes= feedMapper.fromVoteDTOList(voteDAO.findVotePageFeed(page,size));
         if (votes == null || votes.isEmpty()) {
             votes = new ArrayList<>();
         }
         return votes;
     }
     @Override
-    public List<VoteDTO> getVoteUserAll() {
+    public List<VoteRequest> getVoteUserAll() {
         return feedMapper.fromVoteDTOList(voteDAO.findFeedVoteAll());
     }
 
@@ -90,7 +90,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public List<VoteDTO> getVoteFeedDetail(String feedUID) {
+    public List<VoteRequest> getVoteFeedDetail(String feedUID) {
         return null;
     }
 
@@ -100,27 +100,27 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
-    public VoteDTO getVoteContent() {
+    public VoteRequest getVoteContent() {
 
         return feedMapper.fromVoteDTO(voteRepository.findLatestVote());
     }
 
     @Override
-    public VoteDTO getVoteDetail(String feedUID) {
+    public VoteRequest getVoteDetail(String feedUID) {
         return feedMapper.fromDocumentVoteDTO(voteDAO.findVoteFeedDetail(feedUID));
     }
 
     @Override
-    public List<VoteDTO> getVoteAll(){
+    public List<VoteRequest> getVoteAll(){
 
         return  feedMapper.voteToDTOMainList(voteRepository.findAll());
     }
 
-    private Vote getSavedVoteId(VoteDTO vote, String username, String userId) {
+    private Vote getSavedVoteId(VoteRequest vote, String username, String userId) {
         return voteRepository.save(feedMapper.toVoteEntity(vote,username, userId));
     }
 
-    private UserVote getSavedAggregationVoteId(VoteDTO vote, String username, String userId) {
+    private UserVote getSavedAggregationVoteId(VoteRequest vote, String username, String userId) {
         return voteUserRepository.save(feedMapper.userVoteToEntity(vote,username, userId));
     }
 }

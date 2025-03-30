@@ -1,7 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.D_DayDTO;
+import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.service.ToDoService;
@@ -200,7 +200,7 @@ public class ToDoController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        List<D_DayDTO> dDayList = toDoService.getD_Day(token);
+        List<D_DayRequest> dDayList = toDoService.getD_Day(token);
 
         Map<String, Object> response = new HashMap<>();
         response.put("D_Day", dDayList);
@@ -209,7 +209,7 @@ public class ToDoController {
     }
 
     @PostMapping("/day/save")
-    public ResponseEntity<?> saveD_Day(@RequestBody D_DayDTO dDayDTO, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveD_Day(@RequestBody D_DayRequest dDayDTO, @RequestHeader(value = "Authorization") String token) {
 
         if (token == null || !token.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));

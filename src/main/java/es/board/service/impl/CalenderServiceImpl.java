@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
-import es.board.controller.model.req.ScheduleDTO;
+import es.board.controller.model.req.ScheduleRequest;
 import es.board.repository.ScheduleDAO;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Schedule;
@@ -42,7 +42,7 @@ public class CalenderServiceImpl implements CalenderService {
     private  final MainFunctionMapper toDoMapper;
 
     @Override
-    public void saveRepeatSchedule(String token, ScheduleDTO scheduleDTO) {
+    public void saveRepeatSchedule(String token, ScheduleRequest scheduleDTO) {
         CompletableFuture.supplyAsync(() -> {
 
 
@@ -61,7 +61,7 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     @Override
-    public void saveSchedule(String token ,ScheduleDTO scheduleDTO) {
+    public void saveSchedule(String token , ScheduleRequest scheduleDTO) {
 
          CompletableFuture.supplyAsync(() -> {
             Long saveScheduleId = getSaveScheduleId(token,scheduleDTO);
@@ -73,12 +73,12 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     @Override
-    public List<ScheduleDTO> getRepeatSchedule(String token) {
+    public List<ScheduleRequest> getRepeatSchedule(String token) {
         return  toDoMapper.fromSchedule(scheduleRepository.findDistinctRepeatSchedules(jwtTokenProvider.getUserId(token)));
     }
 
     @Override
-    public List<ScheduleDTO> searchSchedule(String token,String title,String  description, String  category) {
+    public List<ScheduleRequest> searchSchedule(String token, String title, String  description, String  category) {
         return toDoMapper.fromScheduleDocument(scheduleDAO.searchSchedule(jwtTokenProvider.getUserId(token),title,description,category));
     }
 
@@ -102,11 +102,11 @@ public class CalenderServiceImpl implements CalenderService {
         }
 
     @Override
-    public List<ScheduleDTO> getSchedule(String token) {
+    public List<ScheduleRequest> getSchedule(String token) {
         return toDoMapper.fromSchedule(scheduleRepository.findAllBySchedule(jwtTokenProvider.getUserId(token)));
     }
 
-    private Long getSaveScheduleId(String token, ScheduleDTO scheduleDTO) {
+    private Long getSaveScheduleId(String token, ScheduleRequest scheduleDTO) {
 
 
         Schedule savedPost = scheduleRepository.save(toDoMapper.toScheduleEntity(jwtTokenProvider.getUserId(token),scheduleDTO));

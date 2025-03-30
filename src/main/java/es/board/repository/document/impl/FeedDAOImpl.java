@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.TopWriter;
 import es.board.ex.IndexException;
 import es.board.controller.model.req.FeedUpdate;
@@ -92,7 +92,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public void saveNoticeFeed(NoticeDTO dto, Long id) {
+    public void saveNoticeFeed(NoticeRequest dto, Long id) {
         log.info(dto.toString());
         try {
             IndexResponse response = client.index(i -> i

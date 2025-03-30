@@ -2,8 +2,7 @@ package es.board.controller;
 
 
 import es.board.controller.model.req.JobListing;
-import es.board.controller.model.req.StudyTipDTO;
-import es.board.controller.model.req.TistoryPost;
+import es.board.controller.model.req.StudyTipRequest;
 import es.board.controller.model.req.WantedJobData;
 import es.board.repository.CertificateDAO;
 import es.board.service.ItCrawlingService;
@@ -64,12 +63,12 @@ public class CrawlingController {
     }
 
     @GetMapping("/naver/{keyword}")
-    public ResponseEntity<List<StudyTipDTO>> getNaverTips(@PathVariable String keyword) {
+    public ResponseEntity<List<StudyTipRequest>> getNaverTips(@PathVariable String keyword) {
         return ResponseEntity.ok(crawlingService.crawlNaverStudyTips(keyword));
     }
 
     @GetMapping("/google/{keyword}")
-    public ResponseEntity<List<StudyTipDTO>> getGoogleTips(@PathVariable String keyword) {
+    public ResponseEntity<List<StudyTipRequest>> getGoogleTips(@PathVariable String keyword) {
         return ResponseEntity.ok(crawlingService.crawlGoogleStudyTips(keyword));
     }
 

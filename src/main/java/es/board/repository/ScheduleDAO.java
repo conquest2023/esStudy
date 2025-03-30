@@ -1,9 +1,6 @@
 package es.board.repository;
 
-import es.board.controller.model.req.ScheduleDTO;
-import es.board.repository.document.Board;
 import es.board.repository.document.Schedule;
-import es.board.repository.document.Todo;
 
 import java.time.LocalDateTime;
 import java.util.List;

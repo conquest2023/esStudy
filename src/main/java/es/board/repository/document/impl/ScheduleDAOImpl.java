@@ -3,16 +3,12 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.*;
-import es.board.controller.model.req.ScheduleDTO;
 import es.board.ex.IndexException;
 import es.board.repository.ScheduleDAO;
-import es.board.repository.document.Reply;
 import es.board.repository.document.Schedule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RequestOptions;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;

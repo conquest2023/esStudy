@@ -2,7 +2,7 @@ package es.board.repository;
 
 
 import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.NoticeDTO;
+import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
@@ -22,7 +22,7 @@ public interface FeedDAO {
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
-    void saveNoticeFeed(NoticeDTO dto, Long id);
+    void saveNoticeFeed(NoticeRequest dto, Long id);
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedCreateResponse dto) ;
 

@@ -1,7 +1,7 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.ScheduleDTO;
+import es.board.controller.model.req.ScheduleRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
 import es.board.repository.entity.Schedule;
@@ -56,9 +56,9 @@ public class CertificateMapper {
     }
 
 
-    public  List<ScheduleDTO> fromSchedule(List<Schedule> schedule) {
+    public  List<ScheduleRequest> fromSchedule(List<Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleDTO.builder()
+                .map(schedule1 -> ScheduleRequest.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -74,7 +74,7 @@ public class CertificateMapper {
     }
 
     // DTO -> 엔터티 변환 메서드
-    public Schedule toScheduleEntity(String userId, ScheduleDTO scheduleDTO) {
+    public Schedule toScheduleEntity(String userId, ScheduleRequest scheduleDTO) {
         return Schedule.builder()
                 .userId(userId)
                 .title(scheduleDTO.getTitle())
@@ -92,7 +92,7 @@ public class CertificateMapper {
     }
 
 
-    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleDTO scheduleDTO,Long id) {
+    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleRequest scheduleDTO, Long id) {
         return es.board.repository.document.Schedule.builder()
                 .scheduleId(id)
                 .userId(userId)
@@ -127,9 +127,9 @@ public class CertificateMapper {
     }
 
 
-    public  List<ScheduleDTO> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
+    public  List<ScheduleRequest> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleDTO.builder()
+                .map(schedule1 -> ScheduleRequest.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -142,7 +142,7 @@ public class CertificateMapper {
                 .collect(Collectors.toList());
     }
 
-    public List<Schedule> generateRepeatSchedules(String userId, ScheduleDTO scheduleDTO) {
+    public List<Schedule> generateRepeatSchedules(String userId, ScheduleRequest scheduleDTO) {
         List<Schedule> repeatSchedules = new ArrayList<>();
 
         LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();

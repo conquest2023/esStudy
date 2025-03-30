@@ -2074,35 +2074,52 @@
 
         document.querySelectorAll("#boardTab .nav-link").forEach(tab => {
             tab.addEventListener("click", function () {
+                // 탭 비활성화 → 활성화
                 document.querySelectorAll("#boardTab .nav-link").forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
 
-                document.getElementById("dataTabContent").style.display = "none";
-                document.getElementById("noticeTabPane").style.display = "none";
-                document.getElementById("qaTabPane").style.display = "none";
-                document.getElementById("bestTabPane").style.display = "none";
-                document.getElementById("allTabPane").style.display = "none";
+                // 🔒 모든 콘텐츠 숨기기
+                const tabContents = ["dataTabContent", "noticeTabPane", "qaTabPane", "bestTabPane", "allTabPane"];
+                tabContents.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = "none";
+                });
+
+                // 🔒 모든 pagination 숨기기
+                const paginations = ["pagination", "paginationNotice", "qaPagination", "bestPagination", "dataPagination"];
+                paginations.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = "none";
+                });
 
                 const tabId = this.id;
+
+                // 🔥 탭 별 표시 및 API 호출
                 if (tabId === "data-tab") {
-                    dataTabContent.style.display = "block";
+                    document.getElementById("dataTabContent").style.display = "block";
                     document.getElementById("dataTabPane").style.display = "block";
+                    document.getElementById("dataPagination").style.display = "inline-block";
                     fetchDataFeed("자료", 0);
                 } else if (tabId === "best-tab") {
                     document.getElementById("bestTabPane").style.display = "block";
+                    document.getElementById("bestPagination").style.display = "inline-block";
                     fetchWeekBestFeed(0);
                 } else if (tabId === "notice-tab") {
                     document.getElementById("noticeTabPane").style.display = "block";
+                    document.getElementById("paginationNotice").style.display = "inline-block";
                     fetchNoticeFeed(0);
                 } else if (tabId === "qa-tab") {
                     document.getElementById("qaTabPane").style.display = "block";
+                    document.getElementById("qaPagination").style.display = "inline-block";
                     fetchQnAFeed("Q/A", 0);
                 } else if (tabId === "all-tab") {
                     document.getElementById("allTabPane").style.display = "block";
+                    document.getElementById("pagination").style.display = "inline-block";
                     loadPage(0);
                 }
             });
         });
+
         document.querySelectorAll("#categoryTabs .nav-link").forEach(tab => {
             tab.addEventListener("click", function () {
                 document.querySelectorAll("#categoryTabs .nav-link").forEach(t => t.classList.remove("active"));
@@ -2226,16 +2243,11 @@
             tooltip.hide();
         }, 4000);
     });
-
-
-
-    let isFetchingVote = false;
-
-
     document.getElementById("all-tab").addEventListener("click", function () {
         loadPage(0)
         $("#pagination").show();
         $("#paginationNotice").hide();
+        $("#dataPagination").hide();
     });
     function fetchNoticeFeed(page) {
         $.ajax({
@@ -2282,7 +2294,6 @@
             a.addEventListener("click", function (e) {
                 e.preventDefault();
                 if (disabled) return;
-
                 if (type === "notice") {
                     fetchNoticeFeed(page);
                 } else if (type === "best") {

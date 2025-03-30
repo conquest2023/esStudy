@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.mapper.MainFunctionMapper;
 
-import es.board.controller.model.req.InterviewQuestionDTO;
+import es.board.controller.model.req.InterviewQuestionRequest;
 
 import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.repository.entity.InterviewQuestion;
@@ -22,7 +22,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -60,13 +59,13 @@ public class InterviewServiceImpl implements InterviewService {
         return question;
     }
     @Override
-    public List<InterviewQuestionDTO> getRandomQuestions() {
+    public List<InterviewQuestionRequest> getRandomQuestions() {
         String cachedData = redisTemplate.opsForValue().get(INTERVIEW_CACHE_KEY);
 
         if (cachedData != null) {
             return deserializeJson(cachedData);
         }
-        List<InterviewQuestionDTO> questions = getCollect();
+        List<InterviewQuestionRequest> questions = getCollect();
         cacheData(questions);
 
         return questions;
@@ -100,7 +99,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .map(InterviewQuestion::getQuestion)
                 .orElse("오늘의 질문을 찾을 수 없습니다.");
     }
-    private List<InterviewQuestionDTO> deserializeJson(String jsonData) {
+    private List<InterviewQuestionRequest> deserializeJson(String jsonData) {
         try {
             return objectMapper.readValue(jsonData, new TypeReference<>() {});
         } catch (Exception e) {
@@ -108,9 +107,9 @@ public class InterviewServiceImpl implements InterviewService {
             return getCollect();
         }
     }
-    private List<InterviewQuestionDTO> getCollect() {
+    private List<InterviewQuestionRequest> getCollect() {
         return questionRepository.findRandomITAndGeneralQuestions().stream()
-                .map(question -> InterviewQuestionDTO.builder()
+                .map(question -> InterviewQuestionRequest.builder()
                         .id(question.getId())
                         .question(question.getQuestion())
                         .category(question.getCategory())
@@ -118,7 +117,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .collect(Collectors.toList());
     }
 
-    private void cacheData(List<InterviewQuestionDTO> questions) {
+    private void cacheData(List<InterviewQuestionRequest> questions) {
         try {
             String jsonData = objectMapper.writeValueAsString(questions);
             redisTemplate.opsForValue().set(INTERVIEW_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);

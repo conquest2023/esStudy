@@ -1,13 +1,11 @@
 package es.board.service;
 
 import es.board.controller.model.req.JobListing;
-import es.board.controller.model.req.StudyTipDTO;
-import es.board.controller.model.req.TistoryPost;
+import es.board.controller.model.req.StudyTipRequest;
 import es.board.controller.model.req.WantedJobData;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public interface ItCrawlingService {
 
@@ -25,9 +23,9 @@ public interface ItCrawlingService {
 
      List<WantedJobData> wantedList();
 
-     List<StudyTipDTO> crawlNaverStudyTips(String keyword);
+     List<StudyTipRequest> crawlNaverStudyTips(String keyword);
 
-     List<StudyTipDTO> crawlGoogleStudyTips(String keyword);
+     List<StudyTipRequest> crawlGoogleStudyTips(String keyword);
 
      void crawlTistoryPosts(String keyword);
 

@@ -1,7 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.InterviewQuestionDTO;
+import es.board.controller.model.req.InterviewQuestionRequest;
 import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class InterviewQuestionController {
 
     @GetMapping("/interview/test")
     public ResponseEntity<?> getRandomTestQuestion() {
-        List<InterviewQuestionDTO> questionDTO = interviewService.getRandomQuestions();
+        List<InterviewQuestionRequest> questionDTO = interviewService.getRandomQuestions();
         if (questionDTO == null) {
             return ResponseEntity.ok(Map.of("message", "오늘의 질문을 찾을 수 없습니다."));
         }

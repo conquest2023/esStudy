@@ -8,7 +8,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import es.board.controller.model.req.VoteDTO;
+import es.board.controller.model.req.VoteRequest;
 import es.board.ex.IndexException;
 import es.board.repository.VoteDAO;
 import es.board.repository.document.VoteAnalytics;
@@ -29,7 +29,7 @@ public class VoteDAOImpl implements VoteDAO {
     private  final ElasticsearchClient client;
 
     @Override
-    public void saveVoteContent(VoteDTO voteResponse, Long id) {
+    public void saveVoteContent(VoteRequest voteResponse, Long id) {
         log.info(id.toString());
         try {
             IndexResponse response = client.index(i -> i
@@ -43,7 +43,7 @@ public class VoteDAOImpl implements VoteDAO {
     }
 
     @Override
-    public void saveVoteTicket(VoteDTO voteResponse) {
+    public void saveVoteTicket(VoteRequest voteResponse) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("vote_analytics")
@@ -54,7 +54,7 @@ public class VoteDAOImpl implements VoteDAO {
         }
     }
     @Override
-    public void saveAggregationAgreeVote(VoteDTO voteResponse, Long id) {
+    public void saveAggregationAgreeVote(VoteRequest voteResponse, Long id) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("vote_analytics")
