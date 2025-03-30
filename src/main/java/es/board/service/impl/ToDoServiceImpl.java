@@ -82,6 +82,11 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
+    public void delete_D_Day(Long id) {
+        dayRepository.deleteById(id);
+    }
+
+    @Override
     public List<D_DayDTO> getD_Day(String token) {
 
       return toDoMapper.fromD_DayEntityList(dayRepository.findAll(jwtTokenProvider.getUserId(token)));

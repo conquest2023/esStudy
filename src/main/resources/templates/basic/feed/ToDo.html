@@ -665,13 +665,11 @@
                 return;
             }
 
-            // 사용자 입력값 가져오기
             const examName = document.getElementById("examName").value;
             const category = document.getElementById("category").value;
             const examDate = document.getElementById("examDate").value;
             const goal = document.getElementById("goal").value;
 
-            // JSON 데이터 생성
             const payload = {
                 examName,
                 category,
@@ -714,38 +712,41 @@
                         return response.json();
                     })
                         .then(data => {
-                            console.log(data)
                             const dDayArray = data.D_Day;
                             const dDayTbody = document.getElementById("dDay-table-body");
                             dDayTbody.innerHTML = "";
-
                             if (!dDayArray || dDayArray.length === 0) {
                                 dDayTbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">
-                            등록된 D-DAY가 없습니다.
-                        </td>
-                    </tr>
-                `;
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    등록된 D-DAY가 없습니다.
+                                </td>
+                            </tr>
+                        `;
                             return;
                         }
 
                         dDayArray.forEach(dd => {
-                            let dDayText = "D-" + dd.dDay;
-                            if (dd.dDay < 0) {
+                            let dDayText = "D-" + dd.dday;
+                            if (dd.dday < 0) {
                                 dDayText = "시험 지남";
-                            } else if (dd.dDay === 0) {
+                            } else if (dd.dday === 0) {
                                 dDayText = "시험 당일!";
                             }
 
                             const row = `
-                <tr>
-                    <td>${dd.examName}</td>
-                    <td>${dd.examDate}</td>
-                    <td><strong>${dd.dday}</strong></td>
-                    <td>${dd.goal || ""}</td>
-                </tr>
-            `;
+                            <tr>
+                                <td>${dd.examName}</td>
+                                <td>${dd.examDate}</td>
+                                <td><strong>${dDayText}</strong></td>
+                                <td>${dd.goal || ""}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteDDay(${dd.id})">
+                                        삭제
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
                             dDayTbody.innerHTML += row;
                         });
                     })
@@ -789,6 +790,34 @@
             });
         });
     });
+    function deleteDDay(id) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        fetch(`/day/delete?id=${id}`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("D-DAY 삭제 실패");
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || "삭제 완료!");
+                location.reload();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("삭제 중 오류 발생: " + err.message);
+            });
+    }
 
     function loadProjects() {
         const token = localStorage.getItem("token");

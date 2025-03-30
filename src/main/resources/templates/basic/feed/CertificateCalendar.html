@@ -133,7 +133,6 @@
       </ul>
     </div>
 
-    <!-- 중분류 -->
     <div id="middleCategoryContainer" class="dropdown">
       <button class="btn btn-light dropdown-toggle custom-category-btn" type="button" id="middleCategoryBtn" data-bs-toggle="dropdown" disabled>
         중분류 선택
@@ -141,7 +140,6 @@
       <ul class="dropdown-menu custom-dropdown-menu" id="middleCategoryList"></ul>
     </div>
 
-    <!-- 소분류 -->
     <div class="dropdown">
       <button class="btn btn-light dropdown-toggle custom-category-btn" type="button" id="subCategoryBtn" data-bs-toggle="dropdown" disabled>
         자격증 선택
@@ -158,14 +156,29 @@
     <div id="calendar"></div>
   </div>
 </div>
-<!-- 소분류 선택 전엔 display: none; 처리 -->
-<!-- 공부팁 버튼 (오른쪽 중앙) -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalLabel">일정 상세 정보</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div class="modal-body" id="eventModalBody">
+        <!-- 동적으로 내용 삽입됨 -->
+      </div>
+      <div class="modal-footer d-flex justify-content-between align-items-center">
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" id="addToDdayBtn">+ D-DAY로 추가</button>
+          <button class="btn btn-outline-success" id="addToTodoBtn">+ 장기목표 추가</button>
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="studyTipFloatBtn">팁</div>
-
-<!-- 슬라이드 패널 (기본 숨김: right -400px) -->
 <div id="studyTipPanel">
   <button id="closeTipPanel" class="btn btn-sm btn-secondary">닫기</button>
-  <!-- 아코디언 -->
   <div class="accordion mt-3" id="studyTipAccordion">
     <div class="accordion-item">
       <h2 class="accordion-header">
@@ -185,22 +198,18 @@
     const floatBtn = document.getElementById("studyTipFloatBtn");
     const studyTipPanel = document.getElementById("studyTipPanel");
     const closeBtn = document.getElementById("closeTipPanel");
-
-    // 공부 팁 버튼 -> 패널 열기
     floatBtn.addEventListener("click", () => {
       studyTipPanel.style.display = "block";
-      // 패널이 아예 숨겨져 있었다면, 보이도록
       setTimeout(() => {
         studyTipPanel.style.right = "0";
       }, 0);
     });
 
-    // 닫기 버튼 -> 패널 닫기
     closeBtn.addEventListener("click", () => {
       studyTipPanel.style.right = "-400px";
       setTimeout(() => {
         studyTipPanel.style.display = "none";
-      }, 300); // 애니메이션 후에 display none
+      }, 300);
     });
   });
   let calendar;
@@ -234,7 +243,6 @@
     const subCategoryList = document.getElementById("subCategoryList");
 
 
-    // 대분류 선택
     majorCategoryList.forEach(item => {
       item.addEventListener("click", function (event) {
         event.preventDefault();
@@ -243,13 +251,10 @@
         document.getElementById("majorCategory").value = selectedMajor;
 
         middleCategoryList.innerHTML = "";
-        // subCategoryList.innerHTML = "";
-        // subCategoryContainer.style.display = "none"; // ✅ 오류 방지
-        // subCategoryBtn.disabled = true;
 
         if (categoryMapping[selectedMajor]) {
 
-          middleCategoryContainer.style.display = "block"; // ✅ 오류 방지 코드 추가
+          middleCategoryContainer.style.display = "block";
           middleCategoryBtn.disabled = false;
           middleCategoryBtn.innerText = "중분류를 선택하세요";
 
@@ -278,7 +283,6 @@
       });
     });
 
-    // FullCalendar 초기화
     var calendarEl = document.getElementById("calendar");
     var calendarContainer = document.getElementById("calendar-container");
 
@@ -294,13 +298,16 @@
       dayMaxEventRows: 3,
       moreLinkText: "더보기",
       height: "auto",
-      events: [] // 초기 이벤트 빈 배열
+      events: [],
+
+      eventClick: function (info) {
+        showEventDetailModal(info.event);
+      }
     });
     calendar.render();
-    // 캘린더는 기본적으로 숨김
   });
 
-  // 소분류 API 호출
+
   function fetchSubCategories(mainCategory, subCategory) {
     const token = localStorage.getItem("token");
     fetch(`/certificate/category/${mainCategory}/${subCategory}`, {
@@ -344,7 +351,6 @@
             .catch(error => console.error("소분류 데이터 불러오기 오류:", error));
   }
 
-  // 자격증 일정 캘린더 이벤트 로드 함수
   function fetchCertificationSchedules(category) {
     const token = localStorage.getItem("token");
     fetch(`/certificate/schedule/${category}`, {
@@ -356,7 +362,6 @@
             .then(response => response.json())
             .then(data => {
               if (data.certSchedule) {
-                // API 응답 데이터가 List<Cert>인 경우
                 calendar.removeAllEvents();
                 const events = data.certSchedule.flatMap(cert => [
                   { title: `[필기 원서접수] ${cert.name} - ${cert.examRound}`, start: cert.writtenRegStart, color: "#007bff" },
@@ -425,6 +430,89 @@
       `;
       container.appendChild(card);
     });
+  }
+  function showEventDetailModal(event) {
+    const modalTitle = document.getElementById("eventModalLabel");
+    const modalBody = document.getElementById("eventModalBody");
+    const eventTitle = event.title;
+    const eventDate = event.startStr;
+
+    modalTitle.textContent = eventTitle;
+    modalBody.innerHTML = `
+    <p><strong>일정 날짜:</strong> ${eventDate}</p>
+    <p><strong>일정 타입:</strong> ${extractTypeFromTitle(eventTitle)}</p>
+  `;
+
+    document.getElementById("addToDdayBtn").onclick = () => addToDday(eventTitle, eventDate);
+    document.getElementById("addToTodoBtn").onclick = () => addToTodo(eventTitle, eventDate);
+
+    const modal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+    modal.show();
+  }
+  async function addToDday(title, date) {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("로그인이 필요합니다.");
+
+    const payload = {
+      examName: title,
+      category: "자격증",
+      examDate: date,
+      goal: "",
+      progress: 0
+    };
+
+    const response = await fetch("/day/save", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert("D-DAY에 추가되었습니다!");
+    } else {
+      alert(result.error || "D-DAY 추가 실패");
+    }
+  }
+  async function addToTodo(title, date) {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("로그인이 필요합니다.");
+    const payload = {
+      title: title,
+      description: `${title} 일정 준비`,
+      category: "자격증",
+      dueDate: date,
+      status: "IN_PROGRESS",
+      priority: 1,
+      project: true,
+      end: date
+    };
+    const response = await fetch("/save/project/todo", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      alert("할 일에 추가되었습니다!");
+    } else {
+      alert("할 일 추가 실패");
+    }
+  }
+  function extractTypeFromTitle(title) {
+    if (title.includes("필기 원서접수")) return "필기 원서접수";
+    if (title.includes("필기 시험")) return "필기 시험";
+    if (title.includes("필기 합격발표")) return "필기 합격발표";
+    if (title.includes("실기 원서접수")) return "실기 원서접수";
+    if (title.includes("실기 시험")) return "실기 시험";
+    if (title.includes("실기 합격발표")) return "실기 합격발표";
+    return "기타";
   }
 
 </script>

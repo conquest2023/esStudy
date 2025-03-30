@@ -25,6 +25,8 @@ public interface ToDoService {
 
     void updateTodoCache(String userId) ;
 
+
+    void delete_D_Day(Long id);
     void completeTodo(String token, Long id);
 
     Long getDoneTodo(String userId);

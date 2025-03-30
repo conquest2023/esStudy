@@ -226,6 +226,25 @@ public class ToDoController {
 
         return ResponseEntity.ok(response);
         }
+
+    @PostMapping("/day/delete")
+    public ResponseEntity<?> delete_D_Day(@RequestParam Long id, @RequestHeader(value = "Authorization") String token) {
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        Map<String, String> response = new HashMap<>();
+        toDoService.delete_D_Day(id);
+        response.put("message", "D-DAY가 성공적으로 삭제되었습니다.");
+
+        return ResponseEntity.ok(response);
+        }
     }
 
 
