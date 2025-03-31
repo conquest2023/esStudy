@@ -2,7 +2,7 @@ package es.board.controller.model.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import es.board.config.XssSafeSerializer;
+import es.board.filter.XssSafeSerializer;
 import lombok.*;
 
 import java.time.LocalDateTime;

@@ -2094,7 +2094,6 @@
 
                 const tabId = this.id;
 
-                // 🔥 탭 별 표시 및 API 호출
                 if (tabId === "data-tab") {
                     document.getElementById("dataTabContent").style.display = "block";
                     document.getElementById("dataTabPane").style.display = "block";
@@ -3067,8 +3066,6 @@
                             if (refreshData.accessToken) {
                                 localStorage.setItem("token", refreshData.accessToken);
                                 token = refreshData.accessToken;
-
-
                                 return fetchUserInfo(refreshData.accessToken, refreshToken);
                             } else {
                                 throw new Error("토큰 재발급 실패");
@@ -3148,7 +3145,6 @@
         const userMenuBtn = document.getElementById("user-menu-btn");
         const token = localStorage.getItem("token");
         const refreshToken = localStorage.getItem("refreshToken");
-
         if (token && refreshToken) {
             fetchUserInfo(token, refreshToken)
                 .then(data => {

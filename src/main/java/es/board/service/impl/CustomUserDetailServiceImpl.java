@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class CustomUserDetailServiceImpl implements UserDetailsService {
 
     private  final UserRepository userRepository;
+
     private  final PasswordEncoder passwordEncoder;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -37,7 +38,6 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
                 authorities
         );
     }
-
 
     private  UserDetails createUserDetails(User user){
         return org.springframework.security.core.userdetails.User.builder()

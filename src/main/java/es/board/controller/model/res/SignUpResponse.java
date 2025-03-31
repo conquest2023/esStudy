@@ -2,11 +2,10 @@ package es.board.controller.model.res;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import es.board.config.XssSafeSerializer;
+import es.board.filter.XssSafeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Primary;
 
 @Data
 @AllArgsConstructor

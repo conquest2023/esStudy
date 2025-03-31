@@ -1,4 +1,4 @@
-package es.board.config;
+package es.board.filter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;

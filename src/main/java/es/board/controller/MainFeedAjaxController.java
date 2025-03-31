@@ -118,6 +118,7 @@ public class MainFeedAjaxController {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
+            log.info(jwtTokenProvider.getUserId(token));
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
                         "userId",jwtTokenProvider.getUserId(token),

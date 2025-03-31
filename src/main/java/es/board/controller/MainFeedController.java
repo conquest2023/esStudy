@@ -320,7 +320,11 @@ public class MainFeedController {
         return ResponseEntity.ok(response);
     }
 
-
+    @GetMapping("/kakao/callback")
+    public String kakaoCallbackView(@RequestParam String code, Model model) {
+        model.addAttribute("code", code);
+        return "basic/login/kakao_callback";
+    }
     @GetMapping("/get/user/vote/details")
     public String getUserVoteDetail() {
         return "basic/feed/VoteDetail";

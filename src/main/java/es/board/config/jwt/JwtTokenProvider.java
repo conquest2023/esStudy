@@ -1,11 +1,19 @@
 package es.board.config.jwt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.req.KakaoInfo;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +21,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.Key;
 import java.time.LocalDate;
@@ -54,7 +65,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .claim("created_at", LocalDate.now().toString()) // 발급 일자 추가
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))
-                .signWith(key, SignatureAlgorithm.HS256) // 서명
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         Date refreshTokenExpiresIn = new Date(now + 1000L * 60 * 60 * 24 * 30);
@@ -64,7 +75,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .setExpiration(refreshTokenExpiresIn)
                 .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
-
         return JwtToken.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -122,25 +132,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 
-
-//         String username = Jwts.parser()
-//                .setSigningKey(key)
-//                .parseClaimsJws(accessToken)
-//                .getBody()
-//                .getSubject();
-
-//       UserDetails principal = new EsUser(claims.getSubject(), "", Collections.emptyList());
-
     }
-    public boolean blackListValidateToken(String token) {
-        if (isTokenBlacklisted(token)) {
-            System.out.println("[DEBUG] 블랙리스트에 등록된 토큰: " + token);
-            return false; // 블랙리스트에 있으면 무효화
-        }
-        // 기존 유효성 검사 로직
-        return true;
-    }
-    // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -157,7 +149,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
             return false;
         }
     }
-    // accessToken
     private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
@@ -168,7 +159,6 @@ private final Set<String> blacklistedTokens = new HashSet<>();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         } catch (JwtException e) {
-            // JWT 형식 자체가 잘못됐을 때
             throw new RuntimeException("유효하지 않은 토큰입니다.");
         }
     }

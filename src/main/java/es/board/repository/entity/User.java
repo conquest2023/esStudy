@@ -32,6 +32,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  int id;
 
+
     private  String userId;
 
     private String username;
@@ -62,11 +63,11 @@ public class User {
     @Column(name = "last_login", columnDefinition = "DATETIME")
     private LocalDateTime lastLogin;
 
-    @ManyToMany(fetch = FetchType.EAGER) // 즉시 로딩하여 권한 정보를 가져옴
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "user_roles", // 연결 테이블 이름
-            joinColumns = @JoinColumn(name = "user_id"), // 사용자 ID와 매핑
-            inverseJoinColumns = @JoinColumn(name = "role_id") // 역할 ID와 매핑
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
 
     private Set<Role> roles;

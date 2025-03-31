@@ -1,6 +1,8 @@
 package es.board.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import es.board.controller.model.req.CommentRequest;
+import es.board.controller.model.req.KakaoInfo;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
@@ -25,4 +27,6 @@ public interface AuthService {
     Long findVisitCount(String  userId);
 
     Authentication authenticate(LoginResponse login);
+
+
 }
