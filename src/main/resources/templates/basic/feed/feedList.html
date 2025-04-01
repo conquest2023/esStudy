@@ -65,6 +65,25 @@
             .balloon {
                 opacity: 1;
             }
+            .custom-logo {
+                padding-left: 0 !important;
+                margin-left: 0 !important;
+                transform: translateX(-100px);
+            }
+            ul.pagination {
+                margin-bottom: 100px !important;
+            }
+            #bottomNav {
+                border-top: 1px solid #ddd;
+            }
+
+            #bottomNav .nav-link {
+                color: #555;
+            }
+            #bottomNav .nav-link:hover {
+                background-color: #f8f8f8;
+                color: #000;
+            }
             .list-item {
                 cursor: pointer;
                 transition: background 0.2s ease-in-out;
@@ -282,9 +301,7 @@
                 background: #0056b3;
                 transform: scale(1.05);
             }
-            #leftMenuToggle {
-                left: 10px;
-            }
+
 
             .menu-toggle {
                 left: 15px;
@@ -1304,7 +1321,6 @@
     </style>
     </div>
 </head>
-<button id="leftMenuToggle" class="menu-toggle d-md-none">📂main</button>
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid d-flex align-items-center">
         <a class="navbar-brand fw-bold text-primary me-2 custom-logo" href="/">Ninfo</a>
@@ -1330,6 +1346,7 @@
                             </a>
                         </li>
                     </ul>
+
                 </li>
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button"
@@ -1372,6 +1389,7 @@
                         </li>
                     </ul>
                 </li>
+            </ul>
         </div>
         <div class="d-flex align-items-center me-3">
             <div class="notification-container position-relative" style="margin-right: 50px;">
@@ -1412,10 +1430,6 @@
 <!--                    </button>-->
 <!--&lt;!&ndash;                    <p class="mb-0 ms-auto">조회수 : <span id="viewCount"></span></p>&ndash;&gt;-->
 <!--                </div>-->
-                <div id="rightMenuToggle" class="sidebar-mini p-2 shadow-sm">
-                    <span class="fw-bold text-dark">중요한 일정 & 실시간 사용자 통계를 한눈에!:<span id="miniCurrentVisitors">0</span>명</span>
-                    <button id="expandSidebar" class="btn btn-light btn-sm">더 보기</button>
-                </div>
                 <section class="my-4">
                     <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
                         <h2 class="section-title fw-bold mb-0 me-2 flex-grow-1">면접 질문</h2>
@@ -1541,16 +1555,9 @@
                     </nav>
                 </div>
             </main>
-            <div id="rightSidebarTooltip" class="tooltip-box">
-                 중요한 일정 & 오늘 사용자 통계치를 한눈에!
-            </div>
-
-            <aside id="rightSidebar" class="right-sidebar col-md-2 side-container" style="z-index: 10;">
+            <aside id="rightSidebar" class="right-sidebar col-md-2 side-container d-none d-md-block">
                 <div class="card shadow-sm mt-3">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <button id="closeSidebarBtn" class="btn btn-outline-danger btn-sm d-md-none position-absolute top-0 end-0 m-2">
-                            ✖ 닫기
-                        </button>
                         <ul class="nav nav-tabs card-header-tabs" id="sidebarTabs">
                             <li class="nav-item">
                                 <a class="nav-link active" id="todoTab" data-bs-toggle="tab" href="#todoSection">📋 Todo & D-Day</a>
@@ -1560,31 +1567,22 @@
                             </li>
                         </ul>
                     </div>
-
                     <div class="tab-content">
                         <div class="tab-pane fade show active p-2" id="todoSection">
                             <h6 class="fw-bold">
-                                D-Day 일정
-                                <a href="/todo" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
+                                D-Day 일정 <a href="/todo" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
                             </h6>
-
                             <ul class="list-group small" id="quickDDayList"></ul>
                             <h6 class="fw-bold mt-3">📝 오늘의 Todo</h6>
                             <div class="progress mb-2">
-                                <div class="progress-bar bg-info" id="todoProgressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                    0%
-                                </div>
+                                <div class="progress-bar bg-info" id="todoProgressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                             </div>
                             <ul class="list-group small" id="quickTodoList"></ul>
                         </div>
-
-
                         <div class="tab-pane fade p-2" id="calendarSection">
                             <h6 class="fw-bold">
-                                📅 내 캘린더
-                                <a href="/calendar" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
+                                📅 내 캘린더 <a href="/calendar" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
                             </h6>
-
                             <div id="miniCalendar"></div>
                         </div>
                     </div>
@@ -1600,37 +1598,116 @@
                 </div>
                 <div class="card shadow-sm mt-3" id="topWritersCard">
                     <div class="p-3 bg-white rounded shadow-sm">
-                        <h3 class="fw-bold text-primary"> Top 5</h3>
+                        <h3 class="fw-bold text-primary">Top 5</h3>
                         <div id="topWritersList" class="ranking-container"></div>
                     </div>
                 </div>
             </aside>
+<nav id="bottomNav" class="navbar navbar-light bg-light shadow-sm fixed-bottom d-md-none">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="dropdown dropup text-center">
+            <a class="nav-link dropdown-toggle d-flex flex-column align-items-center" href="#" id="jobDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-briefcase fa-lg"></i>
+                <span class="small text-nowrap">취업</span>
+            </a>
+            <ul class="dropdown-menu text-center" aria-labelledby="jobDropdown">
+                <li><a class="dropdown-item fw-bold" href="/search/view/feed/list/job">IT 취업 정보</a></li>
+                <li><a class="dropdown-item fw-bold" href="/site">취업 사이트</a></li>
+            </ul>
         </div>
-</div>
-<div class="modal fade" id="dDayTodoModal" tabindex="-1" aria-labelledby="dDayTodoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">📅내 D-Day & Todo 일정</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
 
-                <h6 class="fw-bold">D-Day 전체 목록</h6>
-                <ul class="list-group" id="fullDDayList"></ul>
+        <div class="dropdown dropup text-center">
+            <a class="nav-link dropdown-toggle d-flex flex-column align-items-center" href="#" id="Dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-check fa-lg"></i>
+                <span class="small text-nowrap">일정</span>
+            </a>
+            <ul class="dropdown-menu text-center" aria-labelledby="scheduleDropdown">
+                <li><a class="dropdown-item fw-bold" href="/todo">투두 & D-Day</a></li>
+                <li><a class="dropdown-item fw-bold" href="/calendar">캘린더</a></li>
+            </ul>
+        </div>
 
-                <h6 class="fw-bold mt-3">📝Todo 전체 목록</h6>
-                <div class="progress mb-2">
-                    <div class="progress-bar bg-success" id="fullTodoProgressBar" role="progressbar"
-                         style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                        0%
-                    </div>
-                </div>
-                <ul class="list-group" id="fullTodoList"></ul>
-            </div>
+        <button class="btn btn-primary rounded-circle" style="width: 56px; height: 56px; margin-bottom: 30px;"
+                onclick="window.location.href='/search/view/feed/Form';">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <a class="nav-link d-flex flex-column align-items-center text-center d-md-none" href="#" data-bs-toggle="modal" data-bs-target="#dDayTodoModal">
+            <i class="fas fa-chart-line fa-lg"></i>
+            <span class="small text-nowrap">실시간</span>
+        </a>
+
+        <div class="dropdown dropup text-center">
+            <a class="nav-link dropdown-toggle d-flex flex-column align-items-center" href="#" id="certDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-certificate fa-lg"></i>
+                <span class="small text-nowrap">자격증</span>
+            </a>
+            <ul class="dropdown-menu text-center" aria-labelledby="certDropdown">
+                <li><a class="dropdown-item fw-bold" href="/certificate/list">자격증 분석</a></li>
+                <li><a class="dropdown-item fw-bold" href="/certificate/calendar">자격증 일정</a></li>
+            </ul>
         </div>
     </div>
+</nav>
 </div>
+<div class="modal fade" id="dDayTodoModal" tabindex="-1" aria-labelledby="dDayTodoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+<!--                    <i class="fas fa-chart-line text-success me-2"></i>내 D-Day & Todo 실시간 현황-->
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <ul class="nav nav-tabs card-header-tabs" id="sidebarTabsMobile">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="todoTabMobile" data-bs-toggle="tab" href="#todoSectionMobile">📋 Todo & D-Day</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="calendarTabMobile" data-bs-toggle="tab" href="#calendarSectionMobile">📅 캘린더</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active p-2" id="todoSectionMobile">
+                            <h6 class="fw-bold">
+                                D-Day 일정 <a href="/todo" class="btn btn-sm btn-primary ms-2">+ 작성하기</a>
+                            </h6>
+                            <ul class="list-group small" id="quickDDayListMobile"></ul>
+                            <h6 class="fw-bold mt-3">📝 오늘의 Todo</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-info" id="todoProgressBarMobile" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                            <ul class="list-group small" id="quickTodoListMobile"></ul>
+                        </div>
+                        <div class="tab-pane fade p-2" id="calendarSectionMobile">
+                            <h6 class="fw-bold">📅 내 캘린더 <a href="/calendar" class="btn btn-sm btn-primary ms-2">+ 작성하기</a></h6>
+                            <div id="miniCalendarMobile"></div>
+                        </div>
+                    </div>
+                    <div class="card shadow-sm mt-3">
+                        <div class="tab-content p-3">
+                            <div class="tab-pane fade show active" id="visitorStatsMobile">
+                                <p><strong>현재 접속자:</strong> <span id="currentVisitorsMobile">0</span></p>
+                                <p><strong>오늘 방문자:</strong> <span id="todayVisitorsMobile">0</span></p>
+                                <p><strong>누적 방문자:</strong> <span id="totalVisitorsMobile">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm mt-3" id="topWritersCardMobile">
+                    <div class="p-3 bg-white rounded shadow-sm">
+                        <h3 class="fw-bold text-primary">Top 5</h3>
+                        <div id="topWritersListMobile" class="ranking-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
 <div id="bestAnswerCardsContainer" class="my-3"></div>
 
 <div class="modal fade" id="bestAnswerModal" tabindex="-1" aria-labelledby="bestAnswerModalLabel" aria-hidden="true">
@@ -2074,18 +2151,15 @@
 
         document.querySelectorAll("#boardTab .nav-link").forEach(tab => {
             tab.addEventListener("click", function () {
-                // 탭 비활성화 → 활성화
                 document.querySelectorAll("#boardTab .nav-link").forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
 
-                // 🔒 모든 콘텐츠 숨기기
                 const tabContents = ["dataTabContent", "noticeTabPane", "qaTabPane", "bestTabPane", "allTabPane"];
                 tabContents.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.display = "none";
                 });
 
-                // 🔒 모든 pagination 숨기기
                 const paginations = ["pagination", "paginationNotice", "qaPagination", "bestPagination", "dataPagination"];
                 paginations.forEach(id => {
                     const el = document.getElementById(id);
@@ -2113,7 +2187,6 @@
                     fetchQnAFeed("Q/A", 0);
                 } else if (tabId === "all-tab") {
                     document.getElementById("allTabPane").style.display = "block";
-                    document.getElementById("pagination").style.display = "inline-block";
                     loadPage(0);
                 }
             });
@@ -2377,36 +2450,33 @@
         const questionToShow = (questionsArray && questionsArray.length > 0)
             ? questionsArray[0]
             : "질문 없음";
+
         container.style.display = "flex";
-        container.style.height = "100px";
-        container.innerHTML = `<a href="/interview/question" class="question-link">
-                              💡 예상 면접 질문: ${questionToShow}
-                           </a>`;
-        container.style.display = "block";
+        container.style.height = "auto"; // 100px 고정 제거
+
+        container.innerHTML = `
+        <div class="w-100 p-3 border rounded shadow-sm bg-white">
+            <div class="mb-2 text-primary fw-bold" style="font-size: 1.1rem;">
+                예상 면접 질문
+            </div>
+            <div class="text-dark" style="font-size: 1rem;">
+                <a href="/interview/question" class="text-decoration-none text-dark">
+                    ${questionToShow}
+                </a>
+            </div>
+        </div>
+    `;
     }
+
 
     function setActiveTab(category) {
         document.getElementById("itTab").classList.toggle("active", category === "IT");
         document.getElementById("generalTab").classList.toggle("active", category === "일반");
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        let rightMenuToggle = document.getElementById("rightMenuToggle");
-        let bookmarkToggle = document.getElementById("bookmarkToggle");
-        let closeSidebar = document.getElementById("closeSidebar");
-
-        bookmarkToggle.addEventListener("click", function () {
-            rightMenuToggle.classList.toggle("active");
-        });
-
-        closeSidebar.addEventListener("click", function () {
-            rightMenuToggle.classList.remove("active");
-        });
-    });
 
     document.addEventListener("DOMContentLoaded", function () {
         renderMiniCalendar();
-
         async function renderMiniCalendar() {
             const calendarContainer = document.getElementById("miniCalendar");
             const token = localStorage.getItem("token");
@@ -2468,24 +2538,6 @@
         }
     });
 
-
-    document.addEventListener("DOMContentLoaded", function () {
-        let rightMenuToggle = document.getElementById("rightMenuToggle");
-        let expandSidebar = document.getElementById("expandSidebar");
-        let closeSidebar = document.getElementById("closeSidebar");
-
-        expandSidebar.addEventListener("click", function () {
-            rightMenuToggle.style.height = "auto";
-        });
-
-        closeSidebar.addEventListener("click", function () {
-            rightMenuToggle.style.height = "30px";
-        });
-    });
-
-
-    //
-
     let topWriters = {};
     function fetchTopWriters() {
         let cachedData = sessionStorage.getItem("topWriters");
@@ -2506,6 +2558,10 @@
             .catch(error => console.error("Top 유저 데이터 가져오기 실패:", error));
     }
     function updateTopWriters(topWriters) {
+        if (isMobile()){
+            updateTopWritersMobile(topWriters)
+            return
+        }
         const topWritersList = document.getElementById("topWritersList");
         topWritersList.innerHTML = '';
         topWriters.forEach((writer, index) => {
@@ -2566,6 +2622,7 @@
                 }
             });
 
+
             if (!response.ok) throw new Error('Failed to fetch visitor stats');
             const data = await response.json();
 
@@ -2613,6 +2670,7 @@
             const data = await response.json();
             renderPagination(data.page,data.totalPage,data.maxPage);
             renderFeeds(data, data.count);
+            $("#pagination").show();
             $("#paginationNotice").hide();
 
         } catch (error) {
@@ -3054,7 +3112,7 @@
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({ refreshToken: refreshToken })
+                        body: JSON.stringify({refreshToken: refreshToken})
                     })
                         .then(refreshResponse => {
                             if (!refreshResponse.ok) {
@@ -3072,17 +3130,12 @@
                             }
                         });
                 }
-
-
                 return response.json();
             });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        const mainContent = document.querySelector(".main-content");
         const tooltipBox = document.getElementById("rightSidebarTooltip");
-        const navbarToggler = document.querySelector(".navbar-toggler");
-
         function isMobile() {
             return window.innerWidth <= 768;
         }
@@ -3092,7 +3145,6 @@
                 tooltipBox.classList.remove("show");
             }, 5000);
         }
-
         function toggleSidebar() {
             if (isMobile()) {
 
@@ -3107,16 +3159,8 @@
                 rightSidebar.classList.toggle("show");
             }
         }
-
-        if (isMobile()) {
-            rightMenuToggle.style.display = "block";
-        } else {
-            rightMenuToggle.style.display = "none";
-        }
-
         rightMenuToggle.addEventListener("click", toggleSidebar);
         showTooltip();
-
     function initDesktop() {
             console.log("데스크톱 레이아웃 적용");
         }
@@ -3476,39 +3520,22 @@
             setTimeout(() => calendarBalloon2.style.display = "none", 500);
         }, 5000);
     });
-    document.addEventListener("DOMContentLoaded", function () {
-        const leftMenuToggle = document.getElementById("leftMenuToggle");
-        const rightMenuToggle = document.getElementById("rightMenuToggle");
-        const navbarNav = document.getElementById("navbarNav");
-        const rightSidebar = document.getElementById("rightSidebar");
-
-        function toggleElement(element) {
-            if (element.style.display === "none" || element.style.display === "") {
-                element.style.display = "block";
-            } else {
-                element.style.display = "none";
-            }
-        }
-
-        function toggleSidebar(sidebar) {
-            console.log(`${sidebar.id} 토글 실행!`);
-            if (sidebar.classList.contains("show")) {
-                sidebar.classList.remove("show");
-                sidebar.style.transform = "translateX(-100%)";
-            } else {
-                sidebar.classList.add("show");
-                sidebar.style.transform = "translateX(0)";
-            }
-        }
-
-        leftMenuToggle.addEventListener("click", function () {
-            toggleElement(navbarNav);
-        });
-
-        rightMenuToggle.addEventListener("click", function () {
-            toggleElement(rightSidebar);
-        });
-    });
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     const rightMenuToggle = document.getElementById("rightMenuToggle");
+    //     const navbarNav = document.getElementById("navbarNav");
+    //     const rightSidebar = document.getElementById("rightSidebar");
+    //
+    //     function toggleElement(element) {
+    //         if (element.style.display === "none" || element.style.display === "") {
+    //             element.style.display = "block";
+    //         } else {
+    //             element.style.display = "none";
+    //         }
+    //     }
+    //     rightMenuToggle.addEventListener("click", function () {
+    //         toggleElement(rightSidebar);
+    //     });
+    // });
     document.addEventListener("DOMContentLoaded", function () {
         const rightMenuToggle = document.getElementById("rightMenuToggle");
         const rightSidebar = document.getElementById("rightSidebar");
@@ -3619,21 +3646,25 @@
     //         .catch(err => console.error("Todo 불러오기 실패:", err));
     // }
 
-
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
     document.addEventListener("DOMContentLoaded", function () {
         const token = localStorage.getItem("token");
         if (!token) {
             console.warn("로그인이 필요합니다.");
             return;
         }
-
         let dDayList = [];
         let todoList = [];
         let remainingTodos = 0;
-
         fetchDdayAndTodos(token);
-
         document.getElementById("showFullSchedule").addEventListener("click", function () {
+            if (isMobile()){
+                renderFullDday(dDayList);
+                renderQuickTodosMobile(todoList, remainingTodos);
+                return
+            }
             renderFullDday(dDayList);
             renderQuickTodos(todoList, remainingTodos);
             new bootstrap.Modal(document.getElementById("dDayTodoModal")).show();
@@ -3646,6 +3677,9 @@
                     .then(data => {
                         dDayList = data.D_Day || [];
                         renderQuickDday(dDayList);
+                        if (window.innerWidth <= 768) {
+                            renderQuickDdayMobile(dDayList);
+                        }
                     }),
                 fetch("/search/today/todo", { method: "GET", headers: { "Authorization": "Bearer " + token } })
                     .then(response => response.json())
@@ -3674,24 +3708,14 @@
                 progressBar.setAttribute("aria-valuenow", "0");
                 return;
             }
-
             const totalTodos = data.length;
-            console.log(totalTodos);
             const completedTodos = totalTodos - remainingCount;
-            console.log(completedTodos);
             const progress = totalTodos === 0 ? 0 : Math.round((completedTodos / totalTodos) * 100);
-
-            console.log("📌 계산된 Progress:", progress);
-
             progressBar.style.transition = "width 0.5s ease-in-out";
             progressBar.style.width = `${progress}%`;
             progressBar.setAttribute("aria-valuenow", progress);
             progressBar.textContent = `${progress}%`;
-
-
             progressBar.offsetWidth;
-
-            console.log("📌 최종 Width:", progressBar.style.width);
 
             data.slice(0, 3).forEach(todo => {
                 const statusIcon = getStatusIcon(todo.status);
@@ -3735,7 +3759,6 @@
                 list.innerHTML = `<li class="list-group-item text-muted">D-Day 일정이 없습니다.</li>`;
                 return;
             }
-
             data.forEach(dday => {
                 list.innerHTML += `
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -3772,6 +3795,149 @@
         function getStatusIcon(status) {
             return status === "IN_PROGRESS" ? "⏳" : status === "DONE" ? "✅" : "📝";
         }
+
+
+    function renderQuickTodosMobile(data, remainingCount) {
+        const list = document.getElementById("quickTodoListMobile");
+        const progressBar = document.getElementById("todoProgressBarMobile");
+        list.innerHTML = "";
+        if (data.length === 0) {
+            list.innerHTML = `<li class="list-group-item text-muted">오늘의 Todo가 없습니다.</li>`;
+            progressBar.style.width = "0%";
+            progressBar.textContent = "0%";
+            progressBar.setAttribute("aria-valuenow", "0");
+            return;
+        }
+
+        const totalTodos = data.length;
+        const completedTodos = totalTodos - remainingCount;
+        const progress = totalTodos === 0 ? 0 : Math.round((completedTodos / totalTodos) * 100);
+        progressBar.style.transition = "width 0.5s ease-in-out";
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute("aria-valuenow", progress);
+        progressBar.textContent = `${progress}%`;
+
+        data.slice(0, 3).forEach(todo => {
+            const statusIcon = getStatusIcon(todo.status);
+            list.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${statusIcon} ${todo.title}</span>
+        <span class="badge bg-secondary">${todo.priority}</span>
+      </li>`;
+        });
+    }
+    async function loadVisitorStatsMobile() {
+        try {
+            const response = await fetch('/get-ip');
+            const data = await response.json();
+            console.log(data)
+            document.getElementById('currentVisitorsMobile').textContent = data.activeUsers;
+            document.getElementById('todayVisitorsMobile').textContent = data.data.todayVisitors;
+            document.getElementById('totalVisitorsMobile').textContent = data.data.totalVisitors;
+        } catch (err) {
+            console.error('모바일 방문자 통계 에러:', err);
+        }
+    }
+    function updateTopWritersMobile(topWriters) {
+        loadVisitorStatsMobile();
+        renderMiniCalendarMobile();
+        const topWritersList = document.getElementById("topWritersListMobile");
+        topWritersList.innerHTML = '';
+        topWriters.forEach((writer, index) => {
+            let rankText = index + 1;
+            if (index === 0) rankText = "👑";
+            else if (index === 1) rankText = "🥇";
+            else if (index === 2) rankText = "🥈";
+            else if (index === 3) rankText = "🥉";
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `ranking-item`;
+            itemDiv.innerHTML = `
+        <span class="rank-badge">${rankText}</span>
+        <span class="rank-name">${writer.username}</span>
+        ${index === 0 ? `<span class="rank-crown"></span>` : `<span class="rank-details">${writer.viewCount}점</span>`}
+    `;
+            topWritersList.appendChild(itemDiv);
+        });
+    }
+    function renderQuickDdayMobile(data) {
+        const list = document.getElementById("quickDDayListMobile");
+        if (!list) return;
+
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = `<li class="list-group-item text-muted">D-Day 일정이 없습니다.</li>`;
+            return;
+        }
+
+        const dday = data.sort((a, b) => a.dday - b.dday)[0];
+        list.innerHTML = `
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>${dday.examName}</span>
+                <span class="badge bg-danger">D-${dday.dday}</span>
+            </div>
+            <div class="progress mt-2">
+                <div class="progress-bar bg-success" role="progressbar" style="width: ${100 - dday.dday}%;"
+                     aria-valuenow="${100 - dday.dday}" aria-valuemin="0" aria-valuemax="100">
+                    ${100 - dday.dday}%
+                </div>
+            </div>
+        </li>`;
+    }
+    async function renderMiniCalendarMobile() {
+        const calendarContainer = document.getElementById("miniCalendarMobile");
+        const token = localStorage.getItem("token");
+        if (!calendarContainer) return;
+
+        let calendarEvents = [];
+
+        try {
+            const response = await fetch("/search/schedule", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": token ? `Bearer ${token}` : ""
+                }
+            });
+
+            if (response.ok) {
+                const jsonData = await response.json();
+                calendarEvents = jsonData.todos || [];
+            } else {
+                console.error("D-Day API 요청 실패:", response.status);
+            }
+        } catch (error) {
+            console.error("D-Day 데이터 로드 오류:", error);
+        }
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let calendarHTML = `<h6 class="fw-bold">${year}년 ${month + 1}월</h6>`;
+        calendarHTML += '<div class="calendar-grid">';
+
+        for (let i = 0; i < firstDay; i++) {
+            calendarHTML += '<div class="calendar-day empty"></div>';
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateString = `${year}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+            let dayClass = "calendar-day";
+
+            if (day === today.getDate()) dayClass += " today";
+            if (calendarEvents.some(event => event.date === dateString)) dayClass += " has-event";
+
+            calendarHTML += `<div class="${dayClass}">${day}</div>`;
+        }
+
+        calendarHTML += '</div>';
+        calendarContainer.innerHTML = calendarHTML;
+    }
+
 
 
 </script>

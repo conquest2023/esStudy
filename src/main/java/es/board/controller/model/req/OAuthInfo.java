@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class KakaoInfo {
+public class OAuthInfo {
 
-    private Long id;
+    private String id;
 
     private String nickname;
 
@@ -15,7 +15,7 @@ public class KakaoInfo {
 
     private  String password;
 
-    public KakaoInfo(Long id, String nickname, String email, String password) {
+    public OAuthInfo(String id, String nickname, String email, String password) {
         this.id = id;
         this.nickname = nickname;
         this.email = email;

@@ -67,10 +67,10 @@ public class CrawlingController {
         return ResponseEntity.ok(crawlingService.crawlNaverStudyTips(keyword));
     }
 
-    @GetMapping("/google/{keyword}")
-    public ResponseEntity<List<StudyTipRequest>> getGoogleTips(@PathVariable String keyword) {
-        return ResponseEntity.ok(crawlingService.crawlGoogleStudyTips(keyword));
-    }
+//    @GetMapping("/google/{keyword}")
+//    public ResponseEntity<List<StudyTipRequest>> getGoogleTips(@PathVariable String keyword) {
+//        return ResponseEntity.ok(crawlingService.crawlGoogleStudyTips(keyword));
+//    }
 
 //    @GetMapping("/tistory/{keyword}")
 //    public CompletableFuture<ResponseEntity<List<TistoryPost>>> getTistory(@PathVariable String keyword) {

@@ -325,6 +325,18 @@ public class MainFeedController {
         model.addAttribute("code", code);
         return "basic/login/kakao_callback";
     }
+
+    @GetMapping("/naver/callback")
+    public String naverCallbackView(@RequestParam String code, Model model) {
+        model.addAttribute("code", code);
+        return "basic/login/naver_callback";
+    }
+
+    @GetMapping("/google/callback")
+    public String googleCallbackView(@RequestParam String code, Model model) {
+        model.addAttribute("code", code);
+        return "basic/login/google_callback.html";
+    }
     @GetMapping("/get/user/vote/details")
     public String getUserVoteDetail() {
         return "basic/feed/VoteDetail";

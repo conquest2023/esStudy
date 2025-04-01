@@ -91,9 +91,6 @@ public class ItCrawlingServiceImpl implements ItCrawlingService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(JUMPIT_URL, HttpMethod.GET, entity, String.class);
             String response = responseEntity.getBody();
 
-            // 응답 확인 (디버깅용)
-
-
             // 3. JSON 파싱
             JsonNode rootNode = objectMapper.readTree(response);
             JsonNode positions = rootNode.path("result").path("positions");

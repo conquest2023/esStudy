@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>구글 로그인 처리</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+<div class="container">
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h2 class="card-title mb-4">구글 로그인 처리 중...</h2>
+          <div id="usernamePrompt" style="display:none;">
+            <p class="mb-3">사용할 닉네임을 입력하세요</p>
+            <div class="input-group mb-3">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input type="text" id="newUsername" class="form-control" placeholder="아이디 입력" required>
+            </div>
+            <button onclick="submitUsername()" class="btn btn-danger w-100">확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      fetch(`/google/callback/json?code=${code}`)
+        .then(res => res.text())
+        .then(text => {
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            console.error("JSON 파싱 실패:", e);
+            return;
+          }
+          window.tempSocialUser = data;
+          console.log("구글 응답:", data);
+
+          if (data.result === "ok") {
+            loginWithSocialUser(data);
+          } else if (data.result === "newUser") {
+            showUsernameInputForm(data);
+          }
+        })
+        .catch(error => console.error("구글 Fetch 에러:", error));
+    }
+  });
+
+  function submitUsername() {
+    const username = document.getElementById("newUsername").value;
+    const payload = {
+      username: username,
+      provider: window.tempSocialUser.provider,
+      providerId: window.tempSocialUser.providerId,
+      email: window.tempSocialUser.email
+    };
+
+    fetch("/oauth/username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.result === "ok") {
+          loginWithSocialUser(payload);
+        }
+      });
+  }
+
+  function loginWithSocialUser(user) {
+    fetch("/oauth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.providerId,
+        username: user.username,
+        email: user.email,
+        password: user.password // 있을 경우만
+      })
+    })
+      .then(res => res.json())
+      .then(tokenData => {
+        localStorage.setItem("token", tokenData.accessToken);
+        localStorage.setItem("refreshToken", tokenData.refreshToken);
+        window.location.href = "/";
+      })
+      .catch(error => console.error("JWT 발급 실패:", error));
+  }
+
+  function showUsernameInputForm(data) {
+    document.getElementById("usernamePrompt").style.display = "block";
+    window.tempSocialUser = data;
+  }
+</script>
+</body>
+</html>
