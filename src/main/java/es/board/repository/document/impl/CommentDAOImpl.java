@@ -106,7 +106,6 @@ public class CommentDAOImpl implements CommentDAO {
 
     @Override
     public Comment findCommentUID(String commentId)  {
-
         try {
         SearchResponse<Comment> response = client.search(s -> s
                         .index("comment")
@@ -144,10 +143,6 @@ public class CommentDAOImpl implements CommentDAO {
             List<Comment> commentList = response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
-//            List<Comment> latest10comments =commentList.stream()
-//                    .limit(10)
-//                    .collect(Collectors.toList());
-
             return Map.of(
                     "totalComments", totalComments,
                     "comments", commentList
@@ -241,11 +236,8 @@ public class CommentDAOImpl implements CommentDAO {
                             .query(q -> q.matchAll(t -> t))
                             .sort(sort -> sort.field(f -> f
                                     .field("likeCount")
-                                    .order(SortOrder.Desc))
-                            ),
-                    Comment.class
-            );
-
+                                    .order(SortOrder.Desc))),
+                    Comment.class);
             List<Comment> comments = response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -450,8 +442,6 @@ public class CommentDAOImpl implements CommentDAO {
                             .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("feedUID").value(id)))))
                             .aggregations("feedUID_count", a -> a.valueCount(vc -> vc.field("feedUID"))),
                     Void.class);
-
-            // 집계 결과에서 값 추출
             double commentCount = response.aggregations()
                     .get("feedUID_count")
                     .valueCount()
@@ -530,25 +520,44 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public void deleteCommentId(String commentId)  {
         try {
-            SearchResponse<Comment> searchResponse = client.search(s -> s
+            SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
+                            .source(sou -> sou.filter(f -> f.includes(List.of())))
                             .query(q -> q.term(t -> t.field("commentUID").value(commentId))),
                     Comment.class
             );
-
-            // 검색 결과가 비어 있는지 확인
-            if (searchResponse.hits().hits().isEmpty()) {
+            if (response.hits().hits().isEmpty()) {
                 log.warn("No comment found with commentUID: " + commentId);
-                return;  // 결과가 없으면 삭제를 하지 않고 메서드를 종료
+                return;
             }
-            // 결과가 있을 경우 첫 번째 문서의 ID를 가져옴
-            String documentId = searchResponse.hits().hits().get(0).id();
-            commentRepository.deleteById(documentId);  // 댓글 삭제
+            String documentId = response.hits().hits().get(0).id();
+            commentRepository.deleteById(documentId);
             log.info("Successfully deleted comment with commentUID: " + commentId);
 
         } catch (IOException e) {
             log.error("Error deleting comment with commentUID: " + commentId, e);
             throw new IndexException("Failed to delete comment with commentUID", e);
+        }
+    }
+    @Override
+    public List<Comment> findMostCommentCount() {
+        try {
+            SearchResponse<Void> response = client.search(s -> s
+                            .index("comment")
+                            .size(0)
+                            .aggregations("most_commented_feeds", a -> a
+                                    .terms(t -> t
+                                            .field("feedUID")
+                                            .size(10)
+                                    )
+                            ),
+                    Void.class
+            );
+            log.info(response.toString());
+            return null;
+        } catch (IOException e) {
+            log.error("Error searching for comment by id", e);
+            throw new IndexException("Failed to find comment by ID", e);
         }
     }
 
@@ -643,7 +652,6 @@ public class CommentDAOImpl implements CommentDAO {
         }
 
     }
-
     @Override
     public List<TopWriter> findTopCommentWriters() {
         try {
@@ -680,28 +688,6 @@ public class CommentDAOImpl implements CommentDAO {
             log.error("Top 유저 가져오기 실패!", e);
             throw new IndexException(e);
         }
-    }
-    private Map<String, Long> aggregationCountComment(List<Comment> comments) {
-
-        return comments.stream()
-                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
-    }
-
-
-    private Map<String, Long> countCommentDESC(List<Comment> comments) {
-        Map<String, Long> countMap = comments.stream()
-                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()));
-
-        return comments.stream()
-                .collect(Collectors.groupingBy(Comment::getFeedUID, Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // 댓글 수 기준 내림차순
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
     }
 }
 

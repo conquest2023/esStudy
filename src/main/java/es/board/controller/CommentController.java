@@ -71,6 +71,11 @@ public class CommentController {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/commentEx")
+    public  void Test(){
+        log.info(commentService.getMostCommentCount().toString());
+    }
+
 
     @GetMapping("comment/update/get")
     @ResponseBody

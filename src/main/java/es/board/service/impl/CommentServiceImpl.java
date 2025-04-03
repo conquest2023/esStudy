@@ -136,8 +136,8 @@ public class CommentServiceImpl implements CommentService {
                 commentDAO.findPagingComment(feedUIDs, num, size));
     }
     @Override
-    public Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) {
-        return commentDAO.findPagingCommentDESC(feedUIDs, num, size);
+    public List<Comment> getMostCommentCount() {
+        return commentDAO.findMostCommentCount();
     }
 
 
@@ -157,6 +157,8 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(String id) {
         commentDAO.deleteCommentId(id);
     }
+
+
 
 
     public List<Comment> BulkToEntity(List<CommentCreate> res) {

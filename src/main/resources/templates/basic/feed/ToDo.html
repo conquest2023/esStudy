@@ -270,7 +270,14 @@
 
 
 <script>
-
+    document.addEventListener("DOMContentLoaded", async function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login";
+            return;
+        }
+    })
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("compareButton").addEventListener("click", function () {
             let modal = new bootstrap.Modal(document.getElementById("compareModal"));
@@ -279,11 +286,6 @@
     });
         document.addEventListener("DOMContentLoaded", async function () {
             const token = localStorage.getItem("token");
-            if (!token) {
-                alert("로그인이 필요합니다.");
-                return;
-            }
-
             try {
 
                 const response = await fetch("/user/id", {
@@ -293,11 +295,6 @@
                         "Content-Type": "application/json"
                     }
                 });
-
-                if (!response.ok) {
-                    throw new Error("유저 정보를 가져올 수 없습니다.");
-                }
-
                 const data = await response.json();
                 const userId = data.userId;
                 if (!userId) {
@@ -456,7 +453,6 @@
                 if (iframe) {
                     iframe.src = kibanaUrl;
                 }
-
             } catch (error) {
                 console.error("유저 정보를 가져오는 중 오류 발생:", error);
                 alert("유저 정보를 불러올 수 없습니다.");
@@ -464,12 +460,6 @@
         });
         document.addEventListener("DOMContentLoaded", function () {
             const token = localStorage.getItem("token");
-            if (!token) {
-                alert("로그인 후 이용해주세요.");
-                window.location.href = "/login";
-                return;
-            }
-
             fetch("/search/todo", {
                 method: "GET",
                 headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
@@ -660,11 +650,6 @@
             e.preventDefault();
 
             const token = localStorage.getItem("token");
-            if (!token) {
-                alert("로그인이 필요합니다.");
-                return;
-            }
-
             const examName = document.getElementById("examName").value;
             const category = document.getElementById("category").value;
             const examDate = document.getElementById("examDate").value;
@@ -760,10 +745,7 @@
 
         document.getElementById("saveProjectBtn").addEventListener("click", function () {
             const token = localStorage.getItem("token");
-            if (!token) {
-                alert("로그인이 필요합니다.");
-                return;
-            }
+
             const project = {
                 title: document.getElementById("projectTitle").value,
                 description: document.getElementById("projectDescription").value,

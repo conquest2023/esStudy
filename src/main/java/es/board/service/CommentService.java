@@ -30,7 +30,7 @@ public interface CommentService {
 
     List<CommentRequest> getCommentOne(String commentUID);
     void  plusCommentLike(String id);
-    Map<String, Double> getPagingCommentDESC(List<String> feedUIDs, int num, int size) ;
+    List<Comment> getMostCommentCount() ;
     List<CommentCreate> saveBulkComment(List<CommentCreate> comments) ;
 
     List<Comment> getMyPageComment(String  userId, int num ,int size);

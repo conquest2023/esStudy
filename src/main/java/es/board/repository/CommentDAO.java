@@ -13,6 +13,8 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
+
+    List<Comment> findMostCommentCount();
     List<TopWriter> findTopCommentWriters();
     Map<String,Long> findTodayCommentAggregation();
     Map<String, Object> findCommentsWithCount(String feedUID);

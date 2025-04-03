@@ -204,13 +204,6 @@ public class MainFeedController {
         return "basic/feed/Resume";
     }
 
-    @GetMapping("/search/view/feed/list/most")
-    public String getMostViewFeed(Model model,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size) {
-        model.addAttribute("data", feedService.getMostViewFeed(page, size));
-        return "basic/feed/MostViewFeed";
-    }
 
     @GetMapping("/search/view/feed/vote")
     public String getVoteFeed() {

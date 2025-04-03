@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
@@ -62,6 +63,7 @@ public class MainFeedAjaxController {
     public ResponseEntity<?> getClientIp() {
 
         Set<String> activeUsers = redisTemplate.keys("online_users:*");
+        log.info(visitService.getStats().toString());
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
                 "data", visitService.getStats()));
@@ -185,7 +187,6 @@ public class MainFeedAjaxController {
             Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
             Long totalPage = (Long) feedCount.get("totalFeedCount");
             return ResponseEntity.ok(Map.of(
-                    "viewCount", (Long) feedCount.get("totalViewCount"),
                     "count", countMap,
                     "page", page,
                     "vote",vote,
@@ -194,7 +195,12 @@ public class MainFeedAjaxController {
                     "data", data
             ));
         }
-
+    @GetMapping("/search/view/feed/list/most")
+    public ResponseEntity<?> getMostViewFeed(
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(Map.of( "data", feedService.getMostViewFeed(page, size)));
+    }
 
     @GetMapping("/data/feed")
     public ResponseEntity<?> getPagingDataFeed(
@@ -208,8 +214,6 @@ public class MainFeedAjaxController {
                 "data", feedMapper.fromBoardDtoList(boardList),
                 "totalPage", results.get("total")));
     }
-
-
 
     @GetMapping("/notice/feed")
     public ResponseEntity<?> getPagingNoticeFeed(
@@ -225,14 +229,11 @@ public class MainFeedAjaxController {
                 "totalPage", result.get("total")
         ));
     }
-
-
     @GetMapping("/auth/status")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAuthStatus(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         Map<String, Object> response = new HashMap<>();
-
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
 
@@ -293,7 +294,24 @@ public class MainFeedAjaxController {
         }
         return handleUnauthenticatedVoteRequest(commentRes.get("comments"),req, response);
     }
+    @PostMapping("/search/view/feed/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteFeed(
+            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
+        String id = requestData.get("id");
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
 
+        Map<String, String> response = new HashMap<>();
+        response.put("redirectUrl", "/");
+        return ResponseEntity.ok(response);
+    }
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedRequest.getUserId()));
@@ -312,11 +330,11 @@ public class MainFeedAjaxController {
         }
         List<CommentRequest> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
         List<CommentRequest> requests=  commentList
-                    .stream()
-                    .peek(comment -> {
-                        comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
-                    })
-                    .collect(Collectors.toList());
+                .stream()
+                .peek(comment -> {
+                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
+                })
+                .collect(Collectors.toList());
         response.put("isLiked",false);
         response.put("comment",requests);
         response.put("Owner", req.getUserId());
@@ -346,29 +364,11 @@ public class MainFeedAjaxController {
                     comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
                 })
                 .collect(Collectors.toList());
-        response.put("isLiked",false);
-        response.put("comment",requests);
-        response.put("Owner", req.getUserId());
-        response.put("isLoggedIn", false);
-        response.put("data", req);
-        return ResponseEntity.ok(response);
-    }
-    @PostMapping("/search/view/feed/delete")
-    @ResponseBody
-    public ResponseEntity<?> deleteFeed(
-            @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
-        String id = requestData.get("id");
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
-        }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
-
-        Map<String, String> response = new HashMap<>();
-        response.put("redirectUrl", "/");
-        return ResponseEntity.ok(response);
+                response.put("isLiked",false);
+                response.put("comment",requests);
+                response.put("Owner", req.getUserId());
+                response.put("isLoggedIn", false);
+                response.put("data", req);
+                return ResponseEntity.ok(response);
     }
 }

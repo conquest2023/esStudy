@@ -225,6 +225,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .order(SortOrder.Desc)
                             )),
                     Board.class);
+            log.info(response.toString());
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -270,14 +271,11 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .from((page - 1) * size)
+                            .from(page * size)
                             .size(size)
                             .sort(sort -> sort.field(f -> f
                                     .field("viewCount")
-                                    .order(SortOrder.Desc)))
-                            .query(q -> q.matchAll(t -> t)),
-                    Board.class);
-
+                                    .order(SortOrder.Desc))), Board.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -295,7 +293,6 @@ public class FeedDAOImpl implements FeedDAO {
                     .index("board")
                     .id(id)
             );
-
             if (deleteResponse.result().toString().equals("NotFound")) {
                 log.warn("삭제할 문서를 찾을 수 없습니다: {}", id);
                 throw new IllegalArgumentException("해당 게시글을 찾을 수 없습니다.");
@@ -403,17 +400,13 @@ public class FeedDAOImpl implements FeedDAO {
                             .index("board")
                             .size(0)
                             .aggregations("totalFeedCount", a -> a.valueCount(vc -> vc.field("feedUID.keyword")))
-                            .aggregations("totalViewCount", a -> a.sum(sum -> sum.field("viewCount")))
                             .trackTotalHits(t -> t.enabled(true)),
                     Board.class);
-
             long totalFeedCount = (long) response.aggregations().get("totalFeedCount").valueCount().value();
 
-            double totalViewCount = response.aggregations().get("totalViewCount").sum().value();
 
             return Map.of(
-                    "totalFeedCount", totalFeedCount,
-                    "totalViewCount", (long) totalViewCount
+                    "totalFeedCount", totalFeedCount
             );
 
         } catch (IOException e) {
