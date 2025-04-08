@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -43,10 +44,10 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
-        String userId = (token != null && token.startsWith("Bearer "))
-                ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
+        String userId = (token != null && token.startsWith("Bearer ")) ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
         String uniqueKey = userId.equals("guest") ? ipAddress : userId;
-        String visitKey = VISIT_KEY_PREFIX + uniqueKey;
+        String today = LocalDate.now().toString();
+        String visitKey = VISIT_KEY_PREFIX + today + ":" + uniqueKey;
         Boolean hasVisited = redisTemplate.hasKey(visitKey);
         if (!"127.0.0.1".equals(ipAddress) && (hasVisited == null || !hasVisited)) {
             redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));

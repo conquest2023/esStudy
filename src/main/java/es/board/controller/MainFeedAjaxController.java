@@ -21,16 +21,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
@@ -63,11 +62,16 @@ public class MainFeedAjaxController {
     public ResponseEntity<?> getClientIp() {
 
         Set<String> activeUsers = redisTemplate.keys("online_users:*");
-        log.info(visitService.getStats().toString());
+        List<String> rawKeys = new ArrayList<>(redisTemplate.keys("visit*"));
+        List<String> todayKeys = new ArrayList<>();
+        todayAggregation(rawKeys, todayKeys);
+        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
+                "todayUsers",todayKeys.size(),
                 "data", visitService.getStats()));
     }
+
     @PostMapping("/increaseViewCount")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
                                                @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
@@ -89,7 +93,6 @@ public class MainFeedAjaxController {
     @ResponseBody
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             jwtTokenProvider.addToBlacklist(token);
@@ -120,7 +123,6 @@ public class MainFeedAjaxController {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-            log.info(jwtTokenProvider.getUserId(token));
             if (jwtTokenProvider.validateToken(token)) {
                 return ResponseEntity.ok(Map.of(
                         "userId",jwtTokenProvider.getUserId(token),
@@ -152,7 +154,6 @@ public class MainFeedAjaxController {
                     "data", feedService.getRangeTimeFeed(startDate, endDate)));
         } else {
             List<Board> boards =  feedService.getSearchBoard(text);
-            log.info(boards.toString());
             return ResponseEntity.ok(Map.of(
                     "data", boards,
                     "url", "/search/view/content"
@@ -226,8 +227,7 @@ public class MainFeedAjaxController {
         List<Board> boardList = (List<Board>) result.get("data");
         return ResponseEntity.ok(Map.of(
                 "data", feedMapper.fromBoardDtoList(boardList),
-                "totalPage", result.get("total")
-        ));
+                "totalPage", result.get("total")));
     }
     @GetMapping("/auth/status")
     @ResponseBody
@@ -311,6 +311,21 @@ public class MainFeedAjaxController {
         Map<String, String> response = new HashMap<>();
         response.put("redirectUrl", "/");
         return ResponseEntity.ok(response);
+    }
+    private void todayAggregation(List<String> rawKeys, List<String> todayKeys) {
+        if (rawKeys != null) {
+            long secondsUntilMidnight = ChronoUnit.SECONDS.between(
+                    LocalDateTime.now(),
+                    LocalDate.now().plusDays(1).atStartOfDay()
+            );
+
+            for (String key : rawKeys) {
+                Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+                if (ttl != null && ttl > 0 && ttl <= secondsUntilMidnight) {
+                    todayKeys.add(key);
+                }
+            }
+        }
     }
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));

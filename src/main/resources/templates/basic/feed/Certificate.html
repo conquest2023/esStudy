@@ -251,6 +251,15 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login";
+            return;
+        }
+    })
     function debounce(func, delay) {
         let timer;
         return function(...args) {
@@ -282,7 +291,7 @@
                 previousSearchText = searchText;
 
                 if (abortController) {
-                    abortController.abort(); // ✅ 기존 요청 취소
+                    abortController.abort();
                 }
                 abortController = new AbortController();
                 try {
@@ -293,7 +302,6 @@
                         method: "GET",
                         headers: { "Authorization": "Bearer " + token }
                     });
-
                     if (!response.ok) throw new Error("연관 검색어를 가져올 수 없습니다.");
 
                     const data = await response.json();
@@ -325,7 +333,6 @@
                 document.getElementById("searchInput").addEventListener("input", debouncedUpdate);
             });
 
-            // ✅ 4️⃣ 검색창 이외 클릭 시 연관 검색어 숨기기
             document.addEventListener("click", function (event) {
                 if (!searchInput.contains(event.target) && !suggestionBox.contains(event.target)) {
                     suggestionBox.style.display = "none";

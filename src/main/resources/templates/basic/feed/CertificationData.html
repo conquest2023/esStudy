@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>자격증 자료</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        /* 카드에 부드러운 호버 효과 */
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        /* 페이징 스타일 */
+        .pagination {
+            margin-top: 20px;
+        }
+        .page-item .page-link {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+    <!-- 헤더 영역 -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">자격증 자료</h1>
+        <p class="text-muted">관심 있는 자격증을 클릭하여 상세 정보를 확인하세요</p>
+    </div>
+    <!-- 카드 목록 -->
+    <div id="certification-list" class="row g-4"></div>
+    <!-- 페이징 -->
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            <li class="page-item">
+                <button id="prev" class="page-link">이전</button>
+            </li>
+            <li class="page-item disabled">
+                <span id="page-number" class="page-link">1</span>
+            </li>
+            <li class="page-item">
+                <button id="next" class="page-link">다음</button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    let page = 0;
+    const size = 10;
+    const mockData = [
+        { title: "SQLD" },
+        { title: "정보처리기사" },
+        { title: "한국사" },
+        { title: "리눅스마스터2급" },
+        { title: "빅데이터 분석기사" },
+        { title: "오픽" },
+        { title: "토익" },
+        { title: "컴활 2급" },
+        { title: "정보처리산업기사" },
+        { title: "네트워크관리사" }
+    ];
+
+    function loadFeed() {
+        const container = document.getElementById('certification-list');
+        container.innerHTML = "";
+        const start = page * size;
+        const paginated = mockData.slice(start, start + size);
+
+        paginated.forEach(item => {
+            const col = document.createElement('div');
+            col.className = 'col-12 col-sm-6 col-lg-4';
+
+            const card = document.createElement('div');
+            card.className = 'card h-100 shadow-sm';
+
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body d-flex flex-column';
+
+            const title = document.createElement('h5');
+            title.className = 'card-title mb-3';
+
+            const link = document.createElement('a');
+            // 링크를 자격증 상세 페이지로 이동하도록 함.
+            link.href = `/certificate/detail?text=${encodeURIComponent(item.title)}`;
+            link.textContent = item.title;
+            // stretched-link 클래스로 카드 전체 클릭 느낌을 줌.
+            link.className = 'stretched-link text-decoration-none';
+
+            title.appendChild(link);
+            cardBody.appendChild(title);
+            card.appendChild(cardBody);
+            col.appendChild(card);
+            container.appendChild(col);
+        });
+
+        document.getElementById('page-number').textContent = page + 1;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadFeed();
+
+        document.getElementById('prev').addEventListener('click', () => {
+            if (page > 0) {
+                page--;
+                loadFeed();
+            }
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            const maxPage = Math.floor(mockData.length / size);
+            if (page < maxPage) {
+                page++;
+                loadFeed();
+            }
+        });
+    });
+</script>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

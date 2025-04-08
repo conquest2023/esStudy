@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
+import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.service.AuthService;
@@ -69,7 +70,7 @@ public class MainFeedController {
 
 
     @GetMapping("/search/view/feed/update")
-    public String editFeed(@RequestParam("id") String id, Model model) {
+    public String editFeed(@RequestParam("id") String id,Model model) {
         model.addAttribute("feedUpdate", feedService.getFeedDetail(id));
         return "basic/feed/EditFeed";
     }
@@ -83,12 +84,12 @@ public class MainFeedController {
     }
 
 
-//    @PostMapping("/search/view/feed/update/save")
-//    public String editSaveFeed(Model model, @ModelAttribute FeedUpdate feedUpdate,@RequestHeader(value = "Authorization", required = false) String token) {
-//        feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
-//        model.addAttribute("feedUpdate", feedUpdate);
-//        return "redirect:/search/view/feed/id?id=" + feedUpdate.getFeedUID();
-//    }
+    @PostMapping("/search/view/feed/update/save")
+    public String editSaveFeed(@RequestBody FeedUpdate feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
+        log.info(feedUpdate.toString());
+        feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
+        return "redirect:/search/view/feed/id?id=" + feedUpdate.getFeedUID();
+    }
 
     @GetMapping("/search/view/feed/id")
     public String getFeedDetail(@RequestParam String id) {
@@ -211,6 +212,17 @@ public class MainFeedController {
         return "basic/feed/VoteAdd";
     }
 
+
+    @GetMapping("/certificate/data")
+    public String getCertificateData() {
+        return "basic/feed/CertificationData";
+    }
+    @GetMapping("/certificate/detail")
+    public String getCertificateDetail(@RequestParam("text") String text, Model model) {
+        return "basic/feed/CertificationDetail";
+    }
+
+
     @GetMapping("/search/view/feed/voteex")
     public String getVoteExFeed() {
 
@@ -230,6 +242,7 @@ public class MainFeedController {
 
     @GetMapping("/post/page")
     public String getNoticeOne() {
+
         return "basic/feed/PostFeedList";
     }
 

@@ -82,7 +82,6 @@ public class FeedDAOImpl implements FeedDAO {
                     .index("board")
                     .id(String.valueOf(postId))
                     .document(board));
-            log.info(response.toString());
             return board;
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
@@ -98,7 +97,6 @@ public class FeedDAOImpl implements FeedDAO {
             IndexResponse response = client.index(i -> i
                     .index("board")
                     .document(dto));
-            log.info(response.toString());
         } catch (IOException e) {
             log.error("Error indexing document: {}", e.getMessage(), e);
             throw new IndexException("Failed to index the document", e);
@@ -225,7 +223,6 @@ public class FeedDAOImpl implements FeedDAO {
                                     .order(SortOrder.Desc)
                             )),
                     Board.class);
-            log.info(response.toString());
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -250,9 +247,7 @@ public class FeedDAOImpl implements FeedDAO {
                             .aggregations("totalLikes", a -> a
                                     .sum(sum -> sum.field("likeCount"))),
                     Board.class);
-            log.info(response.toString());
             long totalBoards = response.hits().total().value();
-            log.info(String.valueOf(totalBoards));
             double totalLikes = response.aggregations().get("totalLikes").sum().value();
 
             return Map.of(
@@ -797,7 +792,6 @@ public class FeedDAOImpl implements FeedDAO {
                                                                     .field("total_views")
                                                                     .order(SortOrder.Desc)))
                                                     .size(15)))), Board.class);
-            log.info(response.toString());
             List<StringTermsBucket> buckets = response.aggregations()
                     .get("top_writers")
                     .sterms()

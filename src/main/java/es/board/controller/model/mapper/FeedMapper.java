@@ -65,7 +65,6 @@ public class FeedMapper {
     }
 
     public FeedRequest fromBoardDto(Board board) {
-        log.info(board.toString());
         return FeedRequest.builder()
                 .feedUID(board.getFeedUID())
                 .id(board.getId())

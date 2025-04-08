@@ -365,30 +365,26 @@
         const rawDescription = board.description || "";
         const converted = convertLinks(rawDescription);
         const formattedDescription = converted.replace(/\n/g, "<br>");
-
-
         let rank = topWriters[board.username] || 0;
         let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
-        let deleteButtonHTML = '';
-        // if (jsonData.Owner && token) {
-        //     actionButtonsHTML = `
-        //           <button class="btn btn-outline-primary edit-feed-btn" style="margin-right: 10px;" onclick="editFeed('${board.feedUID}')">
-        //             <i class="fas fa-edit"></i> 수정하기
-        //           </button> `;
-        // }
-
+        let actionButtonsHTML = '';
         if (jsonData.Owner && token) {
-            deleteButtonHTML = `
+            actionButtonsHTML = `
+        <div class="d-flex justify-content-end gap-2 mb-3">
+            <button class="btn btn-outline-primary edit-feed-btn" onclick="editFeed('${board.feedUID}')">
+                <i class="fas fa-edit"></i> 수정하기
+            </button>
             <button type="button" class="btn btn-danger delete-feed-btn" onclick="deleteFeed('${board.id}')">
                 <i class="fas fa-trash"></i> 삭제하기
             </button>
-        `;
+        </div>
+    `;
         }
         document.title = board.title || "피드 상세";
         const html = `
         <div class="card feed-card">
             <div class="card-body">
-                ${deleteButtonHTML ? `<div class="text-end mb-3">${deleteButtonHTML}</div>` : ""}
+                ${actionButtonsHTML ? `<div class="text-end mb-3">${actionButtonsHTML}</div>` : ""}
 
                 <h2 class="feed-title">${board.title}</h2>
 

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>자격증 상세</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+    <!-- 뷰가 먼저 렌더링됩니다 -->
+    <h2 id="cert-title" class="mb-4">자격증 자료 불러오는 중...</h2>
+    <div id="detail-list" class="row">
+        <!-- AJAX로 받아온 카드들이 여기에 추가됩니다 -->
+    </div>
+    <a href="/certificate/data" class="btn btn-outline-primary mt-4">← 목록으로 돌아가기</a>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const text = params.get("text");
+        const titleEl = document.getElementById("cert-title");
+        const listEl = document.getElementById("detail-list");
+
+        if (!text) {
+            titleEl.textContent = "잘못된 접근입니다.";
+            return;
+        }
+
+        // 뷰가 보인 후에야 AJAX 호출
+        titleEl.textContent = `"${text}" 관련 자료 로딩 중...`;
+
+        $.ajax({
+            url: "/search/content",
+            method: "GET",
+            data: { text: text },
+            success: function (res) {
+                const data = res.data;
+                titleEl.textContent = `"${text}" 관련 자료 (${data.length}개)`;
+
+                if (!data || data.length === 0) {
+                    listEl.innerHTML = '<div class="col-12 text-center text-muted">자료가 없습니다.</div>';
+                    return;
+                }
+
+                // 카드 렌더링
+                listEl.innerHTML = "";
+                data.forEach(item => {
+                    const cardHtml = `
+                    <div class="col-md-4">
+                        <div class="card h-100 mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.title}</h5>
+                                <p class="card-text text-muted">${item.description || '설명 없음'}</p>
+                                <p class="card-text text-secondary small">
+                                    조회수: ${item.viewCount} / 좋아요: ${item.likeCount}<br>
+                                    작성일: ${item.createdAt?.substring(0, 10)}
+                                </p>
+                                <a href="/search/view/feed/id?id=${item.feedUID}"
+                                   class="btn btn-sm btn-outline-primary">상세보기</a>
+                            </div>
+                        </div>
+                    </div>`;
+                    listEl.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            },
+            error: function () {
+                titleEl.textContent = "데이터를 불러오는 중 오류 발생";
+            }
+        });
+    });
+</script>
+</body>
+</html>
