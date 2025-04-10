@@ -33,8 +33,6 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("SSE 구독 요청 - userId: {}", userId);
         SseEmitter emitter = new SseEmitter(60 * 100L);
         emitters.put(userId, emitter);
-
-
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);

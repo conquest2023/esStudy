@@ -87,7 +87,7 @@ public class OAuthServiceImpl implements OAuthService {
                 String.class
         );
 
-        JsonNode json = new ObjectMapper().readTree(response.getBody());
+        JsonNode json = objectMapper.readTree(response.getBody());
         return json.get("access_token").asText();
     }
 
@@ -105,7 +105,7 @@ public class OAuthServiceImpl implements OAuthService {
                 String.class
         );
 
-        JsonNode userJson = new ObjectMapper().readTree(response.getBody());
+        JsonNode userJson = objectMapper.readTree(response.getBody());
         String id = userJson.get("sub").asText();
         String email = userJson.get("email").asText();
         String name = userJson.get("name").asText();

@@ -318,7 +318,6 @@ public class MainFeedAjaxController {
                     LocalDateTime.now(),
                     LocalDate.now().plusDays(1).atStartOfDay()
             );
-
             for (String key : rawKeys) {
                 Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
                 if (ttl != null && ttl > 0 && ttl <= secondsUntilMidnight) {

@@ -108,7 +108,11 @@
     </style>
 </head>
 <body>
-
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
 <div class="container-fluid">
     <form id="feedForm" th:object="${FeedCreateResponse}" action="/search/view/feed/save" method="post" enctype="multipart/form-data">
         <div class="row justify-content-center">
@@ -140,7 +144,7 @@
                                 <option value="" disabled selected>게시판을 선택해 주세요.</option>
                                 <option value="자유">자유</option>
                                 <option value="자격증">자격증</option>
-<!--                                <option value="공부">공부</option>-->
+                                <option value="문제">문제</option>
                                 <option value="기술">기술</option>
                                 <option value="취업">취업</option>
                                 <option value="Q/A">Q/A</option>
@@ -178,9 +182,9 @@
         </div>
             <div id="feedList"></div>
         </div>
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>
-        </div>
+<!--        <div class="text-center mt-4">-->
+<!--            <a href="/" class="btn btn-secondary"><i class="fas fa-home"></i> 메인으로 돌아가기</a>-->
+<!--        </div>-->
     </form>
 </div>
 </body>
@@ -275,7 +279,18 @@
             const usernameInput = document.getElementById("username");
             const fileInput = document.getElementById("imageFiles");
             const usernameInputGroup = document.getElementById("name-input-group");
+            const token = localStorage.getItem("token");
 
+            async function fetchAuthStatus() {
+                    if (!token) return { isLoggedIn: false };
+
+                    const response = await fetch("/auth/status", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+                    return await response.json();
+                }
 
                 anonymousCheckbox.addEventListener("change", () => {
                     if (anonymousCheckbox.checked) {
@@ -308,43 +323,57 @@
                             }
                             formData.set("username", usernameValue);
                         }
-                        try {
-                            const description = formData.get("description");
-                            if (description) {
-                                formData.set("description", description.replace(/\n/g, "\\n"));
-                            }
-                            const response = await fetch("/search/view/feed/save", {
-                                method: "POST",
-                                body: formData,
-                                headers: {
-                                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-                                }
-                            });
-                            if (!response.ok) {
-                                throw new Error(`이름을 정확히 입력해주세요`);
-                            }
+                    try {
+                        const auth = await fetchAuthStatus();
 
-                            const data = await response.json();
-
-                            if (data.success) {
-                                console.log("새 피드를 화면에 추가합니다...");
-                                addFeedToList(formData);
-                                feedForm.reset();
-                                setTimeout(() => {
-                                    window.location.href = data.redirectUrl;
-                                }, 1000);
-                            } else {
-                                throw new Error(data.error || "피드 저장 실패");
-                            }
-                        } catch (error) {
-                            console.error("오류 발생:", error);
-                            alert(error.message);
-                        } finally {
+                        if (!auth.isLoggedIn) {
+                            alert("로그인이 필요합니다.");
                             isSubmitting = false;
+                            return;
                         }
-                    })
-                }}
-            )
+                        const usernameValue = anonymousCheckbox.checked
+                            ? usernameInput.value.trim()
+                            : auth.username;
+
+                        if (!usernameValue) {
+                            alert("이름을 입력해주세요.");
+                            isSubmitting = false;
+                            return;
+                        }
+
+                        formData.set("username", usernameValue);
+
+                        const description = formData.get("description");
+                        if (description) {
+                            formData.set("description", description.replace(/\n/g, "\\n"));
+                        }
+                        const response = await fetch("/search/view/feed/save", {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.error || "피드 저장 실패");
+                        }
+                        addFeedToList(formData);
+                        feedForm.reset();
+                        setTimeout(() => {
+                            window.location.href = data.redirectUrl;
+                        }, 1000);
+
+                    } catch (error) {
+                        console.error("오류 발생:", error);
+                        alert(error.message);
+                    } finally {
+                        isSubmitting = false;
+                    }
+                });
+            }
+        });
 
     function addFeedToList(feed) {
                         const feedList = document.getElementById("feedList");

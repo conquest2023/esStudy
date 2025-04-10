@@ -113,7 +113,7 @@ public class UserController {
     @GetMapping("/mypage")
     public ResponseEntity<?> getMyPageInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-
+        log.info("asdkas");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {

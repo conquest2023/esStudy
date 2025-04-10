@@ -52,7 +52,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         if (!"127.0.0.1".equals(ipAddress) && (hasVisited == null || !hasVisited)) {
             redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));
             CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, userAgent));
-            log.info("새로운 방문자 기록 - {}", uniqueKey);
+            log.info("새로운 방문자 기록 - {} , {}", uniqueKey ,visitKey);
         } else {
             log.info("중복 방문 방지 - {}", uniqueKey);
         }

@@ -444,7 +444,7 @@
         <label for="username" class="form-label">이름</label>
         <input type="text" id="username" class="form-control" required />
         <small class="text-muted d-block mt-1">
-            로그인하지 않으면 자동으로 <strong>익명</strong> 처리됩니다.
+            로그인해야 댓글을 등록하실수있습니다.
         </small>
     </div>
 <!--        <div class="form-group mt-3">-->
@@ -757,28 +757,53 @@
 
 
     let debounceTimeout;
-    function submitComment() {
+    async function submitComment() {
         if (debounceTimeout) clearTimeout(debounceTimeout);
         const submitButton = document.getElementById("submitCommentBtn");
-        if (submitButton) {
-            submitButton.disabled = true;
-        }
+        if (submitButton) submitButton.disabled = true;
 
-        debounceTimeout = setTimeout(() => {
+        debounceTimeout = setTimeout(async () => {
             const content = document.getElementById("content").value.trim();
-            const username = document.getElementById("username").value.trim();
             const token = localStorage.getItem("token");
+
             if (!content) {
                 alert("댓글 내용을 입력하세요!");
                 if (submitButton) submitButton.disabled = false;
                 return;
             }
+
+            // ✅ 로그인 상태 확인
+            let isLoggedIn = false;
+            let username = "";
+            if (token) {
+                try {
+                    const res = await fetch("/auth/status", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+                    const auth = await res.json();
+                    isLoggedIn = auth.isLoggedIn;
+                    username = auth.username;
+                } catch (e) {
+                    console.warn("인증 확인 실패");
+                }
+            }
+
+            // ✅ 비로그인 차단
+            if (!isLoggedIn) {
+                alert("댓글을 작성하려면 먼저 로그인해주세요!");
+                if (submitButton) submitButton.disabled = false;
+                return;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const feedUID = urlParams.get('id');
-            const headers = { "Content-Type": "application/json" };
-            if (token) {
-                headers["Authorization"] = `Bearer ${token}`;
-            }
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            };
+
             fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
                 method: "POST",
                 headers: headers,
@@ -794,7 +819,6 @@
                     return response.json();
                 })
                 .then((data) => {
-                    console.log(data);
                     const redirectUrl = data.redirectUrl;
                     if (redirectUrl) {
                         setTimeout(() => {
@@ -813,6 +837,7 @@
                 });
         }, 1000);
     }
+
     function renderReplies(replyList) {
         if (!replyList || replyList.length === 0) {
             return "";
