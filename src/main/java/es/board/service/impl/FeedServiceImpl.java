@@ -87,6 +87,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
+        log.info("test");
         return  feedDAO.findUserMyPageLikeAndFeedCount(userId);
     }
 
@@ -274,7 +275,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public int getPointAll(String userId) {
+    public Integer getPointAll(String userId) {
         return pointHistoryRepository.findByUserId(userId);
     }
 

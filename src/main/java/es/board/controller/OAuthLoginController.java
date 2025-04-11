@@ -130,6 +130,7 @@ public class OAuthLoginController {
         Authentication authentication = authService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
         userService.updateVisitCount(response.getUserId());
+        log.info(token.toString());
         return ResponseEntity.ok(Map.of(
                 "accessToken", token.getAccessToken(),
                 "refreshToken", token.getRefreshToken(),

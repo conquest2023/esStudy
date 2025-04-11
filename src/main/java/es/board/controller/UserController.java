@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @Slf4j
@@ -113,21 +114,21 @@ public class UserController {
     @GetMapping("/mypage")
     public ResponseEntity<?> getMyPageInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info("asdkas");
+        log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
                 Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
                 Map<String,Object> commentStats= commentService.getUserComments(userId);
-                int point= feedService.getPointAll(jwtTokenProvider.getUserId(token));
+                int point = Optional.ofNullable(feedService.getPointAll(userId)).orElse(0);
                 Map<String, Object> response = Map.of(
                         "like", boardStats.get("totalLikes"),
                         "commentCount", commentStats.get("totalComments"),
                         "feedCount",  boardStats.get("totalBoards"),
                         "point",point,
                         "username",jwtTokenProvider.getUsername(token),
-                        "userId",jwtTokenProvider.getUserId(token),
+                        "userId",userId,
                         "visitCount", userService.findVisitCount(userId));
                 return ResponseEntity.ok(response);
             }

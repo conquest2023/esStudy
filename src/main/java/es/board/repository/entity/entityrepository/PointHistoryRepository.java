@@ -19,7 +19,7 @@ public interface PointHistoryRepository extends JpaRepository<PointHistory, Long
 
 
     @Query("SELECT sum(u.pointChange) FROM PointHistory  u where  u.userId=:userId")
-    int findByUserId(@Param("userId") String userId);
+    Integer findByUserId(@Param("userId") String userId);
 
 
 

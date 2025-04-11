@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public interface FeedService {
 
     Map<String, Object>  getNoticeFeed(int page, int size);
-    int getPointAll(String userId);
+    Integer getPointAll(String userId);
     Map<String, Double> getDayAggregation();
 
     Map<String, Object> getDataFeed(int page, int size,String category);;
