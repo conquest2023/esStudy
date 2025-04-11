@@ -1,9 +1,11 @@
 package es.board.controller.model.mapper;
 
 
+import es.board.controller.model.req.QuestionPracticalDto;
 import es.board.controller.model.req.ScheduleRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
+import es.board.repository.entity.QuestionPractical;
 import es.board.repository.entity.Schedule;
 import es.board.repository.entity.Todo;
 import es.board.repository.entity.TodoStatus;
@@ -24,6 +26,33 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class CertificateMapper {
+
+        public List<QuestionPracticalDto> fromPracticalDTO(List<QuestionPractical> practicals) {
+            return practicals.stream()
+                    .map(practical -> QuestionPracticalDto.builder()
+                            .questionId(practical.getQuestionId())
+                            .category(practical.getCategory())
+                            .type(practical.getType())
+                            .explanation(practical.getExplanation())
+                            .modelAnswer(practical.getModelAnswer())
+                            .questionText(practical.getQuestionText())
+                            .build())
+                    .collect(Collectors.toList());
+    }
+
+//    public QuestionPracticalDto ToQuestionPracticalEntity() {
+//        return QuestionPractical.builder()
+//                .questionId()
+//                .title(todoResponse.getTitle())
+//                .priority(todoResponse.getPriority())
+//                .category(todoResponse.getCategory())
+//                .status(TodoStatus.IN_PROGRESS)
+//                .description(todoResponse.getDescription())
+//                .dueDate(todoResponse.getDueDate())
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//    }
+
 
 
     public Todo TodoToEntity(String userId, TodoResponse todoResponse) {

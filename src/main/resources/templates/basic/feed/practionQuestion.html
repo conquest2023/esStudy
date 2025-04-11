@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>문제은행 - 문제 풀기</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f2f6fc, #e3ecfa 70%);
+      min-height: 100vh;
+    }
+    .question-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .explanation-area {
+      display: none;
+    }
+    pre code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+    pre {
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="mb-4 text-center">
+    <h2 class="fw-bold text-primary">📝 문제 풀기</h2>
+    <p class="text-muted mb-0">한 문제씩 차근차근 해결해보세요!</p>
+  </div>
+
+  <div id="questionContainer">
+    <div class="card question-card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small class="text-muted fw-bold" id="pageNum">1 / 1</small>
+        <div>
+          <span class="badge bg-primary" id="questionCategory">카테고리</span>
+          <span class="badge bg-success ms-2" id="questionType">유형</span>
+        </div>
+      </div>
+
+      <!-- 문제 내용 -->
+      <pre class="bg-light p-3 rounded">
+<code id="questionText" class="text-dark">문제 내용</code>
+      </pre>
+
+      <small class="text-danger fw-bold">난이도: <span id="questionDifficulty">-</span></small>
+
+      <textarea id="userAnswer" class="form-control mt-3" rows="3" placeholder="답안을 작성해보세요."></textarea>
+      <button class="btn btn-primary mt-3" onclick="checkAnswer()">정답 확인</button>
+
+      <div id="explanationArea" class="explanation-area mt-4 border rounded p-3 bg-light">
+        <h6 class="fw-bold">정답: <span id="modelAnswer"></span></h6>
+        <p class="mb-0">해설: <span id="explanation"></span></p>
+      </div>
+    </div>
+
+    <!-- 이전 / 다음 문제 -->
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-outline-secondary" onclick="prevQuestion()">← 이전 문제</button>
+      <button class="btn btn-outline-primary" onclick="nextQuestion()">다음 문제 →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let questions = JSON.parse(localStorage.getItem("questions") || "[]");
+  let currentIndex = 0;
+
+  function renderQuestion(index) {
+    const q = questions[index];
+    if (!q) return;
+
+    document.getElementById("questionText").innerText = q.questionText;
+    document.getElementById("questionCategory").innerText = q.category;
+    document.getElementById("questionType").innerText = q.type;
+    document.getElementById("questionDifficulty").innerText = q.difficulty ?? "-";
+    document.getElementById("modelAnswer").innerText = q.modelAnswer;
+    document.getElementById("explanation").innerText = q.explanation;
+
+    document.getElementById("userAnswer").value = "";
+    document.getElementById("explanationArea").style.display = "none";
+    document.getElementById("pageNum").innerText = `${index + 1} / ${questions.length}`;
+  }
+
+  function checkAnswer() {
+    document.getElementById("explanationArea").style.display = "block";
+  }
+
+  function nextQuestion() {
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      renderQuestion(currentIndex);
+    }
+  }
+
+  function prevQuestion() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderQuestion(currentIndex);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (questions.length === 0) {
+      document.getElementById("questionContainer").innerHTML = "<p class='text-center'>불러온 문제가 없습니다.</p>";
+    } else {
+      renderQuestion(currentIndex);
+    }
+  });
+</script>
+</body>
+</html>

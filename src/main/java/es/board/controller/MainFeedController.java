@@ -97,6 +97,24 @@ public class MainFeedController {
         return "basic/feed/FeedDetails";
     }
 
+
+    @GetMapping("/search/view/practical")
+    public String getQuestionPractical(@RequestParam String category) {
+        return "basic/feed/practical";
+    }
+
+    @GetMapping("/search/view/practical/question")
+    public String getQuestionPracticalQuestion() {
+        return "basic/feed/practionQuestion";
+    }
+
+
+    @GetMapping("/search/view/question")
+    public String getQuestion() {
+
+        return "basic/feed/question";
+    }
+
     @PostMapping("/search/view/feed/increase-like/{feedUID}")
     public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String feedUID,
                                                                   @RequestHeader("Authorization") String token) {

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>문제은행 - 자격증 선택 & 연도/회차</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f2f6fc, #e3ecfa 70%);
+            min-height: 100vh;
+        }
+        .cert-card, .year-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .cert-card:hover, .year-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .cert-img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+        .btn-close {
+            outline: none;
+        }
+        /* 처음엔 year-section 숨김 */
+        #yearSection {
+            display: none;
+        }
+        .modal-body > button {
+            font-size: 1.1rem;
+            padding: 0.75rem 1rem;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container py-5">
+    <div class="mb-4 text-center">
+        <h2 class="fw-bold text-primary">📘 문제은행</h2>
+        <p class="text-muted mb-0">자격증별 실기 및 필기 문제 → 연도 & 회차 선택</p>
+    </div>
+
+    <!-- (1) 자격증 & 실기/필기 선택 섹션 -->
+    <div id="certSection">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- 예시: 정보처리기사 -->
+            <div class="col">
+                <div class="card cert-card h-100 text-center p-3" data-certname="정보처리기사" data-bs-toggle="modal" data-bs-target="#selectTypeModal">
+                    <img src="https://img.icons8.com/office/80/book.png" class="mx-auto cert-img" alt="자격증 아이콘">
+                    <h5 class="fw-bold mb-1">정보처리기사</h5>
+                    <p class="text-secondary small mb-0">필기/실기 문제</p>
+                </div>
+            </div>
+
+            <!-- 예시: 정보보안기사 -->
+            <div class="col">
+                <div class="card cert-card h-100 text-center p-3" data-certname="정보보안기사" data-bs-toggle="modal" data-bs-target="#selectTypeModal">
+                    <img src="https://img.icons8.com/office/80/security-checked.png" class="mx-auto cert-img" alt="자격증 아이콘">
+                    <h5 class="fw-bold mb-1">정보보안기사</h5>
+                    <p class="text-secondary small mb-0">필기/실기 문제</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card cert-card h-100 text-center p-3" data-certname="정보처리기능사" data-bs-toggle="modal" data-bs-target="#selectTypeModal">
+                    <img src="https://img.icons8.com/office/80/computer.png" class="mx-auto cert-img" alt="자격증 아이콘">
+                    <h5 class="fw-bold mb-1">정보처리기능사</h5>
+                    <p class="text-secondary small mb-0">필기/실기 문제</p>
+                </div>
+            </div>
+
+            <!-- SQLD -->
+            <div class="col">
+                <div class="card cert-card h-100 text-center p-3" data-certname="SQLD" data-bs-toggle="modal" data-bs-target="#selectTypeModal">
+                    <img src="https://img.icons8.com/office/80/database.png" class="mx-auto cert-img" alt="자격증 아이콘">
+                    <h5 class="fw-bold mb-1">SQLD</h5>
+                    <p class="text-secondary small mb-0">필기/실기 문제</p>
+                </div>
+            </div>
+
+            <!-- 빅분기 -->
+            <div class="col">
+                <div class="card cert-card h-100 text-center p-3" data-certname="빅분기" data-bs-toggle="modal" data-bs-target="#selectTypeModal">
+                    <img src="https://img.icons8.com/office/80/analysis.png" class="mx-auto cert-img" alt="자격증 아이콘">
+                    <h5 class="fw-bold mb-1">빅분기</h5>
+                    <p class="text-secondary small mb-0">필기/실기 문제</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- (2) 연도 & 회차 선택 섹션 (처음엔 숨김) -->
+    <div id="yearSection">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-success">🛠️ <span id="selectedCategoryLabel"></span></h3>
+            <p class="text-muted mb-0">원하는 연도와 회차를 선택하세요!</p>
+        </div>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="col">
+                <div class="card year-card text-center p-4" data-year="2024" data-bs-toggle="modal" data-bs-target="#sessionModal">
+                    <h3 class="fw-bold">2024</h3>
+                    <p class="text-secondary mb-0">문제 선택</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card year-card text-center p-4" data-year="2023" data-bs-toggle="modal" data-bs-target="#sessionModal">
+                    <h3 class="fw-bold">2023</h3>
+                    <p class="text-secondary mb-0">문제 선택</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card year-card text-center p-4" data-year="2022" data-bs-toggle="modal" data-bs-target="#sessionModal">
+                    <h3 class="fw-bold">2022</h3>
+                    <p class="text-secondary mb-0">문제 선택</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card year-card text-center p-4" data-year="2021" data-bs-toggle="modal" data-bs-target="#sessionModal">
+                    <h3 class="fw-bold">2021</h3>
+                    <p class="text-secondary mb-0">문제 선택</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 모달: 실기/필기 선택 -->
+<div class="modal fade" id="selectTypeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">유형 선택</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p id="selectedCertName" class="mb-4 fw-bold fs-5 text-primary bg-light p-2 rounded">자격증명</p>
+                <button class="btn btn-primary w-100 mb-3 fs-5 py-2" onclick="chooseMode('필기')">📘 필기 문제</button>
+                <button class="btn btn-success w-100 fs-5 py-2" onclick="chooseMode('실기')">🛠️ 실기 문제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 모달: 회차 선택 -->
+<div class="modal fade" id="sessionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">회차 선택</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p id="selectedYear" class="mb-4 fw-bold fs-4 text-primary">연도</p>
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary" onclick="loadQuestions(1)">1회차</button>
+                    <button class="btn btn-primary" onclick="loadQuestions(2)">2회차</button>
+                    <button class="btn btn-primary" onclick="loadQuestions(3)">3회차</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedCert = '';
+    let combinedCategory = '';
+    let selectedYear = '';
+
+    document.querySelectorAll('.cert-card').forEach(card => {
+        card.addEventListener('click', function() {
+            selectedCert = this.getAttribute('data-certname');
+            document.getElementById('selectedCertName').innerText = selectedCert;
+        });
+    });
+
+    function chooseMode(mode) {
+        combinedCategory = `${selectedCert} ${mode}`; // 예: '정보처리기사 실기'
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+
+        // 모달 닫고 자격증 섹션 숨기고 → 연도 섹션 보여줌
+        const modal = bootstrap.Modal.getInstance(document.getElementById('selectTypeModal'));
+        modal.hide();
+
+        document.getElementById('certSection').style.display = 'none';
+        document.getElementById('yearSection').style.display = 'block';
+
+        document.getElementById('selectedCategoryLabel').innerText = combinedCategory;
+    }
+
+    document.querySelectorAll('.year-card').forEach(card => {
+        card.addEventListener('click', function() {
+            selectedYear = this.getAttribute('data-year');
+            document.getElementById('selectedYear').innerText = selectedYear + '년';
+        });
+    });
+
+    function loadQuestions(sessionNum) {
+        const token = localStorage.getItem('token');
+        if (!token || !combinedCategory || !selectedYear) {
+            alert("필수 정보가 누락되었습니다.");
+            return;
+        }
+
+        const category = combinedCategory;
+        const round = `${selectedYear}_${sessionNum}회`;
+        const apiUrl = `/practical?category=${encodeURIComponent(category)}&round=${encodeURIComponent(round)}`;
+
+        $.ajax({
+            url: apiUrl,
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            success: function (res) {
+                localStorage.setItem("questions", JSON.stringify(res.DTOS));
+                localStorage.setItem("category", category);
+                localStorage.setItem("round", round);
+
+                // 문제 페이지로 이동
+                window.location.href = "/search/view/practical/question";
+            },
+            error: function (err) {
+                console.error('문제 불러오기 실패:', err);
+                alert("문제를 불러오지 못했습니다.");
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
