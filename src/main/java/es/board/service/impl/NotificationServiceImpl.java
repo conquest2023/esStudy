@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.res.Notification;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final RedisTemplate<String, String> redisTemplate;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+    private  final ObjectMapper objectMapper;
+
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
 
@@ -30,7 +34,6 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
     @Override
     public SseEmitter subscribe(String userId) {
-        log.info("SSE 구독 요청 - userId: {}", userId);
         SseEmitter emitter = new SseEmitter(60 * 100L);
         emitters.put(userId, emitter);
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
@@ -51,25 +54,9 @@ public class NotificationServiceImpl implements NotificationService {
         return emitter;
     }
 
-    private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
-        String redisKey = redisKeyPrefix + userId;
-        List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
-        if (notifications != null && !notifications.isEmpty()) {
-            try {
-                for (String message : notifications) {
-                    emitter.send(SseEmitter.event().name(eventType).data(message));
-                }
-                redisTemplate.delete(redisKey);
-            } catch (IOException e) {
-                log.error("기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
-            }
-        }
-    }
-
-
     @Override
     public void sendCommentNotification(String userId, String feedUID, String message) {
-        sendNotification(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
+        sendFeedNotification(userId,feedUID, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
     }
 
     @Override
@@ -86,8 +73,66 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendReplyNotification(String userId, String message) {
         sendNotification(userId, REPLY_NOTIFICATION_KEY, "reply-notification", message);
     }
+    private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
+        String redisKey = redisKeyPrefix + userId;
+        List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
+        if (notifications != null && !notifications.isEmpty()) {
+            try {
+                for (String message : notifications) {
+                    emitter.send(SseEmitter.event().name(eventType).data(message));
+                }
+                redisTemplate.delete(redisKey);
+            } catch (IOException e) {
+                log.error("기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
+            }
+        }
+    }
+    private void sendFeedPendingNotifications(String userId,String feedUID,String redisKeyPrefix, String eventType, SseEmitter emitter) {
+        String redisKey = redisKeyPrefix + userId;
+        List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
+        if (notifications != null && !notifications.isEmpty()) {
+            try {
+                for (String message : notifications) {
+                    emitter.send(SseEmitter.event().name(eventType).data(message));
+                }
+                redisTemplate.delete(redisKey);
+            } catch (IOException e) {
+                log.error("기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
+            }
+        }
+    }
 
+    private void sendFeedNotification(String userId, String feedUID, String redisKeyPrefix, String eventType, String message) {
+        String redisKey = redisKeyPrefix + userId;
+        try {
+            Map<String, String> payload = new HashMap<>();
+            payload.put("feedUID", feedUID);
+            payload.put("message", message);
+            String jsonPayload = objectMapper.writeValueAsString(payload);
 
+            if (!emitters.containsKey(userId)) {
+                redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
+                redisTemplate.opsForList().trim(redisKey, 0, 49); // 최대 50개 유지
+                log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
+                return;
+            }
+
+            SseEmitter emitter = emitters.get(userId);
+            if (emitter == null) {
+                log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+                return;
+            }
+
+            emitter.send(SseEmitter.event()
+                    .name(eventType)
+                    .data(jsonPayload));
+            log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
+
+        } catch (IOException e) {
+            log.error("알림 전송 실패 - userId: {}", userId, e);
+            emitters.remove(userId);
+        }
+    }
 
     private void sendNotification(String userId, String redisKeyPrefix, String eventType, String message) {
         String redisKey = redisKeyPrefix + userId;
@@ -98,7 +143,6 @@ public class NotificationServiceImpl implements NotificationService {
             log.warn("SSE 구독 없음 - Redis에 저장: {}", message);
             return;
         }
-
         SseEmitter emitter = emitters.get(userId);
         if (emitter == null) {
             log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);

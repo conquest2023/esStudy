@@ -1362,42 +1362,52 @@
     </span>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav align-items-center gap-3">
+                <!-- 취업 사이트 -->
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
                         취업 사이트
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
-                        <li class="nav-item">
-                            <a class="nav-link fw-bold" href="/search/view/feed/list/job">
-                                <i class="fas fa-briefcase"></i> IT 취업 정보
+                    <ul class="dropdown-menu p-3 shadow rounded-4" aria-labelledby="scheduleDropdown" style="width: 300px;">
+                        <li class="mb-2">
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/search/view/feed/list/job">
+                          <span class="d-flex align-items-center mb-1">
+                            <i class="fas fa-briefcase me-2 text-primary"></i> IT 취업 정보
+                          </span>
+                                <small class="text-muted">실시간 채용 공고 & 커뮤니티 피드</small>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item fw-bold" href="/site">
-                                <i class="fas fa-calendar-alt"></i> 취업사이트
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/site">
+                          <span class="d-flex align-items-center mb-1">
+                            <i class="fas fa-link me-2 text-info"></i> 취업 사이트
+                          </span>
+                                <small class="text-muted">원스톱 취업 준비를 위한 사이트 모음</small>
                             </a>
                         </li>
                     </ul>
-
                 </li>
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" id="scheduleDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
                         일정 관리
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="scheduleDropdown">
-                        <li>
-                            <a class="dropdown-item fw-bold" href="/todo">
-                                <i class="fas fa-check"></i> 투두 & D-Day 매니저
+                    <ul class="dropdown-menu p-3 shadow rounded-4" aria-labelledby="scheduleDropdown" style="width: 300px;">
+                        <li class="mb-2">
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/todo">
+                          <span class="d-flex align-items-center mb-1">
+                            <i class="fas fa-check me-2 text-success"></i> 투두 & D-Day 매니저
+                          </span>
+                                <small class="text-muted">자격증/취업 일정 관리 & 리마인더</small>
                             </a>
-                            <div id="todoBalloon" class="balloon below show">오늘 23명이 이용함!</div>
                         </li>
                         <li>
-                            <a class="dropdown-item fw-bold" href="/calendar">
-                                <i class="fas fa-calendar-check me-1"></i> 캘린더
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/calendar">
+                          <span class="d-flex align-items-center mb-1">
+                            <i class="fas fa-calendar-check me-2 text-warning"></i> 캘린더
+                          </span>
+                                <small class="text-muted">월별 일정 보기 & 전체 관리</small>
                             </a>
-                            <div id="calendarBalloon" class="balloon below show">31명이 이용중!!</div>
                         </li>
                     </ul>
                 </li>
@@ -1406,24 +1416,44 @@
                        data-bs-toggle="dropdown" aria-expanded="false">
                         자격증
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="certificateDropdown">
-                        <li>
-                            <a class="dropdown-item fw-bold" href="/certificate/data">
-                                <i class="fas fa-file-alt"></i>  자격증 자료
+                    <ul class="dropdown-menu p-3 shadow rounded-4" aria-labelledby="certificateDropdown" style="width: 300px;">
+                        <li class="mb-2">
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/search/view/question">
+                            <span class="d-flex align-items-center mb-1">
+                              <i class="fas fa-file-alt me-2 text-primary"></i> 문제은행
+                            </span>
+                                <small class="text-muted">기출/모의 문제로 실전 연습!</small>
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item fw-bold" href="/certificate/list">
-                                <i class="fas fa-check"></i> 자격증 분석
+                        <li class="mb-2">
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/certificate/data">
+                        <span class="d-flex align-items-center mb-1">
+                          <i class="fas fa-book me-2 text-info"></i> 자격증 자료
+                        </span>
+                                <small class="text-muted">시험과목, 기출요약, 공부법 가이드</small>
                             </a>
                         </li>
+                        <!-- 자격증 분석 -->
+                        <li class="mb-2">
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/certificate/list">
+                            <span class="d-flex align-items-center mb-1">
+                              <i class="fas fa-chart-bar me-2 text-success"></i> 자격증 분석
+                            </span>
+                                <small class="text-muted">합격률/응시율 기반 자격증 추천</small>
+                            </a>
+                        </li>
+                        <!-- 자격증 캘린더 -->
                         <li>
-                            <a class="dropdown-item fw-bold" href="/certificate/calendar">
-                                <i class="fas fa-calendar-alt"></i> 자격증 캘린더
+                            <a class="dropdown-item fw-bold d-flex flex-column" href="/certificate/calendar">
+                            <span class="d-flex align-items-center mb-1">
+                              <i class="fas fa-calendar-alt me-2 text-warning"></i> 자격증 캘린더
+                            </span>
+                                <small class="text-muted">D-DAY & 원서접수 일정 한눈에!</small>
                             </a>
                         </li>
                     </ul>
                 </li>
+
             </ul>
         </div>
         <div class="d-flex align-items-center me-3">
@@ -2437,7 +2467,7 @@
             </div>
             <div class="d-flex align-items-center visitor-item">
                 <span class="stat-label">오늘 방문자:</span>
-                <span class="stat-value">${data.todayUsers}</span>
+                <span class="stat-value">${data.data.todayVisitors}</span>
             </div>
             <div class="d-flex align-items-center visitor-item">
                 <span class="stat-label">누적 방문자:</span>
@@ -2675,9 +2705,6 @@
             ${badge} ${post.username} · ${formatDate(post.createdAt)}
           </div>
         </div>
-
-
-
 
         <td class="text-center">
             <div class="badge-container d-flex align-items-center">
@@ -3068,7 +3095,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.isLoggedIn === false) {
-                    console.log("[DEBUG] 로그아웃 성공");
                     localStorage.removeItem("token");
                     console.log("[DEBUG] localStorage 상태:", localStorage.getItem("token"));
                     window.location.href = "/logout/user";
@@ -3090,7 +3116,6 @@
             event.preventDefault();
 
             const token = localStorage.getItem("token");
-            console.log("[DEBUG] 마이페이지 요청 시작, 저장된 토큰:", token);
             if (!token) {
                 window.location.href = "/";
                 return;
@@ -3115,7 +3140,6 @@
 
                     if (data.isLoggedIn === true) {
                         console.log("[DEBUG] 인증 성공, 마이페이지로 이동합니다.");
-                        console.log(token);
                         setTimeout(() => {
                             window.location.href = "/search/view/feed/mypage";
                         }, 7000);
@@ -3179,8 +3203,7 @@
                 };
 
             eventSource.addEventListener("comment-notification", (event) => {
-                console.log("comment-notification 이벤트 수신:", event.data);
-                addNotification(event.data);
+                addFeedNotification(event.data);
             });
             eventSource.addEventListener("todo-notification", (event) => {
                 console.log("Todo 알림 수신:", event.data);
@@ -3222,6 +3245,44 @@
         notificationBadge.textContent = parseInt(notificationBadge.textContent || "0") + 1;
         showToast(message);
     }
+    function addFeedNotification(jsonMessage) {
+        const notificationList = document.getElementById("notificationList");
+        const notificationBadge = document.getElementById("notificationBadge");
+
+        if (!notificationList || !notificationBadge) {
+            console.error("알림을 표시할 요소가 존재하지 않습니다!");
+            return;
+        }
+
+        let parsed;
+        try {
+            parsed = JSON.parse(jsonMessage); // JSON 파싱
+        } catch (e) {
+            console.error("JSON 파싱 오류:", e);
+            return;
+        }
+
+        const { feedUID, message } = parsed;
+
+        const li = document.createElement("li");
+        li.classList.add("notification-item");
+
+        const a = document.createElement("a");
+        a.href = `/search/view/feed/id?id=${encodeURIComponent(feedUID)}`;
+        a.textContent = message;
+        a.classList.add("text-decoration-none", "text-dark", "d-block", "fw-bold");
+
+        li.appendChild(a);
+        notificationList.prepend(li);
+
+        // 뱃지 업데이트
+        notificationBadge.style.display = "flex";
+        notificationBadge.textContent = parseInt(notificationBadge.textContent || "0") + 1;
+
+        // 토스트 띄우기
+        showToast(message);
+    }
+
     function showToast(message) {
         const container = document.getElementById("toastContainer");
         if (!container) return;
@@ -3231,7 +3292,6 @@
         toast.setAttribute("role", "alert");
         toast.setAttribute("aria-live", "assertive");
         toast.setAttribute("aria-atomic", "true");
-        console.log(message)
         toast.innerHTML = `
         <div class="d-flex">
          <div class="toast-body fw-bold text-white">
@@ -3558,7 +3618,7 @@
         try {
             const data = await response.json();
             document.getElementById('currentVisitorsMobile').textContent = data.activeUsers;
-            document.getElementById('todayVisitorsMobile').textContent = data.todayUsers;
+            document.getElementById('todayVisitorsMobile').textContent = data.data.todayVisitors;
             document.getElementById('totalVisitorsMobile').textContent = data.data.totalVisitors;
         } catch (err) {
             console.error('모바일 방문자 통계 에러:', err);

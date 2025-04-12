@@ -62,13 +62,13 @@ public class MainFeedAjaxController {
     public ResponseEntity<?> getClientIp() {
 
         Set<String> activeUsers = redisTemplate.keys("online_users:*");
-        List<String> rawKeys = new ArrayList<>(redisTemplate.keys("visit*"));
-        List<String> todayKeys = new ArrayList<>();
-        todayAggregation(rawKeys, todayKeys);
-        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
+//        List<String> rawKeys = new ArrayList<>(redisTemplate.keys("visit*"));
+//        List<String> todayKeys = new ArrayList<>();
+//        todayAggregation(rawKeys, todayKeys);
+//        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
-                "todayUsers",todayKeys.size(),
+//                "todayUsers",todayKeys.size(),
                 "data", visitService.getStats()));
     }
 

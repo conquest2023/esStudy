@@ -46,28 +46,28 @@ public class VisitDAOImpl implements VisitDAO {
                 SearchResponse<Void> response = client.search(s -> s
                                 .index("visitor_tracking")
                                 .size(0)
-//                                .aggregations("today_visitors", a -> a
-//                                        .filter(f -> f
-//                                                .range(r -> r
-//                                                        .date(d -> d
-//                                                                .field("visitedAt")
-//                                                                .gte("now/d+9h")
-//                                                                .lt("now+1d/d+9h"))))
-//                                        .aggregations("unique_today_users", agg -> agg
-//                                                .cardinality(c -> c.field("ipAddress.keyword"))))
+                                .aggregations("today_visitors", a -> a
+                                        .filter(f -> f
+                                                .range(r -> r
+                                                        .date(d -> d
+                                                                .field("visitedAt")
+                                                                .gte("now/d+9h")
+                                                                .lt("now+1d/d+9h"))))
+                                        .aggregations("unique_today_users", agg -> agg
+                                                .cardinality(c -> c.field("ipAddress.keyword"))))
 //                                        .aggregations("unique_current_users", agg -> agg
 //                                                .cardinality(c -> c.field("ipAddress.keyword"))))
                                 .aggregations("total_visitors", a -> a
                                         .cardinality(c -> c.field("ipAddress.keyword"))),
                         Void.class);
 
-//                long todayVisitors = response.aggregations()
-//                        .get("today_visitors")
-//                        .filter()
-//                        .aggregations()
-//                        .get("unique_today_users")
-//                        .cardinality()
-//                        .value();
+                long todayVisitors = response.aggregations()
+                        .get("today_visitors")
+                        .filter()
+                        .aggregations()
+                        .get("unique_today_users")
+                        .cardinality()
+                        .value();
 //                long currentVisitors = response.aggregations()
 //                        .get("current_visitors")
 //                        .filter()
@@ -80,7 +80,7 @@ public class VisitDAOImpl implements VisitDAO {
                         .cardinality()
                         .value();
                 return Map.of(
-//                        "todayVisitors", todayVisitors,
+                        "todayVisitors", todayVisitors,
 //                        "currentVisitors", currentVisitors,
                         "totalVisitors", totalVisitors
                 );
