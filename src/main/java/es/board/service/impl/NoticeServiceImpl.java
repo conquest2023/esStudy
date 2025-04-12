@@ -70,18 +70,21 @@ public class NoticeServiceImpl  implements NoticeService {
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
+        NoticeRequest notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
         CompletableFuture.supplyAsync(() -> {
-            NoticeRequest notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
             asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
         });
+        log.info(notice.toString());
         List<String> userIds = userRepository.findAllUserIds();
-        notificationService.sendNoticeNotification(userIds, "📢 새로운 공지사항이 등록되었습니다!");
+        notificationService.sendNoticeNotification(userIds,String.valueOf(notice.getFeedUID()), "📢 새로운 공지사항이 등록되었습니다!");
     }
 
     private boolean isAdmin(String userId) {
         return noticeRepository.existsByUserId(userId);
     }
+
+
     private Notice NoticeSaveId(NoticeRequest noticeDTO, String token) {
        return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
     }

@@ -19,6 +19,7 @@ public class Notice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "feed_id")
     private  String feedUID;
 
     @Column(name = "user_id")

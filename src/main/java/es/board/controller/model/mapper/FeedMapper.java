@@ -133,7 +133,7 @@ public class FeedMapper {
         return NoticeRequest.builder()
                 .id(notice.getId())
                 .username("관리자")
-                .feedUID(notice.getFeedUID())
+                .feedUID(UUID.randomUUID().toString())
                 .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())

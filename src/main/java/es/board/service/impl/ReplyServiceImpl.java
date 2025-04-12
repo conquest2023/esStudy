@@ -52,7 +52,7 @@ public class ReplyServiceImpl implements ReplyService {
             log.info("답글이 작성됨: {}", response.getFeedUID());
         } else {
             if (!userId.equals(response.getUserId())) {
-                notificationService.sendReplyNotification(userId,
+                notificationService.sendReplyNotification(userId, response.getFeedUID(),
                         response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
             }
         }

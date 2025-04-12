@@ -60,9 +60,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendNoticeNotification(List<String> userIds, String message) {
+    public void sendNoticeNotification(List<String> userIds, String feedUID, String message) {
         for (String userId : userIds) {
-            sendNotification(userId, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
+            sendFeedNotification(userId, feedUID, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
         }
     }
     @Override
@@ -70,8 +70,8 @@ public class NotificationServiceImpl implements NotificationService {
         sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
     }
     @Override
-    public void sendReplyNotification(String userId, String message) {
-        sendNotification(userId, REPLY_NOTIFICATION_KEY, "reply-notification", message);
+    public void sendReplyNotification(String userId,String feedUID, String message) {
+        sendFeedNotification(userId,feedUID, REPLY_NOTIFICATION_KEY, "reply-notification", message);
     }
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
@@ -87,21 +87,6 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
     }
-    private void sendFeedPendingNotifications(String userId,String feedUID,String redisKeyPrefix, String eventType, SseEmitter emitter) {
-        String redisKey = redisKeyPrefix + userId;
-        List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
-        if (notifications != null && !notifications.isEmpty()) {
-            try {
-                for (String message : notifications) {
-                    emitter.send(SseEmitter.event().name(eventType).data(message));
-                }
-                redisTemplate.delete(redisKey);
-            } catch (IOException e) {
-                log.error("기존 알림 전송 실패 - userId: {}, eventType: {}", userId, eventType, e);
-            }
-        }
-    }
-
     private void sendFeedNotification(String userId, String feedUID, String redisKeyPrefix, String eventType, String message) {
         String redisKey = redisKeyPrefix + userId;
         try {
@@ -109,7 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
             payload.put("feedUID", feedUID);
             payload.put("message", message);
             String jsonPayload = objectMapper.writeValueAsString(payload);
-
+            log.info(jsonPayload);
             if (!emitters.containsKey(userId)) {
                 redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
                 redisTemplate.opsForList().trim(redisKey, 0, 49); // 최대 50개 유지

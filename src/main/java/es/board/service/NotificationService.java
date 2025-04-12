@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface NotificationService {
 
-    void sendNoticeNotification(List<String> userIds, String message);
-    void  sendReplyNotification(String userId,String message);
+    void sendNoticeNotification(List<String> userIds, String feedUID, String message);
+    void  sendReplyNotification(String userId,String feedUID,String message);
     void sendCommentNotification(String userId, String feedUID, String message);
     void sendTodoNotification(String userId, String message);
     List<String> getUserNotifications(String userId);

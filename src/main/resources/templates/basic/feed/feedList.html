@@ -3211,12 +3211,10 @@
                 updateTodoAlert(event.data);
                 });
                 eventSource.addEventListener("reply-notification", (event) => {
-                    console.log("📩 답글 알림 수신:", event.data);
-                    addNotification(event.data);
+                    addFeedNotification(event.data);
                 });
                 eventSource.addEventListener("notice-notification", (event) => {
-                    console.log("📩공지사항 수신:", event.data);
-                    addNotification(event.data);
+                    addFeedNotification(event.data);
                 });
             eventSource.onerror = function () {
                 console.error("SSE 연결이 끊어졌습니다. 10초 후 재연결 시도 중...");
@@ -3248,7 +3246,6 @@
     function addFeedNotification(jsonMessage) {
         const notificationList = document.getElementById("notificationList");
         const notificationBadge = document.getElementById("notificationBadge");
-
         if (!notificationList || !notificationBadge) {
             console.error("알림을 표시할 요소가 존재하지 않습니다!");
             return;
@@ -3256,7 +3253,7 @@
 
         let parsed;
         try {
-            parsed = JSON.parse(jsonMessage); // JSON 파싱
+            parsed = JSON.parse(jsonMessage);
         } catch (e) {
             console.error("JSON 파싱 오류:", e);
             return;
@@ -3275,15 +3272,14 @@
         li.appendChild(a);
         notificationList.prepend(li);
 
-        // 뱃지 업데이트
         notificationBadge.style.display = "flex";
         notificationBadge.textContent = parseInt(notificationBadge.textContent || "0") + 1;
 
-        // 토스트 띄우기
-        showToast(message);
+        showToast(message,parsed.feedUID);
     }
 
-    function showToast(message) {
+    function showToast(message, feedUID) {
+        console.log(feedUID)
         const container = document.getElementById("toastContainer");
         if (!container) return;
 
@@ -3292,16 +3288,15 @@
         toast.setAttribute("role", "alert");
         toast.setAttribute("aria-live", "assertive");
         toast.setAttribute("aria-atomic", "true");
+
         toast.innerHTML = `
         <div class="d-flex">
-         <div class="toast-body fw-bold text-white">
-            🔔 ${message}
-         </div>
+            <div class="toast-body fw-bold text-white">
+                🔔 <a href="/search/view/feed/id?id=${feedUID}" class="text-white text-decoration-underline">${message}</a>
+            </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>`;
-
         container.appendChild(toast);
-
         setTimeout(() => {
             toast.classList.remove("show");
             toast.addEventListener("transitionend", () => {
@@ -3309,6 +3304,7 @@
             });
         }, 5000);
     }
+
     document.addEventListener("DOMContentLoaded", function () {
         const todoBalloon = document.getElementById("todoBalloon");
         const calendarBalloon = document.getElementById("calendarBalloon");
