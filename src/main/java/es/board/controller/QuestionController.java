@@ -43,4 +43,26 @@ public class QuestionController {
         response.put("DTOS", certificateDTOS);
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/practical/random")
+    @ResponseBody
+    public ResponseEntity<?> getRandomPractical(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        List<QuestionPracticalDto> certificateDTOS=questionService.getRandomPracticeList();
+        response.put("DTOS", certificateDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

@@ -42,6 +42,11 @@
 </head>
 
 <body>
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+    </div>
+</nav>
 <div class="container py-5">
     <div class="mb-4 text-center">
         <h2 class="fw-bold text-primary">📘 문제은행</h2>
@@ -127,6 +132,12 @@
                     <p class="text-secondary mb-0">문제 선택</p>
                 </div>
             </div>
+            <div class="col">
+                <div class="card year-card text-center p-4" data-year="random">
+                    <h3 class="fw-bold">랜덤 문제</h3>
+                    <p class="text-secondary mb-0">문제 선택</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -199,11 +210,20 @@
     }
 
     document.querySelectorAll('.year-card').forEach(card => {
-        card.addEventListener('click', function() {
+        card.addEventListener('click', function () {
             selectedYear = this.getAttribute('data-year');
+
+            if (selectedYear === 'random') {
+                loadRandomQuestions();
+                return;
+            }
+
             document.getElementById('selectedYear').innerText = selectedYear + '년';
+            const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
+            modal.show();
         });
     });
+
 
     function loadQuestions(sessionNum) {
         const token = localStorage.getItem('token');
@@ -236,6 +256,33 @@
             }
         });
     }
+    function loadRandomQuestions() {
+        const token = localStorage.getItem('token');
+        if (!token || !combinedCategory) {
+            alert("로그인 또는 카테고리 선택이 필요합니다.");
+            return;
+        }
+
+        $.ajax({
+            url: "/practical/random",
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            success: function (res) {
+                localStorage.setItem("questions", JSON.stringify(res.DTOS));
+                localStorage.setItem("category", combinedCategory);
+                localStorage.setItem("round", "랜덤");
+
+                window.location.href = "/search/view/practical/question";
+            },
+            error: function (err) {
+                console.error('랜덤 문제 불러오기 실패:', err);
+                alert("랜덤 문제를 불러오지 못했습니다.");
+            }
+        });
+    }
+
 
 </script>
 </body>

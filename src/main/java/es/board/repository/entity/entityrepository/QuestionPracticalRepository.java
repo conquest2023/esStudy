@@ -16,4 +16,9 @@ public interface QuestionPracticalRepository extends JpaRepository<QuestionPract
     @Query("select u from QuestionPractical u where u.category = :category and  u.type=:type")
     List<QuestionPractical> findByPracticalCategory(@Param("category") String category, @Param("type") String type);
 
+
+    @Query(value = "SELECT * FROM question_practical ORDER BY RAND() LIMIT 20", nativeQuery = true)
+    List<QuestionPractical> findRandomPracticalCategory();
+
+
 }

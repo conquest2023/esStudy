@@ -8,4 +8,8 @@ public interface QuestionService {
 
 
     List<QuestionPracticalDto> getQuestionPracticeList(String category,String type);
+
+
+    List<QuestionPracticalDto> getRandomPracticeList();
+
 }
