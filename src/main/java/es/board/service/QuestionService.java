@@ -7,9 +7,11 @@ import java.util.List;
 public interface QuestionService {
 
 
-    List<QuestionPracticalDto> getQuestionPracticeList(String category,String type);
+    List<QuestionPracticalDto> getQuestionPracticalList(String category, String type);
 
 
-    List<QuestionPracticalDto> getRandomPracticeList();
+    List<QuestionPracticalDto> getRandomPracticalList();
+
+    List<QuestionPracticalDto> getTagPractical(Long tagId);
 
 }

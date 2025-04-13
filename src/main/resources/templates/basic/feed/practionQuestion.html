@@ -98,8 +98,14 @@
   }
 
   function checkAnswer() {
-    document.getElementById("explanationArea").style.display = "block";
+    const explanation = document.getElementById("explanationArea");
+    if (explanation.style.display === "none" || explanation.style.display === "") {
+      explanation.style.display = "block";
+    } else {
+      explanation.style.display = "none";
+    }
   }
+
 
   function nextQuestion() {
     if (currentIndex < questions.length - 1) {

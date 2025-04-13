@@ -133,8 +133,8 @@
                 </div>
             </div>
             <div class="col">
-                <div class="card year-card text-center p-4" data-year="random">
-                    <h3 class="fw-bold">랜덤 문제</h3>
+                <div class="card year-card text-center p-4" data-year="tag" data-bs-toggle="modal" data-bs-target="#tagModal">
+                    <h3 class="fw-bold">과목별 문제</h3>
                     <p class="text-secondary mb-0">문제 선택</p>
                 </div>
             </div>
@@ -142,24 +142,36 @@
     </div>
 </div>
 
-<!-- 모달: 실기/필기 선택 -->
-<div class="modal fade" id="selectTypeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold">유형 선택</h5>
+<div class="modal fade" id="tagModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content rounded-4 shadow-sm border-0">
+            <div class="modal-header bg-gradient text-white rounded-top-4" style="background: linear-gradient(90deg, #4a90e2, #007aff);">
+                <h5 class="modal-title fw-bold fs-4">📘 과목별 문제 선택</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center p-4">
-                <p id="selectedCertName" class="mb-4 fw-bold fs-5 text-primary bg-light p-2 rounded">자격증명</p>
-                <button class="btn btn-primary w-100 mb-3 fs-5 py-2" onclick="chooseMode('필기')">📘 필기 문제</button>
-                <button class="btn btn-success w-100 fs-5 py-2" onclick="chooseMode('실기')">🛠️ 실기 문제</button>
+            <div class="modal-body py-5 px-4">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 justify-content-center">
+                    <!-- 태그 버튼들 -->
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(1)">C언어</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(2)">네트워크</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(11)">데이터베이스</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(7)">디자인패턴</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(6)">보안</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(14)">상속</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(12)">소프트웨어 공학</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(8)">스택</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(10)">운영체제</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(9)">자료구조</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(5)">자바</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(13)">테스트기법</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(3)">파이썬</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 py-2" onclick="loadTagQuestions(4)">포인터</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 모달: 회차 선택 -->
 <div class="modal fade" id="sessionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -174,6 +186,21 @@
                     <button class="btn btn-primary" onclick="loadQuestions(2)">2회차</button>
                     <button class="btn btn-primary" onclick="loadQuestions(3)">3회차</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="selectTypeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">유형 선택</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p id="selectedCertName" class="mb-4 fw-bold fs-5 text-primary bg-light p-2 rounded">자격증명</p>
+                <button class="btn btn-primary w-100 mb-3 fs-5 py-2" onclick="chooseMode('필기')">📘 필기 문제</button>
+                <button class="btn btn-success w-100 fs-5 py-2" onclick="chooseMode('실기')">🛠️ 실기 문제</button>
             </div>
         </div>
     </div>
@@ -218,11 +245,16 @@
                 return;
             }
 
+            if (selectedYear === 'tag') {
+                return;
+            }
+
             document.getElementById('selectedYear').innerText = selectedYear + '년';
             const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
             modal.show();
         });
     });
+
 
 
     function loadQuestions(sessionNum) {
@@ -282,6 +314,35 @@
             }
         });
     }
+    function loadTagQuestions(tagId) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        document.getElementById("selectedYear").style.display = "none";
+
+        $.ajax({
+            url: `/practical/tag?tagId=${tagId}`,
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            success: function (res) {
+                localStorage.setItem("questions", JSON.stringify(res.DTOS));
+                localStorage.setItem("category", `tag_${tagId}`);
+                localStorage.setItem("round", "태그 문제");
+
+                window.location.href = "/search/view/practical/question";
+            },
+            error: function (err) {
+                console.error("태그 문제 불러오기 실패:", err);
+                alert("문제를 불러오지 못했습니다.");
+            }
+        });
+    }
+
 
 
 </script>

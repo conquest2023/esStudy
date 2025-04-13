@@ -23,12 +23,17 @@ public class QuestionServiceImpl implements QuestionService {
 
 
     @Override
-    public List<QuestionPracticalDto> getQuestionPracticeList(String category,String type) {
+    public List<QuestionPracticalDto> getQuestionPracticalList(String category, String type) {
         return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findByPracticalCategory(category,type));
     }
 
     @Override
-    public List<QuestionPracticalDto> getRandomPracticeList() {
+    public List<QuestionPracticalDto> getRandomPracticalList() {
         return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findRandomPracticalCategory());
+    }
+
+    @Override
+    public List<QuestionPracticalDto> getTagPractical(Long tagId) {
+        return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findByTagId(tagId));
     }
 }

@@ -39,7 +39,7 @@ public class QuestionController {
         }
 
         Map<String, Object> response = new HashMap<>();
-        List<QuestionPracticalDto> certificateDTOS=questionService.getQuestionPracticeList(category,round);
+        List<QuestionPracticalDto> certificateDTOS=questionService.getQuestionPracticalList(category,round);
         response.put("DTOS", certificateDTOS);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +58,25 @@ public class QuestionController {
         }
 
         Map<String, Object> response = new HashMap<>();
-        List<QuestionPracticalDto> certificateDTOS=questionService.getRandomPracticeList();
+        List<QuestionPracticalDto> certificateDTOS=questionService.getRandomPracticalList();
+        response.put("DTOS", certificateDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/practical/tag")
+    @ResponseBody
+    public ResponseEntity<?> getTagPractical(@RequestHeader(value = "Authorization", required = false) String token,
+                                              @RequestParam Long  tagId) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        Map<String, Object> response = new HashMap<>();
+        List<QuestionPracticalDto> certificateDTOS=questionService.getTagPractical(tagId);
         response.put("DTOS", certificateDTOS);
         return ResponseEntity.ok(response);
     }

@@ -21,4 +21,13 @@ public interface QuestionPracticalRepository extends JpaRepository<QuestionPract
     List<QuestionPractical> findRandomPracticalCategory();
 
 
+    @Query("""
+        SELECT qp FROM QuestionPractical qp
+        JOIN qp.tags t
+        WHERE t.tagId = :tagId
+    """)
+    List<QuestionPractical> findByTagId(@Param("tagId") Long tagId);
+
+
+
 }
