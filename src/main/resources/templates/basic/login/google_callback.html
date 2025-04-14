@@ -86,13 +86,13 @@
         userId: user.providerId,
         username: user.username,
         email: user.email,
-        password: user.password // 있을 경우만
+        password: user.password
       })
     })
       .then(res => res.json())
       .then(tokenData => {
         localStorage.setItem("token", tokenData.accessToken);
-        localStorage.setItem("refreshToken", tokenData.refreshToken);
+        // localStorage.setItem("refreshToken", tokenData.refreshToken);
         window.location.href = "/";
       })
       .catch(error => console.error("JWT 발급 실패:", error));

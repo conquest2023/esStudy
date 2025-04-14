@@ -93,7 +93,7 @@
             .then(res => res.json())
             .then(tokenData => {
               localStorage.setItem("token", tokenData.accessToken);
-              localStorage.setItem("refreshToken", tokenData.refreshToken);
+              // localStorage.setItem("refreshToken", tokenData.refreshToken);
               window.location.href = "/";
             })
             .catch(error => console.error("JWT 발급 실패:", error));

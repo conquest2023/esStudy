@@ -1811,7 +1811,7 @@
         fetch("/search/site/log", {
             method: "GET",
             headers: {
-                "Authorization": localStorage.getItem("accessToken") || "",
+                "Authorization": localStorage.getItem("token") || "",
                 "Content-Type": "application/json"
             }
         })
@@ -2924,25 +2924,20 @@
             });
         });
     })
-    function fetchUserInfo(token, refreshToken) {
+    function fetchUserInfo(token, retryCount = 0) {
         return fetch("/info", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
-            }
+            },
+            credentials: "include"
         })
             .then(response => {
-
-
-                if (response.status === 401) {
-                    console.warn("Access Token 만료됨. Refresh Token으로 새 Access Token 요청...");
+                if (response.status === 401 && retryCount < 1) {
                     return fetch("/auth/refresh", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({refreshToken: refreshToken})
+                        credentials: "include",
                     })
                         .then(refreshResponse => {
                             if (!refreshResponse.ok) {
@@ -2953,8 +2948,7 @@
                         .then(refreshData => {
                             if (refreshData.accessToken) {
                                 localStorage.setItem("token", refreshData.accessToken);
-                                token = refreshData.accessToken;
-                                return fetchUserInfo(refreshData.accessToken, refreshToken);
+                                return fetchUserInfo(refreshData.accessToken, retryCount + 1);
                             } else {
                                 throw new Error("토큰 재발급 실패");
                             }
@@ -2989,9 +2983,8 @@
         const userMenu = document.getElementById("user-menu");
         const userMenuBtn = document.getElementById("user-menu-btn");
         const token = localStorage.getItem("token");
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (token && refreshToken) {
-            fetchUserInfo(token, refreshToken)
+        if (token) {
+            fetchUserInfo(token)
                 .then(data => {
                     if (data && data.isLoggedIn) {
                         if (loginButton) loginButton.style.display = "none";
@@ -3025,7 +3018,6 @@
                 userMenu.style.display = userMenu.style.display === "none" ? "block" : "none";
             });
 
-
             document.addEventListener("click", function(event) {
                 if (!userMenu.contains(event.target) && !userMenuBtn.contains(event.target)) {
                     userMenu.style.display = "none";
@@ -3049,14 +3041,11 @@
         if (logoutButton) logoutButton.style.display = "none";
         if (userInfo) userInfo.classList.add("d-none");
         if (profileInfo) profileInfo.style.display = "none";
-
-
-
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
-
         console.log("[DEBUG] 로그아웃 완료. 로그인 페이지로 이동 가능.");
     }
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const boardDropdown = document.getElementById("boardDropdown");

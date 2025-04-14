@@ -157,9 +157,9 @@
         })
             .then(response => {
                 const data = response.data;
-                if (data.accessToken && data.refreshToken) {
+                if (data.accessToken) {
                     localStorage.setItem("token", data.accessToken);
-                    localStorage.setItem("refreshToken", data.refreshToken);
+                    // localStorage.setItem("refreshToken", data.refreshToken);
                     window.location.href = "/";
                 } else {
                     alert("아이디 또는 비밀번호가 잘못되었습니다.");

@@ -262,7 +262,6 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data)
                         document.querySelector("#username").textContent = data.username;
                         document.querySelector("#userId").textContent = data.userId;
                         document.querySelector("#realName").textContent = data.username || "이름 없음";

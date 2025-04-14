@@ -1,6 +1,8 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.jwt.JwtToken;
+import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.repository.document.Comment;
 import es.board.service.CommentService;
@@ -9,12 +11,16 @@ import es.board.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,7 +104,6 @@ public class UserController {
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
                 List<Comment> commentList=commentService.getMyPageComment(userId,page,size);
-                log.info("commentList={}",commentList.toString());
                 Map<String, Object> response = Map.of(
                         "commentList",commentList
                 );
@@ -128,7 +133,7 @@ public class UserController {
                         "feedCount",  boardStats.get("totalBoards"),
                         "point",point,
                         "username",jwtTokenProvider.getUsername(token),
-                        "userId",userId,
+//                        "userId",userId,
                         "visitCount", userService.findVisitCount(userId));
                 return ResponseEntity.ok(response);
             }
@@ -151,12 +156,35 @@ public class UserController {
             return "basic/login/SignUp";
         }
     }
-
-    @PostMapping("/check")
+    @PostMapping("/authlogin")
+    @ResponseBody
+    public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
+        if (!userService.login(response)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
+        }
+        Authentication authentication = userService.authenticate(response);
+        JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
+        userService.updateVisitCount(response.getUserId());
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(Map.of(
+                        "accessToken", token.getAccessToken(),
+                        "username", authentication.getName(),
+                        "isLoggedIn", true
+                ));
+    }
+        @PostMapping("/check")
     public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpResponse sign) {
         boolean isAvailable = userService.checkId(sign);
-        log.info(String.valueOf(isAvailable));
-        return ResponseEntity.ok(isAvailable); // true: 사용 가능, false: 중복
+        return ResponseEntity.ok(isAvailable);
     }
 
 

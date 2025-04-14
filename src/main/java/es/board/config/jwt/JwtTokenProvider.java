@@ -29,7 +29,7 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
-private final Set<String> blacklistedTokens = new HashSet<>();
+    private final Set<String> blacklistedTokens = new HashSet<>();
 
     // 블랙리스트에 토큰 추가
     public void addToBlacklist(String token) {
@@ -40,6 +40,8 @@ private final Set<String> blacklistedTokens = new HashSet<>();
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokens.contains(token);
     }
+
+
     public JwtToken generateToken(Authentication authentication,String userId) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -51,7 +53,7 @@ private final Set<String> blacklistedTokens = new HashSet<>();
                 .setSubject(userId) // "sub"에 userId 저장
                 .claim("username", authentication.getName()) // "username" 클레임에 이름 저장
                 .claim("auth", authorities) // 권한 정보 저장
-                .claim("created_at", LocalDate.now().toString()) // 발급 일자 추가
+                .claim("created_at", LocalDate.now().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))
                 .signWith(key, SignatureAlgorithm.HS256)
