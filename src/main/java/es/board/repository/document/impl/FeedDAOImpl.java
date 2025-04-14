@@ -76,7 +76,6 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public Board indexSaveFeed(Board board, int postId) {
-        log.info(board.toString());
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
@@ -804,6 +803,7 @@ public class FeedDAOImpl implements FeedDAO {
                     .filter(writer ->
                             writer.getUsername() != null &&
                                     !writer.getUsername().isEmpty() &&
+                                    !writer.getUsername().equals("관리자")&&
                                     !writer.getUsername().equals("익명") &&
                                     !writer.getUsername().equals("asd") &&
                                     !writer.getUsername().equals("안녕") &&

@@ -20,6 +20,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     boolean existsByUserId(@Param("userId") String userId);
 
 
-    @Query("SELECT u from  Notice  u order by u.createdAt DESC limit 2")
+    @Query("SELECT u from  Notice  u order by u.createdAt DESC limit 1")
     List<Notice> findNoticeByCreatedAtDESC();
 }

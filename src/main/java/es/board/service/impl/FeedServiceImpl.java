@@ -14,6 +14,7 @@ import es.board.repository.document.Board;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Post;
 import es.board.repository.entity.entityrepository.LikeRepository;
+import es.board.repository.entity.entityrepository.NotificationRepository;
 import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.FeedService;
@@ -45,6 +46,8 @@ public class FeedServiceImpl implements FeedService {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    private  final NotificationRepository notificationRepository;
+
 
     private final FeedMapper feedMapper;
 
@@ -68,7 +71,7 @@ public class FeedServiceImpl implements FeedService {
 
     private  final ObjectMapper objectMapper;
 
-    private  static  final String TOP5_USER_KEY= "TOP_USER_KEYS";
+    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
 
     private  static  final String RECOMMEND_KEY= "Recommend_feed_key";
 

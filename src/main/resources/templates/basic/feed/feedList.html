@@ -18,11 +18,52 @@
             padding: 0 20px;
 
         }
+        #boardTab .nav-link.active {
+            background-color: #007bff !important;
+            color: white !important;
+            border-radius: 12px;
+            font-weight: bold;
+            padding: 6px 16px;
+        }
+
         #sidebarTabs .nav-link:hover {
             background-color: transparent !important;
             color: inherit !important;
         }
+        .toggle-header {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            padding: 0.75rem 1rem;
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #212529;
+        }
 
+        .toggle-header:hover {
+            background-color: #f1f1f1;
+        }
+
+        .toggle-header i {
+            margin-right: 0.6rem;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-header.active {
+            color: #0d6efd;
+        }
+
+        .toggle-header.active i {
+            color: #0d6efd;
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            font-size: 1rem;
+            color: #666;
+        }
         #sidebarTabs .nav-link.active {
             background-color: transparent !important;
             color: #000 !important;
@@ -39,6 +80,16 @@
             cursor: pointer;
             transition: background 0.2s ease-in-out;
         }
+        #searchInput {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+        #searchInput::placeholder {
+            color: #aaa;
+        }
 
         .list-item:hover {
             background: #f5f5f5;
@@ -49,6 +100,24 @@
             }
         }
         @media (max-width: 768px) {
+            .interview-card {
+                max-width: 250% !important;
+                font-size: 0.95rem;
+                box-sizing: border-box;
+                padding: 1rem !important;
+                margin-bottom: 0.75rem;
+            }
+
+            .interview-card .text-primary {
+                font-size: 1rem !important;
+            }
+
+            .interview-card a {
+                font-size: 0.95rem !important;
+                display: inline-block;
+                width: 100%;
+                word-wrap: break-word;
+            }
             .balloon {
                 opacity: 1;
             }
@@ -67,31 +136,24 @@
                 font-size: 0.85rem;
             }
             .notice-card {
+                margin-bottom: 0.75rem !important;
                 padding: 0.75rem !important;
             }
 
             .notice-card .card-title {
-                font-size: 0.95rem;
-                display: flex;
-                align-items: center;
-                gap: 0.4rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .notice-card .card-title i {
-                font-size: 1rem;
-            }
-
-            .notice-card .card-title a {
-                font-weight: 600;
-                font-size: 0.95rem;
+                font-size: 0.9rem !important;
             }
 
             .notice-card .text-muted {
-                font-size: 0.8rem;
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 0.25rem;
+                font-size: 0.75rem !important;
+            }
+
+            .notice-card .card-body {
+                padding: 0.75rem !important;
+            }
+
+            .notice-card a {
+                font-size: 0.9rem !important;
             }
             .fab-button {
                 width: 64px;
@@ -114,8 +176,9 @@
             }
             .custom-logo {
                 padding-left: 0 !important;
+                text-align: left !important;
                 margin-left: 0 !important;
-                transform: translateX(-100px);
+                transform: translateX(-170px);
             }
             ul.pagination {
                 margin-bottom: 100px !important;
@@ -162,7 +225,7 @@
                 gap: 8px;
             }
             .notification-container {
-                margin-right: 0 !important;
+                margin-right: 20px !important; /* 원하는 만큼 줄이기 */
             }
 
             .btn {
@@ -233,21 +296,7 @@
                 align-items: center;
 
             }
-            .tooltip-box {
-                position: fixed;
-                bottom: 80px;
-                right: 20px;
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px 15px;
-                border-radius: 10px;
-                font-size: 14px;
-                animation: fadeInOut 3s ease-in-out;
-            }
-            .tooltip-box.show {
-                display: block;
-                animation: fadeInOut 3s ease-in-out;
-            }
+
 
             @keyframes fadeInOut {
                 0% { opacity: 0; transform: translateY(10px); }
@@ -295,35 +344,9 @@
                 gap: 10px;
             }
 
-
-
-            .menu-toggle, .right-menu-toggle {
-                display: flex;
-                position: fixed;
-                top: 15px;
-                background: #007bff;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                width: 80px;
-                height: 40px;
-                justify-content: center;
-                align-items: center;
-                font-size: 13px;
-                font-weight: bold;
-                transition: background 0.3s ease, transform 0.2s ease;
-                z-index: 1000;
-                cursor: pointer;
-                box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            }
             .menu-toggle:hover, .right-menu-toggle:hover {
                 background: #0056b3;
                 transform: scale(1.05);
-            }
-
-
-            .menu-toggle {
-                left: 15px;
             }
 
 
@@ -395,11 +418,6 @@
 
             .right-sidebar.active {
                 display: block;
-            }
-
-
-            #searchInput {
-                width: 100%;
             }
 
 
@@ -920,6 +938,9 @@
         }
 
         .search-bar {
+            background-color: #f5f6fa;
+            border: none;
+            box-shadow: none;
             width: 100%;
             max-width: 800px;
             margin: 10px auto;
@@ -1295,16 +1316,6 @@
             font-size: 1.4rem;
             color: #212529;
         }
-        /*.btn-tab {*/
-        /*    background: #f1f3f5;*/
-        /*    border: 1px solid #d1d5db;*/
-        /*    border-radius: 0.3rem;*/
-        /*    padding: 1px 4px;*/
-        /*    font-weight: 300;*/
-        /*    font-size: 0.8rem;*/
-        /*    min-width: 50px;*/
-        /*    transition: all 0.2s ease;*/
-        /*}*/
         .btn-tab {
             border-bottom: none !important;
             box-shadow: none !important;
@@ -1336,6 +1347,38 @@
         #jobSiteRankingList li:hover {
             background-color: #f1f1f1;
         }
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .navbar,
+        body.dark-mode .dropdown-menu {
+            background-color: #1e1e1e;
+            color: white;
+            border-color: #333;
+        }
+
+        body.dark-mode .nav-link,
+        body.dark-mode .btn {
+            color: #ddd;
+        }
+
+        body.dark-mode .nav-link.active {
+            background-color: #333;
+            color: #fff;
+        }
+
+        body.dark-mode .btn-outline-dark {
+            border-color: #aaa;
+            color: #aaa;
+        }
+
+        body.dark-mode .btn-outline-dark:hover {
+            background-color: #444;
+            color: white;
+        }
 
     </style>
     </div>
@@ -1356,13 +1399,12 @@
 <!--                </div>-->
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid d-flex align-items-center">
-        <a class="navbar-brand fw-bold text-primary me-2 custom-logo" href="/">Ninfo</a>
+        <a class="navbar-brand fw-bold text-primary me-2 custom-logo text-start text-md-center" href="/">Ninfo</a>
         <span class="tagline d-none d-md-inline text-muted me-4">
       미래를 준비하는 사람들을 위한 사이트
     </span>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav align-items-center gap-3">
-                <!-- 취업 사이트 -->
                 <li class="nav-item dropdown position-relative">
                     <a class="nav-link dropdown-toggle fw-bold" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
@@ -1433,7 +1475,6 @@
                                 <small class="text-muted">시험과목, 기출요약, 공부법 가이드</small>
                             </a>
                         </li>
-                        <!-- 자격증 분석 -->
                         <li class="mb-2">
                             <a class="dropdown-item fw-bold d-flex flex-column" href="/certificate/list">
                             <span class="d-flex align-items-center mb-1">
@@ -1442,7 +1483,6 @@
                                 <small class="text-muted">합격률/응시율 기반 자격증 추천</small>
                             </a>
                         </li>
-                        <!-- 자격증 캘린더 -->
                         <li>
                             <a class="dropdown-item fw-bold d-flex flex-column" href="/certificate/calendar">
                             <span class="d-flex align-items-center mb-1">
@@ -1461,12 +1501,15 @@
                 <i class="fas fa-bell fa-lg text-secondary" id="notificationIcon" style="cursor: pointer;"></i>
                 <span class="notification-badge position-absolute top-0 start-100 translate-middle badge bg-danger"
                       id="notificationBadge" style="display: none;">!</span>
-                <div class="notification-dropdown position-absolute end-0 bg-white shadow rounded p-3"
-                     id="notificationDropdown" style="display: none; width: 250px;">
+                <div class="notification-dropdown position-absolute start-50 translate-middle-x bg-white shadow rounded p-3"
+                     id="notificationDropdown" style="display: none; width: 200px;">
                     <ul id="notificationList" class="list-unstyled mb-0"></ul>
                 </div>
             </div>
-            <button class="btn btn-danger me-2" onclick="window.location.href='/search/view/feed/Form';">글쓰기</button>
+<!--            <button id="toggleDarkMode" class="btn btn-sm btn-outline-dark">🌙 다크모드</button>-->
+            <button class="btn btn-danger me-2 d-none d-md-inline" onclick="window.location.href='/search/view/feed/Form';">
+                글쓰기
+            </button>
             <button id="login-button" class="btn btn-outline-dark" onclick="window.location.href='/login';">로그인</button>
             <div id="user-info" class="d-none ms-3 position-relative">
                 <button id="user-menu-btn" class="btn btn-outline-secondary">
@@ -1481,6 +1524,15 @@
         </div>
     </div>
 </nav>
+<div id="interviewWriteBtn" class="d-md-none position-fixed"
+     style="bottom: 600px; right: 20px; z-index: 1050;">
+    <button class="btn btn-danger rounded-circle shadow"
+            style="width: 60px; height: 60px;"
+            onclick="window.location.href='/search/view/feed/Form';">
+        <i class="fas fa-pen"></i>
+    </button>
+</div>
+
 <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
         <div class="container-custom">
             <main class="container-custom">
@@ -1490,26 +1542,31 @@
                     <input type="text" id="searchInput" class="form-control border-0 shadow-none flex-grow-1"
                            placeholder="관심있는 내용을 검색해보세요!"></div>
                 <section class="my-4">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
-                        <h2 class="section-title fw-bold mb-0 me-2 flex-grow-1">면접 질문</h2>
-                        <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 mt-2 mt-sm-0"
-                                id="viewBestAnswerBtn">
-                            <i class="fas fa-trophy"></i> 면접 베스트 답변 보기
-                        </button>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
-                        <div class="btn-group">
-                            <button class="btn btn-tab active" id="itTab" onclick="showQuestions('IT')">
-                                <i class="fas fa-laptop-code"></i> IT 기업
-                            </button>
-                            <button class="btn btn-tab" id="generalTab" onclick="showQuestions('일반')">
-                                <i class="fas fa-building"></i> 일반 기업
+                    <h2 class="section-title toggle-header" id="interviewHeader" onclick="toggleInterviewPanel()">
+                        <i class="fas fa-clipboard-question"></i>📝 면접 질문 <span id="toggleIcon" class="toggle-icon">▼</span>
+                    </h2>
+
+                    <div id="interviewPanel" style="display: none; transition: all 0.3s ease;">
+                        <div class="d-flex justify-content-between align-items-center mt-3 mb-2 flex-wrap">
+                            <div class="btn-group mb-2">
+                                <button class="btn btn-tab active" id="itTab" onclick="showQuestions('IT')">
+                                    <i class="fas fa-laptop-code"></i> IT 기업
+                                </button>
+                                <button class="btn btn-tab" id="generalTab" onclick="showQuestions('일반')">
+                                    <i class="fas fa-building"></i> 일반 기업
+                                </button>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 mb-2"
+                                    id="viewBestAnswerBtn">
+                                <i class="fas fa-trophy"></i> 면접 베스트 답변 보기
                             </button>
                         </div>
+
+                        <div class="row row-cols-1 row-cols-md-3 g-3" id="interviewQuestionContainer"></div>
                     </div>
-                    <div class="row row-cols-1 row-cols-md-3 g-3" id="interviewQuestionContainer"></div>
                 </section>
-<!--                <section class="my-5">-->
+
+                <!--                <section class="my-5">-->
 <!--                    <h2 class="section-title">읽어볼만한 글</h2>-->
 <!--                    <div class="row row-cols-1 row-cols-md-3 g-3" id="recommendedPosts">-->
 <!--&lt;!&ndash;                        <div class="d-flex justify-content-end mb-2">&ndash;&gt;-->
@@ -1703,6 +1760,7 @@
                 <span class="small text-nowrap">자격증</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end text-center" aria-labelledby="certDropdown">
+                <li><a class="dropdown-item fw-bold" href="/search/view/question">문제 은행</a></li>
                 <li><a class="dropdown-item fw-bold" href="/certificate/data">자격증 자료</a></li>
                 <li><a class="dropdown-item fw-bold" href="/certificate/list">자격증 분석</a></li>
                 <li><a class="dropdown-item fw-bold" href="/certificate/calendar">자격증 일정</a></li>
@@ -1788,6 +1846,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // document.getElementById("toggleDarkMode").addEventListener("click", () => {
+    //     document.body.classList.toggle("dark-mode");
+    // });
+    function toggleInterviewPanel() {
+        const panel = document.getElementById("interviewPanel");
+        const header = document.getElementById("interviewHeader");
+
+        const isOpen = panel.style.display === "block";
+        panel.style.display = isOpen ? "none" : "block";
+        header.classList.toggle("active", !isOpen);
+    }
+
     function hideJobRanking() {
         const now = new Date();
         const tomorrow = new Date();
@@ -2283,17 +2353,18 @@
         container.style.height = "auto";
 
         container.innerHTML = `
-          <div class="interview-card w-100 p-2 border rounded shadow-sm bg-white">
+          <div class="interview-card w-100 p-3 border rounded shadow-sm bg-white d-flex flex-column">
             <div class="mb-2 text-primary fw-bold" style="font-size: 1.1rem;">
                 예상 면접 질문
             </div>
-            <div class="text-dark" style="font-size: 1rem;">
+            <div class="text-dark" style="font-size: 1rem; word-break: keep-all;">
                 <a href="/interview/question" class="text-decoration-none text-dark">
                     ${questionToShow}
                 </a>
             </div>
-        </div>
-    `;
+          </div>
+        `;
+
     }
     function setActiveTab(category) {
         document.getElementById("itTab").classList.toggle("active", category === "IT");
@@ -2835,7 +2906,6 @@
 
         const date = new Date(dateTimeString);
 
-
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const day = date.getDate();
@@ -3180,9 +3250,9 @@
         });
     });
 
-            function connectSSE() {
-                const token = localStorage.getItem("token");
-                if (!token) {
+    function connectSSE() {
+        const token = localStorage.getItem("token");
+            if (!token) {
                     console.warn("⚠SSE 연결 실패: 토큰이 없습니다.");
                     return;
                 }
@@ -3208,7 +3278,7 @@
             eventSource.onerror = function () {
                 console.error("SSE 연결이 끊어졌습니다. 10초 후 재연결 시도 중...");
                 eventSource.close();
-                setTimeout(connectSSE, 10000);
+                setTimeout(connectSSE, 50000);
             };
         }
     function updateTodoAlert(message) {
