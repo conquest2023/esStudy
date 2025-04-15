@@ -46,8 +46,6 @@ public class FeedServiceImpl implements FeedService {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private  final NotificationRepository notificationRepository;
-
 
     private final FeedMapper feedMapper;
 
@@ -90,7 +88,6 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
-        log.info("test");
         return  feedDAO.findUserMyPageLikeAndFeedCount(userId);
     }
 

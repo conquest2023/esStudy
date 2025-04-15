@@ -1,7 +1,8 @@
 package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.res.Notification;
+import es.board.repository.entity.Notification;
+import es.board.repository.entity.entityrepository.NotificationRepository;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     private  final ObjectMapper objectMapper;
+
+    private  final NotificationRepository notificationRepository;
 
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
@@ -152,6 +153,11 @@ public class NotificationServiceImpl implements NotificationService {
     public List<String> getUserNotifications(String userId) {
         String redisKey = "notifications:" + userId;
         return redisTemplate.opsForList().range(redisKey, 0, -1);
+    }
+
+    @Override
+    public List<Notification> getNotificationList(String userId) {
+        return notificationRepository.findByNotificationList(userId);
     }
 
 }

@@ -6,6 +6,8 @@ import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.entityrepository.NoticeRepository;
+import es.board.repository.entity.entityrepository.NotificationRepository;
 import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.service.NotificationService;
 import es.board.service.ReplyService;
@@ -38,6 +40,8 @@ public class ReplyServiceImpl implements ReplyService {
     private  final StringRedisTemplate stringRedisTemplate;
 
     private  final PointHistoryRepository pointHistoryRepository;
+
+    private  final NotificationRepository notificationRepository;
     @Override
     public Map<String,Object> getPartialReply(String id){
         return replyDAO.findPartialReply(id);
@@ -48,14 +52,10 @@ public class ReplyServiceImpl implements ReplyService {
         String userId=commentDAO.findCommentUID(response.getCommentUID()).getUserId();
         replyDAO.saveReply(response);
         grantReplyPoint(response.getUserId());
-        if (userId == null) {
-            log.info("답글이 작성됨: {}", response.getFeedUID());
-        } else {
-            if (!userId.equals(response.getUserId())) {
-                notificationService.sendReplyNotification(userId, response.getFeedUID(),
-                        response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
-            }
+        if (!userId.equals(response.getUserId())) {
+                notificationService.sendReplyNotification(userId, response.getFeedUID(), response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
         }
+        notificationRepository.save(feedMapper.toReplyNotification(userId,response));
     }
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
         List<ReplyRequest> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));

@@ -4,7 +4,9 @@ import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.req.VoteRequest;
+import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
+import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.document.Board;
 import es.board.repository.document.Reply;
 import es.board.repository.document.VoteDocument;
@@ -27,6 +29,18 @@ public class FeedMapper {
                 .title(feedSaveDTO.getTitle())
                 .imageUrl(feedSaveDTO.getImageURL())
                 .anonymous(feedSaveDTO.isAnonymous())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+    public Notification toReplyNotification(String userId, ReplyCreate reply) {
+        return Notification.builder()
+                .sender(reply.getUserId())
+                .userId(userId)
+                .username(reply.getUsername())
+                .feedUID(reply.getFeedUID())
+                .message(reply.getContent())
+                .type("답글")
+                .username(reply.getUsername())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

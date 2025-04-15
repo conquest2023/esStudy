@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications", schema = "board")
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
@@ -22,6 +23,10 @@ public class Notification {
     @Column(name = "user_id",nullable = false, length = 100)
     private String userId;
 
+    private  String sender;
+
+    private  String username;
+
     @Column(nullable = false, length = 50)
     private String type;
 
@@ -31,13 +36,13 @@ public class Notification {
     @Column(name = "feed_id",length = 255)
     private String feedUID;
 
+
     @Column(nullable = false)
-    private boolean isRead = false;
+    private boolean isRead;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
 

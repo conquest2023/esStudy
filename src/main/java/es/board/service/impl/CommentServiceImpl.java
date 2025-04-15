@@ -11,6 +11,7 @@ import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.entityrepository.NotificationRepository;
 import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
@@ -46,9 +47,13 @@ public class CommentServiceImpl implements CommentService {
 
     private  final ReplyDAO replyDAO;
 
+
     private  final StringRedisTemplate stringRedisTemplate;
 
     private  final PointHistoryRepository pointHistoryRepository;
+
+    private  final NotificationRepository notificationRepository;
+
 
     private  final NotificationService notificationService;
 
@@ -97,14 +102,11 @@ public class CommentServiceImpl implements CommentService {
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
         grantCommentPoint(dto.getUserId(),dto.getUsername());
-        if (userId == null) {
-            log.info("공지사항에 댓글 작성됨: {}", dto.getFeedUID());
-        } else {
-            if (!userId.equals(dto.getUserId())) {
-                notificationService.sendCommentNotification(userId, dto.getFeedUID(),
-                        dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
-            }
+        if (!userId.equals(dto.getUserId())) {
+            notificationService.sendCommentNotification(userId, dto.getFeedUID(),
+                    dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
         }
+        notificationRepository.save(commentMapper.toCommentNotification(userId,dto));
     }
 
 

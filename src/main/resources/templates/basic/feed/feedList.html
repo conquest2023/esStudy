@@ -1503,7 +1503,16 @@
                       id="notificationBadge" style="display: none;">!</span>
                 <div class="notification-dropdown position-absolute start-50 translate-middle-x bg-white shadow rounded p-3"
                      id="notificationDropdown" style="display: none; width: 200px;">
-                    <ul id="notificationList" class="list-unstyled mb-0"></ul>
+                    <ul id="notificationList" class="list-unstyled mb-2"></ul>
+                    <div class="text-center mt-4">
+                        <button class="btn w-100 py-2 fw-semibold shadow-sm border-0 text-white"
+                                style="background: linear-gradient(90deg, #4a90e2, #007aff); border-radius: 12px; transition: all 0.3s;"
+                                onmouseover="this.style.boxShadow='0 4px 12px rgba(0, 122, 255, 0.4)'"
+                                onmouseout="this.style.boxShadow='none'"
+                                onclick="openAllNotificationsModal()">
+                            전체 보기
+                        </button>
+                    </div>
                 </div>
             </div>
 <!--            <button id="toggleDarkMode" class="btn btn-sm btn-outline-dark">🌙 다크모드</button>-->
@@ -1722,6 +1731,18 @@
                     </div>
                 </div>
             </aside>
+            <div class="modal fade" id="allNotificationsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content rounded">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title fw-bold">🔔 전체 알림 보기</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="allNotificationsContent">
+                        </div>
+                    </div>
+                </div>
+            </div>
 <nav id="bottomNav" class="navbar navbar-light bg-light shadow-sm fixed-bottom d-md-none">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <div class="dropdown dropup text-center">
@@ -1843,12 +1864,61 @@
         </div>
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     // document.getElementById("toggleDarkMode").addEventListener("click", () => {
     //     document.body.classList.toggle("dark-mode");
     // });
+    function openAllNotificationsModal() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+        fetch("/notifications/all", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("allNotificationsContent");
+                container.innerHTML = "";
+
+                if (data.length === 0) {
+                    container.innerHTML = "<p class='text-muted text-center'>알림이 없습니다.</p>";
+                } else {
+                    data.forEach(noti => {
+                        const item = document.createElement("div");
+                        item.className = "border-bottom py-2";
+
+                        const feedLink = noti.feedUID
+                            ? `<a href="/search/view/feed/id?id=${noti.feedUID}" class="text-decoration-none fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</a>`
+                            : `<span class="fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</span>`;
+
+
+
+                        item.innerHTML = `
+                        ${feedLink}
+                        <div class="text-muted small">${new Date(noti.createdAt).toLocaleString()}</div>
+                    `;
+                        container.appendChild(item);
+                    });
+                }
+
+                const modal = new bootstrap.Modal(document.getElementById("allNotificationsModal"));
+                modal.show();
+            })
+            .catch(err => {
+                console.error("전체 알림 불러오기 실패", err);
+                alert("알림 데이터를 불러오지 못했습니다.");
+            });
+    }
+
+
     function toggleInterviewPanel() {
         const panel = document.getElementById("interviewPanel");
         const header = document.getElementById("interviewHeader");
