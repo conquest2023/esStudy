@@ -311,7 +311,6 @@
                     })
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data)
                             renderFeedList(data.feedList);
                             renderPagination("feedPagination", loadFeedPage, page, size);
                         })
@@ -335,8 +334,6 @@
                 .catch(error => console.error("댓글 단 게시물 불러오기 실패:", error));
         }
     function renderPagination(containerId, loadFunction, currentPage, size) {
-        console.log(currentPage)
-        console.log(size)
         const paginationDiv = document.getElementById(containerId);
         paginationDiv.innerHTML = '';
 

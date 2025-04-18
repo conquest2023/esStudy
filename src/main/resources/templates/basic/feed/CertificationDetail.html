@@ -10,14 +10,20 @@
     </style>
 </head>
 <body>
-<div class="container my-5">
-    <!-- 뷰가 먼저 렌더링됩니다 -->
-    <h2 id="cert-title" class="mb-4">자격증 자료 불러오는 중...</h2>
-    <div id="detail-list" class="row">
-        <!-- AJAX로 받아온 카드들이 여기에 추가됩니다 -->
+<nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Workly</a>
     </div>
-    <a href="/certificate/data" class="btn btn-outline-primary mt-4">← 목록으로 돌아가기</a>
+</nav>
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 id="cert-title" class="mb-0">자격증 자료 불러오는 중...</h2>
+        <a href="/certificate/data" class="btn btn-outline-primary">목록으로 돌아가기</a>
+    </div>
+    <div id="detail-list" class="row">
+    </div>
 </div>
+
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -48,7 +54,6 @@
                     return;
                 }
 
-                // 카드 렌더링
                 listEl.innerHTML = "";
                 data.forEach(item => {
                     const cardHtml = `
@@ -56,7 +61,11 @@
                         <div class="card h-100 mb-4">
                             <div class="card-body">
                                 <h5 class="card-title">${item.title}</h5>
-                                <p class="card-text text-muted">${item.description || '설명 없음'}</p>
+                                <p class="card-text text-muted">
+                                    <a href="/search/view/feed/id?id=${item.feedUID}" class="text-decoration-none text-muted">
+                                        ${(item.description?.length > 10 ? item.description.substring(0, 10) + "..." : item.description || '설명 없음')}
+                                    </a>
+                                </p>
                                 <p class="card-text text-secondary small">
                                     조회수: ${item.viewCount} / 좋아요: ${item.likeCount}<br>
                                     작성일: ${item.createdAt?.substring(0, 10)}
@@ -68,6 +77,7 @@
                     </div>`;
                     listEl.insertAdjacentHTML('beforeend', cardHtml);
                 });
+
             },
             error: function () {
                 titleEl.textContent = "데이터를 불러오는 중 오류 발생";

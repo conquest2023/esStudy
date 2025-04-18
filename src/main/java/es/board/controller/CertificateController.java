@@ -68,8 +68,8 @@ public class CertificateController {
 
     @GetMapping("/search/certificate")
     @ResponseBody
-    public ResponseEntity<?> getTodoById(@RequestHeader(value = "Authorization", required = false) String token,
-                                         @RequestParam String text
+    public ResponseEntity<?> getSearchCertificate(@RequestHeader(value = "Authorization", required = false) String token,
+                                                  @RequestParam String text
                                          , HttpServletRequest request) {
 
         String clientIp = request.getRemoteAddr();
@@ -80,10 +80,8 @@ public class CertificateController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        log.info(clientIp);
         List<Certificate> certificate =certificateService.getCertificate(text,clientIp);
         Map<String, Object> response = new HashMap<>();
-        log.info(certificate.toString());
         response.put("certificate", certificate);
 
         return ResponseEntity.ok(response);
@@ -92,7 +90,6 @@ public class CertificateController {
     @ResponseBody
     public ResponseEntity<?> getMainCategoryAndSubCategory(@RequestHeader(value = "Authorization", required = false) String token,
                                                     @PathVariable String mainCategory ,@PathVariable String subCategory ) {
-        log.info("mainCategory={} subCategory={}",mainCategory,subCategory);
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
         }

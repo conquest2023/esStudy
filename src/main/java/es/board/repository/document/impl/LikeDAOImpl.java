@@ -79,7 +79,7 @@ public class LikeDAOImpl implements LikeDAO {
                             .source("ctx._source.likeCount += params.increment")
                             .params(Map.of("increment", JsonData.of(increment)))
                     )
-                    .refresh(true) // ✅ Boolean 값으로 설정
+                    .refresh(true) //Boolean 값으로 설정
             );
 
         } catch (IOException e) {

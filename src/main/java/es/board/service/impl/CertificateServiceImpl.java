@@ -33,7 +33,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private  final ObjectMapper objectMapper;
 
-    private static final long SEARCH_REQUEST_DELAY = 300;
+    private static final long SEARCH_REQUEST_DELAY = 200;
     private static final Duration DEFAULT_TTL = Duration.ofHours(24);
     private static final Duration SHORT_TTL = Duration.ofHours(6);
 
@@ -58,24 +58,19 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         String redisKey = REDIS_PREFIX + text;
-
         String rateLimitKey = SEARCH_RATE_LIMIT_PREFIX + userIp;
+        log.info(redisKey);
         try {
 
             Long lastSearchTime = (Long) redisTemplate.opsForValue().get(rateLimitKey);
             long currentTime = System.currentTimeMillis();
-
             if (lastSearchTime != null && (currentTime - lastSearchTime) < SEARCH_REQUEST_DELAY) {
                 log.info("검색 제한 적용 ({}ms 이내 중복 요청 차단)", SEARCH_REQUEST_DELAY);
                 return redisTemplate.opsForValue().get(redisKey) != null
                         ? objectMapper.readValue((String) redisTemplate.opsForValue().get(redisKey), new TypeReference<List<Certificate>>() {})
                         : new ArrayList<>();
             }
-
-
             redisTemplate.opsForValue().set(rateLimitKey, currentTime, Duration.ofMillis(SEARCH_REQUEST_DELAY));
-
-
             String cachedJson = (String) redisTemplate.opsForValue().get(redisKey);
             if (cachedJson != null) {
                 List<Certificate> cachedResults = objectMapper.readValue(cachedJson, new TypeReference<List<Certificate>>() {});
@@ -85,10 +80,9 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             log.error("Redis 캐시 변환 실패: {}", e.getMessage());
         }
-
-
         log.info(" 캐시 실패={}", text);
         List<Certificate> result = certificateDAO.findSearchCertificate(text);
+        log.info(result.toString());
 
         if (!result.isEmpty()) {
             try {

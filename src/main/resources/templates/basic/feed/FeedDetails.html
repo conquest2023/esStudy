@@ -274,13 +274,6 @@
             font-size: 1.3rem;
             color: red;
         }
-
-        .delete-btn-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
         .delete-feed-btn {
             background: red;
             color: white;
@@ -298,7 +291,29 @@
             display: block;
             text-align: right;
         }
+        .like-balloon {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f8d7da;
+            color: #721c24;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 12px;
+            white-space: nowrap;
+            box-shadow: 0 0 6px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none;
+            animation: bounceFade 2s ease-in-out;
+        }
 
+        @keyframes bounceFade {
+            0% { opacity: 0; transform: translate(-50%, 10px); }
+            30% { opacity: 1; transform: translate(-50%, -2px); }
+            70% { opacity: 1; transform: translate(-50%, -5px); }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
 
     </style>
 </head>
@@ -398,20 +413,22 @@
                        </div>`
             : ""}
 
-                <div class="feed-actions d-flex justify-content-between align-items-center mt-3">
+               <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
                     <div class="text-muted">
                         <i class="far fa-comment"></i> ${jsonData.count || 0}
                     </div>
-                    <div>
+                    <div class="position-relative">
                         <strong>좋아요:</strong>
                         <span id="like-count-feed-${board.feedUID}">
                             ${board.likeCount || 0}
                         </span>
-                        <button class="btn btn-sm btn-outline-danger like-btn" data-feed-uid="${board.feedUID}">
-                            <i class="far fa-heart"></i>
+                        <button class="btn btn-sm btn-outline-danger like-btn position-relative" data-feed-uid="${board.feedUID}">
+                            <i class="fas fa-heart"></i>
+                            <div class="like-balloon" id="likeBalloon-${board.feedUID}">❤️ 좋아요도 눌러보세요!</div>
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     `;
@@ -426,6 +443,16 @@
                 });
             }
         }, 100);
+
+        setTimeout(() => {
+            const balloon = document.getElementById(`likeBalloon-${board.feedUID}`);
+            if (balloon) {
+                balloon.style.display = 'block';
+                setTimeout(() => {
+                    balloon.style.display = 'none';
+                }, 2000);
+            }
+        }, 150);
     }
     function renderCommentForm(jsonData) {
         const commentFormDiv = document.getElementById('commentForm');
@@ -753,6 +780,12 @@
 
     let debounceTimeout;
     async function submitComment() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login";
+            return;
+        }
         if (debounceTimeout) clearTimeout(debounceTimeout);
         const submitButton = document.getElementById("submitCommentBtn");
         if (submitButton) submitButton.disabled = true;
@@ -1025,17 +1058,18 @@
                  let isLiked = heartIcon.classList.contains("fas");
 
 
-                 if (isLiked) {
-                     heartIcon.classList.remove("fas");
-                     heartIcon.classList.add("far");
-                     likeCurrentCount -= 1;
-                 } else {
-                     heartIcon.classList.remove("far");
-                     heartIcon.classList.add("fas");
-                     likeCurrentCount += 1;
-                 }
+             if (isLiked) {
+                 heartIcon.classList.remove("fas");
+                 heartIcon.classList.add("far");
+                 likeCurrentCount -= 1;
+             } else {
+                 heartIcon.classList.remove("far");
+                 heartIcon.classList.add("fas");
+                 likeCurrentCount += 1;
+             }
 
-                 likeCountSpan.textContent = likeCurrentCount;
+
+         likeCountSpan.textContent = likeCurrentCount;
 
              let url = isLiked
                  ? `/search/view/feed/cancel-like/${feedUID}`

@@ -18,6 +18,9 @@
             padding: 0 20px;
 
         }
+        @media (max-width: 1300px) {
+
+        }
         #boardTab .nav-link.active {
             background-color: #007bff !important;
             color: white !important;
@@ -32,18 +35,22 @@
         }
         .toggle-header {
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            padding: 0.75rem 1rem;
-            border-radius: 0.3rem;
-            display: flex;
+            padding: 0.5rem 0;
+            transition: background-color 0.2s, color 0.2s;
+            display: inline-flex;
             align-items: center;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #212529;
         }
 
         .toggle-header:hover {
-            background-color: #f1f1f1;
+            background-color: #f8f9fa; /* 연한 그레이 */
+        }
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .toggle-icon {
+            display: inline-block;
+            animation: arrowBounce 1s infinite;
         }
 
         .toggle-header i {
@@ -225,7 +232,7 @@
                 gap: 8px;
             }
             .notification-container {
-                margin-right: 20px !important; /* 원하는 만큼 줄이기 */
+                margin-right: 20px !important;
             }
 
             .btn {
@@ -1399,7 +1406,7 @@
 <!--                </div>-->
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid d-flex align-items-center">
-        <a class="navbar-brand fw-bold text-primary me-2 custom-logo text-start text-md-center" href="/">Ninfo</a>
+        <a class="navbar-brand fw-bold text-primary me-2 custom-logo text-start text-md-center" href="/">Workly</a>
         <span class="tagline d-none d-md-inline text-muted me-4">
       미래를 준비하는 사람들을 위한 사이트
     </span>
@@ -1493,7 +1500,6 @@
                         </li>
                     </ul>
                 </li>
-
             </ul>
         </div>
         <div class="d-flex align-items-center me-3">
@@ -1552,7 +1558,9 @@
                            placeholder="관심있는 내용을 검색해보세요!"></div>
                 <section class="my-4">
                     <h2 class="section-title toggle-header" id="interviewHeader" onclick="toggleInterviewPanel()">
-                        <i class="fas fa-clipboard-question"></i>📝 면접 질문 <span id="toggleIcon" class="toggle-icon">▼</span>
+                        <i class="fas fa-comments"></i>면접 질문
+                        <small class="text-muted ms-2">(열기/닫기)</small>
+                        <span id="toggleIcon" class="toggle-icon">▼</span>
                     </h2>
 
                     <div id="interviewPanel" style="display: none; transition: all 0.3s ease;">
@@ -3175,7 +3183,6 @@
             loginButton.style.removeProperty("display");
             loginButton.style.display = "block";
             loginButton.style.setProperty("display", "block", "important");
-            console.log("[DEBUG] 로그인 버튼 강제 표시");
         }
 
         if (logoutButton) logoutButton.style.display = "none";
@@ -3183,7 +3190,6 @@
         if (profileInfo) profileInfo.style.display = "none";
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
-        console.log("[DEBUG] 로그아웃 완료. 로그인 페이지로 이동 가능.");
     }
 
 
@@ -3335,7 +3341,6 @@
                 addFeedNotification(event.data);
             });
             eventSource.addEventListener("todo-notification", (event) => {
-                console.log("Todo 알림 수신:", event.data);
                 addNotification(event.data);
                 updateTodoAlert(event.data);
                 });
@@ -3397,18 +3402,17 @@
         a.href = `/search/view/feed/id?id=${encodeURIComponent(feedUID)}`;
         a.textContent = message;
         a.classList.add("text-decoration-none", "text-dark", "d-block", "fw-bold");
-
         li.appendChild(a);
         notificationList.prepend(li);
+        const count = notificationList.querySelectorAll("li").length;
+        notificationBadge.style.display = count > 0 ? "flex" : "none";
+        notificationBadge.textContent = count;
 
-        notificationBadge.style.display = "flex";
-        notificationBadge.textContent = parseInt(notificationBadge.textContent || "0") + 1;
-
-        showToast(message,parsed.feedUID);
+        showToast(message, feedUID);
     }
 
+
     function showToast(message, feedUID) {
-        console.log(feedUID)
         const container = document.getElementById("toastContainer");
         if (!container) return;
 
@@ -4050,8 +4054,6 @@
     //     }
     // }
     //
-
-
 </script>
 
 </div>

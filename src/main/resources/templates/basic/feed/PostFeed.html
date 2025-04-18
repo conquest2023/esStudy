@@ -110,7 +110,7 @@
 <body>
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Workly</a>
     </div>
 </nav>
 <div class="container-fluid">
@@ -388,10 +388,9 @@
                     <p>${feed.description}</p>
                     <small>작성자: ${feed.username || "익명"} | ${new Date(feed.createdAt).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})}</small>
                 `;
-                                    console.log(new Date(feed.createdAt));
-                                    feedList.prepend(feedItem);
-                                }
 
+            feedList.prepend(feedItem);
+            }
 
     function selectCategory(category) {
         document.getElementById('categoryDropdown').innerText = category;

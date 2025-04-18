@@ -38,7 +38,7 @@
 
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Ninfo</a>
+        <a class="navbar-brand fw-bold text-primary me-auto custom-logo" href="/">Workly</a>
     </div>
 </nav>
 
@@ -455,7 +455,8 @@
                 }
             } catch (error) {
                 console.error("유저 정보를 가져오는 중 오류 발생:", error);
-                // alert("유저 정보를 불러올 수 없습니다.");
+                // alert("유저 정보를 불러올 수 없습니다.")
+                //;
             }
         });
         document.addEventListener("DOMContentLoaded", function () {
@@ -846,15 +847,10 @@
             });
     }
 
-
-
     function deleteProject(id) {
         if (!confirm("⚠정말로 삭제하시겠습니까?")) {
             return;
         }
-
-        console.log("삭제 요청 ID:", id);
-
         const token = localStorage.getItem("token");
 
         fetch(`/todo/delete/${id}`, {
