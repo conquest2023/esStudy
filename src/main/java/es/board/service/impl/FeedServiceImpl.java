@@ -109,9 +109,10 @@ public class FeedServiceImpl implements FeedService {
             checkValueFeed(feedSaveDTO);
             Map<String,Object> Ids = savePost(feedSaveDTO);
             asyncService.savePostAsync(feedMapper.toBoardDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
-            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
             return feedSaveDTO;
-
+        }).thenApplyAsync(response -> {
+            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
+            return  null;
         });
 
     }
@@ -271,6 +272,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public FeedRequest getFeedDetail(String id) {
+
         return feedMapper.fromBoardDto(feedDAO.findFeedDetail(id));
     }
 

@@ -43,19 +43,14 @@ public class CalenderServiceImpl implements CalenderService {
 
     @Override
     public void saveRepeatSchedule(String token, ScheduleRequest scheduleDTO) {
-        CompletableFuture.supplyAsync(() -> {
+        CompletableFuture.runAsync(() -> {
 
 
             List<Schedule> schedulesToInsert = new ArrayList<>(toDoMapper.generateRepeatSchedules(jwtTokenProvider.getUserId(token), scheduleDTO));
             log.info(schedulesToInsert.toString());
             List<Schedule> savedSchedules = scheduleRepository.saveAll(schedulesToInsert);
-
-
             List<es.board.repository.document.Schedule> scheduleDocuments = toDoMapper.toScheduleDocumentList(jwtTokenProvider.getUserId(token), savedSchedules);
-
             asyncService.saveScheduleBulkAsync(scheduleDocuments);
-
-            return null;
         });
         grantCalendarPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
@@ -63,10 +58,9 @@ public class CalenderServiceImpl implements CalenderService {
     @Override
     public void saveSchedule(String token , ScheduleRequest scheduleDTO) {
 
-         CompletableFuture.supplyAsync(() -> {
+         CompletableFuture.runAsync(() -> {
             Long saveScheduleId = getSaveScheduleId(token,scheduleDTO);
              asyncService.saveScheduleAsync((toDoMapper.toScheduleDocument(jwtTokenProvider.getUserId(token),scheduleDTO,saveScheduleId)));
-             return null;
          });
         grantCalendarPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
 

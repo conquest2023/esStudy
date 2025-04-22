@@ -18,6 +18,10 @@
             border-radius: 1rem;
             overflow: hidden;
         }
+        .custom-logo {
+            font-size: 1.8rem;
+            padding-left: 100px;
+        }
         .cert-card:hover, .year-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.1);
@@ -223,6 +227,7 @@
         const token = localStorage.getItem('token');
         if (!token) {
             alert('로그인이 필요합니다.');
+            window.location.href = "/login";
             return;
         }
 
@@ -316,10 +321,6 @@
     }
     function loadTagQuestions(tagId) {
         const token = localStorage.getItem("token");
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
 
         document.getElementById("selectedYear").style.display = "none";
 

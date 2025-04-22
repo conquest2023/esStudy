@@ -101,12 +101,12 @@ public class CommentServiceImpl implements CommentService {
         checkValueComment(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
-        grantCommentPoint(dto.getUserId(),dto.getUsername());
-        if (!userId.equals(dto.getUserId())) {
+        if (userId!= null && !userId.equals(dto.getUserId())) {
             notificationService.sendCommentNotification(userId, dto.getFeedUID(),
                     dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
+            notificationRepository.save(commentMapper.toCommentNotification(userId,dto));
         }
-        notificationRepository.save(commentMapper.toCommentNotification(userId,dto));
+        grantCommentPoint(dto.getUserId(),dto.getUsername());
     }
 
 
@@ -178,7 +178,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private static void checkValueComment(CommentCreate commentCreate) {
-
         if (isEmpty(commentCreate.getUsername()) || isEmpty(commentCreate.getContent())) {
             throw new IllegalArgumentException("내용은 필수 입력값입니다.");
         }
