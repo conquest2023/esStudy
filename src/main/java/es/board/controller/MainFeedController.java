@@ -2,6 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
+import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
@@ -9,6 +10,7 @@ import es.board.service.AuthService;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -68,6 +70,14 @@ public class MainFeedController {
         }
     }
 
+    @GetMapping("/search/view/og/feed/id")
+    public String serveFeedPage(@RequestParam("id") String id, Model model) {
+        FeedRequest feed = feedService.getFeedDetail(id);
+        model.addAttribute("title", feed.getTitle());
+        model.addAttribute("description", feed.getDescription());
+        model.addAttribute("image", feed.getImageURL());
+        return "feed-detail"; // 이건 Thymeleaf 템플릿
+    }
 
     @GetMapping("/search/view/feed/update")
     public String editFeed(@RequestParam("id") String id,Model model) {
@@ -92,9 +102,15 @@ public class MainFeedController {
     }
 
     @GetMapping("/search/view/feed/id")
-    public String getFeedDetail(@RequestParam String id) {
-
-        return "basic/feed/FeedDetails";
+    public String getFeedDetail(@RequestParam("id") String id,
+                                Model model){
+        FeedRequest feed = feedService.getFeedDetail(id);
+        model.addAttribute("title", feed.getTitle());
+        model.addAttribute("description", feed.getDescription());
+        model.addAttribute("image", feed.getImageURL());
+        model.addAttribute("id", id);
+        model.addAttribute("url", "https://workly.info/search/view/feed/id?id=" + id);
+        return "basic/feed/FeedDetails"; // 여기에 OG 태그도 들어가야 함!!
     }
 
 
@@ -372,6 +388,16 @@ public class MainFeedController {
             feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
             }
         }
+    private boolean isBot(String ua) {
+        String lowered = ua.toLowerCase();
+        return lowered.contains("kakaotalk") ||
+                lowered.contains("facebookexternalhit") ||
+                lowered.contains("slackbot") ||
+                lowered.contains("twitterbot") ||
+                lowered.contains("naver") ||
+                lowered.contains("telegrambot");
     }
+
+}
 
 
