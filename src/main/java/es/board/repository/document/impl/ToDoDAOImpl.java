@@ -28,7 +28,6 @@ public class ToDoDAOImpl  implements ToDoDAO {
     @Override
     public void savePercentTodo(List<Todo> todos) {
         try {
-            // ✅ Bulk 요청 생성
             List<BulkOperation> operations = todos.stream()
                     .map(todo -> BulkOperation.of(b -> b.index(i -> i
                             .index("todo_index")
@@ -38,9 +37,9 @@ public class ToDoDAOImpl  implements ToDoDAO {
             BulkRequest bulkRequest = BulkRequest.of(b -> b.operations(operations));
             BulkResponse response = client.bulk(bulkRequest);
 
-            log.info("✅ Bulk Indexing 완료! 총 저장 개수: {}", todos.size());
+            log.info("Bulk Indexing 완료! 총 저장 개수: {}", todos.size());
         } catch (IOException e) {
-            log.error("❌ Elasticsearch Bulk Indexing 실패: {}", e.getMessage(), e);
+            log.error("Elasticsearch Bulk Indexing 실패: {}", e.getMessage(), e);
             throw new IndexException("Failed to bulk index the TodoDocument", e);
         }
     }
