@@ -50,6 +50,7 @@ public class S3Uploader {
     }
 
     private void removeNewFile(File targetFile) {
+        log.info(targetFile.toString());
         if (targetFile.delete()) {
             log.info("파일이 삭제되었습니다.");
         } else {

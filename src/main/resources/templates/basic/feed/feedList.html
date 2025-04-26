@@ -114,7 +114,6 @@
                 padding: 1rem !important;
                 margin-bottom: 0.75rem;
             }
-
             .interview-card .text-primary {
                 font-size: 1rem !important;
             }
@@ -182,10 +181,11 @@
                 transform: translateY(-2px);
             }
             .custom-logo {
+                min-width: 30px;
                 padding-left: 0 !important;
                 text-align: left !important;
                 margin-left: 0 !important;
-                transform: translateX(-170px);
+                transform: translateX(-130px);
             }
             ul.pagination {
                 margin-bottom: 100px !important;
@@ -1403,9 +1403,9 @@
 <!--                    </div>-->
 <!--                </div>-->
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container-fluid d-flex align-items-center">
+    <div class="container-fluid d-flex align-items-center flex-wrap">
         <a class="navbar-brand fw-bold text-primary me-2 custom-logo text-start text-md-center" href="/">Workly</a>
-        <span class="tagline d-none d-md-inline text-muted me-4">
+        <span class="tagline d-none d-md-inline text-muted me-4 flex-shrink-1 text-wrap">
       미래를 준비하는 사람들을 위한 사이트
     </span>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -1538,7 +1538,7 @@
     </div>
 </nav>
 <div id="interviewWriteBtn" class="d-md-none position-fixed"
-     style="bottom: 600px; right: 20px; z-index: 1050;">
+     style="bottom: 600px; right: 20px; z-index: 750;">
     <button class="btn btn-danger rounded-circle shadow"
             style="width: 60px; height: 60px;"
             onclick="window.location.href='/search/view/feed/Form';">

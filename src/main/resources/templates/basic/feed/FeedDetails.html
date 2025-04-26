@@ -11,6 +11,7 @@
     <meta property="og:image" th:content="${image}" />
     <meta property="og:type" content="article" />
     <meta property="og:url" th:content="${url}" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
@@ -342,32 +343,67 @@
         });
     }
     function renderFeedDetail(jsonData) {
-        fetchTopWriters()
+        fetchTopWriters();
         const token = localStorage.getItem("token");
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
         container.innerHTML = '';
+
         if (!board) {
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
         }
         const rawDescription = board.description || "";
-        const converted = convertLinks(rawDescription);
-        const formattedDescription = converted.replace(/\n/g, "<br>");
+        const withBr = rawDescription.replace(/\n/g, "<br>");
+        const converted = convertLinks(withBr);
+        const imageTag = board.imageURL && board.imageURL.trim()
+            ? `<img src="${board.imageURL}" alt="피드 이미지" style="max-width:100%; display:block; margin:10px 0; border-radius:8px;">`
+            : "";
+        // 2. <br> 개수에 따라 이미지 삽입 위치 결정
+        let descriptionWithImage = converted;
+        if (imageTag) {
+            const brMatches = rawDescription.match(/<br\s*\/?>/gi) || [];
+            const brCount = brMatches.length;
+
+            if (brCount === 0) {
+                // <br> 없음: 맨 뒤에 이미지
+                descriptionWithImage = rawDescription + imageTag;
+            } else if (brCount <= 2) {
+                // 1~2개: 첫 번째 <br> 뒤에 이미지
+                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/, match => match + imageTag);
+            } else {
+                // 3개 이상: 두 번째 <br> 뒤에 이미지
+                let replaced = false;
+                let count = 0;
+                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/gi, match => {
+                    count++;
+                    if (count === 2 && !replaced) {
+                        replaced = true;
+                        return match + imageTag;
+                    }
+                    return match;
+                });
+            }
+        }
+
         let rank = topWriters[board.username] || 0;
-        let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
+        let badge = rank === 1 ? "👑" :
+            rank === 2 ? "🥇" :
+                rank === 3 ? "🥈" :
+                    rank >= 4 && rank <= 5 ? "🥉" : "";
+
         let actionButtonsHTML = '';
         if (jsonData.Owner && token) {
             actionButtonsHTML = `
-        <div class="d-flex justify-content-end gap-2 mb-3">
-            <button class="btn btn-outline-primary edit-feed-btn" onclick="editFeed('${board.feedUID}')">
-                <i class="fas fa-edit"></i> 수정하기
-            </button>
-            <button type="button" class="btn btn-danger delete-feed-btn" onclick="deleteFeed('${board.id}')">
-                <i class="fas fa-trash"></i> 삭제하기
-            </button>
-        </div>
-    `;
+            <div class="d-flex justify-content-end gap-2 mb-3">
+                <button class="btn btn-outline-primary edit-feed-btn" onclick="editFeed('${board.feedUID}')">
+                    <i class="fas fa-edit"></i> 수정하기
+                </button>
+                <button type="button" class="btn btn-danger delete-feed-btn" onclick="deleteFeed('${board.id}')">
+                    <i class="fas fa-trash"></i> 삭제하기
+                </button>
+            </div>
+        `;
         }
         document.title = board.title || "피드 상세";
         const html = `
@@ -382,15 +418,9 @@
                     <strong>작성일자:</strong> ${formatDate(board.createdAt)}
                 </p>
 
-                <div class="feed-content">${formattedDescription}</div>
+                <div class="feed-content"></div>
 
-                ${board.imageURL?.trim()
-            ? `<div class="text-center mt-3">
-                            <img src="${board.imageURL}" alt="이미지" style="max-width:100%; height:auto;" class="rounded" />
-                       </div>`
-            : ""}
-
-               <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
+                <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
                     <div class="text-muted">
                         <i class="far fa-comment"></i> ${jsonData.count || 0}
                     </div>
@@ -405,12 +435,13 @@
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     `;
 
         container.innerHTML = html;
+
+        container.querySelector('.feed-content').innerHTML = descriptionWithImage;
 
         setTimeout(() => {
             const likeBtn = document.querySelector(`button[data-feed-uid="${board.feedUID}"]`);
@@ -431,6 +462,7 @@
             }
         }, 150);
     }
+
     function renderCommentForm(jsonData) {
         const commentFormDiv = document.getElementById('commentForm');
         const board = jsonData?.data
