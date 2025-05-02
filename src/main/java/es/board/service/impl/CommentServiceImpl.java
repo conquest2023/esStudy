@@ -99,8 +99,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void saveComment(CommentCreate dto) {
         checkValueComment(dto);
-        String userId = postRepository.findByFeedUID(dto.getFeedUID());
         commentDAO.saveCommentIndex(dto);
+        String userId = postRepository.findByFeedUID(dto.getFeedUID());
         if (userId!= null && !userId.equals(dto.getUserId())) {
             notificationService.sendCommentNotification(userId, dto.getFeedUID(),
                     dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());

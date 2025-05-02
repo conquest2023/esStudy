@@ -76,7 +76,7 @@ public class MainFeedController {
         model.addAttribute("title", feed.getTitle());
         model.addAttribute("description", feed.getDescription());
         model.addAttribute("image", feed.getImageURL());
-        return "feed-detail"; // 이건 Thymeleaf 템플릿
+        return "feed-detail";
     }
 
     @GetMapping("/search/view/feed/update")
@@ -110,11 +110,12 @@ public class MainFeedController {
         model.addAttribute("image", feed.getImageURL());
         model.addAttribute("id", id);
         model.addAttribute("url", "https://workly.info/search/view/feed/id?id=" + id);
-        return "basic/feed/FeedDetails"; // 여기에 OG 태그도 들어가야 함!!
+        return "basic/feed/FeedDetails";
     }
 
 
     @GetMapping("/search/view/practical")
+
     public String getQuestionPractical(@RequestParam String category) {
         return "basic/feed/practical";
     }
@@ -305,6 +306,19 @@ public class MainFeedController {
         model.addAttribute("data", feedService.getRangeTimeFeed(startDate, endDate));
         return "/basic/feed/RangeFeed";
     }
+    @PostMapping("/search/view/feed/upload-image")
+    @ResponseBody
+    public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file,
+                                         @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String imageUrl = s3Uploader.upload(file, jwtTokenProvider.getUsername(token));
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (Exception e) {
+            log.error("이미지 업로드 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "이미지 업로드 실패"));
+        }
+    }
 
     @PostMapping("/search/view/feed/save")
     @ResponseBody
@@ -316,6 +330,7 @@ public class MainFeedController {
         try {
             processFileUpload(file, res);
             authService.extractUserIdFromToken(token, res);
+            log.info(res.toString());
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);
             response.put("redirectUrl", "/search/view/feed?index=board");
@@ -385,7 +400,7 @@ public class MainFeedController {
     private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
         if (file != null && !file.isEmpty()) {
             log.info("File upload started");
-            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUserId()));
+            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUsername()));
             }
         }
     private boolean isBot(String ua) {

@@ -324,12 +324,9 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     canvas.toBlob(blob => {
-                        if (blob) {
-                            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".png"), { type: 'image/png' }),'image/png');
-                        } else {
-                            reject(new Error('이미지 리사이즈 실패'));
-                        }
-                    }, 'image/jpeg', 0.9);
+                        const fileName = file.name.replace(/\.[^/.]+$/, "") + "_resized.png"; // 고유한 파일명 생성
+                        resolve(new File([blob], fileName, { type: 'image/png' }));
+                    }, 'image/png', 0.9);
                 };
                 img.onerror = reject;
                 img.src = URL.createObjectURL(file);
@@ -394,7 +391,6 @@
             convertedFiles.forEach(file => dataTransfer.items.add(file));
             fileInput.files = dataTransfer.files;
 
-            // 에디터에 이미지 삽입
             for (const file of convertedFiles) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
@@ -493,9 +489,11 @@
                             wrapper.parentNode.replaceChild(imgTag, wrapper);
                         }
                     });
+                    console.log("변환된 HTML:", editorClone.innerHTML);
                     document.getElementById("hiddenDescription").value = editorClone.innerHTML;
 
                     const formData = new FormData(feedForm);
+                    console.log("FormData description:", formData.get("description"));
                     const token = localStorage.getItem("token");
 
                     if (token) {
@@ -530,15 +528,23 @@
 
                     const wrappers = editor.querySelectorAll('div[contenteditable="false"]');
                     const resizedFiles = [];
+                    const imageUrls = [];
+
                     for (let i = 0; i < wrappers.length; i++) {
                         const wrapper = wrappers[i];
                         const width = wrapper.offsetWidth;
                         const height = wrapper.offsetHeight;
                         const file = fileInput.files[i];
-                        // wrapper 크기로 리사이즈
+
                         const resizedFile = await resizeImageFile(file, width, height);
                         resizedFiles.push(resizedFile);
+
+                        const resizedUrl = URL.createObjectURL(resizedFile);
+                        imageUrls.push(resizedUrl);
                     }
+                    editorClone.querySelectorAll('div[contenteditable="false"] img').forEach((img, index) => {
+                        img.src = imageUrls[index];
+                    });
 
                     formData.delete("imageFiles");
                     resizedFiles.forEach(file => formData.append("imageFiles", file));
@@ -560,7 +566,7 @@
                     feedForm.reset();
                     setTimeout(() => {
                         window.location.href = data.redirectUrl;
-                    }, 1000);
+                    }, 5000);
 
                 } catch (error) {
                     console.error("오류 발생:", error);
@@ -687,113 +693,6 @@
             });
         });
 
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const feedForm = document.getElementById("feedForm");
-        //     const anonymousCheckbox = document.getElementById("anonymous");
-        //     const usernameInput = document.getElementById("username");
-        //     const fileInput = document.getElementById("imageFiles");
-        //     const usernameInputGroup = document.getElementById("name-input-group");
-        //     const token = localStorage.getItem("token");
-        //
-        //     async function fetchAuthStatus() {
-        //         if (!token) return {isLoggedIn: false};
-        //
-        //         const response = await fetch("/auth/status", {
-        //             headers: {
-        //                 "Authorization": `Bearer ${token}`
-        //             }
-        //         });
-        //         return await response.json();
-        //     }
-        //
-        //     anonymousCheckbox.addEventListener("change", () => {
-        //         if (anonymousCheckbox.checked) {
-        //             usernameInputGroup.style.display = "block";
-        //             usernameInput.disabled = false;
-        //             usernameInput.required = true;
-        //             usernameInput.value = "";
-        //         }
-        //         // } else {
-        //         //     usernameInputGroup.style.display = "none";
-        //         //     usernameInput.disabled = true;
-        //         //     usernameInput.required = false;
-        //         //     usernameInput.value = "익명";
-        //         // }
-        //     });
-        //     if (feedForm) {
-        //         let isSubmitting = false;
-        //         feedForm.addEventListener("submit", async function (event) {
-        //             event.preventDefault();
-        //             if (isSubmitting) return;
-        //             isSubmitting = true;
-        //
-        //             try {
-        //                 // ✨ 1. 에디터 내용 -> textarea에 먼저 세팅
-        //                 const editorContent = document.getElementById("description").innerHTML;
-        //                 document.getElementById("hiddenDescription").value = editorContent;
-        //
-        //                 // ✨ 2. 그 다음 FormData 만들기
-        //                 const formData = new FormData(feedForm);
-        //                 const token = localStorage.getItem("token");
-        //
-        //                 if (token) {
-        //                     const usernameValue = usernameInput.value.trim();
-        //                     if (!usernameValue) {
-        //                         alert("이름을 입력해주세요.");
-        //                         isSubmitting = false;
-        //                         return;
-        //                     }
-        //                     formData.set("username", usernameValue);
-        //                 }
-        //
-        //                 const auth = await fetchAuthStatus();
-        //
-        //                 if (!auth.isLoggedIn) {
-        //                     alert("로그인이 필요합니다.");
-        //                     isSubmitting = false;
-        //                     return;
-        //                 }
-        //
-        //                 const usernameValue = anonymousCheckbox.checked
-        //                     ? usernameInput.value.trim()
-        //                     : auth.username;
-        //
-        //                 if (!usernameValue) {
-        //                     alert("이름을 입력해주세요.");
-        //                     isSubmitting = false;
-        //                     return;
-        //                 }
-        //
-        //                 formData.set("username", usernameValue);
-        //
-        //                 const response = await fetch("/search/view/feed/save", {
-        //                     method: "POST",
-        //                     body: formData,
-        //                     headers: {
-        //                         "Authorization": `Bearer ${token}`
-        //                     }
-        //                 });
-        //                 const data = await response.json();
-        //
-        //                 if (!response.ok || !data.success) {
-        //                     throw new Error(data.error || "피드 저장 실패");
-        //                 }
-        //
-        //                 feedForm.reset();
-        //                 setTimeout(() => {
-        //                     window.location.href = data.redirectUrl;
-        //                 }, 1000);
-        //
-        //             } catch (error) {
-        //                 console.error("오류 발생:", error);
-        //                 alert(error.message);
-        //             } finally {
-        //                 isSubmitting = false;
-        //             }
-        //         });
-        //     }
-        // })
-
             function addFeedToList(feed) {
               const feedList = document.getElementById("feedList");
                 if (!feedList) return;
@@ -838,5 +737,111 @@
                         });
                     });
 
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     const feedForm = document.getElementById("feedForm");
+    //     const anonymousCheckbox = document.getElementById("anonymous");
+    //     const usernameInput = document.getElementById("username");
+    //     const fileInput = document.getElementById("imageFiles");
+    //     const usernameInputGroup = document.getElementById("name-input-group");
+    //     const token = localStorage.getItem("token");
+    //
+    //     async function fetchAuthStatus() {
+    //         if (!token) return {isLoggedIn: false};
+    //
+    //         const response = await fetch("/auth/status", {
+    //             headers: {
+    //                 "Authorization": `Bearer ${token}`
+    //             }
+    //         });
+    //         return await response.json();
+    //     }
+    //
+    //     anonymousCheckbox.addEventListener("change", () => {
+    //         if (anonymousCheckbox.checked) {
+    //             usernameInputGroup.style.display = "block";
+    //             usernameInput.disabled = false;
+    //             usernameInput.required = true;
+    //             usernameInput.value = "";
+    //         }
+    //         // } else {
+    //         //     usernameInputGroup.style.display = "none";
+    //         //     usernameInput.disabled = true;
+    //         //     usernameInput.required = false;
+    //         //     usernameInput.value = "익명";
+    //         // }
+    //     });
+    //     if (feedForm) {
+    //         let isSubmitting = false;
+    //         feedForm.addEventListener("submit", async function (event) {
+    //             event.preventDefault();
+    //             if (isSubmitting) return;
+    //             isSubmitting = true;
+    //
+    //             try {
+    //                 // ✨ 1. 에디터 내용 -> textarea에 먼저 세팅
+    //                 const editorContent = document.getElementById("description").innerHTML;
+    //                 document.getElementById("hiddenDescription").value = editorContent;
+    //
+    //                 // ✨ 2. 그 다음 FormData 만들기
+    //                 const formData = new FormData(feedForm);
+    //                 const token = localStorage.getItem("token");
+    //
+    //                 if (token) {
+    //                     const usernameValue = usernameInput.value.trim();
+    //                     if (!usernameValue) {
+    //                         alert("이름을 입력해주세요.");
+    //                         isSubmitting = false;
+    //                         return;
+    //                     }
+    //                     formData.set("username", usernameValue);
+    //                 }
+    //
+    //                 const auth = await fetchAuthStatus();
+    //
+    //                 if (!auth.isLoggedIn) {
+    //                     alert("로그인이 필요합니다.");
+    //                     isSubmitting = false;
+    //                     return;
+    //                 }
+    //
+    //                 const usernameValue = anonymousCheckbox.checked
+    //                     ? usernameInput.value.trim()
+    //                     : auth.username;
+    //
+    //                 if (!usernameValue) {
+    //                     alert("이름을 입력해주세요.");
+    //                     isSubmitting = false;
+    //                     return;
+    //                 }
+    //
+    //                 formData.set("username", usernameValue);
+    //
+    //                 const response = await fetch("/search/view/feed/save", {
+    //                     method: "POST",
+    //                     body: formData,
+    //                     headers: {
+    //                         "Authorization": `Bearer ${token}`
+    //                     }
+    //                 });
+    //                 const data = await response.json();
+    //
+    //                 if (!response.ok || !data.success) {
+    //                     throw new Error(data.error || "피드 저장 실패");
+    //                 }
+    //
+    //                 feedForm.reset();
+    //                 setTimeout(() => {
+    //                     window.location.href = data.redirectUrl;
+    //                 }, 1000);
+    //
+    //             } catch (error) {
+    //                 console.error("오류 발생:", error);
+    //                 alert(error.message);
+    //             } finally {
+    //                 isSubmitting = false;
+    //             }
+    //         });
+    //     }
+    // })
 </script>
 </html>

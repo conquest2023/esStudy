@@ -107,8 +107,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Boolean extractUserIdFromToken(String token, FeedCreateResponse response) {
         if (token == null || !token.startsWith("Bearer ") || token.length() < 8) {
-            response.setUsername("익명");
-            return true;
+            throw new IllegalStateException("토큰이 비어있습니다.");
         }
         token = token.substring(7);
         if (!jwtTokenProvider.validateToken(token)) {
