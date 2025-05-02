@@ -18,6 +18,21 @@
             padding: 0 20px;
 
         }
+        .list-item {
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        .list-item small  { font-size: .75rem; }
+        .list-item:hover {
+            background: #f5f5f5;
+        }
+        /*.fab-button{*/
+        /*    position: fixed;*/
+        /*    right: 32px;*/
+        /*    bottom: 32px;*/
+        /*    z-index: 950;*/
+        /*}*/
+
         @media (max-width: 1300px) {
 
         }
@@ -99,7 +114,8 @@
         }
 
         .list-item:hover {
-            background: #f5f5f5;
+            background:#f0f8ff;
+            box-shadow:0 2px 8px rgba(0,0,0,.08);
         }
         @media (max-width: 1400px) {
             .container-custom {
@@ -107,13 +123,8 @@
             }
         }
         @media (max-width: 768px) {
-            .interview-card {
-                max-width: 250% !important;
-                font-size: 0.95rem;
-                box-sizing: border-box;
-                padding: 1rem !important;
-                margin-bottom: 0.75rem;
-            }
+
+
             .interview-card .text-primary {
                 font-size: 1rem !important;
             }
@@ -128,12 +139,46 @@
                 opacity: 1;
             }
             .post-title {
+                font-size:1rem;
                 text-align: left !important;
             }
-            .interview-card {
-                padding: 0.75rem;
-                font-size: 0.85rem;
+
+            .btn-tab{
+                flex:1 1 50%;
+                font-size:.9rem;
+                padding:.6rem .2rem;
             }
+
+            /* 2. “베스트 답변” 버튼 : 한 줄 차지 + 아이콘/글자 가운데 */
+            #viewBestAnswerBtn{
+                width:100%;
+                justify-content:center;
+                font-size:.85rem;
+                padding:.5rem 0;
+            }
+
+            /* 3. 질문 카드 : 좌우 여백 축소, 제목 줄바꿈 허용 */
+            .question-card{
+                margin:0;
+            }
+            .question-card h6{
+                font-size:1rem;
+                word-break:keep-all;
+            }
+
+            /* 4. 답변 textarea : 높이 120 px, 글자 14 px */
+            #answerBox{
+                min-height:120px;
+                font-size:.9rem;
+            }
+
+            /* 5. ‘이전·다음’ 버튼 : 반반 꽉 채우기 */
+            #prevQuestion,#nextQuestion{
+                flex:1 1 48%;
+                font-size:.85rem;
+                padding:.55rem 0;
+            }
+
             .interview-card .text-primary {
                 font-size: 0.85rem;
             }
@@ -200,14 +245,6 @@
             #bottomNav .nav-link:hover {
                 background-color: #f8f8f8;
                 color: #000;
-            }
-            .list-item {
-                cursor: pointer;
-                transition: background 0.2s ease-in-out;
-            }
-
-            .list-item:hover {
-                background: #f5f5f5;
             }
             .question-link:hover {
                 background: #f0f8ff;
@@ -1045,8 +1082,9 @@
         }
 
         .badge-container {
+            min-width:70px;
+            gap:6px;
             display: flex;
-            gap: 10px;
         }
         .icon-container {
             display: flex;
@@ -1388,20 +1426,6 @@
     </style>
     </div>
 </head>
-<!--                <div class="mb-3 d-flex align-items-center">-->
-<!--                    <button id="showVoteButton" class="btn btn-outline-primary btn-sm me-auto" onclick="toggleVoteSection()" style="display: none;">-->
-<!--                        🗳️ 투표 결과!-->
-<!--                    </button>-->
-<!--                <div class="card shadow-sm mt-3" id="voteSection">-->
-<!--                    <div class="card-header bg-white d-flex justify-content-between align-items-center">-->
-<!--                        <h5 class="fw-bold"><i class="fas fa-poll"></i> 인기 투표</h5>-->
-<!--                        <button class="btn-close" onclick="closeVoteSection()" aria-label="Close"></button>-->
-<!--                    </div>-->
-<!--                    <div class="card-body">-->
-<!--                        <ul class="list-group small" id="voteList">-->
-<!--                        </ul>-->
-<!--                    </div>-->
-<!--                </div>-->
 <nav id="leftSidebar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid d-flex align-items-center flex-wrap">
         <a class="navbar-brand fw-bold text-primary me-2 custom-logo text-start text-md-center" href="/">Workly</a>
@@ -1577,7 +1601,12 @@
                             </button>
                         </div>
 
-                        <div class="row row-cols-1 row-cols-md-3 g-3" id="interviewQuestionContainer"></div>
+                        <div id="questionWrapper" class="position-relative"></div>
+
+                        <div class="d-flex justify-content-between mt-2">
+                            <button class="btn btn-outline-secondary btn-sm" id="prevQuestion">← 이전</button>
+                            <button class="btn btn-outline-secondary btn-sm" id="nextQuestion">다음 →</button>
+                        </div>
                     </div>
                 </section>
 
@@ -1614,6 +1643,7 @@
                         </ul>
                     </div>
                 </div>
+                <div id="stickyTabWrap" class="bg-white shadow-sm">  <!--css 1번쨰 -->
                 <ul class="nav nav-tabs modern-tabs" id="boardTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active fw-bold" id="all-tab" data-bs-toggle="tab" data-bs-target="#allTabPane" type="button" role="tab">
@@ -1660,6 +1690,8 @@
                 </div>
                 <div class="col-12" id="pinnedNoticesContainer"></div>
                 <div class="col-12" id="normalPostsContainer"></div>
+                </div>
+
 
                 <div class="col-12" id="noticeTabPane" style="display:none;">
                     <nav style="text-align: center;">
@@ -1726,22 +1758,46 @@
                             <div id="miniCalendar"></div>
                         </div>
                     </div>
-                    <div class="card shadow-sm mt-3">
-                        <div class="tab-content p-3">
-                            <div class="tab-pane fade show active" id="visitorStats">
-                                <p><strong>현재 접속자:</strong> <span id="currentVisitors">0</span></p>
-                                <p><strong>오늘 방문자:</strong> <span id="todayVisitors">0</span></p>
-                                <p><strong>누적 방문자:</strong> <span id="totalVisitors">0</span></p>
+                    <div class="accordion mt-3" id="infoAccordion">
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingVisitor">
+                                <button class="accordion-button" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseVisitor"
+                                        aria-expanded="true" aria-controls="collapseVisitor">
+                                    👥 방문자 통계
+                                </button>
+                            </h2>
+                            <div id="collapseVisitor" class="accordion-collapse collapse show"
+                                 aria-labelledby="headingVisitor" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body p-3" id="visitorStats">
+                                    <p><strong>현재 접속자:</strong> <span id="currentVisitors">0</span></p>
+                                    <p><strong>오늘 방문자:</strong> <span id="todayVisitors">0</span></p>
+                                    <p><strong>누적 방문자:</strong> <span id="totalVisitors">0</span></p>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Top 5 패널 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTop">
+                                <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseTop"
+                                        aria-expanded="false" aria-controls="collapseTop">
+                                    🏆 Top5 기여자
+                                </button>
+                            </h2>
+                            <div id="collapseTop" class="accordion-collapse collapse"
+                                 aria-labelledby="headingTop" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body p-3">
+                                    <div id="topWritersList" class="ranking-container"></div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <div class="card shadow-sm mt-3" id="topWritersCard">
-                    <div class="p-3 bg-white rounded shadow-sm">
-                        <h3 class="fw-bold text-primary">Top 5</h3>
-                        <div id="topWritersList" class="ranking-container"></div>
-                    </div>
-                </div>
+
             </aside>
             <div class="modal fade" id="allNotificationsModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -1911,8 +1967,6 @@
                             ? `<a href="/search/view/feed/id?id=${noti.feedUID}" class="text-decoration-none fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</a>`
                             : `<span class="fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</span>`;
 
-
-
                         item.innerHTML = `
                         ${feedLink}
                         <div class="text-muted small">${new Date(noti.createdAt).toLocaleString()}</div>
@@ -2046,7 +2100,90 @@
 
         bestAnswerModalInstance.show();
     }
+    let itQs = [], genQs = [];
+    let curCat = "IT";
+    let curIdx = 0;
 
+    async function loadInterviewQs(){
+        try{
+            const res = await fetch("/interview/test");
+            const list = await res.json();
+            itQs  = list.filter(q => q.category === "IT");
+            genQs = list.filter(q => q.category === "일반");
+            renderSlide();
+        }catch(e){ console.error("면접 질문 로드 실패:",e); }
+    }
+
+    /* ===== 3. 슬라이드 렌더 ===== */
+    function renderSlide(){
+        const arr = curCat === "IT" ? itQs : genQs;
+        const wrap = document.getElementById("questionWrapper");
+
+        if(!arr.length){
+            wrap.innerHTML = `<div class="alert alert-warning text-center">질문 없음</div>`;
+            return;
+        }
+        const q = arr[curIdx];
+
+        wrap.innerHTML = `
+    <div class="card question-card mb-3">
+      <div class="card-header"><h6 class="mb-0">${q.question}</h6></div>
+      <div class="card-body">
+        <textarea id="answerBox" class="form-control answer-input" rows="3"
+                  placeholder="여기에 답변을 입력하세요…"></textarea>
+        <button class="btn btn-primary mt-2"
+                onclick="submitAnswer('${q.id}','${q.category}','${q.question}')">
+          답변 제출
+        </button>
+      </div>
+    </div>`;
+    }
+
+    function submitAnswer(id,cat,title){
+        const answer = document.getElementById("answerBox").value.trim();
+        if(!answer){ alert("답변을 입력해주세요."); return; }
+        if(answer.length < 35){ alert("답변은 최소 35자 이상입니다."); return; }
+
+        const token = localStorage.getItem("token");
+        if(!token){ alert("로그인이 필요합니다."); return; }
+
+        fetch("/save/interview/question",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            },
+            body: JSON.stringify({questionId:id, answer, title, category:cat})
+        })
+            .then(r => r.ok ? alert("답변 저장 완료!") : alert("저장 실패"))
+            .catch(()=>alert("서버 오류"));
+    }
+
+    function showQuestions(cat){
+        curCat = cat;
+        curIdx = 0;
+        setActiveTab(cat);
+        renderSlide();
+    }
+    function setActiveTab(cat){
+        document.getElementById("itTab")     .classList.toggle("active",cat==="IT");
+        document.getElementById("generalTab").classList.toggle("active",cat==="일반");
+    }
+
+    document.getElementById("prevQuestion").onclick = ()=>{
+        const arr = curCat==="IT"?itQs:genQs;
+        curIdx = (curIdx-1+arr.length)%arr.length; renderSlide();
+    };
+    document.getElementById("nextQuestion").onclick = ()=>{
+        const arr = curCat==="IT"?itQs:genQs;
+        curIdx = (curIdx+1)%arr.length; renderSlide();
+    };
+
+    /* ===== 6. 초기화 ===== */
+    document.addEventListener("DOMContentLoaded", ()=>{
+        loadInterviewQs();
+        setActiveTab("IT");
+    });
     function showNextAnswer() {
         currentIndex = (currentIndex + 1) % allBestAnswers.length;
         showBestAnswerModal(allBestAnswers[currentIndex]);
@@ -2221,13 +2358,18 @@
 
             normalPosts += `
         <div class="list-item">
-            <div>
-                <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
-                ${count[post.feedUID] > 0 ? `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>` : ""}
-                <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+            <div class="list-item" onclick="location.href='/search/view/feed/id?id=${post.feedUID}'">
+            <!-- 왼쪽 : 제목 + 메타 -->
+            <div class="flex-grow-1">
+              <a href="/search/view/feed/id?id=${post.feedUID}"
+                 class="post-title fw-bold d-block text-truncate">
+                 ${post.title}
+              </a>
+              <small class="text-muted">
+                ${badge} ${post.username} · ${formatDate(post.createdAt)}
+              </small>
             </div>
-            <td class="text-center">
-                <div class="badge-container d-flex align-items-center">
+                <div class="badge-container ms-2 d-flex gap-2">
                     <div class="icon-container">
                         <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
                         <span class="count">${post.viewCount || 0}</span>
@@ -2236,8 +2378,6 @@
                         <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
                         <span class="count">${post.likeCount || 0}</span>
                     </div>
-                </div>
-            </td>
         </div>`;
         });
 
@@ -2395,64 +2535,64 @@
         });
     }
 
-    let categorizedQuestions = {
-        "IT": [],
-        "일반": []
-    };
-    document.addEventListener("DOMContentLoaded", function() {
-        fetch("/interview/random")
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.question) {
-                    data.question.forEach(q => {
-                        if (q.category === "IT") {
-                            categorizedQuestions["IT"].push(q.question);
-                        } else if (q.category === "일반") {
-                            categorizedQuestions["일반"].push(q.question);
-                        }
-                    });
-                }
-
-                showInterviewQuestion("IT");
-                setActiveTab("IT");
-            })
-            .catch(error => console.error("면접 질문 로드 실패:", error));
-    });
-    function showQuestions(category) {
-        showInterviewQuestion(category);
-        setActiveTab(category);
-    }
-
-    function showInterviewQuestion(category) {
-        const container = document.getElementById("interviewQuestionContainer");
-        const questionsArray = categorizedQuestions[category];
-
-        const questionToShow = (questionsArray && questionsArray.length > 0)
-            ? questionsArray[0]
-            : "질문 없음";
-
-        container.style.display = "flex";
-        container.style.height = "auto";
-
-        container.innerHTML = `
-          <div class="interview-card w-100 p-3 border rounded shadow-sm bg-white d-flex flex-column">
-            <div class="mb-2 text-primary fw-bold" style="font-size: 1.1rem;">
-                예상 면접 질문
-            </div>
-            <div class="text-dark" style="font-size: 1rem; word-break: keep-all;">
-                <a href="/interview/question" class="text-decoration-none text-dark">
-                    ${questionToShow}
-                </a>
-            </div>
-          </div>
-        `;
-
-    }
-    function setActiveTab(category) {
-        document.getElementById("itTab").classList.toggle("active", category === "IT");
-        document.getElementById("generalTab").classList.toggle("active", category === "일반");
-    }
-
+    // let categorizedQuestions = {
+    //     "IT": [],
+    //     "일반": []
+    // };
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     fetch("/interview/random")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data && data.question) {
+    //                 data.question.forEach(q => {
+    //                     if (q.category === "IT") {
+    //                         categorizedQuestions["IT"].push(q.question);
+    //                     } else if (q.category === "일반") {
+    //                         categorizedQuestions["일반"].push(q.question);
+    //                     }
+    //                 });
+    //             }
+    //
+    //             showInterviewQuestion("IT");
+    //             setActiveTab("IT");
+    //         })
+    //         .catch(error => console.error("면접 질문 로드 실패:", error));
+    // });
+    // function showQuestions(category) {
+    //     showInterviewQuestion(category);
+    //     setActiveTab(category);
+    // }
+    //
+    // function showInterviewQuestion(category) {
+    //     const container = document.getElementById("interviewQuestionContainer");
+    //     const questionsArray = categorizedQuestions[category];
+    //
+    //     const questionToShow = (questionsArray && questionsArray.length > 0)
+    //         ? questionsArray[0]
+    //         : "질문 없음";
+    //
+    //     container.style.display = "flex";
+    //     container.style.height = "auto";
+    //
+    //     container.innerHTML = `
+    //       <div class="interview-card w-100 p-3 border rounded shadow-sm bg-white d-flex flex-column">
+    //         <div class="mb-2 text-primary fw-bold" style="font-size: 1.1rem;">
+    //             예상 면접 질문
+    //         </div>
+    //         <div class="text-dark" style="font-size: 1rem; word-break: keep-all;">
+    //             <a href="/interview/question" class="text-decoration-none text-dark">
+    //                 ${questionToShow}
+    //             </a>
+    //         </div>
+    //       </div>
+    //     `;
+    //
+    // }
+    // function setActiveTab(category) {
+    //     document.getElementById("itTab").classList.toggle("active", category === "IT");
+    //     document.getElementById("generalTab").classList.toggle("active", category === "일반");
+    // }
+    //
 
     document.addEventListener("DOMContentLoaded", function () {
         if( isMobile()){
