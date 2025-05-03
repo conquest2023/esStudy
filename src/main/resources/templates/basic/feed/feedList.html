@@ -148,8 +148,6 @@
                 font-size:.9rem;
                 padding:.6rem .2rem;
             }
-
-            /* 2. “베스트 답변” 버튼 : 한 줄 차지 + 아이콘/글자 가운데 */
             #viewBestAnswerBtn{
                 width:100%;
                 justify-content:center;
@@ -157,7 +155,6 @@
                 padding:.5rem 0;
             }
 
-            /* 3. 질문 카드 : 좌우 여백 축소, 제목 줄바꿈 허용 */
             .question-card{
                 margin:0;
             }
@@ -166,13 +163,11 @@
                 word-break:keep-all;
             }
 
-            /* 4. 답변 textarea : 높이 120 px, 글자 14 px */
             #answerBox{
                 min-height:120px;
                 font-size:.9rem;
             }
 
-            /* 5. ‘이전·다음’ 버튼 : 반반 꽉 채우기 */
             #prevQuestion,#nextQuestion{
                 flex:1 1 48%;
                 font-size:.85rem;
@@ -312,23 +307,6 @@
                 -webkit-line-clamp: 3;
             }
 
-            #interviewQuestionContainer {
-                height: 30px;
-                max-width: 300px;
-                padding: 20px;
-                border: 2px solid #ddd;
-                border-radius: 8px;
-                background-color: #f8f9fa;
-                font-size: 18px;
-                font-weight: bold;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                word-wrap: break-word;
-                overflow: hidden;
-                white-space: normal;
-            }
             .right-sidebar.show {
                 right: 0;
             }
@@ -340,8 +318,6 @@
                 align-items: center;
 
             }
-
-
             @keyframes fadeInOut {
                 0% { opacity: 0; transform: translateY(10px); }
                 10% { opacity: 1; transform: translateY(0px); }
@@ -469,10 +445,6 @@
             .btn {
                 font-size: 14px;
                 padding: 8px 12px;
-            }
-
-            #dateFields {
-                display: none;
             }
             .progress-bar {
                 flex-grow: 1 !important;
@@ -741,19 +713,6 @@
             flex-wrap: nowrap;
             height: 100vh;
         }
-        #dateFields {
-            display: none;
-            position: absolute;
-            top: 40px;
-            left: 0;
-            z-index: 10;
-            background: white;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: max-content;
-        }
         aside {
             position: sticky;
             top: 20px;
@@ -786,11 +745,6 @@
         .notice-container a:hover {
             text-decoration: underline;
         }
-
-        .row {
-            height: 100%;
-        }
-
         .container-fluid {
             height: 100%;
         }
@@ -1071,6 +1025,8 @@
             background: #FFF3CD;
             font-weight: bold;
         }
+        .row      { height: 100%; }
+
         .ranking-container {
             display: flex;
             flex-direction: column;
@@ -1561,15 +1517,6 @@
         </div>
     </div>
 </nav>
-<!--<div id="interviewWriteBtn" class="d-md-none position-fixed"-->
-<!--     style="bottom: 600px; right: 20px; z-index: 750;">-->
-<!--    <button class="btn btn-danger rounded-circle shadow"-->
-<!--            style="width: 60px; height: 60px;"-->
-<!--            onclick="window.location.href='/search/view/feed/Form';">-->
-<!--        <i class="fas fa-pen"></i>-->
-<!--    </button>-->
-<!--</div>-->
-
 <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
         <div class="container-custom">
             <main class="container-custom">
@@ -1676,7 +1623,6 @@
                             Q&A
                         </button>
                     </li>
-
                 </ul>
                 <div class="col-12" id="dataTabContent" style="display: none;">
                     <ul class="nav nav-tabs mt-2" id="categoryTabs">
@@ -1777,8 +1723,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Top 5 패널 -->
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingTop">
                                 <button class="accordion-button collapsed" type="button"
@@ -1819,7 +1763,7 @@
                 <span class="small text-nowrap">취업</span>
             </a>
             <ul class="dropdown-menu text-center" aria-labelledby="jobDropdown">
-                <li><a class="dropdown-item fw-bold" href="/search/view/feed/list/job">IT 취업 정보</a></li>
+                <li><a class="dropdown-item fw-bold" href="/search/view/feed/list/job">IT  정보</a></li>
                 <li><a class="dropdown-item fw-bold" href="/site">취업 사이트</a></li>
             </ul>
         </div>
@@ -1933,7 +1877,6 @@
 </div>
 
 
-<!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
 
 <script>
     // document.getElementById("toggleDarkMode").addEventListener("click", () => {
@@ -2114,7 +2057,6 @@
         }catch(e){ console.error("면접 질문 로드 실패:",e); }
     }
 
-    /* ===== 3. 슬라이드 렌더 ===== */
     function renderSlide(){
         const arr = curCat === "IT" ? itQs : genQs;
         const wrap = document.getElementById("questionWrapper");
@@ -2179,7 +2121,6 @@
         curIdx = (curIdx+1)%arr.length; renderSlide();
     };
 
-    /* ===== 6. 초기화 ===== */
     document.addEventListener("DOMContentLoaded", ()=>{
         loadInterviewQs();
         setActiveTab("IT");
@@ -2315,7 +2256,9 @@
                 document.querySelectorAll("#categoryTabs .nav-link").forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
                 const category = this.getAttribute("data-category");
-                fetchDataFeed(category);
+                fetchDataFeed(category, 0);
+                const dataPg = document.getElementById("dataPagination");
+                if (dataPg) dataPg.style.display = "inline-block";
             });
         });
     });
@@ -2357,28 +2300,32 @@
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
 
             normalPosts += `
-        <div class="list-item">
-            <div class="list-item" onclick="location.href='/search/view/feed/id?id=${post.feedUID}'">
-            <!-- 왼쪽 : 제목 + 메타 -->
-            <div class="flex-grow-1">
-              <a href="/search/view/feed/id?id=${post.feedUID}"
-                 class="post-title fw-bold d-block text-truncate">
-                 ${post.title}
-              </a>
-              <small class="text-muted">
-                ${badge} ${post.username} · ${formatDate(post.createdAt)}
-              </small>
+         <div class="list-item" onclick="location.href='/search/view/feed/id?id=${post.feedUID}'" style="cursor: pointer;">
+       <div class="w-100">
+          <div class="d-flex justify-content-start align-items-center mb-1">
+            <span class="post-title fw-bold me-2 text-truncate" style="flex: 1; min-width: 0;">${post.title}</span>
+            ${count && count[post.feedUID] > 0
+                ? `<span class="text-danger fw-bold ms-1">[${count[post.feedUID]}]</span>`
+                : ""}
+          </div>
+          <div class="text-muted small">
+            ${badge} ${post.username} · ${formatDate(post.createdAt)}
+          </div>
+        </div>
+
+        <td class="text-center">
+            <div class="badge-container d-flex align-items-center">
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
+                    <span class="count">${post.viewCount || 0}</span>
+                </div>
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
+                    <span class="count">${post.likeCount || 0}</span>
+                </div>
             </div>
-                <div class="badge-container ms-2 d-flex gap-2">
-                    <div class="icon-container">
-                        <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
-                        <span class="count">${post.viewCount || 0}</span>
-                    </div>
-                    <div class="icon-container">
-                        <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
-                        <span class="count">${post.likeCount || 0}</span>
-                    </div>
-        </div>`;
+        </td>
+    </div>`;
         });
 
         normalPostsContainer.innerHTML = normalPosts || "<p class='text-muted'>해당 카테고리에는 게시글이 없습니다.</p>";
@@ -2877,26 +2824,6 @@
 
         handlePageClick(currentPage);
     });
-    // $.ajax({
-    //     url: "/list/noitce",
-    //     type: "GET",
-    //     success: function (noticeData) {
-    //         let pinnedNotices = "";
-    //         noticeData.forEach(notice => {
-    //             pinnedNotices += `
-    //         <div class="list-item notice-item">
-    //             <div>
-    //                 📢 <a href="/search/view/feed/id?id=${notice.feedUID}">${notice.title}</a>
-    //                 <span class="text-muted">(${notice.username} · ${formatDate(notice.createdAt)})</span>
-    //             </div>
-    //         </div>`;
-    //         });
-    //         pinnedNoticesContainer.innerHTML = pinnedNotices;
-    //     },
-    //     error: function () {
-    //         alert("공지사항을 불러올 수 없습니다!");
-    //     }
-    // });
     function categoryFeeds(jsonData, count) {
         // loadVisitorStats();
         fetchTopWriters();
@@ -2943,7 +2870,6 @@
         await  loadPage(page);
     }
 
-    const voteCacheByPage = {};
     function renderFeeds(jsonData,count) {
         loadVisitorStats();
         fetchTopWriters();

@@ -18,15 +18,22 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
+        /*.container {*/
+        /*    max-width: 1200px;*/
+        /*    margin: auto;*/
+        /*    background: white;*/
+        /*    padding: 20px;*/
+        /*    border-radius: 10px;*/
+        /*    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
+        /*}*/
+         .container{
+            max-width: 720px;          /* 읽기 좋은 폭 */
+             margin: 2rem auto;         /* 위·아래 여백 */
+             background:#fff;
+             padding: 2rem;
+             border-radius:12px;
+             box-shadow:0 2px 8px rgba(0,0,0,.08);
+         }
         tr {
             border-bottom: 1px solid #ddd;
         }
@@ -223,6 +230,21 @@
         .comment-box button:hover {
             background: #0056b3;
         }
+        .comment-item{
+            display:flex;
+            gap:12px;
+            padding:12px 0;
+            border-bottom:1px solid #eee;
+        }
+        .comment-avatar{
+            width:36px;height:36px;
+            border-radius:50%;
+            /*background:#ddd url('/img/default-avatar.png') center/cover;*/
+            flex-shrink:0;
+        }
+        .comment-body .meta{
+            font-size:.85rem;color:#777;
+        }
         .feed-card {
             padding: 20px;
             border-radius: 10px;
@@ -301,6 +323,14 @@
 <!--    <a href="#" class="edit-btn" data-author-id="">-->
 
 <div class="container my-4">
+    <button id="toggleSidebarBtn" class="btn btn-light position-fixed" style="top: 100px; left: 10px; z-index: 999;">
+        <i class="fas fa-book-reader"></i>
+    </button>
+
+    <!-- 사이드 추천글 영역 -->
+    <div id="relatedSidebar" class="card shadow-sm position-fixed" style="top: 100px; left: -300px; width: 260px; z-index: 998; transition: left 0.3s;">
+        <!-- renderRelatedFeeds()로 이 안이 채워집니다 -->
+    </div>
     <div id="feedDetailContainer"></div>
     <div id="commentSection"></div>
     <div id="commentForm"></div>
@@ -342,13 +372,62 @@
             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
         });
     }
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("toggleSidebarBtn");
+        const sidebar = document.getElementById("relatedSidebar");
+
+        toggleBtn.addEventListener("click", () => {
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-300px";
+            } else {
+                sidebar.style.left = "0px";
+            }
+        });
+    });
+
+    function renderRelatedFeeds(bestList) {
+        const sidebar = document.getElementById("relatedSidebar");
+        if (!sidebar) return;
+
+        if (!bestList || bestList.length === 0) {
+            sidebar.innerHTML = "<p>읽을만한 글이 없습니다.</p>";
+            return;
+        }
+
+        let html = `
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-light fw-bold">🔥 읽어볼 만한 글</div>
+      <ul class="list-group list-group-flush">
+  `;
+
+        bestList.forEach(feed => {
+            html += `
+      <li class="list-group-item">
+        <a href="/search/view/feed/id?id=${feed.feedUID}" class="text-decoration-none">
+          ${feed.title}
+        </a>
+      </li>
+    `;
+        });
+
+        html += `</ul></div>`;
+        sidebar.innerHTML = html;
+    }
+
     function renderFeedDetail(jsonData) {
         fetchTopWriters();
         const token = localStorage.getItem("token");
         const container = document.getElementById('feedDetailContainer');
         const board = jsonData.data;
-        container.innerHTML = '';
+        const bestList = jsonData.best || [];
 
+        container.innerHTML = '';
+        fetch('/search/view/feed/list/most?page=0&size=5')
+            .then(res => res.json())
+            .then(data => renderRelatedFeeds(data.data))
+            .catch(err => {
+                console.warn("추천글 불러오기 실패:", err);
+            });
         if (!board) {
             container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
             return;
@@ -395,21 +474,35 @@
         let actionButtonsHTML = '';
         if (jsonData.Owner && token) {
             actionButtonsHTML = `
-            <div class="d-flex justify-content-end gap-2 mb-3">
-                <button class="btn btn-outline-primary edit-feed-btn" onclick="editFeed('${board.feedUID}')">
-                    <i class="fas fa-edit"></i> 수정하기
-                </button>
-                <button type="button" class="btn btn-danger delete-feed-btn" onclick="deleteFeed('${board.id}')">
-                    <i class="fas fa-trash"></i> 삭제하기
-                </button>
-            </div>
+            <div class="dropdown d-none d-md-inline">
+        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">
+                <i class="fas fa-edit me-2"></i>수정</a></li>
+          <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">
+                <i class="fas fa-trash me-2"></i>삭제</a></li>
+        </ul>
+      </div>
+
+      <!-- mobile floating action button -->
+      <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"
+              style="bottom:80px;right:24px;width:56px;height:56px;"
+              data-bs-toggle="dropdown" data-bs-target="#fabMenu">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">
+        <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">수정</a></li>
+        <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">삭제</a></li>
+      </ul>
         `;
         }
         document.title = board.title || "피드 상세";
         const html = `
         <div class="card feed-card">
             <div class="card-body">
-                ${actionButtonsHTML ? `<div class="text-end mb-3">${actionButtonsHTML}</div>` : ""}
+               ${actionButtonsHTML ? `<div class="text-end mb-3">${actionButtonsHTML}</div>` : ""}
 
                 <h2 class="feed-title">${board.title}</h2>
 
@@ -463,36 +556,55 @@
         }, 150);
     }
 
-    function renderCommentForm(jsonData) {
-        const commentFormDiv = document.getElementById('commentForm');
-        const board = jsonData?.data
-        let deleteButtonHTML = '';
-        const html = `
-    <div class="card shadow-sm p-3">
-      <div class="card-body">
-        <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
-        <input type="hidden" id="feedAuthorId"/>
-        <input type="hidden" id="currentUserId" />
-            <div class="form-group mt-3">
-        <label for="username" class="form-label">이름</label>
-        <input type="text" id="username" class="form-control" required />
-        <small class="text-muted d-block mt-1">
-            로그인해야 댓글을 등록하실수있습니다.
-        </small>
-    </div>
-        <div class="form-group mt-3">
-          <label for="content" class="form-label">내용</label>
-          <textarea id="content" rows="4" class="form-control" required></textarea>
-        </div>
+    function renderCommentForm(userData) {
+        const el = document.getElementById("commentForm");
 
-        <button id="btnCommentSubmit" type="button" class="btn btn-success mt-3" onclick="submitComment()">
+        const isLogin = !!userData?.isLoggedIn;
+        const nick = userData?.username || "";
+
+        const loginButton = !isLogin
+            ? `<button class="btn btn-outline-primary btn-sm float-end" onclick="location.href='/login'">
+              <i class="fas fa-sign-in-alt"></i> 로그인
+           </button>`
+            : "";
+
+        el.innerHTML = `
+      <div class="card shadow-sm p-3">
+        <div class="card-body">
+          <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
+
+          <div class="form-group mt-3 position-relative">
+            <label for="username" class="form-label d-flex justify-content-between align-items-center">
+              <span>이름</span>
+              ${loginButton}
+            </label>
+            <input type="text"
+                   id="username"
+                   class="form-control"
+                   readonly
+                   value="${isLogin ? nick : ""}"
+                   placeholder="${isLogin ? "" : "로그인이 필요합니다."}">
+            <small class="text-muted d-block mt-1">
+              로그인해야 댓글을 등록하실 수 있습니다.
+            </small>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea id="content" rows="4" class="form-control" required></textarea>
+          </div>
+
+          <button id="btnCommentSubmit"
+                  type="button"
+                  class="btn btn-success mt-3"
+                  onclick="submitComment()">
             <i class="fas fa-pencil-alt"></i> 작성하기
-        </button>
-      </div>
-    </div>
-  `;
-        commentFormDiv.innerHTML = html;
+          </button>
+        </div>
+      </div>`;
     }
+
+
 
     function formatDate(dateTimeString) {
             if (!dateTimeString) return '';
@@ -888,66 +1000,72 @@
             submitButton.onclick = () => submitComment(feedId);
             }
         });
-    function renderCommentSection(jsonData) {
-        const commentContainer = document.getElementById('commentSection');
-        commentContainer.innerHTML = '';
-        const comments = jsonData.comment;
-        const replies = jsonData.replies;
-        // const formattedContent = convertLinks(comments.content);
-        // console.log(formattedContent)
-        if (!comments || comments.length === 0) {
-            commentContainer.innerHTML = '<p>댓글이 없습니다.</p>';
+    /* 댓글 목록 + 아바타 + 3줄 레이아웃 */
+    function renderCommentSection(jsonData){
+        const wrap      = document.getElementById("commentSection");
+        const comments  = jsonData.comment||[];
+        const replies   = jsonData.replies||{};
+        wrap.innerHTML  = "";
+
+        if(comments.length===0){
+            wrap.innerHTML = "<p>댓글이 없습니다.</p>";
             return;
         }
+
         let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
 
-        comments.forEach((cmt) => {
-            let rank = topWriters[cmt.username] || 0;
-            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
-            const displayedUsername = cmt.author
-                ? `<strong style="color:#888;">${badge}작성자(${cmt.username})</strong>`
+        comments.forEach(cmt=>{
+            const rank  = topWriters[cmt.username]||0;
+            const badge = rank===1?"👑":rank===2?"🥇":rank===3?"🥈":rank<=5&&rank>0?"🥉":"";
+            const name  = cmt.author
+                ? `<strong class="text-secondary">${badge}작성자(${cmt.username})</strong>`
                 : `<strong>${badge} ${cmt.username}</strong>`;
 
+            /* ◀── 한 사람의 댓글 카드 */
             html += `
-        <div class="border-bottom pb-3 mb-3" id="comment-${cmt.commentUID}">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    ${displayedUsername}
-                    <small class="text-muted ms-2">${formatDate(cmt.createdAt)}</small>
-                </div>
-                <div>
-                    ${cmt.commentOwner ? `
-                           <button class="btn btn-sm btn-link text-secondary edit-comment-btn" data-comment-id="${cmt.commentUID}">수정</button>
-                            <button class="btn btn-sm btn-link text-danger delete-comment-btn" data-comment-id="${cmt.commentUID}">삭제</button>
-                        ` : ""}
-                </div>
-            </div>
-            <div id="comment-content-${cmt.commentUID}" style="white-space:pre-wrap; text-align: left; margin-left: 0; padding-left: 0;">
-                ${convertLinks(cmt.content)}
-            </div>
-            <div class="mt-3 ms-3">
-                ${renderReplies(replies[cmt.commentUID] || [])}
-                <button class="btn btn-sm btn-outline-primary reply-toggle" data-comment-id="${cmt.commentUID}">답글 달기</button>
+      <div class="comment-item d-flex gap-3 pb-3 mb-3 border-bottom" id="comment-${cmt.commentUID}">
+        <div class="comment-avatar flex-shrink-0">
+          ${cmt.username.charAt(0).toUpperCase()}
+        </div>
 
-                <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
-                    <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
-                    <button class="btn btn-sm btn-primary submit-reply-btn" data-comment-id="${cmt.commentUID}">답글 작성</button>
-                </div>
+        <div class="comment-body flex-grow-1">
+          <div class="d-flex justify-content-between">
+            <div class="meta">
+              ${name}
+              <small class="ms-2 text-muted">${formatDate(cmt.createdAt)}</small>
             </div>
-        </div>`;
+            <div>
+              ${cmt.commentOwner ? `
+                <button class="btn btn-sm btn-link text-secondary edit-comment-btn"
+                        data-comment-id="${cmt.commentUID}">수정</button>
+                <button class="btn btn-sm btn-link text-danger delete-comment-btn"
+                        data-comment-id="${cmt.commentUID}">삭제</button>` : ""}
+            </div>
+          </div>
+
+          <div class="mt-2" id="comment-content-${cmt.commentUID}">
+            ${convertLinks(cmt.content)}
+          </div>
+
+          <!-- 대댓글(스레드) -->
+          ${renderReplies(replies[cmt.commentUID]||[])}
+
+          <button class="btn btn-sm btn-outline-primary reply-toggle mt-2"
+                  data-comment-id="${cmt.commentUID}">답글 달기</button>
+
+          <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
+            <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
+            <button class="btn btn-sm btn-primary submit-reply-btn"
+                    data-comment-id="${cmt.commentUID}">답글 작성</button>
+          </div>
+        </div>
+      </div>`;
         });
 
-        commentContainer.innerHTML = html;
-
-        comments.forEach((cmt) => {
-            const commentElement = document.getElementById(`comment-content-${cmt.commentUID}`);
-            if (commentElement) {
-                commentElement.innerHTML = convertLinks(cmt.content);
-            }
-        });
-
+        wrap.innerHTML = html;
         initializeCommentEvents(jsonData.feedId);
     }
+
     function enhanceLinksWithPreview() {
         const contentEl = document.querySelector(".feed-content");
         if (!contentEl) return;
@@ -1027,7 +1145,8 @@
             });
         } else {
             if (anonymousToggle) {
-                anonymousToggle.disabled = false;}}});
+                anonymousToggle.disabled = false;}}
+    });
 
 
         document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
