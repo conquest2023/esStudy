@@ -4,6 +4,7 @@ package es.board.service.impl;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.VoteRequest;
 import es.board.repository.VoteDAO;
+import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.UserVote;
 import es.board.repository.entity.Vote;
 import es.board.repository.entity.entityrepository.VoteRepository;
@@ -78,6 +79,16 @@ public class VoteServiceImpl implements VoteService {
             votes = new ArrayList<>();
         }
         return votes;
+    }
+
+    @Override
+    public Map<String, Object>  getVotePageMainFeed(int page, int size) {
+        Map<String,Object> voteResult= voteDAO.findFeedPagingVote(page,size);
+        List<VoteRequest> voteRequests = feedMapper.fromVoteDTOList((List<VoteDocument>) voteResult.get("data"));
+        return Map.of(
+                "totalPage", voteResult.get("totalPage"),
+                "data", voteRequests
+        );
     }
     @Override
     public List<VoteRequest> getVoteUserAll() {

@@ -8,6 +8,9 @@ import java.util.Map;
 
 public interface VoteDAO {
     void deleteVoteFeed(String id);
+
+
+    Map<String, Object>  findFeedPagingVote( int page, int size);
     Map<String, Object> getVoteFeedStatistics(String id);
     void saveVoteTicket(VoteRequest voteResponse);
     List<VoteDocument> findFeedVoteAll();

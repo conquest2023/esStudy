@@ -1606,6 +1606,12 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="vote-tab" data-bs-toggle="tab" data-bs-target="#voteTabPane">
+                            <!--                            <i class="fas fa-list"></i> 전체 글-->
+                            투표
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#dataTabContent" type="button" role="tab" title="📚 다양한 학습 자료와 정보를 확인하세요!">
 <!--                            <i class="fas fa-book"></i> -->
                             학습 자료
@@ -1651,7 +1657,12 @@
                         <ul class="pagination" id="pagination"></ul>
                     </nav>
                 </div>
-
+                <div class="col-12" id="voteTabPane" style="display:none;">
+                    <div id="votePostsContainer"></div>
+                    <nav style="text-align: center;">
+                        <ul class="pagination" id="votePagination"></ul>
+                    </nav>
+                </div>
                 <div class="col-12" id="qaTabPane" style="display:none;">
                     <div id="qaPostsContainer"></div>
                     <nav style="text-align: center;">
@@ -2213,13 +2224,13 @@
                 document.querySelectorAll("#boardTab .nav-link").forEach(t => t.classList.remove("active"));
                 this.classList.add("active");
 
-                const tabContents = ["dataTabContent", "noticeTabPane", "qaTabPane", "bestTabPane", "allTabPane"];
+                const tabContents = ["dataTabContent", "noticeTabPane", "qaTabPane", "bestTabPane", "allTabPane","voteTabPane"];
                 tabContents.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.display = "none";
                 });
 
-                const paginations = ["pagination", "paginationNotice", "qaPagination", "bestPagination", "dataPagination"];
+                const paginations = ["pagination", "paginationNotice", "qaPagination","votePagination", "bestPagination", "dataPagination"];
                 paginations.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.display = "none";
@@ -2244,6 +2255,10 @@
                     document.getElementById("qaTabPane").style.display = "block";
                     document.getElementById("qaPagination").style.display = "inline-block";
                     fetchQnAFeed("Q/A", 0);
+                }else if( tabId==="vote-tab"){
+                    document.getElementById("voteTabPane").style.display = "block";
+                    document.getElementById("votePagination").style.display = "inline-block";
+                    fetchVoteFeed(0);
                 } else if (tabId === "all-tab") {
                     document.getElementById("allTabPane").style.display = "block";
                     loadPage(0);
@@ -2269,6 +2284,7 @@
             data: { page: page, size: 10 },
             success: function (response) {
                 if (response.data) {
+                    console.log(response)
                     categoryFeeds(response);
                     renderTabPagination("best", page, response.totalPage);
                 } else {
@@ -2280,7 +2296,24 @@
             }
         });
     }
-
+    function fetchVoteFeed(page) {
+        $.ajax({
+            url: "/search/view/vote/page",
+            type: "GET",
+            data: { page: page, size: 10 },
+            success: function (response) {
+                if (response.data) {
+                    categoryFeeds(response);
+                    renderTabPagination("vote", page, response.data.totalPage);
+                } else {
+                    alert("투표 글을 불러올 수 없습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류: 투표 글을 불러올 수 없습니다.");
+            }
+        });
+    }
 
     function renderFilteredFeeds(category) {
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
@@ -2415,6 +2448,8 @@
         else if (type === "best") paginationId = "bestPagination";
         else if (type === "qa") paginationId = "qaPagination";
         else if (type === "data") paginationId = "dataPagination";
+        else if (type === "vote") paginationId = "votePagination";
+
         const paginationDiv = document.getElementById(paginationId);
         if (!paginationDiv) return;
         paginationDiv.innerHTML = '';
@@ -2441,7 +2476,10 @@
                     fetchQnAFeed("Q/A", page);
                 } else if (type === "data") {
                     fetchDataFeed(category, page);
-                } else {
+                }else if (type==="vote"){
+                    fetchVoteFeed(page)
+                }
+                else {
                     loadPage(page);
                 }
             });
@@ -2825,6 +2863,7 @@
         handlePageClick(currentPage);
     });
     function categoryFeeds(jsonData, count) {
+        console.log(jsonData)
         // loadVisitorStats();
         fetchTopWriters();
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
@@ -2832,34 +2871,49 @@
         const paginationContainer = document.getElementById('paginationNotice');
         pinnedNoticesContainer.innerHTML = '';
         normalPostsContainer.innerHTML = '';
-        let filteredPosts = jsonData.data.filter(post => !post.voteType);
-        let sortedPosts = filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // let filteredPosts = jsonData.data.filter(post => !post.voteType);
         let normalPosts = "";
-        sortedPosts.forEach(post => {
+        jsonData.data.data.forEach(post => {
             // let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
-            normalPosts += `
-        <div class="list-item">
-            <div>
-                <a href="/search/view/feed/id?id=${post.feedUID}">${post.title}</a>
-                ${count && count[post.feedUID] > 0 ?
-                `<span style="color: red; font-weight: bold;">[${count[post.feedUID]}]</span>` : ""}
-               <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
-            </div>
-            <td class="text-center">
-                <div class="badge-container d-flex align-items-center">
-                    <div class="icon-container">
-                        <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
-                        <span class="count">${post.viewCount || 0}</span>
-                    </div>
-                    <div class="icon-container">
-                        <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
-                        <span class="count">${post.likeCount || 0}</span>
-                    </div>
+            if (post.id) {
+                normalPosts += `
+    <div class="list-item" onclick="location.href='/search/view/feed/id?id=${post.feedUID}'" style="cursor: pointer;">
+       <div class="w-100">
+          <div class="d-flex justify-content-start align-items-center mb-1">
+            <span class="post-title fw-bold me-2 text-truncate" style="flex: 1; min-width: 0;">${post.title}</span>
+            ${count && count[post.feedUID] > 0
+                    ? `<span class="text-danger fw-bold ms-1">[${count[post.feedUID]}]</span>`
+                    : ""}
+          </div>
+          <div class="text-muted small">
+            ${badge} ${post.username} · ${formatDate(post.createdAt)}
+          </div>
+        </div>
+
+        <td class="text-center">
+            <div class="badge-container d-flex align-items-center">
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" class="icon-view">
+                    <span class="count">${post.viewCount || 0}</span>
                 </div>
-            </td>
-        </div>`;
+                <div class="icon-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/889/889221.png" class="icon-like">
+                    <span class="count">${post.likeCount || 0}</span>
+                </div>
+            </div>
+        </td>
+    </div>`;
+            } else {
+                normalPosts += `
+    <div class="list-item vote-item" onclick="location.href='/search/view/vote/detail?id=${post.feedUID}'" style="cursor: pointer;">
+        <div>
+            🗳️ <span class="post-title">${post.title}</span>
+            <span class="text-muted">(${badge} ${post.username} · ${formatDate(post.createdAt)})</span>
+        </div>
+    </div>`;
+            }
         });
 
         normalPostsContainer.innerHTML = normalPosts;
@@ -3960,6 +4014,7 @@
     //
     //     votes.forEach(vote => {
     //         const voteItem = createVoteItem(vote);
+
     //         voteList.appendChild(voteItem);
     //         fetchVoteData(vote.id);
     //     });

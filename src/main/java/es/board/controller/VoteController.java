@@ -107,7 +107,13 @@ public class VoteController {
         response.put("hasVoted", false);
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/search/view/vote/page")
+    public ResponseEntity<?> getMostViewFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+//        log.info(voteService.getVotePageFeed(page,size).toString().get);
+        return ResponseEntity.ok(Map.of( "data", voteService.getVotePageMainFeed(page, size)));
+    }
     @GetMapping("/get/vote")
     public ResponseEntity<?> getVote() {
 

@@ -179,11 +179,10 @@ public class FeedDAOImpl implements FeedDAO {
     public Map<String, Object> findMypageUserList(String userId, int page, int size) {
 
         try {
-            int from = (page) * size;
 
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
-                            .from(from)
+                            .from(page * size)
                             .size(size)
                             .query(q -> q
                                     .term(t -> t

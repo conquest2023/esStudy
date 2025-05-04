@@ -88,6 +88,43 @@ public class VoteDAOImpl implements VoteDAO {
         }
     }
 
+
+    @Override
+    public Map<String, Object> findFeedPagingVote(int page, int size) {
+        try {
+            SearchResponse<VoteDocument> response = client.search(s -> s
+                            .index("data_votes")
+                            .from(page * size)
+                            .size(size)
+                             .sort(sort -> sort.field(f -> f
+                                    .field("createdAt")
+                                    .order(SortOrder.Desc))),
+//                            .query(q->q
+//                                    .bool(b->b
+//                                            .filter(f -> f
+//                                                    .term(t -> t
+//                                                            .field("category")
+//                                                            .value("투표"))
+//                                            ))),
+                    VoteDocument.class);
+            long totalVote = response.hits().total().value();
+
+//            log.info(String.valueOf(totalVote));
+
+            List<VoteDocument> voteDocuments=  response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+            return Map.of(
+                    "totalPage", totalVote,
+                    "data", voteDocuments
+            );
+
+        } catch (IOException e) {
+            log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch popular feed", e);
+        }
+    }
+
     @Override
     public Map<String, Object> getVoteStatistics(String id) {
         try {
@@ -170,6 +207,7 @@ public class VoteDAOImpl implements VoteDAO {
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
                             )), VoteDocument.class);
+
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
