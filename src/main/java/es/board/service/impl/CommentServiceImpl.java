@@ -16,6 +16,8 @@ import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
 import es.board.service.NotificationService;
+import es.board.service.event.FeedEvent;
+import es.board.service.event.producer.CommentEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,27 +37,27 @@ import java.util.Map;
 public class CommentServiceImpl implements CommentService {
 
 
-    private final CommentDAO commentDAO;
-
-    private  final LikeDAO likeDAO;
+    private  final FeedMapper feedMapper;
 
     private  final CommentMapper commentMapper;
 
-    private  final FeedMapper feedMapper;
+    private  final StringRedisTemplate stringRedisTemplate;
 
-    private  final PostRepository postRepository;
+    private  final NotificationService notificationService;
+
+    private  final CommentEventPublisher commentEventPublisher;
+
+    private final CommentDAO commentDAO;
 
     private  final ReplyDAO replyDAO;
 
+    private  final LikeDAO likeDAO;
 
-    private  final StringRedisTemplate stringRedisTemplate;
+    private  final PostRepository postRepository;
 
     private  final PointHistoryRepository pointHistoryRepository;
 
     private  final NotificationRepository notificationRepository;
-
-
-    private  final NotificationService notificationService;
 
     @Override
     public Map<String, Object> getUserComments(String userId) {
@@ -101,12 +103,26 @@ public class CommentServiceImpl implements CommentService {
         checkValueComment(dto);
         commentDAO.saveCommentIndex(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
-        if (userId!= null && !userId.equals(dto.getUserId())) {
-            notificationService.sendCommentNotification(userId, dto.getFeedUID(),
-                    dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
-            notificationRepository.save(commentMapper.toCommentNotification(userId,dto));
-        }
-        grantCommentPoint(dto.getUserId(),dto.getUsername());
+
+        FeedEvent event = FeedEvent.builder()
+                .feedUID(dto.getFeedUID())
+                .postOwnerId(userId)
+                .commentUID(dto.getCommentUID())
+                .commenterId(dto.getUserId())
+                .username(dto.getUsername())
+                .content(dto.getContent())
+                .createdAt(dto.getCreatedAt())
+                .build();
+
+
+        commentEventPublisher.publishCommentEvent(event);
+
+//        if (userId!= null && !userId.equals(dto.getUserId())) {
+//            notificationService.sendCommentNotification(userId, dto.getFeedUID(),
+//                    dto.getUsername() + "님이 댓글을 작성하였습니다: " + dto.getContent());
+//            notificationRepository.save(commentMapper.toCommentNotification(userId,dto));
+//        }
+//        grantCommentPoint(dto.getUserId(),dto.getUsername());
     }
 
 
@@ -197,29 +213,4 @@ public class CommentServiceImpl implements CommentService {
         return aggregatedData;
     }
 
-    public void grantCommentPoint(String userId,String username) {
-        String today = LocalDate.now().toString();
-        String key = "comment:point:" + userId + ":" + today;
-        Long currentCount = stringRedisTemplate.opsForValue().increment(key);
-        if (currentCount == 1) {
-            stringRedisTemplate.expire(key, Duration.ofDays(1));
-        }
-        if (currentCount > 10) {
-            log.info("{}님은 오늘 댓글 작성 포인트 한도(10개)를 초과했습니다.", userId);
-            return;
-        }
-        createPointHistory(userId,username);
-        log.info("댓글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
-    }
-
-    public void createPointHistory(String userId,String username) {
-        PointHistory history = PointHistory.builder()
-                .userId(userId)
-                .username(username)
-                .pointChange(3)
-                .reason("댓글")
-                .createdAt(LocalDateTime.now())
-                .build();
-        pointHistoryRepository.save(history);
-    }
 }

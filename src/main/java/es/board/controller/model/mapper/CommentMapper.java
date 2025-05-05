@@ -7,6 +7,7 @@ import es.board.controller.model.res.CommentCreate;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.Notification;
+import es.board.service.event.FeedEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -40,6 +41,19 @@ public class CommentMapper {
                 .message(comment.getContent())
                 .type("댓글")
                 .username(comment.getUsername())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public Notification toCommentEvent(String userId, FeedEvent event) {
+        return Notification.builder()
+                .userId(userId)
+                .username(event.getUsername())
+                .sender(event.getUsername())
+                .feedUID(event.getFeedUID())
+                .message(event.getContent())
+                .type("댓글")
+                .username(event.getUsername())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

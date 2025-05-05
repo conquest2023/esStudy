@@ -64,8 +64,5 @@ public class CommentCreate {
         this.commentUID=UUID.randomUUID().toString();
     }
 
-    public  void commentOwnerId(String userId){
-        this.userId=userId;
-    }
 
 }
