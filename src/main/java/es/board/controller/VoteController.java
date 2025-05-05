@@ -3,6 +3,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.VoteRequest;
+import es.board.repository.document.Board;
 import es.board.service.VoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -112,7 +113,13 @@ public class VoteController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 //        log.info(voteService.getVotePageFeed(page,size).toString().get);
-        return ResponseEntity.ok(Map.of( "data", voteService.getVotePageMainFeed(page, size)));
+        Map<String,Object> result= voteService.getVotePageMainFeed(page, size);
+
+        List<VoteRequest> voteRequests = (List<VoteRequest>) result.get("data");
+        return ResponseEntity.ok(Map.of(
+                "data", voteRequests,
+                "totalPage", result.get("totalPage")));
+
     }
     @GetMapping("/get/vote")
     public ResponseEntity<?> getVote() {
@@ -125,6 +132,7 @@ public class VoteController {
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam String id) {
         Map<String, Object> objectMap = voteService.getVoteTicketAll(id);
+        log.info(objectMap.toString());
         if (token == null) {
             return ResponseEntity.ok(Map.of(
                     "hasVoted", false,
@@ -141,6 +149,7 @@ public class VoteController {
                 "selectOption", objectMap.get("selectOption")
         ));
     }
+
     @GetMapping("/get/vote/all")
     public ResponseEntity<?> getVoteAll() {
         return ResponseEntity.ok(Map.of(

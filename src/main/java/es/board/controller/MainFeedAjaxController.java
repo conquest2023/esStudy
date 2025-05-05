@@ -260,14 +260,13 @@ public class MainFeedAjaxController {
     }
 
     @GetMapping("/vote/detail")
-    public ResponseEntity<?> getVoteDetailInfo(HttpServletRequest request,
+    public ResponseEntity<?> getVoteDetailInfo( @RequestHeader(value = "Authorization",required = false) String token,
                                            @RequestParam(value = "id") String feedUID) {
         Map<String, Object> response = new HashMap<>();
         Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
         VoteRequest req=voteService.getVoteDetail(feedUID);
-        String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {

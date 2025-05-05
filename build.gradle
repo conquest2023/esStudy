@@ -32,6 +32,7 @@ dependencies {
 	implementation 'com.h2database:h2'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.jsoup:jsoup:1.15.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 	implementation 'org.seleniumhq.selenium:selenium-java:4.26.0'

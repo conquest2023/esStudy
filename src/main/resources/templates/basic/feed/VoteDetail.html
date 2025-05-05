@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>투표 상세보기</title>
-
-    <!-- FontAwesome, Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -57,11 +55,6 @@
         h1 {
             margin-bottom: 30px;
         }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
         h2 {
             font-size: 1.8rem;
             font-weight: bold;
@@ -95,7 +88,6 @@
         .like-comment-box .fa-comment {
             color: #007bff;
         }
-        /* 좋아요 기능 제거 → 관련 스타일 삭제 */
         .btn-link {
             color: #007bff;
             text-decoration: none;
@@ -126,17 +118,6 @@
         }
         .like-comment-box button:hover {
             text-decoration: underline;
-        }
-        .comment-box {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            width: 100%;
-            max-width: 1200px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         .comment-box input {
             flex-grow: 1;
@@ -185,17 +166,7 @@
             line-height: 1.7;
             margin-top: 15px;
         }
-        .feed-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .delete-btn-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
+
         .delete-feed-btn {
             background: red;
             color: white;
@@ -277,7 +248,16 @@
             left: 0;
             top: 0;
         }
-
+        .poll-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+        .poll-title{font-size:1.4rem;font-weight:700;word-break:keep-all;}
+        .poll-choice{border:1px solid #e3e6ea;border-radius:14px;padding:14px 18px;font-weight:600;
+            background:#fafbfc;cursor:pointer;transition:.25s;}
+        .poll-choice:hover{background:#e9f3ff;border-color:#76a9ff;}
+        .poll-choice.active{background:#2d8cff;color:#fff;border-color:#2d8cff;}
+        .poll-bar-wrapper{background:#edeff1;height:38px;border-radius:14px;overflow:hidden;position:relative;}
+        .poll-bar-fill{height:100%;background:#2d8cff;}
+        .poll-bar-text{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:#fff;}
+        .btn-kakao{background:#fae100;color:#000;font-weight:700;border:none;}
     </style>
 </head>
 <body>
@@ -325,54 +305,59 @@
                 totalVotes += count;
             });
         }
-        let voteOptionsHtml = vote.voteType.map(option =>
-            `<button class="vote-option-btn" data-option="${option}">${option}</button>`
-        ).join('<br>');
+                const voteOptionsHtml = vote.voteType.map(opt => `
+              <div class="poll-choice vote-option-btn d-flex justify-content-between align-items-center"
+                   data-option="${opt}">
+                  <span>${opt}</span>
+                  <i class="far fa-circle"></i>
+              </div>
+          `).join('');
+        const pastel = ['#5AC8FA','#FF9F40','#4CD964',
+            '#FF5E7E','#AF7CFF','#FFD460'];
 
-        let voteResultsHtml = Object.entries(voteCounts).map(([option, count]) => {
-            const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
-            return `
-            <div class="vote-option">
-                <span><strong>${option}</strong> (${count}명)</span>
-                <div class="vote-bar">
-                    <div class="vote-bar-fill" style="width: ${percentage}%; background-color: ${getRandomColor()};"></div>
-                </div>
+        const voteResultsHtml = Object.entries(voteCounts)
+            .map(([opt, cnt], idx) => {
+                const pct = totalVotes ? Math.round(cnt / totalVotes * 100) : 0;
+                return `
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span>${opt}</span>
+            <span class="text-muted">${cnt}명 · ${pct}%</span>
+          </div>
+
+          <!-- 게이지 바 -->
+          <div class="poll-bar-wrapper">
+            <div class="poll-bar-fill"
+                 style="width:${pct}%;background:${pastel[idx % pastel.length]};">
+              <span class="poll-bar-text">${pct}%</span>
             </div>
-        `;
-        }).join('');
-        if (jsonData.Owner && token) {
-            deleteButtonHTML = `
-            <button type="button" class="btn btn-danger delete-feed-btn" onclick="deleteVoteFeed('${vote.id}')">
-                <i class="fas fa-trash"></i> 삭제하기
-            </button>
-        `;
-        }
+          </div>
+        </div>`;
+            })
+            .join('');
+
+        /* ------- (C)  카카오 스타일 카드 ------- */
         const html = `
-        <div class="card feed-card">
-            <div class="card-body">
-                ${deleteButtonHTML ? `<div class="text-end mb-3">${deleteButtonHTML}</div>` : ""}
-                <h2 class="feed-title">${vote.title}</h2>
-                <p class="feed-meta">
-                    <strong>작성자:</strong> ${badge} ${vote.username} &nbsp;|&nbsp;
-                    <strong>작성일자:</strong> ${formatDate(vote.createdAt)}
-                </p>
-                <div class="feed-content">${formattedDescription || ""}</div>
-                <div class="mt-3">
-                    <h5>투표 항목</h5>
-                    <div class="vote-options">${voteOptionsHtml}</div>
-                </div>
-                <div class="mt-3">
-                    <h5>현재 투표 결과</h5>
-                    <div class="vote-results">${voteResultsHtml}</div>
-                </div>
-                <div class="mt-3">
-                    <p>👥 총 참여자: <strong>${totalVotes}</strong>명</p>
-                </div>
-                <div class="mt-3">
-                    <button class="btn btn-primary vote-submit-btn" onclick="submitVote('${vote.voteId}','${vote.title}')">투표하기</button>
-                </div>
-            </div>
+    <div class="poll-card">
+        ${deleteButtonHTML ? `<div class="text-end mb-2">${deleteButtonHTML}</div>` : ""}
+        <div class="poll-title mb-2">${vote.title}</div>
+        <div class="text-muted mb-3">${badge} ${vote.username} · ${formatDate(vote.createdAt)}</div>
+        ${formattedDescription ? `<p class="mb-3">${formattedDescription}</p>` : ''}
+
+        <h6 class="fw-bold">투표 항목</h6>
+        <div class="vote-options mb-4">${voteOptionsHtml}</div>
+
+        <h6 class="fw-bold">현재 결과</h6>
+        <div class="vote-results">${voteResultsHtml}</div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <small class="text-muted">👥 ${totalVotes}명 참여</small>
+            <button class="btn btn-kakao vote-submit-btn"
+                    onclick="submitVote('${vote.voteId}','${vote.title}')">
+                투표하기
+            </button>
         </div>
+    </div>
     `;
 
         container.innerHTML = html;
@@ -462,6 +447,8 @@
     function submitVote(voteId,title) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedButton = document.querySelector(".vote-option-btn.active");
+        const token = localStorage.getItem("token");
+
         if (!selectedButton) {
             alert("투표 항목을 선택해주세요.");
             return;
@@ -482,6 +469,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data) {
+                    if (!token) {
+                        alert("로그인이 필요합니다.");
+                        window.location.href= "/login"
+                        return;
+                    }
                     alert("투표가 완료되었습니다!");
                     setTimeout(() => {
                         location.reload();
@@ -630,10 +622,10 @@
     document.addEventListener('DOMContentLoaded', async function () {
         const urlParams = new URLSearchParams(window.location.search);
         const voteId = urlParams.get('id');
-        if (!voteId) {
-            alert("투표 ID가 없습니다.");
-            return;
-        }
+        // if (!voteId) {
+        //     alert("투표 ID가 없습니다.");
+        //     return;
+        // }
 
         try {
             const token = localStorage.getItem("token");
@@ -641,16 +633,21 @@
             if (token) {
                 headers["Authorization"] = `Bearer ${token}`;
             }
+
             const [voteDetailResponse, voteStatusResponse] = await Promise.all([
                 fetch(`/vote/detail?id=${voteId}`, { method: "GET", headers }),
-                token ? fetch(`/get/ticket/vote?id=${voteId}`, { method: "GET", headers }) : null
+                fetch(`/get/ticket/vote?id=${voteId}`, { method: "GET", headers })
             ]);
 
-
             const voteDetailData = await voteDetailResponse.json();
-            const voteStatusData = voteStatusResponse ? await voteStatusResponse.json() :
-                { hasVoted: false, selectOption: {} };
 
+            // voteStatusResponse는 항상 존재하므로 json 처리
+            let voteStatusData = { hasVoted: false, selectOption: {} };
+            if (voteStatusResponse && voteStatusResponse.ok) {
+                voteStatusData = await voteStatusResponse.json();
+            }
+
+            // ✅ 투표 결과(selectOption) 무조건 넘겨서 결과 보여주기
             renderVoteDetail(voteDetailData, voteStatusData.selectOption);
 
             renderCommentSection(voteDetailData);
@@ -667,6 +664,7 @@
             console.error("투표 데이터를 불러오는 중 오류 발생:", error);
             alert("투표 데이터를 불러오는 중 문제가 발생했습니다.");
         }
+
     });
     function applyVoteStatus(hasVoted, selectOptionMap) {
         if (hasVoted) {

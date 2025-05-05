@@ -2195,7 +2195,7 @@
             success: function (response) {
                 if (response.data) {
                     latestData = response;
-                    renderFilteredFeeds(category, page);
+                    renderTechFeeds(category, page);
                     renderTabPagination("data", page, response.totalPage, category);
                 } else {
                     alert("자료집을 불러올 수 없습니다.");
@@ -2304,7 +2304,7 @@
             success: function (response) {
                 if (response.data) {
                     categoryFeeds(response);
-                    renderTabPagination("vote", page, response.data.totalPage);
+                    renderTabPagination("vote", page, response.totalPage);
                 } else {
                     alert("투표 글을 불러올 수 없습니다.");
                 }
@@ -2315,7 +2315,7 @@
         });
     }
 
-    function renderFilteredFeeds(category) {
+    function renderTechFeeds(category) {
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
         const normalPostsContainer = document.getElementById('normalPostsContainer');
 
@@ -2863,7 +2863,6 @@
         handlePageClick(currentPage);
     });
     function categoryFeeds(jsonData, count) {
-        console.log(jsonData)
         // loadVisitorStats();
         fetchTopWriters();
         const pinnedNoticesContainer = document.getElementById('pinnedNoticesContainer');
@@ -2873,7 +2872,7 @@
         normalPostsContainer.innerHTML = '';
         // let filteredPosts = jsonData.data.filter(post => !post.voteType);
         let normalPosts = "";
-        jsonData.data.data.forEach(post => {
+        jsonData.data.forEach(post => {
             // let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";

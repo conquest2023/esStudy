@@ -18,14 +18,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        /*.container {*/
-        /*    max-width: 1200px;*/
-        /*    margin: auto;*/
-        /*    background: white;*/
-        /*    padding: 20px;*/
-        /*    border-radius: 10px;*/
-        /*    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
-        /*}*/
+
          .container{
             max-width: 720px;          /* 읽기 좋은 폭 */
              margin: 2rem auto;         /* 위·아래 여백 */
@@ -71,10 +64,9 @@
             display:inline-block;
             margin-bottom: 5px;
         }
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+         body {
+             font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+         }
         h1 {
             margin-bottom: 30px;
         }
@@ -260,11 +252,26 @@
             color: #666;
             margin-bottom: 15px;
         }
-        .feed-content {
-            font-size: 1.2rem;
-            line-height: 1.7;
-            margin-top: 15px;
-        }
+         .feed-content {
+             font-size: 1rem; /* 기본 글자 크기 */
+             color: #333;
+             line-height: 1.6;
+             word-break: break-word;
+             white-space: pre-wrap; /* 줄바꿈 유지 */
+             margin-top: 10px;
+             padding-left: 2px;
+             padding-right: 2px;
+         }
+         .feed-content a {
+             color: #007bff;
+             text-decoration: underline;
+             word-break: break-all;
+         }
+
+         .feed-content a:hover {
+             text-decoration: none;
+             color: #0056b3;
+         }
         .feed-actions {
             display: flex;
             justify-content: space-between;
