@@ -4,6 +4,7 @@ import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.res.CommentCreate;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,8 @@ import java.util.Map;
 @Service
 public interface CommentService {
 
+
+    List<Board> getMantComment();
     Map<String,Long> getTodayCommentAggregation();
     Map<String, Object> getUserComments(String userId);
     List<CommentRequest> getUserRangeTimeActive(String userId);

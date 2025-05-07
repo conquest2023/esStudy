@@ -13,6 +13,7 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
+    List<Board> findManyComment();
 
     List<Comment> findMostCommentCount();
     List<TopWriter> findTopCommentWriters();

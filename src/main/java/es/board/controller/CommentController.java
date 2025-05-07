@@ -105,12 +105,18 @@ public class CommentController {
         return "basic/commentLike";
     }
 
+    @GetMapping("/feeds/popular-by-comment")
+    public ResponseEntity<?> getManyComment(){
+        return ResponseEntity.ok(commentService.getMantComment());
+    }
+
+
     @PostMapping("/search/view/comment/delete")
     @ResponseBody // JSON 응답을 위해 추가
     public ResponseEntity<?> CommentRemove(@RequestParam("id") String commentId,
                                            @RequestParam("feedUID") String feedId) {
         try {
-            commentService.deleteComment(commentId); // 댓글 삭제 로직 수행
+            commentService.deleteComment(commentId);
             // 성공 응답 반환
             Map<String, String> response = new HashMap<>();
             response.put("redirectUrl", "/search/view/feed/id?id=" + feedId);

@@ -32,6 +32,42 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final CommentRepository commentRepository;
 
+
+    @Override
+    public List<Board> findManyComment() {
+        try {
+
+            SearchResponse<Comment> response = client.search(s -> s
+                            .index("comment")
+                            .aggregations("feedCount", a -> a
+                                            .terms(t -> t
+                                                    .field("feedUID"))),
+                    Comment.class);
+            List<String> feedUIDs = response.hits().hits().stream()
+                    .map(hit -> hit.source().getFeedUID())
+                    .collect(Collectors.toList());
+            log.info(feedUIDs.toString());
+            if (feedUIDs.isEmpty()) {
+                return Collections.emptyList();
+            }
+            List<FieldValue> fieldValues = feedUIDs.stream()
+                    .map(FieldValue::of)
+                    .collect(Collectors.toList());
+            SearchResponse<Board> res = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .terms(t -> t
+                                    .field("feedUID.keyword")
+                                    .terms(tf -> tf.value(fieldValues))
+                            )), Board.class);
+            return res.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        }catch (IOException e){
+            log.error("Error fetching FeedCount feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch popular feed", e);
+        }
+    }
     @Override
     public  Map<String,Long> findTodayCommentAggregation(){
             String start = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));

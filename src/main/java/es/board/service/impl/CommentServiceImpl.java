@@ -9,23 +9,15 @@ import es.board.controller.model.res.CommentCreate;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
+import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
-import es.board.repository.entity.PointHistory;
-import es.board.repository.entity.entityrepository.NotificationRepository;
-import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import es.board.repository.entity.entityrepository.PostRepository;
 import es.board.service.CommentService;
-import es.board.service.NotificationService;
 import es.board.service.event.FeedEvent;
 import es.board.service.event.producer.CommentEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,9 +33,8 @@ public class CommentServiceImpl implements CommentService {
 
     private  final CommentMapper commentMapper;
 
-    private  final StringRedisTemplate stringRedisTemplate;
 
-    private  final NotificationService notificationService;
+//    private  final NotificationService notificationService;
 
     private  final CommentEventPublisher commentEventPublisher;
 
@@ -55,9 +46,6 @@ public class CommentServiceImpl implements CommentService {
 
     private  final PostRepository postRepository;
 
-    private  final PointHistoryRepository pointHistoryRepository;
-
-    private  final NotificationRepository notificationRepository;
 
     @Override
     public Map<String, Object> getUserComments(String userId) {
@@ -65,6 +53,11 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findUserComments(userId);
     }
 
+    @Override
+    public List<Board> getMantComment() {
+
+        return commentDAO.findManyComment();
+    }
     @Override
     public List<CommentRequest> getUserRangeTimeActive(String userId) {
 
