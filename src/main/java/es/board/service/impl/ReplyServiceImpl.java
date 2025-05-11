@@ -65,7 +65,7 @@ public class ReplyServiceImpl implements ReplyService {
 
     private static void checkValueReply(ReplyCreate response) {
 
-        if (isEmpty(response.getUsername()) || isEmpty(response.getContent())) {
+        if (isEmpty(response.getContent())) {
             throw new IllegalArgumentException("답글은 필수 입력값입니다.");
         }
     }

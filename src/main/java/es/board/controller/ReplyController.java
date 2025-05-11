@@ -7,6 +7,7 @@ import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,12 @@ public class ReplyController {
 //    }
 
     @PostMapping("/search/view/reply/save")
-    public ResponseEntity<String> postReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
+    public ResponseEntity<String> postReply(@RequestHeader(value = "Authorization", required = false) String token,
+                                            @Valid @RequestBody ReplyCreate response) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                response.replyBasicSetting(jwtTokenProvider.getUserId(token));
+                response.replyBasicSetting( jwtTokenProvider.getUsername(token),jwtTokenProvider.getUserId(token));
             } else {
                 response.replyAnonymousBasicSetting();
             }
@@ -53,7 +55,7 @@ public class ReplyController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                response.replyBasicSetting(jwtTokenProvider.getUserId(token));
+                response.replyBasicSetting(jwtTokenProvider.getUsername(token),jwtTokenProvider.getUserId(token));
             } else {
                 response.replyAnonymousBasicSetting();
             }

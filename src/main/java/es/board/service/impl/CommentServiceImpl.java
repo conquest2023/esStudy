@@ -95,6 +95,7 @@ public class CommentServiceImpl implements CommentService {
     public void saveComment(CommentCreate dto) {
         checkValueComment(dto);
         commentDAO.saveCommentIndex(dto);
+        log.info(dto.toString());
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
 
         FeedEvent event = FeedEvent.builder()
@@ -187,7 +188,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private static void checkValueComment(CommentCreate commentCreate) {
-        if (isEmpty(commentCreate.getUsername()) || isEmpty(commentCreate.getContent())) {
+        if (isEmpty(commentCreate.getContent())) {
             throw new IllegalArgumentException("내용은 필수 입력값입니다.");
         }
     }

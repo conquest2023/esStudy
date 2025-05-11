@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.filter.XssSafeDeserializer;
 import es.board.filter.XssSafeSerializer;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class ReplyCreate {
 
     @JsonSerialize(using = XssSafeSerializer.class)
     @JsonDeserialize(using = XssSafeDeserializer.class)
+    @NotBlank(message = "내용은 필수입니다.")
     private String content;
 
 
@@ -48,7 +50,8 @@ public class ReplyCreate {
     }
 
 
-    public void replyBasicSetting(String userId) {
+    public void replyBasicSetting(String username, String userId) {
+        this.username=username;
         this.userId=userId;
         this.createdAt=LocalDateTime.now();
     }

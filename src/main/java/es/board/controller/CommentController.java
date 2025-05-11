@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.CommentUpdate;
 import es.board.controller.model.res.CommentCreate;
 import es.board.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,22 +31,18 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> saveCommentId(
             @RequestParam("feedUID") String id,
-            @RequestBody CommentCreate response,
+            @Valid @RequestBody CommentCreate response,
             @RequestHeader(value = "Authorization", required = false) String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
 
             if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id, jwtTokenProvider.getUserId(token));
-            } else {
-                response.commentAnonymousBasicSetting(id);
+                response.commentBasicSetting(id,jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
             }
-        } else {
-            response.commentAnonymousBasicSetting(id);
         }
         commentService.saveComment(response);
         Map<String, String> res = new HashMap<>();
-        res.put("redirectUrl", "/search/view/feed/id?id=" + id);
+        res.put("redirectUrl", "/search/view/feed/id/" + id);
         return ResponseEntity.ok(res);
     }
 
@@ -58,12 +55,8 @@ public class CommentController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id, jwtTokenProvider.getUserId(token));
-            } else {
-                response.commentAnonymousBasicSetting(id);
+                response.commentBasicSetting(id,jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
             }
-        } else {
-            response.commentAnonymousBasicSetting(id);
         }
         commentService.saveComment(response);
         Map<String, String> res = new HashMap<>();

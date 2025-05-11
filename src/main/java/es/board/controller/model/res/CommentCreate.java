@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.filter.XssSafeDeserializer;
 import es.board.filter.XssSafeSerializer;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class CommentCreate {
 
     @JsonSerialize(using = XssSafeSerializer.class)
     @JsonDeserialize(using = XssSafeDeserializer.class)
+    @NotBlank(message = "내용은 필수입니다.")
     private String content;
 
 
@@ -49,8 +51,9 @@ public class CommentCreate {
         this.createdAt=LocalDateTime.now();
     }
 
-    public void commentBasicSetting(String id,String userId) {
+    public void commentBasicSetting(String id,String username, String userId) {
         this.feedUID=id;
+        this.username=username;
         this.userId=userId;
         this.createdAt=LocalDateTime.now();
         this.commentUID=UUID.randomUUID().toString();
