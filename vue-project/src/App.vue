@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NavBar v-if="!hideLayout" />
+    <NavBar />
     <RightSidebar v-if="!hideLayout" />
     <!--    <DefaultLayout />-->
     <router-view />

@@ -69,7 +69,7 @@ function handleLogin() {
         console.log(res)
         if (res.data.accessToken) {
           localStorage.setItem('token', res.data.accessToken)
-          router.push('/')
+          window.location.href = '/'
         } else {
           errorMessage.value = '아이디 또는 비밀번호가 잘못되었습니다.'
         }

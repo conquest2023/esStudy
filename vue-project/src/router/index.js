@@ -1,13 +1,40 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import VoteForm from '@/pages/feed/VoteForm.vue'
+import JobView from '@/pages/site/JobView.vue'
+import JobSiteList from '@/pages/site/JobSiteList.vue'
+import Todo from '@/pages/todo/Todo.vue'
+import NewTodo from '@/pages/todo/TodoAdd.vue'
+import QuestionBank from '@/pages/certificate/QuestionBank.vue'
+import PracticeQuestion from '@/pages/certificate/PracticeQuestion.vue'
+
+import calendar from '@/pages/calendar/CalendarPage.vue'
+
+
 const routes = [
     { path: '/',          component: () => import('@/pages/feed/FeedList.vue') },
-    { path: '/search/view/feed/id/:id', name: 'feed-detail', component: () => import('@/pages/feed/FeedDetail.vue')},
+    { path: '/search/view/feed/id/:id', name: 'feed-detail', component: () => import('@/pages/feed/FeedDetail.vue') ,  meta: { hideLayout: true }},
     { path: '/login',     component: () => import('@/pages/auth/Login.vue')  ,  meta: { hideLayout: true } },
     { path: '/signup',    component: () => import('@/pages/auth/SignUp.vue') ,  meta: { hideLayout: true }  },
     { path: '/search/view/content', name: 'search-result', component: () => import('@/pages/SearchResult.vue')},
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'),meta: { hideLayout: true } },
-    { path: '/search/view/feed/vote', name: 'vote-form', component: VoteForm}]
+    { path: '/search/view/feed/vote', name: 'vote-form', component: VoteForm},
+    { path: '/search/view/feed/list/job', name: 'job-view', component: JobView },
+    {path: '/site', name: 'job-sites', component: JobSiteList },
+    {path: '/todo', name: 'todo', component: Todo },
+    {path: '/todo/new', name: 'NewTodo', component: NewTodo},
+    { path: '/calendar', name: 'calendar', component: () =>
+            import('@/pages/calendar/CalendarPage.vue'), meta:{ hideLayout:false }},
+    { path: '/certificate/data', component: () => import('@/pages/certificate/CertificateData.vue')},
+    { path: '/certificate/detail', component: () => import('@/pages/certificate/CertificateDetail.vue')},
+    { path: '/certificate/calendar', component: () => import('@/pages/certificate/CertificateCalendar.vue')},
+    { path: '/search/view/question',  name: 'QuestionBank', component: QuestionBank},
+    {
+        path: '/search/view/practical/question',
+        name: 'PracticeQuestion',
+        component: PracticeQuestion
+    }
+
+]
 
 export default createRouter({
     history: createWebHistory(),

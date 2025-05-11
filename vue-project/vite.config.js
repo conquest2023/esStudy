@@ -6,6 +6,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    proxy: {
+      '/jumpit': 'http://localhost:8080',
+      '/programmers': 'http://localhost:8080'
+    }
+    },
   plugins: [
     vue(),
     vueDevTools(),

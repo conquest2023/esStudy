@@ -1,6 +1,7 @@
 <template>
-  <section v-if="loaded" class="container my-4">
-<!--    <div v-if="data.Owner">-->
+  <section v-if="loaded" class="container my-4 pt-navbar">
+
+  <!--    <div v-if="data.Owner">-->
 <!--      <button class="btn btn-sm btn-danger">삭제</button>-->
 <!--    </div>-->
     <!-- ─── 글 카드 ─────────────────────────────────────────── -->
@@ -214,7 +215,7 @@ async function submitReply(commentUID) {
     await api.post('/search/view/reply/save', {
       commentUID,
       feedUID: id,
-      content: text, // ✅ 올바르게 전송
+      content: text,
     })
     await new Promise(resolve => setTimeout(resolve, 1000))
 
@@ -237,6 +238,9 @@ async function submitReply(commentUID) {
 </script>
 
 <style scoped>
+  .pt-navbar {
+    padding-top: 60px; /* NavBar 높이에 맞게 조정 */
+  }
   .feed-card { border-radius:10px }
   .feed-title{ font-size:1.8rem;font-weight:700 }
   .comment-item{ gap:12px;padding:12px 0;border-bottom:1px solid #eee }

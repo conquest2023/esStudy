@@ -171,8 +171,6 @@ const menus = [
         </ul>
       </div>
 
-      <!-- right side utils -->
-      <!-- right side utils -->
       <div class="d-flex align-items-center ms-auto gap-3 position-relative">
         <!-- notification bell -->
         <div class="position-relative me-2">
@@ -202,13 +200,12 @@ const menus = [
         </div>
 
         <!-- 글쓰기 버튼 -->
-        <button class="btn btn-danger d-none d-md-inline" @click="router.push('/search/view/feed/Form')">
+        <button class="btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
           글쓰기
         </button>
-
         <!-- 로그인 / 유저 메뉴 -->
         <template v-if="!loggedIn">
-          <button class="btn btn-outline-dark btn-sm " @click="router.push('/login')">로그인</button>
+          <button class="btn btn-outline-dark btn-sm" @click="router.push('/login')">로그인</button>
         </template>
         <template v-else>
           <div class="position-relative" @click.stop="showUserMenu = !showUserMenu">
@@ -253,6 +250,20 @@ const menus = [
   overflow: auto;
   right: 0;
 }
+  .dropdown-menu {
+    top: 100% !important;
+    bottom: auto !important;
+    transform: translateY(4px);
+    z-index: 1050;
+  }
+  .dropdown-menu.show {
+    top: 100% !important;
+    transform: translateY(4px);
+    right: 0;
+    left: auto;
+    z-index: 1050;
+  }
+
 @media (max-width: 768px) {
   .tagline {
     display: none !important;
