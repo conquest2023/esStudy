@@ -1,47 +1,25 @@
+<template>
+  <div>
+    <NavBar v-if="!hideLayout" />
+    <RightSidebar v-if="!hideLayout" />
+    <!--    <DefaultLayout />-->
+    <router-view />
+  </div>
+</template>
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { useUserStore } from '@/stores/user'
+import { useSSE } from '@/composables/useSSE'
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import { useRoute } from 'vue-router'
+import NavBar from '@/components/common/NavBar.vue'
+import RightSidebar from '@/components/sidebar/RightSidebar.vue'
+import {computed} from "vue";
+
+const route = useRoute()
+const hideLayout = computed(() =>
+    route.meta.hideLayout === true
+)
+const store = useUserStore()
+if (store.token) useSSE(store.token)
 </script>
 
-<template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
-</template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
