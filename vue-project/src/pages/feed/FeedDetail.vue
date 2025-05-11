@@ -27,8 +27,8 @@
 
     <h5 class="mt-5"><i class="bi bi-chat"></i> 댓글</h5>
     <div v-if="comments.length === 0" class="text-muted">댓글이 없습니다.</div>
-    <div v-for="c in comments" :key="c.commentUID" class="comment-item">
-      <div class="comment-body flex-grow-1">
+    <div v-for="c in comments" :key="c.commentUID + '-' + reloadTrigger" class="comment-item">
+    <div class="comment-body flex-grow-1">
         <div class="d-flex justify-content-between">
           <div class="meta">
             <b>{{ rankBadge(c.username) }} {{ c.username }}</b>
@@ -56,12 +56,12 @@
 
 
         <!-- 답글 작성 영역 -->
-        <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
-        <div v-show="activeReply === c.commentUID" class="mt-2">
-          <textarea v-model="replyText" rows="2" class="form-control mb-2" placeholder="답글 입력" />
-          <button class="btn btn-sm btn-primary" @click="submitReply(c.commentUID)">답글 작성</button>
-        </div>
+      <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
+      <div v-show="activeReply === c.commentUID" class="mt-2">
+        <textarea v-model="replyTexts[c.commentUID]" rows="2" class="form-control mb-2" placeholder="답글 입력"/>
+        <button class="btn btn-sm btn-primary" @click="submitReply(c.commentUID)">답글 작성</button>
       </div>
+    </div>
     </div>
 
     <div class="card shadow-sm p-3 mt-4">
@@ -99,9 +99,12 @@ import { useToast } from '@/composables/useToast'
   const loaded     = ref(false)
   const replies = ref({})
   const replyText = ref('')
+  const replyTexts = ref({})
+
   const activeReply = ref(null)
   const commentText= ref('')
   const sending    = ref(false)
+  const reloadTrigger = ref(0)
   const login      = computed(() => !!store.token)
   function linkify(text = '') {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -170,7 +173,7 @@ import { useToast } from '@/composables/useToast'
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       const { data } = await api.get('/detail', { params: { id } })
       comments.value = data.comment || []
@@ -193,31 +196,44 @@ import { useToast } from '@/composables/useToast'
     activeReply.value = activeReply.value === commentUID ? null : commentUID
     replyText.value = ''
   }
-    async function submitReply(commentUID) {
-      if (!login.value) {
-        push('로그인이 필요합니다')
-        router.push('/login')
-        return
-      }
-      if (!replyText.value.trim()) {
-        alert('답글 내용을 입력하세요.')
-        return
-      }
-      try {
-        await api.post('/search/view/reply/save', {
-          commentUID,
-          feedUID: id,
-          content: replyText.value,
-          username: localStorage.getItem('username') || '익명'
-        })
-        const { data } = await api.get('/detail', { params: { id } })
-        replies.value = data.replies || {}
-        replyText.value = ''
-        activeReply.value = null
-      } catch (e) {
-        push('답글 저장 실패')
-      }
+async function submitReply(commentUID) {
+  const text = replyTexts.value[commentUID] || ''
+
+  if (!login.value) {
+    push('로그인이 필요합니다')
+    router.push('/login')
+    return
+  }
+
+  if (!text.trim()) {
+    alert('답글 내용을 입력하세요.')
+    return
+  }
+
+  try {
+    await api.post('/search/view/reply/save', {
+      commentUID,
+      feedUID: id,
+      content: text, // ✅ 올바르게 전송
+    })
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const { data } = await api.get('/detail', {
+      params: { id }
+    })
+
+    comments.value = data.comment || []
+    replies.value = JSON.parse(JSON.stringify(data.replies))
+    activeReply.value = null
+    replyTexts.value[commentUID] = ''  // 초기화
+    reloadTrigger.value++
+  } catch (e) {
+    console.error(e)
+    push('답글 저장 실패')
     }
+  }
+
+
 </script>
 
 <style scoped>
