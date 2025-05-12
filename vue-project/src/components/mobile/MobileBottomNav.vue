@@ -1,6 +1,27 @@
+<!-- src/components/mobile/MobileBottomNav.vue -->
+<script setup>
+import { ref, onMounted } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+
+defineProps(
+    {
+      navItems: { type: Array, default: () => [] }
+    })
+
+const isMobile = ref(false)
+onMounted(() => {
+  const set = () => (isMobile.value = window.innerWidth <= 900)
+  set()
+  window.addEventListener('resize', set)
+})
+
+const router = useRouter()
+</script>
+
 <template>
-  <nav class="mobile-bottom-nav shadow-sm">
-    <template v-for="n in navItems" :key="n.path">
+  <!-- 모바일일 때만 렌더 -->
+  <nav v-if="isMobile" class="mobile-bottom-nav shadow-sm">
+    <template v-for="n in navItems" :key="n.label">
       <RouterLink
           v-if="!n.children"
           :to="n.path"
@@ -10,14 +31,8 @@
         <span class="small d-block">{{ n.label }}</span>
       </RouterLink>
 
-      <!-- 드롭업 메뉴가 필요한 항목 -->
       <div v-else class="dropdown dropup flex-fill text-center">
-        <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            data-bs-toggle="dropdown"
-            role="button"
-        >
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
           <i :class="n.icon"></i>
           <span class="small d-block">{{ n.label }}</span>
         </a>
@@ -26,7 +41,7 @@
               v-for="c in n.children"
               :key="c.path"
               class="dropdown-item fw-bold"
-              @click="$router.push(c.path)"
+              @click="router.push(c.path)"
           >
             {{ c.label }}
           </li>
@@ -34,48 +49,53 @@
       </div>
     </template>
 
-    <!-- 중앙 FAB -->
     <button class="fab-button" @click="$emit('fab')">
       <i class="fas fa-pen"></i>
     </button>
   </nav>
 </template>
 
-<script setup>
-import { RouterLink, useRouter } from 'vue-router'
-
-defineProps({
-  /*
-    navItems: [
-      { path: '/', icon: 'fas fa-home fa-lg', label: '홈' },
-      { icon: 'fas fa-briefcase fa-lg', label: '취업', children:[{path:'/site',label:'사이트'}] },
-      …
-    ]
-  */
-  navItems: { type: Array, default: () => [] }
-})
-
-const router = useRouter()
-</script>
-
-<style scoped>
+<style>
 .mobile-bottom-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffffff;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
   border-top: 1px solid #ddd;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
-  z-index: 1000;
+  padding: 8px 0;
+  z-index: 1500;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
 }
+
 .mobile-bottom-nav .nav-link {
   color: #555;
-  font-size: 15px;
+  font-size: 14px;
+  text-decoration: none;
+  padding: 6px 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+.mobile-bottom-nav .nav-link:hover {
+  background-color: #f8f8f8;
+  color: #000;
+  border-radius: 6px;
+}
+.mobile-bottom-nav .dropdown-menu {
+  font-size: 14px;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.mobile-bottom-nav .dropdown-item {
+  padding: 10px 14px;
+}
+
+.mobile-bottom-nav .dropdown-item:hover {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
 .fab-button {
   position: absolute;
   top: -22px;
@@ -92,5 +112,10 @@ const router = useRouter()
   justify-content: center;
   font-size: 22px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1600;
 }
+body {
+  padding-bottom: 64px;
+}
+
 </style>

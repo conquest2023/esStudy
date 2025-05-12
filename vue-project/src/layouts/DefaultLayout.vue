@@ -1,51 +1,67 @@
 <!-- src/layouts/DefaultLayout.vue -->
+<script setup>
+import Navbar            from '@/components/common/Navbar.vue'
+import RightSidebar      from '@/components/sidebar/RightSidebar.vue'
+import NotificationToast from '@/components/common/NotificationToast.vue'
+import MobileBottomNav   from '@/components/mobile/MobileBottomNav.vue'
+import { useRouter }     from 'vue-router'
+
+const router = useRouter()
+
+const navItems = [
+  { path:'/', icon:'fas fa-home fa-lg', label:'홈' },
+  {
+    icon:'fas fa-briefcase fa-lg', label:'취업',
+    children:[
+      { path:'/search/view/feed/list/job', label:'IT 정보' },
+      { path:'/site', label:'취업 사이트' }
+    ]
+  },
+  {
+    icon:'fas fa-check fa-lg', label:'일정',
+    children:[
+      { path:'/todo', label:'투두 & D-Day' },
+      { path:'/calendar', label:'캘린더' }
+    ]
+  },
+  {
+    icon:'fas fa-certificate fa-lg', label:'자격증',
+    children:[
+      { path:'/search/view/question', label:'문제 은행' },
+      { path:'/certificate/data',   label:'자격증 자료' },
+      { path:'/certificate/list',   label:'자격증 분석' },
+      { path:'/certificate/calendar', label:'자격증 일정' }
+    ]
+  }
+]
+</script>
+
 <template>
-  <div>
-    <Navbar />
-    <NotificationToast />
+  <Navbar />
+  <NotificationToast />
 
-    <!-- ① flex 컨테이너 -->
-    <div class="page-wrap">
-      <!-- ② 메인 컨텐츠(길이 자동) -->
-      <main class="main-wrap">
-        <router-view />
-      </main>
-
-      <RightSidebar class="desktop-only" />
-    </div>
-
-    <MobileBottomNav class="mobile-only" />
+  <div class="page-wrap">
+    <main class="main-wrap"><router-view /></main>
+    <RightSidebar class="desktop-only" />
   </div>
+
+  <MobileBottomNav
+      :navItems="navItems"
+      @fab="router.push('/search/view/feed/Form')"
+  />
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import Navbar from '@/components/common/Navbar.vue'
-import RightSidebar from '@/components/sidebar/RightSidebar.vue'
-import NotificationToast from '@/components/common/NotificationToast.vue'
-import MobileBottomNav from '@/components/mobile/MobileBottomNav.vue'
-
-const isMobile = computed(() => window.innerWidth <= 768)
-</script>
-<style scoped>
-.page-wrap {               /* ① 페이지 전체 영역 */
-  display: flex;
-  justify-content: center; /* 메인 폭이 작으면 가운데 정렬 */
-  gap: 30px;               /* 메인‑사이드 간격 */
-  width: 100%;
-  max-width: 1280px;       /* container-custom 와 비슷한 폭 */
-  margin: 0 auto;          /* 가운데 */
-  padding: 0 20px;
-}
-
+<style>
+/* ❗ scoped 제거 → 자식 컴포넌트에도 적용됨 */
+.page-wrap{display:flex;justify-content:center;gap:30px;max-width:1280px;margin:0 auto;padding:0 20px}
 .main-wrap {
-  padding-top: 70px; /* 🔧 fixed된 navbar 높이만큼 여백 확보 */
-}
-.main-wrap {               /* ② 메인(피드) */
-  flex: 1 1 0;             /* 남는 공간 전부 차지 */
-  min-width: 0;            /* flex shrink 시 오버플로 방지 */
+  flex: 1 1 0;
+  min-width: 0;
+  padding-top: 70px;
+
+  padding-bottom: 60px;
 }
 
-.desktop-only { display: block; }
-.mobile-only  { display: none;  }
+.desktop-only{display:block}
+@media(max-width:900px){.desktop-only{display:none}}
 </style>

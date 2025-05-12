@@ -1,16 +1,5 @@
-<!-- src/components/sidebar/RightSidebar.vue -->
-<template>
-  <!-- ▣ 토글 버튼 (항상 화면 우측에 고정) -->
-<!--  <button-->
-<!--      class="toggle-btn btn btn-light shadow-sm d-flex align-items-center justify-content-center"-->
-<!--      @click="collapsed = !collapsed"-->
-<!--      :title="collapsed ? '펼치기' : '접기'"-->
-<!--  >-->
-<!--    <i :class="collapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right'"></i>-->
-<!--  </button>-->
 
-  <!-- ▣ 실제 사이드바 -->
-  <!-- ▣ 열기 버튼 (북마크 스타일로 개선) -->
+<template>
   <button
       v-if="collapsed"
       class="toggle-bookmark-btn"
@@ -20,7 +9,6 @@
   </button>
 
   <transition name="slide">
-
     <aside v-if="!collapsed" class="right-sidebar shadow-sm">
 
       <button
@@ -40,10 +28,7 @@
         </li>
       </ul>
 
-      <!-- ▣ 탭 컨텐츠 -->
       <div class="tab-content small p-2">
-
-        <!-- ▷ Todo / D‑Day -->
         <section v-show="currentTab === 'todo'">
           <h6 class="fw-bold">D‑Day 일정</h6>
 
@@ -77,22 +62,22 @@
           </ul>
         </section>
 
-        <!-- ▷ 캘린더 (원하면 나중에 구현) -->
         <section v-show="currentTab === 'calendar'">
           <h6 class="fw-bold">📅 내 캘린더</h6>
-          <!-- <MiniCalendar :events="calendarEvents" /> -->
         </section>
       </div>
 
-      <!-- ▣ 방문자 · Top 5 -->
       <div class="accordion mt-3">
+        <!-- 👥 방문자 통계 -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#visitor">
-              👥 방문자 통계
+            <button class="accordion-button"
+                    :class="{ collapsed: !showVisitor }"
+                    @click="showVisitor = !showVisitor">
+              👥 방문자 통계
             </button>
           </h2>
-          <div id="visitor" class="accordion-collapse collapse show">
+          <div class="accordion-collapse" :class="{ collapse: true, show: showVisitor }">
             <div class="accordion-body small">
               <p>현재 접속자: {{ visitorStats.active }}</p>
               <p>오늘 방문자: {{ visitorStats.today }}</p>
@@ -101,53 +86,74 @@
           </div>
         </div>
 
+        <!-- 🏆 Top 5 기여자 -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#top">
-              🏆 Top 5 기여자
+            <button class="accordion-button"
+                    :class="{ collapsed: !showTopWriters }"
+                    @click="showTopWriters = !showTopWriters">
+              🏆 Top 5 기여자
             </button>
           </h2>
-          <div id="top" class="accordion-collapse collapse">
+          <div class="accordion-collapse" :class="{ collapse: true, show: showTopWriters }">
             <div class="accordion-body small">
               <div v-if="!topWriters.length" class="text-muted text-center">데이터가 없습니다</div>
-              <div v-for="(w,idx) in topWriters" :key="w.username"
+              <div v-for="(w, idx) in topWriters" :key="w.username"
                    class="d-flex justify-content-between align-items-center py-1">
-                <span>{{ rankIcon(idx) }} {{ w.username }}</span>
+                <span>{{ rankIcon(idx) }} {{ w.username }}</span>
                 <small class="text-muted">{{ w.viewCount }}점</small>
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </aside>
   </transition>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed ,watch } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
+import { useRoute } from 'vue-router'
 
-/* ▶︎ 데이터 로딩 composable */
-const {
-  dDayList,
-  todoList,
-  todoProgress,
-  visitorStats,
-  topWriters
-} = useSidebarData()
 
-/* ▶︎ 사이드바 접힘 상태 */
-const collapsed = ref(false)
+// const {
+//   dDayList,
+//   todoList,
+//   todoProgress,
+//   visitorStats,
+//   topWriters
+// } = useSidebarData()
 
-/* ▶︎ 로컬 탭 */
+const showVisitor = ref(true)
+const showTopWriters = ref(false)
+const collapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+
+// 상태가 바뀔 때마다 localStorage에 저장
+watch(collapsed, val => {
+  localStorage.setItem('sidebarCollapsed', val.toString())
+})
 const tabs = [
   { id:'todo',     label:'📋 Todo & D‑Day' },
   { id:'calendar', label:'📅 캘린더' }
 ]
+const route = useRoute()
+const isFeedMainPage = computed(() => route.path === '/')
 const currentTab = ref('todo')
+let dDayList = ref([])
+let todoList = ref([])
+let todoProgress = ref(0)
+let visitorStats = ref({})
+let topWriters = ref([])
 
-/* ▶︎ 헬퍼 */
+if (isFeedMainPage.value) {
+  const data = useSidebarData()
+  dDayList = data.dDayList
+  todoList = data.todoList
+  todoProgress = data.todoProgress
+  visitorStats = data.visitorStats
+  topWriters = data.topWriters
+}
 function statusIcon (s) { return s==='DONE' ? '✅': s==='IN_PROGRESS'?'⏳':'📝' }
 function rankIcon   (i) { return ['👑','🥇','🥈','🥉'][i] || `${i+1}.` }
 </script>
@@ -167,7 +173,6 @@ function rankIcon   (i) { return ['👑','🥇','🥈','🥉'][i] || `${i+1}.` }
   box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
-/* ───────── 토글 버튼 */
 .toggle-bookmark-btn {
   position: fixed;
   top: 130px;

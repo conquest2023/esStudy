@@ -1,18 +1,18 @@
 
 <script setup>
-/* --------------------------------------------------
- *  imports & plugins
- * --------------------------------------------------*/
+
 import { ref, reactive, onMounted } from 'vue'
+
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+// import '@fullcalendar/core/index.css'
+// import '@fullcalendar/daygrid/index.css'
+// import '@fullcalendar/timegrid/index.css'
 import api from '@/utils/api'
 
-/* --------------------------------------------------
- *  state
- * --------------------------------------------------*/
+
 const calendarRef        = ref(null)
 const events             = ref([])
 const filter             = ref('all')
@@ -20,14 +20,12 @@ const search             = reactive({ type: 'title', q: '' })
 const showKibana         = ref(false)
 const kibanaUrl          = ref('')
 
-// modal toggles
 const showAddModal       = ref(false)
 const showRepeatModal    = ref(false)
 const showRepeatDelete   = ref(false)
 const showDetailModal    = ref(false)
 const detail             = reactive({})
 
-// form models
 const addForm   = reactive({ title: '', date: '', category: '기타', desc: '' })
 const repeatForm = reactive({
   title: '', category: '기타', startDate: '', endDate: '', days: [], freq: 'daily', interval: 1,
@@ -161,13 +159,18 @@ onMounted(async ()=>{
     </div>
 
     <!-- calendar -->
-    <FullCalendar ref="calendarRef" class="shadow rounded-3 p-2"
-                  :plugins="[dayGridPlugin,timeGridPlugin,interactionPlugin]"
-                  :initialView="'dayGridMonth'"
-                  locale="ko"
-                  height="700"
-                  :events="events"
-                  :eventClick="eventClick" />
+    <div>
+      <FullCalendar
+          ref="calendarRef"
+          class="shadow rounded-3 p-2"
+          :plugins="[dayGridPlugin, timeGridPlugin, interactionPlugin]"
+          :initial-view="'dayGridMonth'"
+          locale="ko"
+          height="700"
+          :events="events"
+          @event-click="eventClick"
+      />
+    </div>
 
     <!-- kibana -->
     <div v-if="showKibana" class="text-center mt-4">
@@ -208,11 +211,9 @@ onMounted(async ()=>{
           </div>
         </div>
       </div>
-
-      <!-- TODO: repeat create & delete modals (left as exercise) -->
     </teleport>
   </div>
-  <FullCalendar ref="calendarRef" :options="calendarOptions" class="shadow rounded-3 p-2" />
+  <FullCalendar v-bind="calendarOptions" />
 </template>
 
 <style scoped>

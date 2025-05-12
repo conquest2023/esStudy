@@ -1,28 +1,52 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/utils/api'
 
-/* ────────────────────────────────
- *  state
- * ───────────────────────────── */
 const router = useRouter()
 const showMobileMenu   = ref(false)
-const openDropdownIdx  = ref(null)          // 현재 열린 1depth 드롭다운(index)
+const openDropdownIdx  = ref(null)
 const showNoti         = ref(false)
 const showUserMenu     = ref(false)
-const notifications    = ref([])
+const notifications = ref(
+    JSON.parse(localStorage.getItem('notifications') ?? '[]')  // [{id, feedUID, message, read}]
+)
 
-/* 사용자 상태 (예시) */
 const loggedIn = ref(false)
 const username = ref('')
 
-onMounted(fetchAuth)
+// onMounted(async () => {
+//   await fetchAuth()
+//   if (loggedIn.value) {
+//      connectSSE()
+//     }})
+//
+// watch(() => notifications.value, (val) => {
+//   localStorage.setItem('notifications', JSON.stringify(val))
+// }, { deep: true })
+onMounted(async () => {
+  await fetchAuth()
+})
+
+let eventSource = null
+watch(loggedIn, (v) => {
+  if (v) connectSSE()
+  else if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+}, { immediate: true })
+
+watch(notifications, (val) => {
+  localStorage.setItem('notifications', JSON.stringify(val))
+}, { deep: true })
 
 async function fetchAuth () {
   const token = localStorage.getItem('token')
-  if (!token) return
-
+  if (!token) {
+    loggedIn.value = false
+    return
+  }
   try {
     const { data } = await api.get('/info')
     loggedIn.value = !!data?.isLoggedIn
@@ -32,19 +56,33 @@ async function fetchAuth () {
   }
 }
 
-/* ─────────────  handlers  ───────────── */
-function toggleDropdown (idx) {
-  openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
-}
-function closeAllDropdown () {
-  openDropdownIdx.value = null
-  showUserMenu.value    = false
-}
-function toggleMobileMenu () {
-  showMobileMenu.value = !showMobileMenu.value
-}
+function unreadCount () {
+   return notifications.value.filter(n => !n.read).length
+      }
+
 function toggleNoti () {
   showNoti.value = !showNoti.value
+        if (showNoti.value) {
+            notifications.value.forEach(n => { n.read = true })
+     }
+}
+
+async function fetchNotifications() {
+  const token = localStorage.getItem("token")
+  if (!token) return
+  try {
+    const res = await fetch("http://localhost:8080/notifications/all", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const data = await res.json()
+    notifications.value = data || []
+  } catch (err) {
+    console.error("알림 불러오기 실패", err)
+  }
+}
+
+function toggleDropdown (idx) {
+  openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
 }
 function logout () {
   localStorage.removeItem('token')
@@ -53,7 +91,82 @@ function logout () {
   router.push('/login')
 }
 
-/* 예시 메뉴 데이터 → 유지보수 용이 */
+function connectSSE () {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  if (eventSource && eventSource.readyState !== EventSource.CLOSED) return
+
+  const url = `/subscribe?token=${encodeURIComponent(token)}` // vite proxy 사용
+  eventSource = new EventSource(url)
+
+  eventSource.onopen  = () => console.log('[SSE] 연결됨')
+  eventSource.onerror = () => {
+    console.warn('[SSE] 끊김 – 5초 뒤 재연결')
+    eventSource.close()
+    eventSource = null
+    setTimeout(connectSSE, 5000)
+  }
+
+  eventSource.onmessage = (e) => {
+    console.log('[SSE] 기본 메시지', e.data)
+    addFeedNotification(e.data)
+  }
+
+  ;['comment-notification', 'todo-notification', 'reply-notification', 'notice-notification']
+      .forEach(type => eventSource.addEventListener(type, e => addFeedNotification(e.data)))
+}
+
+
+
+
+function updateTodoAlert(message) {
+  const todoAlert = document.getElementById("todo-alert")
+  if (todoAlert) todoAlert.innerText = message
+}
+
+function addFeedNotification (jsonMessage) {
+  let parsed
+  try {
+    parsed = (typeof jsonMessage === 'string') ? JSON.parse(jsonMessage) : jsonMessage
+  } catch (e) {
+    console.error('JSON 파싱 오류:', e, jsonMessage)
+    return
+  }
+  const { feedUID, message } = parsed
+  notifications.value = [
+    { id: Date.now(), feedUID, message, read: false },
+    ...notifications.value
+  ]
+
+  showToast(message, feedUID)
+}
+
+function showToast (message, feedUID) {
+  const container = document.getElementById('toastContainer')
+  if (!container) return
+
+  const toast = document.createElement('div')
+  toast.className = 'toast align-items-center bg-dark border-0 shadow mb-2 show'
+  toast.setAttribute('role', 'alert')
+  toast.setAttribute('aria-live', 'assertive')
+  toast.setAttribute('aria-atomic', 'true')
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body fw-bold text-white">
+        🔔 <a href="/search/view/feed/id/${feedUID}" class="text-white text-decoration-underline">${message}</a>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>`
+  container.appendChild(toast)
+
+  setTimeout(() => {
+    toast.classList.remove('show')
+    toast.addEventListener('transitionend', () => toast.remove())
+  }, 5000)
+}
+
+
 const menus = [
   {
     label: '취업 사이트',
@@ -81,12 +194,12 @@ const menus = [
         title: '투두 & D‑Day 매니저',
         desc: '자격증/취업 일정 관리 & 리마인더'
       },
-      {
-        href: '/calendar',
-        icon: 'fas fa-calendar-check text-warning',
-        title: '캘린더',
-        desc: '월별 일정 보기 & 전체 관리'
-      }
+      // {
+      //   href: '/calendar',
+      //   icon: 'fas fa-calendar-check text-warning',
+      //   title: '캘린더',
+      //   desc: '월별 일정 보기 & 전체 관리'
+      // }
     ]
   },
   {
@@ -122,76 +235,54 @@ const menus = [
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top custom-navbar">
-    <div class="container-fluid align-items-center flex-wrap">
-      <!-- brand / tagline -->
-      <router-link class="navbar-brand fw-bold text-primary me-2" to="/">Workly</router-link>
+  <nav class="okky-navbar navbar fixed-top bg-white shadow-sm px-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+
+      <router-link to="/" class="navbar-brand text-primary fw-bold">Workly</router-link>
       <span class="tagline d-none d-md-inline text-muted me-4 flex-shrink-1 text-wrap">
       미래를 준비하는 사람들을 위한 사이트
       </span>
 
-      <!-- mobile toggler -->
-      <button class="navbar-toggler" type="button" @click="toggleMobileMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- main menu (collapsible) -->
-      <div
-          class="collapse navbar-collapse"
-          :class="{ show: showMobileMenu }"
-          @click.outside="closeAllDropdown"
-      >
-        <ul class="navbar-nav align-items-center gap-3">
-          <!-- 1depth dropdowns -->
-          <li
-              v-for="(m, idx) in menus"
-              :key="m.label"
-              class="nav-item dropdown position-relative"
-              :class="{ show: openDropdownIdx === idx }"
-              @click.stop="toggleDropdown(idx)"
-          >
-            <a class="nav-link fw-bold dropdown-toggle" href="#" role="button">
-              {{ m.label }}
-            </a>
-            <div
-                class="dropdown-menu p-3 shadow rounded-4"
-                :class="{ show: openDropdownIdx === idx }"
+      <ul class="nav d-none d-md-flex gap-3">
+        <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
+          <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
+            {{ m.label }}
+          </a>
+          <div class="dropdown-menu rounded shadow-sm small p-2" :class="{ show: openDropdownIdx === idx }">
+            <router-link
+                v-for="item in m.items"
+                :key="item.href"
+                class="dropdown-item d-flex flex-column"
+                :to="item.href"
             >
-              <template v-for="item in m.items" :key="item.href">
-                <router-link class="dropdown-item fw-bold d-flex flex-column mb-2" :to="item.href">
-                  <span class="d-flex align-items-center mb-1">
-                    <i :class="item.icon + ' me-2'" />
-                    {{ item.title }}
-                  </span>
-                  <small class="text-muted">{{ item.desc }}</small>
-                </router-link>
-              </template>
-            </div>
-          </li>
-        </ul>
-      </div>
+              <span class="fw-bold">{{ item.title }}</span>
+              <small class="text-muted">{{ item.desc }}</small>
+            </router-link>
+          </div>
+        </li>
+      </ul>
+
 
       <div class="d-flex align-items-center ms-auto gap-3 position-relative">
-        <!-- notification bell -->
+        <!-- 알림 -->
         <div class="position-relative me-2">
           <i class="fas fa-bell fa-lg text-secondary" style="cursor:pointer" @click="toggleNoti" />
-          <span v-if="notifications.length" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">
-      !
-    </span>
+          <span v-if="unreadCount() > 0" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">!</span>
 
-          <!-- dropdown list -->
           <div class="notification-dropdown dropdown-menu shadow rounded p-3" :class="{ show: showNoti }">
-            <ul class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
+            <ul v-if="notifications.length" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
               <li v-for="n in notifications" :key="n.id" class="py-2 border-bottom">
-                <router-link :to="`/search/view/feed/id?id=${n.feedUID}`" class="text-decoration-none">
+                <router-link :to="'/search/view/feed/id/' + n.feedUID" class="text-decoration-none">
                   {{ n.message }}
                 </router-link>
               </li>
-              <li v-if="!notifications.length" class="text-muted text-center py-3">알림이 없습니다</li>
+            </ul>
+            <ul v-else class="list-unstyled mb-0 small text-muted text-center py-3">
+              <li>알림이 없습니다</li>
             </ul>
             <div class="text-center mt-3">
               <button class="btn w-100 py-2 fw-semibold shadow-sm border-0 text-white"
-                      style="background: linear-gradient(90deg, #4a90e2, #007aff); border-radius: 12px;"
+                      style="background:linear-gradient(90deg,#4a90e2,#007aff);border-radius:12px;"
                       @click="router.push('/notifications')">
                 전체 보기
               </button>
@@ -214,7 +305,7 @@ const menus = [
             </button>
             <div class="dropdown-menu dropdown-menu-end mt-2" :class="{ show: showUserMenu }">
               <span class="dropdown-item-text text-secondary"><b>{{ username }}</b>님</span>
-              <router-link class="dropdown-item" to="/search/view/feed/mypage">
+              <router-link class="dropdown-item" to="/search/view/feed/list/page">
                 <i class="fas fa-user me-2" /> 마이페이지
               </router-link>
               <button class="dropdown-item text-danger" @click="logout">
@@ -227,7 +318,6 @@ const menus = [
     </div>
   </nav>
 </template>
-
 <style scoped>
 .custom-navbar {
   font-size: 1.05rem;
@@ -249,6 +339,47 @@ const menus = [
   max-height: 320px;
   overflow: auto;
   right: 0;
+}
+.okky-navbar {
+  font-size: 0.95rem;
+  z-index: 1040;
+  border-bottom: 1px solid #eee;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.okky-navbar .nav-link {
+  color: #333;
+  transition: color 0.2s;
+}
+.okky-navbar .nav-link:hover {
+  color: #007bff;
+}
+
+.dropdown-menu {
+  min-width: 200px;
+  transition: all 0.2s;
+  border-radius: 12px;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.btn-sm {
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+.badge-noti {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
 }
   .dropdown-menu {
     top: 100% !important;

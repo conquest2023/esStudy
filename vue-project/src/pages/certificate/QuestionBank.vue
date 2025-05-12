@@ -170,6 +170,10 @@ async function loadTagQuestions(tagId) {
     localStorage.setItem('questions', JSON.stringify(data.DTOS))
     localStorage.setItem('category', `tag_${tagId}`)
     localStorage.setItem('round', '태그 문제')
+
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+
     window.location.href = '/search/view/practical/question'
   } catch (e) {
     alert('태그 문제를 불러오지 못했습니다.')
