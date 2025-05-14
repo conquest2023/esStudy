@@ -177,7 +177,7 @@ function removeImage(index) {
 
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:8080/search/view/feed/save', {
+      const res = await fetch('/api/search/view/feed/save', {
         method: 'POST',
         body: formData,
         headers: { Authorization: `Bearer ${token}` }
@@ -186,7 +186,7 @@ function removeImage(index) {
       console.log(data)
       if (data.success) {
         alert("게시글이 성공적으로 작성되셨습니다.")
-        router.push(data.redirectUrl)
+        router.push("/")
       } else {
         throw new Error(data.error || '등록 실패')
       }
@@ -201,7 +201,7 @@ onMounted(async () => {
     if (!token) return
 
     try {
-      const res = await fetch('http://localhost:8080/auth/status', {
+      const res = await fetch('/api/auth/status', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()

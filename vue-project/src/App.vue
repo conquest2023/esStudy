@@ -11,7 +11,7 @@ import { useUserStore } from '@/stores/user'
 import { useSSE } from '@/composables/useSSE'
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useRoute } from 'vue-router'
-import NavBar from '@/components/common/NavBar.vue'
+import NavBar from '@/components/common/Navbar.vue'
 import RightSidebar from '@/components/sidebar/RightSidebar.vue'
 import {computed} from "vue";
 

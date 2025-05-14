@@ -46,7 +46,7 @@ async function handleSubCategory(certName) {
   showTipBtn.value = true
 
   const token = localStorage.getItem('token')
-  const { data } = await axios.get(`http://localhost:8080/certificate/schedule/${encodeURIComponent(certName)}`, {
+  const { data } = await axios.get(`/certificate/schedule/${encodeURIComponent(certName)}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
 

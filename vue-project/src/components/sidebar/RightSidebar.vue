@@ -72,12 +72,13 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button"
-                    :class="{ collapsed: !showVisitor }"
-                    @click="showVisitor = !showVisitor">
+                    :class="{ collapsed: activeAccordion !== 'visitor' }"
+                    @click="toggleAccordion('visitor')">
               👥 방문자 통계
             </button>
           </h2>
-          <div class="accordion-collapse" :class="{ collapse: true, show: showVisitor }">
+          <div class="accordion-collapse"
+               :class="{ collapse: true, show: activeAccordion === 'visitor' }">
             <div class="accordion-body small">
               <p>현재 접속자: {{ visitorStats.active }}</p>
               <p>오늘 방문자: {{ visitorStats.today }}</p>
@@ -90,12 +91,13 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button"
-                    :class="{ collapsed: !showTopWriters }"
-                    @click="showTopWriters = !showTopWriters">
+                    :class="{ collapsed: activeAccordion !== 'writers' }"
+                    @click="toggleAccordion('writers')">
               🏆 Top 5 기여자
             </button>
           </h2>
-          <div class="accordion-collapse" :class="{ collapse: true, show: showTopWriters }">
+          <div class="accordion-collapse"
+               :class="{ collapse: true, show: activeAccordion === 'writers' }">
             <div class="accordion-body small">
               <div v-if="!topWriters.length" class="text-muted text-center">데이터가 없습니다</div>
               <div v-for="(w, idx) in topWriters" :key="w.username"
@@ -112,27 +114,20 @@
 </template>
 
 <script setup>
-import { ref, computed ,watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useSidebarData } from '@/composables/useSidebarData'
 import { useRoute } from 'vue-router'
 
 
-// const {
-//   dDayList,
-//   todoList,
-//   todoProgress,
-//   visitorStats,
-//   topWriters
-// } = useSidebarData()
 
 const showVisitor = ref(true)
 const showTopWriters = ref(false)
 const collapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 
-// 상태가 바뀔 때마다 localStorage에 저장
 watch(collapsed, val => {
   localStorage.setItem('sidebarCollapsed', val.toString())
 })
+
 const tabs = [
   { id:'todo',     label:'📋 Todo & D‑Day' },
   { id:'calendar', label:'📅 캘린더' }
@@ -140,19 +135,28 @@ const tabs = [
 const route = useRoute()
 const isFeedMainPage = computed(() => route.path === '/')
 const currentTab = ref('todo')
-let dDayList = ref([])
-let todoList = ref([])
-let todoProgress = ref(0)
-let visitorStats = ref({})
-let topWriters = ref([])
+const {
+  dDayList,
+  todoList,
+  todoProgress,
+  visitorStats,
+  topWriters,
+  fetchSidebarData
+} = useSidebarData()
 
-if (isFeedMainPage.value) {
-  const data = useSidebarData()
-  dDayList = data.dDayList
-  todoList = data.todoList
-  todoProgress = data.todoProgress
-  visitorStats = data.visitorStats
-  topWriters = data.topWriters
+onMounted(() => {
+  if (isFeedMainPage.value) {
+    fetchSidebarData()
+  }
+})
+const activeAccordion = ref('visitor')  // 'visitor' or 'writers'
+
+function toggleAccordion(tab) {
+  if (activeAccordion.value === tab) {
+    activeAccordion.value = null
+  } else {
+    activeAccordion.value = tab
+  }
 }
 function statusIcon (s) { return s==='DONE' ? '✅': s==='IN_PROGRESS'?'⏳':'📝' }
 function rankIcon   (i) { return ['👑','🥇','🥈','🥉'][i] || `${i+1}.` }
@@ -193,7 +197,6 @@ function rankIcon   (i) { return ['👑','🥇','🥈','🥉'][i] || `${i+1}.` }
 }
 
 
-/* ✅ 모바일 환경에도 토글버튼만 보이게 하고 사이드바는 숨김 */
 @media (max-width: 991.98px) {
   .right-sidebar {
     display: block !important;

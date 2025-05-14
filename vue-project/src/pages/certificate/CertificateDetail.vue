@@ -66,7 +66,7 @@ onMounted(async () => {
   }
 
   try {
-    const { data } = await axios.get('http://localhost:8080/search/content', { params: { text } })
+    const { data } = await axios.get('/search/content', { params: { text } })
     contentList.value = data.data || []
     pageTitle.value = `"${text}" 관련 자료 (${contentList.value.length}개)`
   } catch (err) {

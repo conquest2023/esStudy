@@ -109,7 +109,7 @@ function selectMiddle(middle) {
 async function fetchSubCategories(major, middle) {
   const token = localStorage.getItem('token')
   try {
-    const { data } = await axios.get(`http://localhost:8080/certificate/category/${major}/${middle}`, {
+    const { data } = await axios.get(`/certificate/category/${major}/${middle}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     subCategories.value = data.certSchedule || []

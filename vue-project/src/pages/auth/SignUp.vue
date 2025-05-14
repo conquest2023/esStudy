@@ -83,9 +83,9 @@ async function submit() {
     return
   }
   try {
-    await api.post('/signup/pass', form)
+    await api.post('/api/signup/pass', form)
     alert('회원가입 성공!')
-    router.push('/login')
+    router.push('/api/login')
   } catch (e) {
     errorMessage.value = '회원가입 실패. 다시 시도해주세요.'
   }

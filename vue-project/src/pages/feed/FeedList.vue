@@ -1,7 +1,6 @@
 <!-- src/pages/feed/FeedList.vue -->
 <template>
   <section class="board-wrap">
-    <!-- 검색 바 -->
     <SearchBar class="mb-3" />
 
 
@@ -76,26 +75,26 @@
         </li>
       </ul>
     </div>
+    <!-- 📢 공지 -->
     <FeedCard
         v-for="n in notices"
         :key="n.feedUID"
         :post="n"
         notice
-        @click="goDetail(n)"
         class="mb-2"
     />
 
 
-    <!-- 📝 일반 피드 글 -->
     <FeedCard
         v-for="p in posts"
         :key="p.feedUID"
         :post="p"
+        :is-vote="!p.id"
         :comment-count="counts[p.feedUID]"
-        @click="goDetail(p)"
+        class="mb-2"
     />
 
-    <!-- 📄 페이지네이션 -->
+
     <Pagination
         :page="page"
         :totalPages="totalPage"
@@ -147,7 +146,6 @@ import Spinner                   from '@/components/Spinner.vue'
       itQs.value  = data.filter(q => q.category === 'IT')
       genQs.value = data.filter(q => q.category === '일반')
 
-      // 여기서 curIdx 초기화 해줘야 curQuestion이 잡힘
       curIdx.value = 0
     } catch (e) {
       console.error('면접 질문 로드 실패', e)
@@ -162,7 +160,7 @@ import Spinner                   from '@/components/Spinner.vue'
     if(!token) return alert('로그인이 필요합니다')
 
     try{
-      await api.post('/save/interview/question',{
+      await api.post('/api/save/interview/question',{
         questionId : curQuestion.value.id,
         answer     : txt,
         title      : curQuestion.value.question,
@@ -215,8 +213,6 @@ import Spinner                   from '@/components/Spinner.vue'
     { id: 'QNA', label: 'Q&A', url: '/data/feed', category: 'Q/A' }
   ]
   const dataCategories = ['자료', '기술', '취업', '자격증'];
-
-  // 📦 상태 변수들
   const activeTab  = ref('ALL')
   const selectedCategory = ref('자료')
   const loading    = ref(false)
@@ -241,6 +237,7 @@ import Spinner                   from '@/components/Spinner.vue'
     }
   }
   async function fetchFeeds(newPage = 0) {
+
     const tab = TABS.find(t => t.id === activeTab.value)
     if (!tab) return
 
@@ -250,10 +247,14 @@ import Spinner                   from '@/components/Spinner.vue'
     const params = { page: newPage, size: 10 }
     if (tab.category) params.category = tab.category
     if (tab.id === 'DATA') params.category = selectedCategory.value
-
     try {
       const { data } = await api.get(tab.url, { params })
-      posts.value = data.data ?? []
+      const allPosts = [...(data.data ?? []), ...(data.vote ?? [])]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10)  // ✨ 최신순 정렬 후 상위 10개만 자르기
+
+      posts.value = allPosts
+      counts.value = data.count ?? {}
       totalPage.value = data.totalPage ?? 0
       counts.value = data.count ?? {}
 
@@ -298,7 +299,7 @@ import Spinner                   from '@/components/Spinner.vue'
     }
   }
   onMounted(() => {
-    fetchPage(0)
+    fetchFeeds(0)
     fetchNotice()
   })
 

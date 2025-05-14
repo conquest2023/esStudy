@@ -23,7 +23,7 @@
             카카오 로그인
           </button>
 
-          <button type="button" class="btn w-100 d-flex align-items-center justify-content-center" @click="goOAuth('/naver')" style="background-color: #05bf18; color: #fff; font-weight: bold">
+          <button type="button" class="btn w-100 d-flex align-items-center justify-content-center" @click="goOAuth('/api/naver')" style="background-color: #05bf18; color: #fff; font-weight: bold">
             <img src="/naver.png" alt="네이버 로그인" style="height: 24px; margin-right: 8px" />
             네이버 로그인
           </button>
@@ -61,7 +61,7 @@ function handleLogin() {
   }
 
   axios
-      .post('http://localhost:8080/authlogin', {
+      .post('/api/authlogin', {
         userId: userId.value,
         password: password.value
       })

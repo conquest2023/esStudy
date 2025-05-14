@@ -85,7 +85,7 @@ const tabs = [
 
 async function fetchMyPageData() {
   const headers = { Authorization: `Bearer ${token}` }
-  const res = await fetch('http://localhost:8080/mypage', { headers })
+  const res = await fetch('/mypage', { headers })
   const data = await res.json()
   user.value = data
   stats.value[0].value = data.feedCount
@@ -95,7 +95,7 @@ async function fetchMyPageData() {
 }
 
 async function fetchFeedList() {
-  const res = await fetch(`http://localhost:8080/mypage/feed/paging?page=0&size=10`, {
+  const res = await fetch(`/mypage/feed/paging?page=0&size=10`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()

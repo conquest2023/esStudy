@@ -1,10 +1,33 @@
 <template>
   <section v-if="loaded" class="container my-4 pt-navbar">
-
-  <!--    <div v-if="data.Owner">-->
-<!--      <button class="btn btn-sm btn-danger">삭제</button>-->
-<!--    </div>-->
-    <!-- ─── 글 카드 ─────────────────────────────────────────── -->
+    <div v-if="isOwner" class="text-end mb-2">
+      <div class="dropdown d-none d-md-inline">
+        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" @click="goEdit">
+              <i class="fas fa-edit me-2"></i>수정
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-danger" @click="onDelete">
+              <i class="fas fa-trash me-2"></i>삭제
+            </a>
+          </li>
+        </ul>
+      </div>
+      <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"
+              style="bottom:80px;right:24px;width:56px;height:56px;"
+              data-bs-toggle="dropdown" data-bs-target="#fabMenu">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">
+        <li><a class="dropdown-item" @click="goEdit">수정</a></li>
+        <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>
+      </ul>
+    </div>
     <div class="card shadow-sm feed-card">
       <div class="card-body">
         <h2 class="feed-title">{{ feed.title }}</h2>
@@ -107,24 +130,37 @@ import { useToast } from '@/composables/useToast'
   const sending    = ref(false)
   const reloadTrigger = ref(0)
   const login      = computed(() => !!store.token)
+  const isOwner = computed(() => feed.value?.Owner === true)
+
+
   function linkify(text = '') {
     const urlRegex = /(https?:\/\/[^\s]+)/g
     return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
   }
-  console.log(login)
+
 
   onMounted(async () => {
     try {
-      const { data } = await api.get('http://localhost:8080/detail', { params: { id } })
-
-      console.log(data)
-      feed.value       = data.data
+      const { data } = await api.get('/detail', { params: { id } })
+      feed.value = {
+        ...data.data,
+        Owner: data.Owner // 👈 이거 추가
+      }
       feedHtml.value   = convertLinks(data.data.description || '').replace(/\n/g, '<br>')
       comments.value   = data.comment || []
       replies.value    = data.replies || {}
       liked.value      = data.isLiked
       likeCount.value  = data.data.likeCount || 0
       loaded.value     = true
+
+      fetch('/api/increaseViewCount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id })   // feedUID
+      }).catch(e => console.error('조회수 증가 실패', e))
+
+
     } catch (e) {
       push('게시글을 불러오지 못했습니다.')
       router.replace('/')
@@ -187,7 +223,22 @@ import { useToast } from '@/composables/useToast'
       sending.value = false
     }
   }
-
+function goEdit(){
+  router.push({
+    path:'/search/view/feed/update', query:{ id:feed.value.feedUID}
+      }
+  )}
+  async function onDelete(){
+    if(!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
+    try{
+    await api.post('/search/view/feed/delete',{ id:feed.value.id })
+      push('게시글이 삭제되었습니다')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      router.push('/')
+    } catch(e){
+      push('삭제 중 오류 발생')
+    }
+  }
   async function delComment(c){
       if(!confirm('삭제할까요?')) return
       await api.post('/search/view/comment/delete', null, { params:{ id:c.commentUID, feedUID:id }})

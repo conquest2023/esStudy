@@ -147,7 +147,7 @@ async function loadQuestions(sessionNum) {
   const round = `${selectedYear.value}_${sessionNum}회`
 
   try {
-    const { data } = await axios.get('http://localhost:8080/practical', {
+    const { data } = await axios.get('/practical', {
       params: { category, round },
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -163,7 +163,7 @@ async function loadQuestions(sessionNum) {
 async function loadTagQuestions(tagId) {
   const token = localStorage.getItem('token')
   try {
-    const { data } = await axios.get(`http://localhost:8080/practical/tag`, {
+    const { data } = await axios.get(`/practical/tag`, {
       params: { tagId },
       headers: { Authorization: `Bearer ${token}` }
     })

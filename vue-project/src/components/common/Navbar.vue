@@ -1,42 +1,22 @@
 <script setup>
-import { ref, onMounted,watch } from 'vue'
+import { ref, onMounted,watch ,computed} from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/utils/api'
-
+import { useUserStore } from '@/stores/user'
 const router = useRouter()
+const store   = useUserStore()
 const showMobileMenu   = ref(false)
 const openDropdownIdx  = ref(null)
 const showNoti         = ref(false)
 const showUserMenu     = ref(false)
-const notifications = ref(
-    JSON.parse(localStorage.getItem('notifications') ?? '[]')  // [{id, feedUID, message, read}]
-)
+const notifications = computed(() => store.notifications)
 
 const loggedIn = ref(false)
 const username = ref('')
-
-// onMounted(async () => {
-//   await fetchAuth()
-//   if (loggedIn.value) {
-//      connectSSE()
-//     }})
-//
-// watch(() => notifications.value, (val) => {
-//   localStorage.setItem('notifications', JSON.stringify(val))
-// }, { deep: true })
+let   es = null
 onMounted(async () => {
   await fetchAuth()
 })
-
-let eventSource = null
-watch(loggedIn, (v) => {
-  if (v) connectSSE()
-  else if (eventSource) {
-    eventSource.close()
-    eventSource = null
-  }
-}, { immediate: true })
-
 watch(notifications, (val) => {
   localStorage.setItem('notifications', JSON.stringify(val))
 }, { deep: true })
@@ -44,7 +24,7 @@ watch(notifications, (val) => {
 async function fetchAuth () {
   const token = localStorage.getItem('token')
   if (!token) {
-    loggedIn.value = false
+     loggedIn.value = false
     return
   }
   try {
@@ -57,21 +37,23 @@ async function fetchAuth () {
 }
 
 function unreadCount () {
-   return notifications.value.filter(n => !n.read).length
-      }
+  return notifications.value.filter(n => !n.read).length
+}
+
 
 function toggleNoti () {
   showNoti.value = !showNoti.value
-        if (showNoti.value) {
-            notifications.value.forEach(n => { n.read = true })
-     }
+  if (showNoti.value) {
+    notifications.value = notifications.value.map(n => ({ ...n, read: true }))
+  }
 }
+
 
 async function fetchNotifications() {
   const token = localStorage.getItem("token")
   if (!token) return
   try {
-    const res = await fetch("http://localhost:8080/notifications/all", {
+    const res = await fetch("/notifications/all", {
       headers: { Authorization: `Bearer ${token}` }
     })
     const data = await res.json()
@@ -90,36 +72,6 @@ function logout () {
   username.value = ''
   router.push('/login')
 }
-
-function connectSSE () {
-  const token = localStorage.getItem('token')
-  if (!token) return
-
-  if (eventSource && eventSource.readyState !== EventSource.CLOSED) return
-
-  const url = `/subscribe?token=${encodeURIComponent(token)}` // vite proxy 사용
-  eventSource = new EventSource(url)
-
-  eventSource.onopen  = () => console.log('[SSE] 연결됨')
-  eventSource.onerror = () => {
-    console.warn('[SSE] 끊김 – 5초 뒤 재연결')
-    eventSource.close()
-    eventSource = null
-    setTimeout(connectSSE, 5000)
-  }
-
-  eventSource.onmessage = (e) => {
-    console.log('[SSE] 기본 메시지', e.data)
-    addFeedNotification(e.data)
-  }
-
-  ;['comment-notification', 'todo-notification', 'reply-notification', 'notice-notification']
-      .forEach(type => eventSource.addEventListener(type, e => addFeedNotification(e.data)))
-}
-
-
-
-
 function updateTodoAlert(message) {
   const todoAlert = document.getElementById("todo-alert")
   if (todoAlert) todoAlert.innerText = message
@@ -138,7 +90,7 @@ function addFeedNotification (jsonMessage) {
     { id: Date.now(), feedUID, message, read: false },
     ...notifications.value
   ]
-
+  console.log('👉 파싱 결과:', parsed)
   showToast(message, feedUID)
 }
 
@@ -270,9 +222,17 @@ const menus = [
           <span v-if="unreadCount() > 0" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">!</span>
 
           <div class="notification-dropdown dropdown-menu shadow rounded p-3" :class="{ show: showNoti }">
-            <ul v-if="notifications.length" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
-              <li v-for="n in notifications" :key="n.id" class="py-2 border-bottom">
-                <router-link :to="'/search/view/feed/id/' + n.feedUID" class="text-decoration-none">
+            <ul v-if="notifications.some(n => !n.read)" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
+              <li
+                  v-for="n in notifications.filter(n => !n.read)"
+                  :key="n.id"
+                  class="py-2 border-bottom"
+              >
+                <router-link
+                    :to="'/search/view/feed/id/' + n.feedUID"
+                    class="text-decoration-none"
+                    @click="n.read = true"
+                >
                   {{ n.message }}
                 </router-link>
               </li>

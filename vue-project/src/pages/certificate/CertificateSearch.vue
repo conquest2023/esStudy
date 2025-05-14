@@ -75,7 +75,7 @@ if (!token) {
   window.location.href = '/login'
 }
 
-fetch('http://localhost:8080/certificate/top5', {
+fetch('/certificate/top5', {
   headers: { Authorization: `Bearer ${token}` }
 })
     .then(res => res.json())
@@ -85,7 +85,7 @@ fetch('http://localhost:8080/certificate/top5', {
 
 const fetchSuggestions = async () => {
   if (query.value.length < 2) return
-  const res = await fetch(`http://localhost:8080/search/certificate?text=${encodeURIComponent(query.value)}`, {
+  const res = await fetch(`/search/certificate?text=${encodeURIComponent(query.value)}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()
@@ -101,7 +101,7 @@ function selectSuggestion(name) {
 }
 
 async function submitSearch() {
-  const res = await fetch(`http://localhost:8080/search/certificate?text=${encodeURIComponent(query.value)}`, {
+  const res = await fetch(`/search/certificate?text=${encodeURIComponent(query.value)}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()
