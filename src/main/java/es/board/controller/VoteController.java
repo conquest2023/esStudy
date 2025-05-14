@@ -19,6 +19,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api")
 public class VoteController {
 
     private final VoteService voteService;

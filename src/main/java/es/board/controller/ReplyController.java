@@ -19,6 +19,8 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api")
+
 public class ReplyController {
 
     private final ReplyService replyService;

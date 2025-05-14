@@ -1893,51 +1893,6 @@
     // document.getElementById("toggleDarkMode").addEventListener("click", () => {
     //     document.body.classList.toggle("dark-mode");
     // });
-    function openAllNotificationsModal() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-        fetch("/notifications/all", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById("allNotificationsContent");
-                container.innerHTML = "";
-
-                if (data.length === 0) {
-                    container.innerHTML = "<p class='text-muted text-center'>알림이 없습니다.</p>";
-                } else {
-                    data.forEach(noti => {
-                        const item = document.createElement("div");
-                        item.className = "border-bottom py-2";
-
-                        const feedLink = noti.feedUID
-                            ? `<a href="/search/view/feed/id?id=${noti.feedUID}" class="text-decoration-none fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</a>`
-                            : `<span class="fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</span>`;
-
-                        item.innerHTML = `
-                        ${feedLink}
-                        <div class="text-muted small">${new Date(noti.createdAt).toLocaleString()}</div>
-                    `;
-                        container.appendChild(item);
-                    });
-                }
-
-                const modal = new bootstrap.Modal(document.getElementById("allNotificationsModal"));
-                modal.show();
-            })
-            .catch(err => {
-                console.error("전체 알림 불러오기 실패", err);
-                alert("알림 데이터를 불러오지 못했습니다.");
-            });
-    }
-
 
     function toggleInterviewPanel() {
         const panel = document.getElementById("interviewPanel");
@@ -2519,66 +2474,6 @@
             }
         });
     }
-
-    // let categorizedQuestions = {
-    //     "IT": [],
-    //     "일반": []
-    // };
-    // document.addEventListener("DOMContentLoaded", function() {
-    //     fetch("/interview/random")
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             if (data && data.question) {
-    //                 data.question.forEach(q => {
-    //                     if (q.category === "IT") {
-    //                         categorizedQuestions["IT"].push(q.question);
-    //                     } else if (q.category === "일반") {
-    //                         categorizedQuestions["일반"].push(q.question);
-    //                     }
-    //                 });
-    //             }
-    //
-    //             showInterviewQuestion("IT");
-    //             setActiveTab("IT");
-    //         })
-    //         .catch(error => console.error("면접 질문 로드 실패:", error));
-    // });
-    // function showQuestions(category) {
-    //     showInterviewQuestion(category);
-    //     setActiveTab(category);
-    // }
-    //
-    // function showInterviewQuestion(category) {
-    //     const container = document.getElementById("interviewQuestionContainer");
-    //     const questionsArray = categorizedQuestions[category];
-    //
-    //     const questionToShow = (questionsArray && questionsArray.length > 0)
-    //         ? questionsArray[0]
-    //         : "질문 없음";
-    //
-    //     container.style.display = "flex";
-    //     container.style.height = "auto";
-    //
-    //     container.innerHTML = `
-    //       <div class="interview-card w-100 p-3 border rounded shadow-sm bg-white d-flex flex-column">
-    //         <div class="mb-2 text-primary fw-bold" style="font-size: 1.1rem;">
-    //             예상 면접 질문
-    //         </div>
-    //         <div class="text-dark" style="font-size: 1rem; word-break: keep-all;">
-    //             <a href="/interview/question" class="text-decoration-none text-dark">
-    //                 ${questionToShow}
-    //             </a>
-    //         </div>
-    //       </div>
-    //     `;
-    //
-    // }
-    // function setActiveTab(category) {
-    //     document.getElementById("itTab").classList.toggle("active", category === "IT");
-    //     document.getElementById("generalTab").classList.toggle("active", category === "일반");
-    // }
-    //
-
     document.addEventListener("DOMContentLoaded", function () {
         if( isMobile()){
             renderMiniCalendarMobile()
@@ -2959,7 +2854,6 @@
                     .slice(0, 10);
         let normalPosts = "";
         sortedPosts.forEach(post => {
-            // let isPinned = post.pinned === true;
             let rank = topWriters[post.username] || 0;
             let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
 
@@ -3428,7 +3322,50 @@
     //         })
     //         .catch(error => console.error("Todo 개수 불러오기 실패:", error));
     // });
+    function openAllNotificationsModal() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+        fetch("/notifications/all", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("allNotificationsContent");
+                container.innerHTML = "";
 
+                if (data.length === 0) {
+                    container.innerHTML = "<p class='text-muted text-center'>알림이 없습니다.</p>";
+                } else {
+                    data.forEach(noti => {
+                        const item = document.createElement("div");
+                        item.className = "border-bottom py-2";
+
+                        const feedLink = noti.feedUID
+                            ? `<a href="/search/view/feed/id?id=${noti.feedUID}" class="text-decoration-none fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</a>`
+                            : `<span class="fw-bold">${noti.username}님이 ${noti.message} 라고 보내셨습니다</span>`;
+
+                        item.innerHTML = `
+                        ${feedLink}
+                        <div class="text-muted small">${new Date(noti.createdAt).toLocaleString()}</div>
+                    `;
+                        container.appendChild(item);
+                    });
+                }
+
+                const modal = new bootstrap.Modal(document.getElementById("allNotificationsModal"));
+                modal.show();
+            })
+            .catch(err => {
+                console.error("전체 알림 불러오기 실패", err);
+                alert("알림 데이터를 불러오지 못했습니다.");
+            });
+    }
     document.addEventListener("DOMContentLoaded", () => {
 
         const notificationIcon = document.getElementById("notificationIcon");

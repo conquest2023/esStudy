@@ -32,6 +32,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Controller
+@RequestMapping("/api")
+
 public class MainFeedController {
 
 

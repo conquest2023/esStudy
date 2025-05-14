@@ -20,6 +20,8 @@ import java.util.Map;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/api")
+
 public class CommentController {
 
     private final CommentService commentService;

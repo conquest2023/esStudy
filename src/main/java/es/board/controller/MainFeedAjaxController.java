@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/api")
+
 @Slf4j
 public class MainFeedAjaxController {
 

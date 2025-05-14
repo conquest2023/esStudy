@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.repository.entity.Notification;
 import es.board.service.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api")
+
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -35,8 +38,7 @@ public class NotificationController {
 //        return notificationService.subscribe(jwtTokenProvider.getUserId(token));
 //    }
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token) {
-        log.info("NotificationDTO Subscription 컨트롤러");
+    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token, HttpServletResponse res) {
         if (token != null) {
             String userId = jwtTokenProvider.getUserId(token);
             SseEmitter emitter = notificationService.subscribe(userId);

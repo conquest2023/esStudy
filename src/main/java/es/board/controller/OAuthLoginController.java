@@ -53,6 +53,7 @@ public class OAuthLoginController {
 
     @GetMapping("/naver")
     public ResponseEntity<Void> naverLoginRedirect(HttpSession session) {
+        log.info(session.toString());
         String state = UUID.randomUUID().toString();
         session.setAttribute("oauth_state", state);
         String url = "https://nid.naver.com/oauth2.0/authorize?" +

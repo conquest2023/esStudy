@@ -24,6 +24,10 @@ public class AlertConsumer {
 
     @RabbitListener(queues = RabbitMQQueue.QUEUE_ALERT)
     public void receive(FeedEvent event) {
+        if (event == null || event.getPostOwnerId() == null || event.getCommenterId() == null) {
+            log.warn("수신된 FeedEvent가 null이거나 필드가 null입니다: {}", event);
+            return;
+        }
         if (!event.getPostOwnerId().equals(event.getCommenterId())) {
             log.info("댓글 이벤트 발행됨: {}", event);
             notificationService.sendCommentNotification(

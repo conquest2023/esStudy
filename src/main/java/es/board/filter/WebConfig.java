@@ -16,15 +16,15 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173") // Vue 개발 서버 주소
+                .allowedOrigins("https://workly.info")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedMethods("*")
-                .allowedHeaders("*")
                 .allowCredentials(true);
     }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionLimitInterceptor)
-                .addPathPatterns("/")
+                .addPathPatterns("/**")
                 .excludePathPatterns("/public/**");
 
     }

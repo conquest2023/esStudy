@@ -16,6 +16,8 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/api")
+
 public class NoticeController {
 
     private final JwtTokenProvider jwtTokenProvider;

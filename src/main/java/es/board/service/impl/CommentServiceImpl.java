@@ -108,7 +108,7 @@ public class CommentServiceImpl implements CommentService {
                 .createdAt(dto.getCreatedAt())
                 .build();
 
-
+        log.info(event.toString());
         commentEventPublisher.publishCommentEvent(event);
 
 //        if (userId!= null && !userId.equals(dto.getUserId())) {

@@ -18,6 +18,8 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api")
+
 public class CalenderController {
 
     private  final JwtTokenProvider jwtTokenProvider;

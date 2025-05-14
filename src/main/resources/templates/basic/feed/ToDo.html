@@ -690,60 +690,7 @@
                 });
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const token = localStorage.getItem("token");
-                fetch("/day", {
-                    method: "GET",
-                    headers: {"Authorization": "Bearer " + token}
-                })
-                    .then(response => {
-                        if (!response.ok) throw new Error("D-DAY 목록 불러오기 실패");
-                        return response.json();
-                    })
-                        .then(data => {
-                            const dDayArray = data.D_Day;
-                            const dDayTbody = document.getElementById("dDay-table-body");
-                            dDayTbody.innerHTML = "";
-                            if (!dDayArray || dDayArray.length === 0) {
-                                dDayTbody.innerHTML = `
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    등록된 D-DAY가 없습니다.
-                                </td>
-                            </tr>
-                        `;
-                            return;
-                        }
 
-                        dDayArray.forEach(dd => {
-                            let dDayText = "D-" + dd.dday;
-                            if (dd.dday < 0) {
-                                dDayText = "시험 지남";
-                            } else if (dd.dday === 0) {
-                                dDayText = "시험 당일!";
-                            }
-
-                            const row = `
-                            <tr>
-                                <td>${dd.examName}</td>
-                                <td>${dd.examDate}</td>
-                                <td><strong>${dDayText}</strong></td>
-                                <td>${dd.goal || ""}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteDDay(${dd.id})">
-                                        삭제
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                            dDayTbody.innerHTML += row;
-                        });
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        // alert("D-DAY 목록을 가져올 수 없습니다.");
-                    });
-            })
     document.addEventListener("DOMContentLoaded", function () {
         loadProjects();
 
@@ -776,6 +723,60 @@
             });
         });
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        fetch("/day", {
+            method: "GET",
+            headers: {"Authorization": "Bearer " + token}
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("D-DAY 목록 불러오기 실패");
+                return response.json();
+            })
+            .then(data => {
+                const dDayArray = data.D_Day;
+                const dDayTbody = document.getElementById("dDay-table-body");
+                dDayTbody.innerHTML = "";
+                if (!dDayArray || dDayArray.length === 0) {
+                    dDayTbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    등록된 D-DAY가 없습니다.
+                                </td>
+                            </tr>
+                        `;
+                    return;
+                }
+
+                dDayArray.forEach(dd => {
+                    let dDayText = "D-" + dd.dday;
+                    if (dd.dday < 0) {
+                        dDayText = "시험 지남";
+                    } else if (dd.dday === 0) {
+                        dDayText = "시험 당일!";
+                    }
+
+                    const row = `
+                            <tr>
+                                <td>${dd.examName}</td>
+                                <td>${dd.examDate}</td>
+                                <td><strong>${dDayText}</strong></td>
+                                <td>${dd.goal || ""}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteDDay(${dd.id})">
+                                        삭제
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    dDayTbody.innerHTML += row;
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                // alert("D-DAY 목록을 가져올 수 없습니다.");
+            });
+    })
     function deleteDDay(id) {
         const token = localStorage.getItem("token");
         // if (!token) {

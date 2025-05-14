@@ -17,6 +17,8 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/api")
+
 public class JobSiteLogController {
 
     private final JobSiteLogService jobSiteLogService;

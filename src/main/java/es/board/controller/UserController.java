@@ -27,6 +27,7 @@ import java.util.Optional;
 
 @Controller
 @Slf4j
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 

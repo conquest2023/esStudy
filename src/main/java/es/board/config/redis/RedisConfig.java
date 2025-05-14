@@ -16,7 +16,7 @@ import java.util.List;
 public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("112.171.249.163", 30007));
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("192.168.0.4", 30007));
     }
 
     @Bean

@@ -16,6 +16,8 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequestMapping("/api")
+
 @RequiredArgsConstructor
 public class QuestionController {
 

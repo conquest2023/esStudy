@@ -35,7 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
     @Override
     public SseEmitter subscribe(String userId) {
-        SseEmitter emitter = new SseEmitter(60 * 100L);
+        SseEmitter emitter = new SseEmitter(60 * 1000L);
         emitters.put(userId, emitter);
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
