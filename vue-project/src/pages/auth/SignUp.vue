@@ -47,7 +47,15 @@
                  placeholder="비밀번호 입력" pattern="^(?=.*[a-zA-Z])(?=.*\d).{8,}$"
                  title="비밀번호는 영문, 숫자를 포함해 8자 이상이어야 합니다." required />
         </div>
-
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label">비밀번호 확인</label>
+          <input v-model="form.confirmPassword" type="password" id="confirmPassword" class="form-control"
+                 placeholder="비밀번호 확인" required />
+          <small v-if="form.confirmPassword && form.confirmPassword !== form.password"
+                 class="text-danger">
+            비밀번호가 일치하지 않습니다.
+          </small>
+        </div>
         <button type="submit" class="btn btn-primary w-100">회원가입</button>
 
         <div class="d-flex gap-2 mt-3">
@@ -60,36 +68,55 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import {createCommentVNode, reactive, ref} from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/utils/api'
 
 const router = useRouter()
-const form = reactive({ userId: '', username: '', age: '', password: '' })
+const form = reactive({
+  userId: '',
+  username: '',
+  age: '',
+  password: '',
+  confirmPassword: ''
+})
+
 const idMsg = ref('')
 const idAvailable = ref(false)
 const errorMessage = ref('')
 
 async function checkId() {
-  if (!form.userId) return
-  const { data } = await api.post('/check', { userId: form.userId })
+  if (!form.userId) {
+    return
+  }
+  const { data } = await api.post(
+      '/check', { userId: form.userId
+      })
   idAvailable.value = data
   idMsg.value = data ? '사용 가능한 아이디입니다.' : '아이디가 중복됩니다.'
 }
+
 
 async function submit() {
   if (!idAvailable.value) {
     errorMessage.value = '아이디 중복 확인이 필요합니다.'
     return
   }
+
+  if (form.password !== form.confirmPassword) {
+    errorMessage.value = '비밀번호가 일치하지 않습니다.'
+    return
+  }
+
   try {
-    await api.post('/api/signup/pass', form)
+    await api.post('/signup/pass', form)
     alert('회원가입 성공!')
     router.push('/api/login')
   } catch (e) {
     errorMessage.value = '회원가입 실패. 다시 시도해주세요.'
   }
 }
+
 </script>
 
 <style scoped>

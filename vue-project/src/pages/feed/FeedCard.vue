@@ -10,9 +10,19 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const time = computed(() =>
-    new Date(props.post.createdAt).toLocaleString('ko-KR', { hour12: false })
-)
+
+const time = computed(() => {
+  const date = new Date(props.post.createdAt)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  let hour = date.getHours()
+  const minute = date.getMinutes()
+  const period = hour >= 12 ? '오후' : '오전'
+  hour = hour % 12 || 12
+  const formattedMinute = minute < 10 ? `0${minute}` : minute
+
+  return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`
+})
 
 const isVote = computed(() => !props.notice && !props.post.id)
 

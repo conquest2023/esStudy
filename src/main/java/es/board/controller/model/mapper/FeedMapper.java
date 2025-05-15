@@ -86,7 +86,7 @@ public class FeedMapper {
                 .username(board.getUsername())
                 .imageURL(board.getImageURL())
                 .title(board.getTitle())
-                .description(board.getDescription().replace("\n", "<br>"))
+                .description(board.getDescription())
                 .category(board.getCategory())
                 .viewCount(board.getViewCount())
                 .likeCount(board.getLikeCount())

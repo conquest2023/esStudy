@@ -113,7 +113,6 @@ import { useRouter } from 'vue-router'
 
         wrapper.appendChild(img)
 
-        // ❌ 삭제 버튼 (선택사항)
         const deleteBtn = document.createElement('button')
         deleteBtn.innerHTML = '&times;'
         deleteBtn.style.position = 'absolute'
@@ -137,6 +136,23 @@ import { useRouter } from 'vue-router'
     })
   }
 
+function getCleanedEditorHTML() {
+  const clone = editor.value.cloneNode(true)
+
+  clone.querySelectorAll('.image-wrapper').forEach(wrapper => {
+    const img = wrapper.querySelector('img')
+    if (img) {
+      const cleanImg = document.createElement('img')
+      cleanImg.src = img.src
+      cleanImg.style.width = wrapper.offsetWidth + 'px'
+      cleanImg.style.height = wrapper.offsetHeight + 'px'
+      cleanImg.style.maxWidth = '100%'
+      wrapper.replaceWith(cleanImg)
+    }
+  })
+
+  return clone.innerHTML
+}
 
 
 
@@ -153,7 +169,6 @@ function removeImage(index) {
 
     const formData = new FormData()
 
-    // ✅ 1. editor 내용 클론 후 wrapper 정리
     const editorClone = editor.value.cloneNode(true)
     editorClone.querySelectorAll('.image-wrapper').forEach(wrapper => {
       const img = wrapper.querySelector('img')
@@ -167,11 +182,12 @@ function removeImage(index) {
       }
     })
 
-    // ✅ 2. formData 구성
-    formData.append('title', title.value)
-    formData.append('category', category.value)
-    formData.append('description', editorClone.innerHTML)
-    formData.append('username', anonymous.value ? username.value : username.value.trim())
+    formData.append('feed', new Blob([JSON.stringify({
+      title: title.value,
+      category: category.value,
+      description: editorClone.innerHTML,
+      username: anonymous.value ? username.value : username.value.trim()
+    })], { type: 'application/json' }))
 
     imageFiles.value.forEach(file => formData.append('imageFiles', file))
 

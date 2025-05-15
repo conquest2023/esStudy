@@ -36,7 +36,7 @@ public class FeedRequest {
     @JsonSerialize(using = XssSafeSerializer.class)
     private String title;
 
-    @JsonSerialize(using = XssSafeSerializer.class)
+//    @JsonSerialize(using = XssSafeSerializer.class)
     private String description;
 
 

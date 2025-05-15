@@ -41,6 +41,13 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     private static final String VISIT_KEY_PREFIX = "visit:";
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+//        String uri = request.getRequestURI();
+//        if (uri.startsWith("/top-writers") ||
+//                uri.startsWith("/get-ip") ||
+//                uri.startsWith("/search/view/feed/id") ||
+//                uri.contains(".js") || uri.contains(".css") || uri.contains(".ico")) {
+//            return true;
+//        }
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
@@ -72,6 +79,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
             }
             return ip;
         }
+
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {

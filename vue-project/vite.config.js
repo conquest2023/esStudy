@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Spring Boot
+        target: 'http://localhost:8080',
         changeOrigin: true
       },
       '/jumpit': 'http://localhost:8080',

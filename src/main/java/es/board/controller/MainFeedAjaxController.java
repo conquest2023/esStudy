@@ -251,6 +251,7 @@ public class MainFeedAjaxController {
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
         FeedRequest feedRequest=feedService.getFeedDetail(feedUID);
+        log.info(feedRequest.toString());
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);

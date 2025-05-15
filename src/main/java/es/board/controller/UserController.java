@@ -143,18 +143,14 @@ public class UserController {
     }
 
     @PostMapping("/signup/pass")
-    public String signIn(@ModelAttribute SignUpResponse sign, Model model) {
+    @ResponseBody
+    public ResponseEntity<?> signIn(@RequestBody SignUpResponse sign) {
         boolean isIdAvailable = userService.checkId(sign);
-        log.info("아이디 중복 여부: " + isIdAvailable);
-
         if (isIdAvailable) {
             userService.createUser(sign);
-            return "redirect:/login";
+            return ResponseEntity.ok("회원가입 완료");
         } else {
-            model.addAttribute("errorButton", false);
-            model.addAttribute("error", "아이디가 중복됩니다.");
-            model.addAttribute("signUpResponse", sign);
-            return "basic/login/SignUp";
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디가 중복됩니다.");
         }
     }
     @PostMapping("/authlogin")

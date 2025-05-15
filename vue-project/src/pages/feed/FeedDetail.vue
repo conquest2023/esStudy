@@ -138,15 +138,33 @@ import { useToast } from '@/composables/useToast'
     return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
   }
 
+  function decodeHtmlEntities (encoded = '') {
+    const el = document.createElement('textarea')
+    el.innerHTML = encoded
+    return el.value
+  }
 
-  onMounted(async () => {
+onMounted(async () => {
     try {
       const { data } = await api.get('/detail', { params: { id } })
       feed.value = {
         ...data.data,
-        Owner: data.Owner // 👈 이거 추가
+        Owner: data.Owner
       }
-      feedHtml.value   = convertLinks(data.data.description || '').replace(/\n/g, '<br>')
+      function normalize(html = '') {
+        return html
+            .replace(/></g, '>\u200B<')
+            .replace(/<\/div>/g, '<br>')
+            .replace(/<div>/g, '');
+      }
+
+      feedHtml.value = convertLinks(
+          normalize(decodeHtmlEntities(data.data.description || ''))
+      );
+      console.log('🔥 feed.description:', data.data.description)
+      console.log('🔥 decoded:', decodeHtmlEntities(data.data.description))
+      console.log('🔥 final html:', feedHtml.value)
+
       comments.value   = data.comment || []
       replies.value    = data.replies || {}
       liked.value      = data.isLiked
@@ -169,8 +187,26 @@ import { useToast } from '@/composables/useToast'
   function convertLinks(txt=''){
     return txt.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>')
   }
-  function fmtDate(t){ return new Date(t).toLocaleString('ko-KR') }
-  const dateText = computed(()=>fmtDate(feed.value.createdAt))
+function formatDate(dateTimeString) {
+  if (!dateTimeString) return '';
+
+  const date = new Date(dateTimeString);
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  let hour = date.getHours();
+  const minute = date.getMinutes();
+
+  const period = hour >= 12 ? '오후' : '오전';
+  hour = hour % 12 || 12;
+  const formattedMinute = minute < 10 ? `0${minute}` : minute;
+
+  return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
+}
+const fmtDate = formatDate
+
+const dateText = computed(() => formatDate(feed.value.createdAt))
+
 
 
   const topWriters = JSON.parse(localStorage.getItem('topWriters')||'{}')
@@ -290,7 +326,11 @@ async function submitReply(commentUID) {
 
 <style scoped>
   .pt-navbar {
-    padding-top: 60px; /* NavBar 높이에 맞게 조정 */
+    padding-top: 60px;
+  }
+  .feed-content {
+    line-height: 1.6;
+    white-space: pre-line;
   }
   .feed-card { border-radius:10px }
   .feed-title{ font-size:1.8rem;font-weight:700 }

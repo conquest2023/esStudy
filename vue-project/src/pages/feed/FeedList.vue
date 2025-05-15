@@ -314,7 +314,7 @@ import Spinner                   from '@/components/Spinner.vue'
     max-width: 750px;
     margin: 0 auto;
   }
-  /* style scoped 영역 안에 넣어주세요 */
+
   .interview-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -322,7 +322,7 @@ import Spinner                   from '@/components/Spinner.vue'
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* 아이콘과 toggle 아이콘 사이 여백만 유지 */
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
   .search-bar {
@@ -337,15 +337,15 @@ import Spinner                   from '@/components/Spinner.vue'
     font-size: 1rem;
   }
   .interview-title i {
-    margin-right: 0.25rem; /* 아이콘과 텍스트를 거의 붙임 */
+    margin-right: 0.25rem;
   }
 
   .toggle-icon {
-    margin-left: auto; /* 오른쪽 끝으로 밀기 */
+    margin-left: auto;
   }
 
   .interview-title.active {
-    color: #0d6efd; /* Bootstrap primary */
+    color: #0d6efd;
   }
 
   @media (max-width: 576px) {

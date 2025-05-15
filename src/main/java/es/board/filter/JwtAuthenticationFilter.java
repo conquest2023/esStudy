@@ -29,6 +29,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             chain.doFilter(request, response);
             return;
         }
+
         String token=resolveToken((HttpServletRequest)request);
         if(token !=null&& jwtTokenProvider.validateToken(token)){
             if (jwtTokenProvider.isTokenBlacklisted(token)) {

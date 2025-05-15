@@ -57,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void createUser(SignUpResponse sign) {
-
         User user = new User();
         String password = passwordEncoder.encode(sign.getPassword());
         asyncService.saveUserAsync(sign, password);

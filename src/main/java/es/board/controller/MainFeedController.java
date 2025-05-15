@@ -326,7 +326,7 @@ public class MainFeedController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
             @RequestParam(required = false, value = "imageFiles") MultipartFile file,
-            @ModelAttribute FeedCreateResponse res,
+            @RequestPart("feed") FeedCreateResponse res,
             @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
         try {
