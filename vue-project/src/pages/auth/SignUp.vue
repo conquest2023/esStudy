@@ -97,26 +97,23 @@ async function checkId() {
 }
 
 
-async function submit() {
-  if (!idAvailable.value) {
-    errorMessage.value = '아이디 중복 확인이 필요합니다.'
-    return
-  }
+async function submit () {
+  if(!idAvailable.value)            return errorMessage.value = '아이디 중복 확인이 필요합니다.'
+  if(form.password !== form.confirmPassword)
+    return errorMessage.value = '비밀번호가 일치하지 않습니다.'
 
-  if (form.password !== form.confirmPassword) {
-    errorMessage.value = '비밀번호가 일치하지 않습니다.'
-    return
-  }
 
-  try {
-    await api.post('/signup/pass', form)
+  const { confirmPassword, ...payload } = form
+
+
+  try{
+    await api.post('/signup/pass', payload)
     alert('회원가입 성공!')
-    router.push('/api/login')
-  } catch (e) {
+    router.push('/login')
+  }catch(e){
     errorMessage.value = '회원가입 실패. 다시 시도해주세요.'
   }
 }
-
 </script>
 
 <style scoped>

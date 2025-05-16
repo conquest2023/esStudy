@@ -41,13 +41,22 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     private static final String VISIT_KEY_PREFIX = "visit:";
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-//        String uri = request.getRequestURI();
-//        if (uri.startsWith("/top-writers") ||
-//                uri.startsWith("/get-ip") ||
-//                uri.startsWith("/search/view/feed/id") ||
-//                uri.contains(".js") || uri.contains(".css") || uri.contains(".ico")) {
-//            return true;
-//        }
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/api/top-writers") ||
+                uri.startsWith("/api/get-ip") ||
+                uri.startsWith("/api/day") ||
+                uri.startsWith("/api/interview/test") ||
+                uri.startsWith("/api/search/today/todo") ||
+                uri.startsWith("/api/list/notice") ||
+                uri.startsWith("/api/feeds") ||
+                uri.startsWith("/api/search/view/feed/id") ||
+                uri.startsWith("/api/subscribe") ||
+                uri.startsWith("/api/notifications/all") ||
+                uri.startsWith("/api/interview/best/answer") ||
+                uri.contains(".js") || uri.contains(".css") || uri.contains(".ico") || uri.contains(".png")) {
+            return true;
+        }
+
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");

@@ -5,7 +5,6 @@
         <div class="card shadow-sm">
           <div class="card-body text-center">
             <h2 class="card-title mb-4">카카오 로그인 처리 중...</h2>
-
             <div v-if="showUsernameForm">
               <p class="mb-3">사용할 닉네임을 입력하세요</p>
               <div class="input-group mb-3">
@@ -33,7 +32,7 @@ const tempSocialUser = ref(null)
 
 const loginWithSocialUser = async (user) => {
   try {
-    const res = await fetch('/oauth/login', {
+    const res = await fetch('/api/oauth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -75,7 +74,6 @@ const submitUsername = async () => {
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search)
   const code = urlParams.get('code')
-
   if (code) {
     try {
       const res = await fetch(`/api/kakao/callback/json?code=${code}`)

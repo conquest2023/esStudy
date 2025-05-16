@@ -15,7 +15,6 @@
       <transition name="fade">
         <div v-show="isInterviewOpen" class="mt-3">
 
-          <!-- IT / 일반 탭 -->
           <div class="d-flex justify-content-between flex-wrap">
             <div class="btn-group mb-2">
               <button
@@ -35,7 +34,6 @@
             </button>
           </div>
 
-          <!-- 질문 슬라이드 -->
           <div v-if="curQuestion" class="card question-card mb-3">
             <div class="card-header">
               <h6 class="mb-0">{{ curQuestion.question }}</h6>
@@ -53,7 +51,6 @@
             </div>
           </div>
 
-          <!-- 이전 / 다음 -->
           <div class="d-flex justify-content-between">
             <button class="btn btn-outline-secondary btn-sm" @click="prevQ">← 이전</button>
             <button class="btn btn-outline-secondary btn-sm" @click="nextQ">다음 →</button>
@@ -75,7 +72,6 @@
         </li>
       </ul>
     </div>
-    <!-- 📢 공지 -->
     <FeedCard
         v-for="n in notices"
         :key="n.feedUID"
@@ -230,7 +226,7 @@ import Spinner                   from '@/components/Spinner.vue'
 
   async function fetchNotice () {
     try {
-      const { data } = await api.get('/list/noitce')
+      const { data } = await api.get('/list/notice')
       notices.value = data ?? []
     } catch (err) {
       console.error('공지사항 로딩 실패:', err)
@@ -259,7 +255,7 @@ import Spinner                   from '@/components/Spinner.vue'
       counts.value = data.count ?? {}
 
       if (activeTab.value === 'ALL') {
-        const noticeRes = await api.get('/list/noitce')
+        const noticeRes = await api.get('/list/notice')
         notices.value = noticeRes.data ?? []
       } else {
         notices.value = []
@@ -290,7 +286,7 @@ import Spinner                   from '@/components/Spinner.vue'
       if (activeTab.value === 'ALL') {
         await fetchNotice()
       } else {
-        notices.value = []  // 다른 탭에선 공지 안 보이게
+        notices.value = []
       }
     } catch (err) {
       console.error('피드 로딩 실패:', err)

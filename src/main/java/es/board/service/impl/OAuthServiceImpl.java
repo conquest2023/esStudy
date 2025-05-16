@@ -205,7 +205,6 @@ public class OAuthServiceImpl implements OAuthService {
                 String.class
         );
 
-        // responseBody에 있는 정보 꺼내기
         String responseBody = response.getBody();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
@@ -214,7 +213,7 @@ public class OAuthServiceImpl implements OAuthService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
         String password=passwordEncoder.encode(id.toString());
-
+        log.info(jsonNode.toString());
         return new OAuthInfo(id, nickname, email,password);
     }
 

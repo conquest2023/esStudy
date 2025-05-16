@@ -161,10 +161,6 @@ onMounted(async () => {
       feedHtml.value = convertLinks(
           normalize(decodeHtmlEntities(data.data.description || ''))
       );
-      console.log('🔥 feed.description:', data.data.description)
-      console.log('🔥 decoded:', decodeHtmlEntities(data.data.description))
-      console.log('🔥 final html:', feedHtml.value)
-
       comments.value   = data.comment || []
       replies.value    = data.replies || {}
       liked.value      = data.isLiked

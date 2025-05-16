@@ -43,7 +43,8 @@ async function fetchSidebarData() {
     }
 
     try {
-        const [visitorRes, writerRes] = await Promise.allSettled([
+        const [visitorRes, writerRes]
+            = await Promise.allSettled([
             api.get('/get-ip'),
             api.get('/top-writers')
         ])
@@ -65,7 +66,7 @@ async function fetchSidebarData() {
 }
 
 export function useSidebarData () {
-    fetchSidebarData() // ✅ 단 한 번만 실행됨
+    fetchSidebarData()
 
     return {
         dDayList,

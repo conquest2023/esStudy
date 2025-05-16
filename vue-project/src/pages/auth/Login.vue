@@ -18,7 +18,7 @@
         <button type="submit" class="btn btn-primary w-100">로그인</button>
 
         <div class="d-flex flex-column gap-2 mt-4">
-          <button type="button" class="btn btn-warning w-100" @click="goOAuth('/kakao')">
+          <button type="button" class="btn btn-warning w-100" @click="goOAuth('/api/kakao')">
             <img src="/kakao.png" alt="카카오 로그인" style="height: 24px; margin-right: 8px" />
             카카오 로그인
           </button>
@@ -28,7 +28,7 @@
             네이버 로그인
           </button>
 
-          <button type="button" class="btn w-100 d-flex align-items-center justify-content-center" @click="goOAuth('/google')" style="background-color: #fff; color: #5f6368; font-weight: 500; border: 1px solid #dadce0">
+          <button type="button" class="btn w-100 d-flex align-items-center justify-content-center" @click="goOAuth('/api/google')" style="background-color: #fff; color: #5f6368; font-weight: 500; border: 1px solid #dadce0">
             <img src="/google.png" alt="구글 로그인" style="height: 20px; margin-right: 12px" />
             <span>Google로 로그인</span>
           </button>

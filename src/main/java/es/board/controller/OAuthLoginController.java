@@ -51,7 +51,7 @@ public class OAuthLoginController {
     @Value("${google.redirect.uri}")
     private String googleRedirectUri;
 
-    @GetMapping("/naver")
+    @GetMapping("/api/naver")
     public ResponseEntity<Void> naverLoginRedirect(HttpSession session) {
         log.info(session.toString());
         String state = UUID.randomUUID().toString();
@@ -69,6 +69,7 @@ public class OAuthLoginController {
     public ResponseEntity<?> naverCallback(@RequestParam String code,
                                            @RequestParam String state,
                                            HttpSession session) {
+        log.info(code);
         String savedState = (String) session.getAttribute("oauth_state");
         if (!state.equals(savedState)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("state 불일치");
@@ -81,7 +82,7 @@ public class OAuthLoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("에러 발생");
         }
     }
-    @GetMapping("/google")
+    @GetMapping("/api/google")
     public ResponseEntity<Void> googleLoginRedirect() {
         String url = "https://accounts.google.com/o/oauth2/v2/auth?" +
                 "client_id=" + googleClientId +
@@ -103,7 +104,7 @@ public class OAuthLoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("에러 발생");
         }
     }
-    @GetMapping("/kakao")
+    @GetMapping("/api/kakao")
     public ResponseEntity<Void> kakaoLoginRedirect() {
         String url = "https://kauth.kakao.com/oauth/authorize?" +
                 "client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
@@ -120,14 +121,15 @@ public class OAuthLoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "서버 에러 발생"));
         }
     }
-    @PostMapping("/oauth/username")
+    @PostMapping("/api/oauth/username")
     public ResponseEntity<?> createUsername(@RequestBody OAuthSignUp sign) {
         authService.saveUserName(sign);
         return ResponseEntity.ok(Map.of("result", "ok", "redirect", "/"));
         }
-    @PostMapping("/oauth/login")
+    @PostMapping("/api/oauth/login")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
+        log.info("saddasssw");
         Authentication authentication = authService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
         userService.updateVisitCount(response.getUserId());

@@ -1,4 +1,4 @@
-package es.board.filter;
+package es.board.config;
 
 import es.board.interceptor.IpLimitInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionLimitInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/public/**");
+                .addPathPatterns("/**");
 
     }
 }

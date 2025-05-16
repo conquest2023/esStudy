@@ -1,6 +1,7 @@
-package es.board.config.jwt;
+package es.board.config;
 
-import es.board.filter.JwtAuthenticationFilter;
+//import es.board.filter.JwtAuthenticationFilter;
+import es.board.config.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
