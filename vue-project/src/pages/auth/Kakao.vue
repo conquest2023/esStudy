@@ -24,12 +24,12 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+// import {co} from "@fullcalendar/core/internal-common.js";
 
 const router = useRouter()
 const showUsernameForm = ref(false)
 const newUsername = ref('')
 const tempSocialUser = ref(null)
-
 const loginWithSocialUser = async (user) => {
   try {
     const res = await fetch('/api/oauth/login', {
@@ -42,7 +42,6 @@ const loginWithSocialUser = async (user) => {
         password: user.password
       })
     })
-
     const tokenData = await res.json()
     localStorage.setItem('token', tokenData.accessToken)
     router.push('/')
@@ -78,7 +77,6 @@ onMounted(async () => {
     try {
       const res = await fetch(`/api/kakao/callback/json?code=${code}`)
       const text = await res.text()
-
       let data
       try {
         data = JSON.parse(text)
@@ -86,7 +84,6 @@ onMounted(async () => {
         console.error('JSON 파싱 실패:', e)
         return
       }
-
       tempSocialUser.value = data
 
       if (data.result === 'ok') {

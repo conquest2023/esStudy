@@ -182,7 +182,6 @@ public class OAuthServiceImpl implements OAuthService {
                 String.class
         );
 
-        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         String responseBody = response.getBody();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
@@ -190,12 +189,10 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     public OAuthInfo getKakaoInfo(String accessToken) throws JsonProcessingException {
-        // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(

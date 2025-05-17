@@ -39,7 +39,7 @@ const tempSocialUser = ref(null)
 
 const loginWithSocialUser = async (user) => {
   try {
-    const res = await fetch('/oauth/login', {
+    const res = await fetch('/api/oauth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -66,7 +66,7 @@ const submitUsername = async () => {
     email: tempSocialUser.value.email
   }
 
-  const res = await fetch('/oauth/username', {
+  const res = await fetch('/api/oauth/username', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -84,7 +84,7 @@ onMounted(async () => {
 
   if (code) {
     try {
-      const res = await fetch(`/google/callback/json?code=${code}`)
+      const res = await fetch(`/api/google/callback/json?code=${code}`)
       const text = await res.text()
       let data
 

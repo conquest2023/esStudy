@@ -33,7 +33,7 @@ const tempSocialUser = ref(null)
 
 const loginWithSocialUser = async (user) => {
   try {
-    const res = await fetch('/oauth/login', {
+    const res = await fetch('/api/oauth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -60,7 +60,7 @@ const submitUsername = async () => {
     email: tempSocialUser.value.email
   }
 
-  const res = await fetch('/oauth/username', {
+  const res = await fetch('/api/oauth/username', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -79,7 +79,7 @@ onMounted(async () => {
 
   if (code && state) {
     try {
-      const res = await fetch(`/naver/callback/json?code=${code}&state=${state}`)
+      const res = await fetch(`/api/naver/callback/json?code=${code}&state=${state}`)
       const text = await res.text()
       let data
 

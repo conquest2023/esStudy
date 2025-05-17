@@ -42,6 +42,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String uri = request.getRequestURI();
+        log.info(uri);
         if (uri.startsWith("/api/top-writers") ||
                 uri.startsWith("/api/get-ip") ||
                 uri.startsWith("/api/day") ||

@@ -9,9 +9,9 @@ import PracticeQuestion from '@/pages/certificate/PracticeQuestion.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import calendar from '@/pages/calendar/CalendarPage.vue'
 import voteDetail  from "@/pages/feed/VoteDetail.vue";
-// import OAuthGoogleLogin from '@/pages/auth/Google.vue'
-// import OAuthKakaoLogin from '@/pages/auth/Kakao.vue'
-// import OAuthNaverLogin from '@/pages/auth/Naver.vue'
+import OAuthGoogleLogin from '@/pages/auth/Google.vue'
+import OAuthKakaoLogin from '@/pages/auth/Kakao.vue'
+import OAuthNaverLogin from '@/pages/auth/Naver.vue'
 
 const routes = [
     {
@@ -43,9 +43,9 @@ const routes = [
     { path: '/search/view/content', name: 'search-result', component: () => import('@/pages/SearchResult.vue') },
     { path: '/search/view/feed/list/page', component: () => import('@/pages/feed/MyPage.vue') },
     { path:'/notifications', name:'Notifications', component:() => import('@/components/NotificationsPage.vue') },
-    // {path: '/google/callback/json', name: 'GoogleOAuth', component: OAuthGoogleLogin},
-    // {path: '/kakao/callback/json', name: 'KakaoOAuth', component: OAuthKakaoLogin},
-    // {path: '/naver/callback/json', name: 'NaverOAuth', component: OAuthNaverLogin},]
+    {path: '/google/callback', name: 'GoogleOAuth', component: OAuthGoogleLogin},
+    {path: '/kakao/callback', name: 'KakaoOAuth', component: OAuthKakaoLogin},
+    {path: '/naver/callback', name: 'NaverOAuth', component: OAuthNaverLogin}
 ]
 export default createRouter({
     components: {

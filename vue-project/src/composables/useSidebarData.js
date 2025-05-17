@@ -43,8 +43,7 @@ async function fetchSidebarData() {
     }
 
     try {
-        const [visitorRes, writerRes]
-            = await Promise.allSettled([
+        const [visitorRes, writerRes] = await Promise.allSettled([
             api.get('/get-ip'),
             api.get('/top-writers')
         ])

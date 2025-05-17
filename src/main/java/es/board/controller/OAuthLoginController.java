@@ -65,7 +65,7 @@ public class OAuthLoginController {
         headers.setLocation(URI.create(url));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
-    @GetMapping("/naver/callback/json")
+    @GetMapping("/api/naver/callback/json")
     public ResponseEntity<?> naverCallback(@RequestParam String code,
                                            @RequestParam String state,
                                            HttpSession session) {
@@ -94,7 +94,7 @@ public class OAuthLoginController {
         headers.setLocation(URI.create(url));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
-    @GetMapping("/google/callback/json")
+    @GetMapping("/api/google/callback/json")
     public ResponseEntity<?> googleCallback(@RequestParam String code) {
         try {
             Map<String, Object> response = authService.googleLogin(code);
@@ -112,13 +112,14 @@ public class OAuthLoginController {
         headers.setLocation(URI.create(url));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
-    @GetMapping("/kakao/callback/json")
+    @GetMapping("/api/kakao/callback/json")
     public ResponseEntity<Map<String, Object>> kakaoCallbackJson(@RequestParam String code) {
         try {
             Map<String, Object> response = authService.kakaoLogin(code);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "서버 에러 발생"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "서버 에러 발생"));
         }
     }
     @PostMapping("/api/oauth/username")
@@ -129,7 +130,6 @@ public class OAuthLoginController {
     @PostMapping("/api/oauth/login")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
-        log.info("saddasssw");
         Authentication authentication = authService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
         userService.updateVisitCount(response.getUserId());

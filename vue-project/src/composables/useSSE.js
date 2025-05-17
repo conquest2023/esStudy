@@ -4,6 +4,7 @@ import { useToast } from './useToast'
 import { useUserStore } from '@/stores/user'
 
 export function useSSE(token) {
+    if (!token) return
     const { push } = useToast()
     const store = useUserStore()
 

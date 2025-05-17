@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -377,23 +378,40 @@ public class MainFeedController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/kakao/callback")
-    public String kakaoCallbackView(@RequestParam String code, Model model) {
-        model.addAttribute("code", code);
-        return "basic/login/kakao_callback";
-    }
-
+//    @GetMapping("/kakao/callback")
+//    public String kakaoCallbackView(@RequestParam String code, Model model) {
+//        model.addAttribute("code", code);
+//        return "basic/login/kakao_callback";
+//    }
+//
+//    @GetMapping("/naver/callback")
+//    public String naverCallbackView(@RequestParam String code, Model model) {
+//        model.addAttribute("code", code);
+//        return "basic/login/naver_callback";
+//    }
+//
+//    @GetMapping("/google/callback")
+//    public String googleCallbackView(@RequestParam String code, Model model) {
+//        model.addAttribute("code", code);
+//        return "basic/login/google_callback.html";
+//    }
     @GetMapping("/naver/callback")
-    public String naverCallbackView(@RequestParam String code, Model model) {
-        model.addAttribute("code", code);
-        return "basic/login/naver_callback";
+    public RedirectView naverCallbackView(@RequestParam String code) {
+        return new RedirectView("https://workly.info/naver/callback?code=" + code);
     }
 
     @GetMapping("/google/callback")
-    public String googleCallbackView(@RequestParam String code, Model model) {
-        model.addAttribute("code", code);
-        return "basic/login/google_callback.html";
+    public RedirectView googleCallbackView(@RequestParam String code) {
+
+        return new RedirectView("https://workly.info/google/callback?code=" + code);
     }
+    @GetMapping("/kakao/callback")
+    public RedirectView kakaoCallbackRedirect(@RequestParam String code) {
+        // 그냥 클라이언트 라우트로 리다이렉트 (쿼리스트링 포함)
+        return new RedirectView("https://workly.info/kakao/callback?code=" + code);
+    }
+
+
     @GetMapping("/get/user/vote/details")
     public String getUserVoteDetail() {
         return "basic/feed/VoteDetail";
