@@ -407,7 +407,6 @@ public class MainFeedController {
     }
     @GetMapping("/kakao/callback")
     public RedirectView kakaoCallbackRedirect(@RequestParam String code) {
-        // 그냥 클라이언트 라우트로 리다이렉트 (쿼리스트링 포함)
         return new RedirectView("https://workly.info/kakao/callback?code=" + code);
     }
 

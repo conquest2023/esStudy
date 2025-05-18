@@ -331,7 +331,8 @@ async function submitReply(commentUID) {
   .feed-card { border-radius:10px }
   .feed-title{ font-size:1.8rem;font-weight:700 }
   .comment-item{ gap:12px;padding:12px 0;border-bottom:1px solid #eee }
-  .comment-avatar{ width:36px;height:36px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold }
+  .comment-avatar{ width:36px;height:36px
+          ;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold }
   .spin{ animation:spin 1s linear infinite }
 @keyframes spin{100%{transform:rotate(360deg)}}
 </style>

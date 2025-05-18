@@ -79,7 +79,7 @@ async function submitForm() {
   }
 
   try {
-    const res = await fetch('/save/user/vote', {
+    const res = await fetch('/api/save/user/vote', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

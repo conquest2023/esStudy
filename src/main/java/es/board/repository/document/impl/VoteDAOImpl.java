@@ -11,6 +11,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.controller.model.req.VoteRequest;
 import es.board.ex.IndexException;
 import es.board.repository.VoteDAO;
+import es.board.repository.document.Comment;
 import es.board.repository.document.VoteAnalytics;
 import es.board.repository.document.VoteDocument;
 import lombok.RequiredArgsConstructor;
@@ -238,20 +239,21 @@ public class VoteDAOImpl implements VoteDAO {
     @Override
     public void deleteVoteFeed(String id) {
         try {
+            SearchResponse<VoteDocument> response = client.search(s -> s
+                            .index("data_votes")
+                            .source(sou -> sou.filter(f -> f.includes(List.of())))
+                            .query(q -> q.term(t -> t.field("feedUID").value(id))),
+                    VoteDocument.class
+            );
+            if (response.hits().hits().isEmpty()) {
+                log.warn("No comment found with commentUID: " + id);
+                return;
+            }
+            String documentId = response.hits().hits().get(0).id();
             DeleteResponse deleteResponse = client.delete(d -> d
                     .index("data_votes")
-                    .id(id)
+                    .id(documentId)
             );
-            if (deleteResponse.result().toString().equals("NotFound")) {
-                log.warn("삭제할 문서를 찾을 수 없습니다: {}", id);
-                throw new IllegalArgumentException("해당 게시글을 찾을 수 없습니다.");
-            }
-
-            log.info("게시글 삭제 완료 (ID: {})", id);
-
-        } catch (ElasticsearchException e) {
-            log.error("Elasticsearch 삭제 오류 (ID: {}): {}", id, e.getMessage(), e);
-            throw new RuntimeException("Elasticsearch 삭제 중 오류 발생", e);
         } catch (Exception e) {
             log.error("게시글 삭제 실패 (ID: {}): {}", id, e.getMessage(), e);
             throw new RuntimeException("게시글 삭제 중 오류 발생", e);

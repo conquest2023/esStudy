@@ -1,20 +1,21 @@
 <template>
   <div class="container my-4">
-    <!-- ▣ 투표 카드 -->
     <div class="poll-card mb-5">
       <div v-if="vote">
-        <!-- 제목 / 작성자 -->
-        <div class="poll-title mb-2">{{ vote.title }}</div>
-        <div class="text-muted mb-3">{{ badge }} {{ vote.username }} · {{ formatDate(vote.createdAt) }}</div>
+        <div class="poll-title mb-2" id="poll-title">{{ vote.title }}</div>
+        <div class="text-muted mb-3">
+          {{ badge }} {{ vote.username }} · {{ formatDate(vote.createdAt) }}
+          <button v-if="vote.Owner" class="btn btn-sm btn-danger ms-2" @click="deleteVote">삭제</button>
+        </div>
         <p class="mb-3" v-if="vote.description" style="white-space:pre-wrap">{{ vote.description }}</p>
 
         <!-- 항목 -->
         <h6 class="fw-bold">투표 항목</h6>
         <div class="vote-options mb-4">
-          <div v-for="opt in vote.voteType" :key="opt"
+          <div v-for="(opt, idx) in vote.voteType" :key="idx"
                class="poll-choice d-flex justify-content-between align-items-center"
-               :class="{ active: selectedOption === opt }"
-               @click="selectOption(opt)">
+               :class="{ active: selectedIndex === idx }"
+               @click="selectOption(idx)">
             <span>{{ opt }}</span>
             <i class="far fa-circle"></i>
           </div>
@@ -38,10 +39,22 @@
 
         <div class="d-flex justify-content-between align-items-center mt-4">
           <small class="text-muted">👥 {{ totalVotes }}명 참여</small>
-          <button class="btn btn-kakao" @click="submitVote">투표하기</button>
+          <div class="text-end">
+            <button
+                class="btn btn-kakao"
+                @click="submitVote"
+                :disabled="!isLoggedIn"
+                :title="!isLoggedIn ? '로그인이 필요합니다' : ''"
+            >
+              투표하기
+            </button>
+            <p v-if="!isLoggedIn" class="text-danger small mt-2 mb-0">
+              ※ 로그인 후 투표하실 수 있습니다.
+            </p>
+          </div>
         </div>
       </div>
-      <div v-else class="text-center py-5">투표 정보를 불러오지 못했습니다.</div>
+        <div v-else class="text-center py-5">투표 정보를 불러오지 못했습니다.</div>
     </div>
 
     <!-- ▣ 댓글 목록 -->
@@ -96,6 +109,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/utils/api'
+import {d} from "../../../dist/assets/index-COm22Z05.js";
 
 // ─── 상태 ─────────────────────────────────────────────────
 const route           = useRoute()
@@ -104,30 +118,33 @@ const voteCounts      = ref({})
 const selectedOption  = ref('')
 const pastel          = ['#5AC8FA','#FF9F40','#4CD964','#FF5E7E','#AF7CFF','#FFD460']
 const badge           = ref('')
+const selectedIndex   = ref(null)
 const totalVotes      = ref(0)
-
+const isLoggedIn = ref(false)
 const comments        = ref([])
 const replies         = ref({})
 const commentInput    = ref('')
-const replyInputs     = reactive({})        // commentUID ➜ text
-const replyFormOpen   = reactive({})        // commentUID ➜ true/false
-const currentUsername = ref('')             // readonly 이름 표시
+const replyInputs     = reactive({})
+const replyFormOpen   = reactive({})
+const currentUsername = ref('')
 
 // ─── 유틸 ────────────────────────────────────────────────
 function formatDate(dt){
   const d = new Date(dt);const m=d.getMonth()+1;const day=d.getDate();let h=d.getHours();const mi=d.getMinutes();const p=h>=12?'오후':'오전';h=h%12||12;return `${m}. ${day}. ${p} ${h}:${mi.toString().padStart(2,'0')}`
 }
 function getPercentage(c){ return totalVotes.value?Math.round(c/totalVotes.value*100):0 }
-function selectOption(opt){ selectedOption.value = opt }
+function selectOption(idx){ selectedIndex.value = idx }
 
-// ─── API 호출 ────────────────────────────────────────────
 async function fetchVote(){
   const id = route.query.id
   const [detail,status] = await Promise.all([
     api.get(`/vote/detail?id=${id}`),
     api.get(`/get/ticket/vote?id=${id}`)
   ])
-  vote.value = detail.data.data
+  vote.value = {
+    ...detail.data.data,
+    Owner: detail.data.Owner
+  }
   voteCounts.value = status.data?.selectOption || {}
   totalVotes.value = Object.values(voteCounts.value).reduce((a,b)=>a+b,0)
   badge.value = '🥇'
@@ -137,8 +154,13 @@ async function fetchVote(){
 }
 
 async function submitVote(){
-  if(!selectedOption.value) return alert('투표 항목을 선택해주세요.')
-  await api.post('/save/ticket/vote',{ feedUID:route.query.id, title:vote.value.title, selectedOption:selectedOption.value })
+  if(selectedIndex.value === null) return alert('투표 항목을 선택해주세요.')
+  const selectedOption = vote.value.voteType[selectedIndex.value]
+  await api.post('/save/ticket/vote', {
+    feedUID: route.query.id,
+    title: vote.value.title,
+    selectedOption
+  })
   alert('투표 완료!'); location.reload()
 }
 
@@ -156,12 +178,39 @@ async function submitReply(cid){
   replyInputs[cid] = ''
   fetchVote()
 }
+async function deleteVote(){
+  if (!confirm('\uacb0\uc815\ud558\uc2dc\uaca0\uc5b4\uc694?')) return
+  const token = localStorage.getItem('token')
+  const res = await fetch('http://localhost:8080/api/search/view/vote/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ id: vote.value.feedUID })
+  })
+  const result = await res.json()
+  if (res.ok) {
+    alert('\ud22c\ud45c\uac8c\uc2dc\uac00 \uc0ad\uc81c\ub418\uc5c8\uc2b5\ub2c8\ub2e4.')
+    router.push('/')
+  } else {
+    alert(result.error || '\uc0ad\uc81c \uc2e4\ud328')
+  }
+}
 
-onMounted(fetchVote)
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  isLoggedIn.value = !!token
+  fetchVote()
+})
 </script>
 
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 @import url('https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css');
+#poll-title {
+  scroll-margin-top: 100px;
+}
+
 .poll-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,.05);} .poll-title{font-size:1.4rem;font-weight:700;word-break:keep-all;} .poll-choice{border:1px solid #e3e6ea;border-radius:14px;padding:14px 18px;font-weight:600;background:#fafbfc;cursor:pointer;transition:.25s;} .poll-choice:hover{background:#e9f3ff;border-color:#76a9ff;} .poll-choice.active{background:#2d8cff;color:#fff;border-color:#2d8cff;} .poll-bar-wrapper{background:#edeff1;height:38px;border-radius:14px;overflow:hidden;position:relative;} .poll-bar-fill{height:100%;background:#2d8cff;position:relative;} .poll-bar-text{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:#fff;} .btn-kakao{background:#fae100;color:#000;font-weight:700;border:none;}
 </style>

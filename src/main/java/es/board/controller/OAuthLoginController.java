@@ -69,7 +69,6 @@ public class OAuthLoginController {
     public ResponseEntity<?> naverCallback(@RequestParam String code,
                                            @RequestParam String state,
                                            HttpSession session) {
-        log.info(code);
         String savedState = (String) session.getAttribute("oauth_state");
         if (!state.equals(savedState)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("state 불일치");
@@ -101,7 +100,9 @@ public class OAuthLoginController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("에러 발생");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("result", "error", "message", "에러 발생"));
+
         }
     }
     @GetMapping("/api/kakao")
