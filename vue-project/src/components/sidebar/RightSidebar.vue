@@ -36,9 +36,10 @@
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2"><i class="fas fa-chart-line me-1"></i> 방문자 통계</h6>
             <div class="d-flex justify-content-around small text-muted">
-              <div><span class="fw-bold">{{ visitorStats.active }}</span> 접속</div>
-              <div><span class="fw-bold">{{ visitorStats.today }}</span> 오늘</div>
-              <div><span class="fw-bold">{{ visitorStats.total }}</span> 누적</div>
+              <div><span class="fw-bold">{{ activeUsers }}</span> 접속</div>
+              <div><span class="fw-bold">{{ todayUsers }}</span> 오늘</div>
+              <div><span class="fw-bold">{{ totalUsers }}</span> 누적</div>
+
             </div>
           </div>
         </div>
@@ -120,41 +121,53 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { useSidebarData } from '@/composables/useSidebarData'
+import { ref, computed, onMounted, onBeforeUnmount ,watch} from 'vue'
+import { useRoute }        from 'vue-router'
+import { storeToRefs }     from 'pinia'
+import { useSidebarStore } from '@/stores/sidebar'
 
-/* ▣ 상태 */
-const collapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
-watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v.toString()))
-
+/* ───────── UI 상태 ───────── */
+const collapsed      = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+const currentSection = ref('dashboard')
 const sections = [
   { id: 'dashboard', title: '대시보드', icon: 'fas fa-chart-pie' },
-  { id: 'tasks', title: '작업', icon: 'fas fa-list-check' },
-  { id: 'calendar', title: '캘린더', icon: 'far fa-calendar-alt' },
+  { id: 'tasks',     title: '작업',     icon: 'fas fa-list-check' },
+  { id: 'calendar',  title: '캘린더',   icon: 'far fa-calendar-alt' }
 ]
-const currentSection = ref('dashboard')
 
+watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v))
+
+/* ───────── Pinia 스토어 바인딩 ───────── */
+const sb = useSidebarStore()
 const {
-  dDayList,
-  todoList,
-  todoProgress,
-  visitorStats,
-  topWriters,
-  fetchSidebarData,
-} = useSidebarData()
+  dDayList, todoList, todoProgress,
+  visitorStats, topWriters
+} = storeToRefs(sb)
+const activeUsers = computed(() => sb.visitorStats.active)
+const todayUsers  = computed(() => sb.visitorStats.today)
+const totalUsers  = computed(() => sb.visitorStats.total)
 
-/* ▣ 메인 페이지에서만 데이터 로드 */
-const route = useRoute()
+// onMounted(() => {
+//   sb.loadLive()
+// })
+const route      = useRoute()
 const isFeedMain = computed(() => route.path === '/')
 
-onMounted(() => {
-  if (isFeedMain.value) fetchSidebarData()
-})
+let timer = null
+// onMounted(async () => {
+//   if (!isFeedMain.value) return
+//
+//   await sb.loadStatic()   // 한 번만
+//   await sb.loadLive()     // 방문자·작가 최신
+//
+//   // 30초마다 실시간 데이터 갱신
+//   timer = setInterval(sb.loadLive, 30_000)
+// })
+onBeforeUnmount(() => clearInterval(timer))
 
 /* ▣ 헬퍼 */
 const statusIcon = s => (s === 'DONE' ? '✅' : s === 'IN_PROGRESS' ? '⏳' : '📝')
-const rankIcon = i => ['👑', '🥇', '🥈', '🥉'][i] || `${i + 1}.`
+const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
 </script>
 
 <style scoped>

@@ -60,8 +60,8 @@ const programmersJobs = ref([])
 onMounted(async () => {
   try {
     const [jumpitRes, programmersRes] = await Promise.all([
-      fetch('/jumpit').then(res => res.json()),
-      fetch('/programmers').then(res => res.json())
+      fetch('/api/jumpit').then(res => res.json()),
+      fetch('/api/programmers').then(res => res.json())
     ])
 
     jumpitJobs.value = Array.isArray(jumpitRes)

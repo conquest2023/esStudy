@@ -104,8 +104,9 @@
 
 <script setup>
 
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted , onActivated, onDeactivated } from 'vue'
 import { useRouter }             from 'vue-router'
+import { useSidebarStore } from '@/stores/sidebar'
 import api                       from '@/utils/api'
 import * as bootstrap from 'bootstrap'
 import SearchBar from '@/components/SearchBar.vue'
@@ -119,8 +120,23 @@ import Spinner                   from '@/components/Spinner.vue'
     if (!keyword.value.trim()) return
     router.push({ path:'/search', query:{ q:keyword.value.trim() } })
   }
+const sidebar = useSidebarStore()
+onMounted(async () => {
+  await sidebar.loadStatic()   // 오늘 할 일·D-Day
+  await sidebar.loadLive()     // 방문자·TOP 작가
+})
 
+/* ── 2. 라우터 keep-alive 상태에서 돌아올 때 ── */
+onActivated(() => sidebar.loadLive())
 
+/* ── 3. (선택) 30초마다 실시간 데이터 자동 갱신 ── */
+let timer = null
+onActivated(() => {
+  timer = setInterval(sidebar.loadLive, 30_000)   // 30초
+})
+onDeactivated(() => {
+  if (timer) clearInterval(timer)
+})
   const itQs  = ref([])
   const genQs = ref([])
   const curCat = ref('IT')

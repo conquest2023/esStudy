@@ -1,38 +1,67 @@
 <template>
-  <div>
-    <NavBar />
-    <RightSidebar v-if="!hideLayout" />
-    <!--    <DefaultLayout />-->
-    <router-view />
-  </div>
+  <NavBar />
+
+  <!-- 사이드바: 로그인 상태 + 레이아웃이 숨김이 아닐 때만 -->
+  <RightSidebar v-if="store.token && !hideLayout" />
+
+  <RouterView v-slot="{ Component }">
+    <keep-alive include="FeedList">
+      <component :is="Component" />
+    </keep-alive>
+  </RouterView>
 </template>
+
 <script setup>
-import { useUserStore } from '@/stores/user'
-import { onMounted } from 'vue'
-import { useSSE } from '@/composables/useSSE'
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import { ref, watch, nextTick ,onMounted} from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { useSidebarStore } from '@/stores/sidebar'
+import { useSSE } from '@/composables/useSSE'
 import NavBar from '@/components/common/Navbar.vue'
 import RightSidebar from '@/components/sidebar/RightSidebar.vue'
-import {computed} from "vue";
 
 const route = useRoute()
-const hideLayout = computed(() =>
-    route.meta.hideLayout === true
+const store = useUserStore()
+const sb = useSidebarStore()
+
+/* ▣ 레이아웃 감춤 여부 계산 */
+const hideLayout = ref(false)
+watch(
+    route,
+    async () => {
+      hideLayout.value = route.meta.hideLayout === true
+      await nextTick()
+
+      if (!hideLayout.value && store.token) {
+        await sb.loadStatic()
+        await sb.loadLive()
+        initSSE()
+      }
+    },
+    { immediate: true }
 )
 
-
-const store = useUserStore()
-
-onMounted(() => {
-  if (store.token) useSSE(store.token)
-})
-if (store.token) useSSE(store.token)
-</script>
-<style>
-:root {
-  --radius-lg: 1rem;
+/* ▣ SSE 싱글턴 */
+let sseInit = false
+function initSSE () {
+  if (!sseInit && store.token) {
+    useSSE(store.token)
+    sseInit = true
+  }
 }
+// onMounted(async () => {
+//   if (!store.token || hideLayout.value) return
+//   await sb.loadStatic()
+//   await sb.loadLive()
+//   initSSE()
+// })
+watch(route, (to) => {
+  if (to.name === 'FeedList' && !hideLayout.value) {
+    sb.loadLive()
+  }
+})
+</script>
+
+<style>
+:root { --radius-lg: 1rem; }
 </style>
-
-

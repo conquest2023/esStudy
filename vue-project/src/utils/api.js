@@ -12,4 +12,15 @@ api.interceptors.request.use((config) => {
     }
     return config
 })
+api.interceptors.response.use(
+    res => res,
+    err => {
+        if (err.response?.status === 401) {
+            // 세션 만료 → 자동 로그아웃
+            const store = useUserStore()
+            store.logout()
+        }
+        return Promise.reject(err)
+    }
+)
 export default api;

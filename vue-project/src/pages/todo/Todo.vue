@@ -197,142 +197,119 @@ onMounted(async () => {
   margin: 50px auto;
   padding-top: 100px;
 }
-:root {
-  --note-yellow: #fff8b8;
-  --note-blue:   #dff3f9;
-  --note-pink:   #ffe0e4;
-  --note-orange: #ffe8d1;
-  --note-green:  #d1f7e1;
-  --radius: 14px;
-  --shadow: 0 4px 14px rgba(0,0,0,.08);
+/* 1) 전체 배경 & 보드 */
+body {
+  background: radial-gradient(circle at 20% 20%, #dfe8d8 0%, #cbd6c5 100%);
+  min-height: 100vh;
+  font-family: 'Pretendard', 'Inter', sans-serif;
 }
-
-/* ───────── 레이아웃 ───────── */
 .board-wrap {
-  padding-top: 100px;
   max-width: 1280px;
   margin: 0 auto;
+  padding: 72px 40px 120px;
+  background: #fff;
+  border-radius: 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12);
 }
 
+/* 2) 진행률 카드 */
 .summary-card {
   background: #fff;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.progress-bar-outer {
-  flex: 0 0 45%;
-  height: 10px;
-  background: #e9ecef;
-  border-radius: 5px;
-}
-
-.progress-bar-inner {
-  background: #0d6efd;
-  height: 100%;
-  border-radius: 5px;
-  font-size: 0.75rem;
-  line-height: 1.1rem;
-  color: #fff;
-  text-align: right;
-  padding-right: .25rem;
-}
-
-/* ───────── 스티키 월 ───────── */
-.sticky-wall {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
-}
-
-.sticky-note {
-  position: relative;
-  padding: 1.25rem 1.5rem 1rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  background: var(--note-yellow);           /* 기본 색 */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.sticky-note:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0,0,0,.12);
-}
-
-/* ▣ 상태별 투명도 */
-.sticky-note[data-status='DONE']    { opacity: .55; }
-.sticky-note[data-status='TODO']    { opacity: 1;   }
-.sticky-note[data-status='IN_PROGRESS'] { opacity: 1; }
-
-/* ▣ 우선순위별 색상 */
-.sticky-note[data-priority='1'] { background: var(--note-pink);   }
-.sticky-note[data-priority='2'] { background: var(--note-orange); }
-.sticky-note[data-priority='3'] { background: var(--note-yellow); }
-.sticky-note[data-priority='4'] { background: var(--note-blue);   }
-.sticky-note[data-priority='5'] { background: var(--note-green);  }
-
-.note-header h6 {
-  font-weight: 700;
-  margin-bottom: .5rem;
-}
-
-.note-desc {
-  font-size: .875rem;
-  min-height: 60px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.note-footer {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.badge.priority {
-  background: rgba(0,0,0,.15);
-  border-radius: 99px;
-  padding: .2rem .6rem;
-  font-size: .75rem;
-}
-
-.actions .btn-icon {
-  border: none;
-  background: transparent;
-  margin-left: .25rem;
-  cursor: pointer;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  padding: 1.2rem 1.6rem;
+  margin-bottom: 2.5rem;
+  display: flex; justify-content: space-between; align-items: center;
   font-size: 1rem;
 }
-
-.actions .btn-icon.done { color: #198754; }
-.actions .btn-icon.del  { color: #dc3545; }
-
-/* ▣ “+” 추가 카드 */
-.add-note {
-  border: 2px dashed #cbd5e1;
-  color: #6c757d;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .15s;
+.progress-bar-outer{
+  flex:0 0 50%; height:8px; border-radius:99px; background:#e4e8ee;
 }
-.add-note:hover {
-  background: #e9ecef;
+.progress-bar-inner{
+  height:100%; border-radius:99px; background:#3b82f6;
+  font-size:.75rem; color:#fff; display:flex; justify-content:flex-end;
+  align-items:center; padding-right:.4rem; transition:width .3s ease;
 }
 
-/* ───────── 반응형 보완 ───────── */
-@media (max-width: 768px) {
-  .summary-card { flex-direction: column; gap: 1rem; }
+/* 3) 스티키 월 */
+.sticky-wall{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:2rem;
 }
+
+/* NOTE 베이스 */
+.sticky-note{
+  position:relative;
+  padding:1.4rem 1.6rem 1.2rem;
+  border-radius:18px;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  display:flex; flex-direction:column; justify-content:space-between;
+  overflow:hidden;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+/* 작은 랜덤 기울기 연출 */
+.sticky-note:nth-child(5n){ transform:rotate(-1.8deg); }
+.sticky-note:nth-child(5n+2){ transform:rotate(1.2deg); }
+.sticky-note:nth-child(5n+4){ transform:rotate(-0.6deg); }
+.sticky-note:hover{
+  transform:translateY(-6px) rotate(0deg);
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+}
+/* 스티키 색상 */
+:root{
+  --note-yellow:#fff8b8;
+  --note-blue:#dff3f9;
+  --note-pink:#ffe0e4;
+  --note-orange:#ffe8d1;
+  --note-green:#d1f7e1;
+}
+[data-priority='1']{background:var(--note-pink);}
+[data-priority='2']{background:var(--note-orange);}
+[data-priority='3']{background:var(--note-yellow);}
+[data-priority='4']{background:var(--note-blue);}
+[data-priority='5']{background:var(--note-green);}
+/* DONE 흐림 */
+[data-status='DONE']{opacity:.55;}
+
+/* 헤더 & 본문 */
+.note-header h6{margin:0 0 .6rem;font-weight:700;font-size:1.05rem;}
+.note-desc{font-size:.9rem;line-height:1.45;white-space:pre-wrap;}
+
+/* 핀(PIN) 데코 */
+.sticky-note::before{
+  content:'';
+  position:absolute;
+  top:12px; left:50%; transform:translateX(-50%);
+  width:18px; height:18px; border-radius:50%;
+  background:#343a40; border:4px solid #fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+
+/* 푸터 */
+.note-footer{margin-top:1rem;display:flex;justify-content:space-between;align-items:center;}
+.badge.priority{
+  background:rgba(0,0,0,.18);color:#fff;font-size:.7rem;padding:.25rem .7rem;border-radius:99px;
+}
+.actions .btn-icon{border:none;background:none;font-size:1.1rem;cursor:pointer;margin-left:.3rem;}
+.btn-icon.done{color:#16a34a;}
+.btn-icon.del{color:#ef4444;}
+
+/* 4) “+” 카드 */
+.add-note{
+  border:3px dashed #c3cad5;
+  color:#64748b;background:#f7f9fc;
+  align-items:center;justify-content:center;display:flex;
+  transition:background .2s ease,border-color .2s ease;
+}
+.add-note:hover{
+  background:#ebf0f9;border-color:#94a3b8;
+}
+
+/* 5) 모바일 대응 */
+@media(max-width:768px){
+  .board-wrap{padding:56px 20px 120px;}
+  .summary-card{flex-direction:column;gap:1rem;font-size:.95rem;}
+}
+
 </style>

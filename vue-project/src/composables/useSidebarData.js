@@ -65,8 +65,6 @@ async function fetchSidebarData() {
 }
 
 export function useSidebarData () {
-    fetchSidebarData()
-
     return {
         dDayList,
         todoList,

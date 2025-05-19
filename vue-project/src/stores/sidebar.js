@@ -1,0 +1,78 @@
+// src/stores/sidebar.js
+import { defineStore } from 'pinia'
+import api from '@/utils/api'
+
+export const useSidebarStore = defineStore('sidebar', {
+    state: () => ({
+        dDayList: [],
+        todoList: [],
+        remaining: 0,
+
+        visitorStats: { active: 0, today: 0, total: 0 },
+        topWriters: [],
+
+        _staticLoaded: false,
+        _staticInFlight: null,
+        _liveInFlight: null
+    }),
+
+    getters: {
+        todoProgress (state) {
+            const done = state.todoList.length - state.remaining
+            return state.todoList.length
+                ? Math.round((done / state.todoList.length) * 100)
+                : 0
+        }
+    },
+
+    actions: {
+        async loadStatic () {
+            if (this._staticLoaded) return
+            if (this._staticInFlight) return this._staticInFlight
+
+            this._staticInFlight = (async () => {
+                try {
+                    const [dayRes, todoRes] = await Promise.all([
+                        api.get('/day'),
+                        api.get('/search/today/todo')
+                    ])
+                    this.dDayList  = dayRes.data.D_Day ?? []
+                    this.todoList  = todoRes.data.todos ?? []
+                    this.remaining = todoRes.data.remainingCount ?? 0
+                    this._staticLoaded = true
+                } catch (err) {
+                    console.error('[sidebar] static 로딩 실패', err)
+                } finally {
+                    this._staticInFlight = null
+                }
+            })()
+
+            return this._staticInFlight
+        },
+
+        async loadLive () {
+            if (this._liveInFlight) return this._liveInFlight
+
+            this._liveInFlight = (async () => {
+                try {
+                    const [ipRes, writerRes] = await Promise.all([
+                        api.get('/get-ip'),
+                        api.get('/top-writers')
+                    ])
+                    this.visitorStats = {
+                        active: ipRes.data.activeUsers,
+                        today:  ipRes.data.data.todayVisitors,
+                        total:  ipRes.data.data.totalVisitors
+                    }
+                    this.topWriters = writerRes.data ?? []
+                } catch (err) {
+                    console.error('[sidebar] live 로딩 실패', err)
+                } finally {
+                    this._liveInFlight = null
+                }
+            })()
+
+            return this._liveInFlight
+        }
+    }
+})

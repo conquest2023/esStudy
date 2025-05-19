@@ -60,6 +60,7 @@ public class VisitDAOImpl implements VisitDAO {
                                 .aggregations("total_visitors", a -> a
                                         .cardinality(c -> c.field("ipAddress.keyword"))),
                         Void.class);
+                log.info("rrrrr");
 
                 long todayVisitors = response.aggregations()
                         .get("today_visitors")
@@ -84,7 +85,6 @@ public class VisitDAOImpl implements VisitDAO {
 //                        "currentVisitors", currentVisitors,
                         "totalVisitors", totalVisitors
                 );
-
             } catch (IOException e) {
                 log.error("Error retrieving visitor stats", e);
                 return Map.of(

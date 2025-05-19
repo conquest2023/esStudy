@@ -1,45 +1,30 @@
 <script setup>
-import { ref, onMounted,watch ,computed} from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/utils/api'
-import { useUserStore } from '@/stores/user'
-const router = useRouter()
-const store   = useUserStore()
-const showMobileMenu   = ref(false)
-const openDropdownIdx  = ref(null)
-const showNoti         = ref(false)
-const showUserMenu     = ref(false)
-const notifications = computed(() => store.notifications)
+import { ref, onMounted, watch, computed } from 'vue'
+import { useRouter }      from 'vue-router'
+import api                from '@/utils/api'
+import { useUserStore }   from '@/stores/user'
 
-const loggedIn = ref(false)
-const username = ref('')
-let   es = null
-onMounted(async () => {
+/* ▣ 스토어 ---------------------------------------- */
+const user = useUserStore()        // ← store 인스턴스
+const notifications = computed(() => user.notifications)
+// const unreadCount   = computed(() =>
+//     notifications.value.filter(n => !n.read).length)
+const unreadCount = computed(() =>
+    notifications.value.filter(n => !n.read).length
+)
+
+/* ▣ UI 전용 상태 ---------------------------------- */
+const router          = useRouter()
+const openDropdownIdx = ref(null)
+const showNoti        = ref(false)
+const showUserMenu    = ref(false)
+
+/* ▣ 초기 작업 ------------------------------------- */
+onMounted(() => {
   applySavedTheme()
-  await fetchAuth()
+  user.fetchMe()                   // 세션 확인
+  fetchNotifications()
 })
-watch(notifications, (val) => {
-  localStorage.setItem('notifications', JSON.stringify(val))
-}, { deep: true })
-
-async function fetchAuth () {
-  const token = localStorage.getItem('token')
-  if (!token) {
-     loggedIn.value = false
-    return
-  }
-  try {
-    const { data } = await api.get('/info')
-    loggedIn.value = !!data?.isLoggedIn
-    username.value = data?.username || ''
-  } catch (err) {
-    console.error('[Navbar] auth fetch error', err)
-  }
-}
-
-function unreadCount () {
-  return notifications.value.filter(n => !n.read).length
-}
 function applySavedTheme () {
   const saved = localStorage.getItem('theme') || 'light'
   isDarkMode.value = (saved === 'dark')
@@ -57,37 +42,36 @@ function applySavedTheme () {
     document.body.style.color = '#212529'
   }
 }
+/* 탭/창 간 토큰 동기화 */
+window.addEventListener('storage', e => {
+  if (e.key === 'token') user.fetchMe()
+})
 
+/* 알림이 store에 추가될 때 로컬에도 반영 */
+watch(notifications,
+    n => localStorage.setItem('notifications', JSON.stringify(n)),
+    { deep: true })
 
-function toggleNoti () {
-  showNoti.value = !showNoti.value
-  if (showNoti.value) {
-    notifications.value = notifications.value.map(n => ({ ...n, read: true }))
-  }
-}
-
-
-async function fetchNotifications() {
-  const token = localStorage.getItem("token")
-  if (!token) return
-  try {
-    const res = await fetch("/notifications/all", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    const data = await res.json()
-    notifications.value = data || []
-  } catch (err) {
-    console.error("알림 불러오기 실패", err)
-  }
-}
-
-function toggleDropdown (idx) {
+/* ------------------------------------------------- */
+/* 기존 헬퍼·API 호출 함수들은 user.* 로만 교체하면 끝 */
+function toggleDropdown(idx){
   openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
 }
-function logout () {
-  localStorage.removeItem('token')
-  loggedIn.value = false
-  username.value = ''
+function toggleNoti(){
+  showNoti.value = !showNoti.value
+  if(showNoti.value) user.markAllRead()
+}
+async function fetchNotifications(){
+  const token = localStorage.getItem('token')
+  if(!token) return
+  try{
+    const { data } = await api.get('/notifications/all',
+        { headers:{ Authorization:`Bearer ${token}` }})
+    user.notifications = data || []
+  }catch(e){ console.error('알림 불러오기 실패', e) }
+}
+function logout(){
+  user.logout()
   router.push('/login')
 }
 function updateTodoAlert(message) {
@@ -244,7 +228,7 @@ const menus = [
         <!-- 알림 -->
         <div class="position-relative me-2">
           <i class="fas fa-bell fa-lg text-secondary" style="cursor:pointer" @click="toggleNoti" />
-          <span v-if="unreadCount() > 0" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">!</span>
+          <span v-if="unreadCount.value > 0" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">!</span>
 
           <div class="notification-dropdown dropdown-menu shadow rounded p-3" :class="{ show: showNoti }">
             <ul v-if="notifications.some(n => !n.read)" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
@@ -282,24 +266,22 @@ const menus = [
           글쓰기
         </button>
         <!-- 로그인 / 유저 메뉴 -->
-        <template v-if="!loggedIn">
-          <button class="btn btn-outline-dark btn-sm" @click="router.push('/login')">로그인</button>
-        </template>
-        <template v-else>
+        <template v-if="user.isLoggedIn">
+          <!-- 로그인 상태 UI -->
           <div class="position-relative" @click.stop="showUserMenu = !showUserMenu">
             <button class="btn btn-outline-secondary btn-sm">
               <i class="fas fa-user-circle" />
             </button>
             <div class="dropdown-menu dropdown-menu-end mt-2" :class="{ show: showUserMenu }">
-              <span class="dropdown-item-text text-secondary"><b>{{ username }}</b>님</span>
-              <router-link class="dropdown-item" to="/search/view/feed/list/page">
-                <i class="fas fa-user me-2" /> 마이페이지
-              </router-link>
-              <button class="dropdown-item text-danger" @click="logout">
-                <i class="fas fa-sign-out-alt me-2" /> 로그아웃
-              </button>
+              <span class="dropdown-item-text text-secondary"><b>{{ user.username }}</b>님</span>
+              <router-link class="dropdown-item" to="/mypage"><i class="fas fa-user me-2" /> 마이페이지</router-link>
+              <button class="dropdown-item text-danger" @click="user.logout"><i class="fas fa-sign-out-alt me-2" /> 로그아웃</button>
             </div>
           </div>
+        </template>
+        <template v-else>
+          <!-- 비로그인 UI -->
+          <button class="btn btn-outline-dark btn-sm" @click="router.push('/login')">로그인</button>
         </template>
       </div>
     </div>

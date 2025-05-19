@@ -34,7 +34,7 @@ const routes = [
     },
 
 
-    { path: '/login', component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
+    { path: '/login', name:`Login`, component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
     { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
     { path: '/search/view/vote/detail', name: 'vote-detail', component: voteDetail, meta: { hideLayout: true } },
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },
