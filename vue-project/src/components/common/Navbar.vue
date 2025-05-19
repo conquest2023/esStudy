@@ -15,6 +15,7 @@ const loggedIn = ref(false)
 const username = ref('')
 let   es = null
 onMounted(async () => {
+  applySavedTheme()
   await fetchAuth()
 })
 watch(notifications, (val) => {
@@ -38,6 +39,23 @@ async function fetchAuth () {
 
 function unreadCount () {
   return notifications.value.filter(n => !n.read).length
+}
+function applySavedTheme () {
+  const saved = localStorage.getItem('theme') || 'light'
+  isDarkMode.value = (saved === 'dark')
+
+  const root = document.documentElement
+  if (isDarkMode.value) {
+    root.style.setProperty('--c-surface', '#1d1f24')
+    root.style.setProperty('--c-text', '#e5e7eb')
+    document.body.style.background = '#1d1f24'
+    document.body.style.color = '#e5e7eb'
+  } else {
+    root.style.setProperty('--c-surface', '#ffffff')
+    root.style.setProperty('--c-text', '#212529')
+    document.body.style.background = '#ffffff'
+    document.body.style.color = '#212529'
+  }
 }
 
 
@@ -118,6 +136,13 @@ function showToast (message, feedUID) {
   }, 5000)
 }
 
+const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
+
+function toggleTheme () {
+  isDarkMode.value = !isDarkMode.value
+  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light')
+  applySavedTheme()
+}
 
 const menus = [
   {
@@ -250,7 +275,9 @@ const menus = [
           </div>
         </div>
 
-        <!-- 글쓰기 버튼 -->
+        <button class="btn btn-outline-dark btn-sm" @click="toggleTheme">
+          <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+        </button>
         <button class="btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
           글쓰기
         </button>
@@ -278,6 +305,7 @@ const menus = [
     </div>
   </nav>
 </template>
+
 <style scoped>
 .custom-navbar {
   font-size: 1.05rem;
@@ -360,4 +388,5 @@ const menus = [
     display: none !important;
   }
 }
+
 </style>

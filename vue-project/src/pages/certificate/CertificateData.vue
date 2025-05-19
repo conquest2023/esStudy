@@ -11,14 +11,13 @@
       <div class="col-12 col-sm-6 col-lg-4" v-for="cert in paginatedData" :key="cert.title">
         <div class="card h-100 shadow-sm">
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title mb-3">
-              <a
-                  :href="`/certificate/detail?text=${encodeURIComponent(cert.title)}`"
-                  class="stretched-link text-decoration-none"
-              >
-                {{ cert.title }}
-              </a>
-            </h5>
+            <RouterLink
+                :to="{ path: '/certificate/detail', query: { text: cert.title } }"
+                class="stretched-link text-decoration-none"
+            >
+              {{ cert.title }}
+            </RouterLink>
+<!--            </h5>-->
           </div>
         </div>
       </div>
@@ -43,7 +42,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-
+import { useUserStore } from '@/stores/user'
+const store = useUserStore()
 const page = ref(0)
 const size = 10
 const mockData = [

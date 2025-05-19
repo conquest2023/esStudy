@@ -8,6 +8,7 @@
 </template>
 <script setup>
 import { useUserStore } from '@/stores/user'
+import { onMounted } from 'vue'
 import { useSSE } from '@/composables/useSSE'
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useRoute } from 'vue-router'
@@ -19,7 +20,19 @@ const route = useRoute()
 const hideLayout = computed(() =>
     route.meta.hideLayout === true
 )
+
+
 const store = useUserStore()
+
+onMounted(() => {
+  if (store.token) useSSE(store.token)
+})
 if (store.token) useSSE(store.token)
 </script>
+<style>
+:root {
+  --radius-lg: 1rem;
+}
+</style>
+
 

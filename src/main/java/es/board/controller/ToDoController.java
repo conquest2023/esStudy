@@ -131,6 +131,8 @@ public class ToDoController {
 
     @PostMapping("/save/todo")
     public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody TodoResponse todoResponse) {
+        log.info(token);
+        log.info(todoResponse.toString());
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {

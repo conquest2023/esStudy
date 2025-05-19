@@ -5,55 +5,56 @@
 
 
     <section class="my-4">
-      <h2 class="interview-title"
-          :class="{ active: isInterviewOpen }"
-          @click="isInterviewOpen = !isInterviewOpen">
-        <span><i class="fas fa-comments"></i> 면접 질문</span>
-        <small class="text-muted ms-2 d-none d-md-inline">(열기/닫기)</small>
-        <span class="toggle-icon fs-5">{{ isInterviewOpen ? '▲' : '▼' }}</span>
+      <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-comments fa-lg text-primary"></i>
+          <span class="fs-4 fw-bold">면접 질문</span>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" @click="isInterviewOpen = !isInterviewOpen">
+          {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}
+        </button>
       </h2>
-      <transition name="fade">
-        <div v-show="isInterviewOpen" class="mt-3">
 
-          <div class="d-flex justify-content-between flex-wrap">
-            <div class="btn-group mb-2">
-              <button
-                  v-for="cat in ['IT','일반']"
-                  :key="cat"
-                  class="btn btn-tab"
-                  :class="{ active:curCat===cat }"
-                  @click="changeCat(cat)">
+      <transition name="fade">
+        <div v-show="isInterviewOpen" class="p-3 bg-light rounded-3 shadow-sm mt-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="btn-group rounded-pill shadow-sm">
+              <button v-for="cat in ['IT','일반']"
+                      :key="cat"
+                      class="btn btn-outline-primary"
+                      :class="{ active: curCat === cat }"
+                      @click="changeCat(cat)">
                 <i :class="cat==='IT' ? 'fas fa-laptop-code' : 'fas fa-building'"></i>
-                {{ cat==='IT' ? 'IT 기업' : '일반 기업' }}
+                {{ cat }} 기업
               </button>
             </div>
 
-            <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 mb-2"
+            <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1"
                     @click="showBestAnswers">
-              <i class="fas fa-trophy"></i> 면접 베스트 답변 보기
+              <i class="fas fa-trophy text-warning"></i> 베스트 답변
             </button>
           </div>
 
-          <div v-if="curQuestion" class="card question-card mb-3">
-            <div class="card-header">
-              <h6 class="mb-0">{{ curQuestion.question }}</h6>
+          <div v-if="curQuestion" class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+              <strong>{{ curQuestion.question }}</strong>
             </div>
             <div class="card-body">
-              <textarea
-                  v-model="answerInput"
-                  rows="3"
+        <textarea v-model="answerInput"
                   class="form-control"
-                  placeholder="여기에 답변을 입력하세요…">
-                </textarea>
-              <button class="btn btn-primary mt-2" @click="submitAnswer">
-                답변 제출
+                  rows="4"
+                  placeholder="최소 35자 이상 입력해주세요"
+                  maxlength="1000"></textarea>
+              <div class="text-end text-muted small mt-1">{{ answerInput.length }} / 1000자</div>
+              <button class="btn btn-primary w-100 mt-3" @click="submitAnswer">
+                <i class="fas fa-paper-plane me-1"></i> 제출하기
               </button>
             </div>
           </div>
 
-          <div class="d-flex justify-content-between">
-            <button class="btn btn-outline-secondary btn-sm" @click="prevQ">← 이전</button>
-            <button class="btn btn-outline-secondary btn-sm" @click="nextQ">다음 →</button>
+          <div class="d-flex justify-content-between mt-3">
+            <button class="btn btn-outline-secondary" @click="prevQ"><i class="fas fa-arrow-left me-1"></i> 이전</button>
+            <button class="btn btn-outline-secondary" @click="nextQ">다음 <i class="fas fa-arrow-right ms-1"></i></button>
           </div>
         </div>
       </transition>
@@ -102,6 +103,7 @@
 </template>
 
 <script setup>
+
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter }             from 'vue-router'
 import api                       from '@/utils/api'
@@ -335,10 +337,17 @@ import Spinner                   from '@/components/Spinner.vue'
   .interview-title i {
     margin-right: 0.25rem;
   }
-
-  .toggle-icon {
-    margin-left: auto;
+  .btn-group .btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
   }
+
+  textarea.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
 
   .interview-title.active {
     color: #0d6efd;

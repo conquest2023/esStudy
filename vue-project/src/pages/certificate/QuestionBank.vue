@@ -147,14 +147,14 @@ async function loadQuestions(sessionNum) {
   const round = `${selectedYear.value}_${sessionNum}회`
 
   try {
-    const { data } = await axios.get('/practical', {
+    const { data } = await axios.get('/api/practical', {
       params: { category, round },
       headers: { Authorization: `Bearer ${token}` }
     })
     localStorage.setItem('questions', JSON.stringify(data.DTOS))
     localStorage.setItem('category', category)
     localStorage.setItem('round', round)
-    window.location.href = '/search/view/practical/question'
+    window.location.href = '/api/search/view/practical/question'
   } catch (e) {
     alert('문제를 불러오지 못했습니다.')
   }
@@ -163,7 +163,7 @@ async function loadQuestions(sessionNum) {
 async function loadTagQuestions(tagId) {
   const token = localStorage.getItem('token')
   try {
-    const { data } = await axios.get(`/practical/tag`, {
+    const { data } = await axios.get(`/api/practical/tag`, {
       params: { tagId },
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -174,7 +174,7 @@ async function loadTagQuestions(tagId) {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
 
-    window.location.href = '/search/view/practical/question'
+    window.location.href = '/api/search/view/practical/question'
   } catch (e) {
     alert('태그 문제를 불러오지 못했습니다.')
   }

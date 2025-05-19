@@ -1,164 +1,64 @@
 <template>
-  <div class="container py-4">
-    <!-- Todo Summary -->
-    <div v-if="todos.length" class="card mb-3">
-      <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="mb-2 mb-md-0">
-          전체 Todo: {{ todos.length }}개 / 완료: {{ completedCount }}개
+  <div class="board-wrap container">
+
+    <!-- ▣ 진행률 카드 -->
+    <div v-if="todos.length" class="summary-card">
+      <p>
+        전체 Todo <strong>{{ todos.length }}</strong>개 /
+        완료 <strong>{{ completedCount }}</strong>개
+      </p>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" :style="{ width: progress + '%' }">
+          {{ progress }}%
         </div>
-        <div class="progress" style="width: 50%; min-width:200px;">
-          <div
-              class="progress-bar"
-              role="progressbar"
-              :style="{ width: progress + '%' }"
-              :aria-valuenow="progress"
-              aria-valuemin="0"
-              aria-valuemax="100"
-          >
-            {{ progress }}%
+      </div>
+    </div>
+
+    <!-- ▣ 스티키 월 (Todo 카드) -->
+    <section class="sticky-wall">
+      <article
+          v-for="todo in todos"
+          :key="todo.todo_id"
+          class="sticky-note"
+          :data-status="todo.status"
+          :data-priority="todo.priority"
+      >
+        <header class="note-header">
+          <h6>{{ todo.title }}</h6>
+        </header>
+
+        <p class="note-desc">
+          {{ todo.description || '설명 없음' }}
+        </p>
+
+        <footer class="note-footer">
+          <span class="badge priority">P{{ todo.priority }}</span>
+          <div class="actions">
+            <button
+                class="btn-icon done"
+                @click="completeTodo(todo)"
+                :disabled="todo.status !== 'IN_PROGRESS'"
+            >
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn-icon del" @click="deleteTodo(todo.todo_id)">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
+        </footer>
+      </article>
 
-    <!-- Todo Table -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <strong>오늘의 할일</strong>
-        <router-link to="/todo/new" class="btn btn-sm btn-primary">
-          <i class="fas fa-plus"></i> 새 Todo 추가
-        </router-link>
-      </div>
-      <div class="card-body p-0">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-          <tr>
-            <th style="width: 40%;">제목</th>
-            <th>상태</th>
-            <th>우선순위</th>
-            <th class="text-end">작업</th>
-          </tr>
-          </thead>
-          <tbody>
-          <template v-for="todo in todos" :key="todo.todo_id">
-            <tr>
-              <td>
-                <a href="#" @click.prevent="toggleDetail(todo.todo_id)">
-                  {{ todo.title }}
-                </a>
-              </td>
-              <td>
-                  <span class="badge badge-status" :data-status="todo.status">
-                    {{ statusText(todo.status) }}
-                  </span>
-              </td>
-              <td>
-                  <span class="badge priority-badge" :data-priority="todo.priority">
-                    P{{ todo.priority }}
-                  </span>
-              </td>
-              <td class="text-end">
-                <button
-                    class="btn btn-sm btn-outline-success me-2"
-                    @click="completeTodo(todo)"
-                    :disabled="todo.status !== 'IN_PROGRESS'">
-                  완료
-                </button>
-                <button class="btn btn-sm btn-outline-danger" @click="deleteTodo(todo.todo_id)">
-                  삭제
-                </button>
-              </td>
-            </tr>
-            <tr v-if="showDetails[todo.todo_id]" class="todo-details">
-              <td colspan="4" class="p-3 bg-light">
-                <strong>설명:</strong> {{ todo.description || '설명 없음' }}<br>
-                <strong>우선순위:</strong> {{ todo.priority }}
-              </td>
-            </tr>
-          </template>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <!-- ▣ 새 카드 추가 버튼 -->
+      <button
+          class="sticky-note add-note"
+          @click="$router.push('/todo/new')"
+      >
+        <i class="fas fa-plus fa-2x"></i>
+      </button>
+    </section>
 
-    <!-- 프로젝트 섹션 -->
-    <div class="card shadow-sm">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <strong>장기 목표 및 프로젝트</strong>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-          <i class="fas fa-clock"></i> 프로젝트 추가
-        </button>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-            <tr>
-              <th style="width: 30%;">제목</th>
-              <th>상태</th>
-              <th>우선순위</th>
-              <th>마감일</th>
-              <th class="text-end">작업</th>
-            </tr>
-            </thead>
-            <tbody id="project-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- D-Day 일정 섹션 -->
-    <div class="card shadow-sm mt-5">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <strong>내 D-DAY 일정</strong>
-        <button class="btn btn-success btn-sm" @click="showDDayModal = true">
-          <i class="fas fa-clock"></i> D-DAY 추가
-        </button>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-            <tr>
-              <th>시험명</th>
-              <th>시험일</th>
-              <th>D-DAY</th>
-              <th>목표</th>
-              <th class="text-end">작업</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-if="dDays.length === 0">
-              <td colspan="5" class="text-center text-muted py-4">등록된 D-DAY가 없습니다.</td>
-            </tr>
-            <tr v-for="dd in dDays" :key="dd.id">
-              <td>{{ dd.examName }}</td>
-              <td>{{ dd.examDate }}</td>
-              <td>
-                <strong>
-                  {{ dd.dday === 0 ? '시험 당일!' : dd.dday < 0 ? '시험 지남' : 'D-' + dd.dday}}
-                </strong>
-              </td>
-              <td>{{ dd.goal || '' }}</td>
-              <td class="text-end">
-                <button class="btn btn-sm btn-danger" @click="deleteDDay(dd.id)">삭제</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <DDayModal :visible="showDDayModal" @close="showDDayModal = false" @refresh="fetchDDays" />
-
-    </div>
-
-
-    <!-- Kibana Chart -->
-    <div class="card text-center shadow-sm p-4 mt-5">
-      <h4 class="mb-3">📊 Todo 완료율 분석</h4>
-      <iframe id="kibana-chart" height="600" width="800" :src="kibanaUrl"></iframe>
-      <p class="mt-3 text-muted">최근 1주일 동안 완료된 Todo 추이</p>
-    </div>
+    <!-- ▣ 장기 목표 · D-DAY · Kibana 영역은 그대로 두면 됩니다 -->
+    <slot></slot>
   </div>
 </template>
 
@@ -297,35 +197,142 @@ onMounted(async () => {
   margin: 50px auto;
   padding-top: 100px;
 }
-.badge-status[data-status='TODO'] {
-  background-color: #6c757d;
+:root {
+  --note-yellow: #fff8b8;
+  --note-blue:   #dff3f9;
+  --note-pink:   #ffe0e4;
+  --note-orange: #ffe8d1;
+  --note-green:  #d1f7e1;
+  --radius: 14px;
+  --shadow: 0 4px 14px rgba(0,0,0,.08);
 }
 
-.badge-status[data-status='IN_PROGRESS'] {
-  background-color: #0d6efd;
+/* ───────── 레이아웃 ───────── */
+.board-wrap {
+  padding-top: 100px;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-.badge-status[data-status='DONE'] {
-  background-color: #198754;
+.summary-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.priority-badge[data-priority='1'] {
-  background-color: #dc3545;
+.progress-bar-outer {
+  flex: 0 0 45%;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 5px;
 }
 
-.priority-badge[data-priority='2'] {
-  background-color: #fd7e14;
+.progress-bar-inner {
+  background: #0d6efd;
+  height: 100%;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+  color: #fff;
+  text-align: right;
+  padding-right: .25rem;
 }
 
-.priority-badge[data-priority='3'] {
-  background-color: #ffc107;
+/* ───────── 스티키 월 ───────── */
+.sticky-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
 }
 
-.priority-badge[data-priority='4'] {
-  background-color: #20c997;
+.sticky-note {
+  position: relative;
+  padding: 1.25rem 1.5rem 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  background: var(--note-yellow);           /* 기본 색 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.priority-badge[data-priority='5'] {
-  background-color: #0dcaf0;
+.sticky-note:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+}
+
+/* ▣ 상태별 투명도 */
+.sticky-note[data-status='DONE']    { opacity: .55; }
+.sticky-note[data-status='TODO']    { opacity: 1;   }
+.sticky-note[data-status='IN_PROGRESS'] { opacity: 1; }
+
+/* ▣ 우선순위별 색상 */
+.sticky-note[data-priority='1'] { background: var(--note-pink);   }
+.sticky-note[data-priority='2'] { background: var(--note-orange); }
+.sticky-note[data-priority='3'] { background: var(--note-yellow); }
+.sticky-note[data-priority='4'] { background: var(--note-blue);   }
+.sticky-note[data-priority='5'] { background: var(--note-green);  }
+
+.note-header h6 {
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+.note-desc {
+  font-size: .875rem;
+  min-height: 60px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.note-footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge.priority {
+  background: rgba(0,0,0,.15);
+  border-radius: 99px;
+  padding: .2rem .6rem;
+  font-size: .75rem;
+}
+
+.actions .btn-icon {
+  border: none;
+  background: transparent;
+  margin-left: .25rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.actions .btn-icon.done { color: #198754; }
+.actions .btn-icon.del  { color: #dc3545; }
+
+/* ▣ “+” 추가 카드 */
+.add-note {
+  border: 2px dashed #cbd5e1;
+  color: #6c757d;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.add-note:hover {
+  background: #e9ecef;
+}
+
+/* ───────── 반응형 보완 ───────── */
+@media (max-width: 768px) {
+  .summary-card { flex-direction: column; gap: 1rem; }
 }
 </style>

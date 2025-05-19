@@ -1,59 +1,57 @@
 <template>
-  <button v-if="collapsed" class="sidebar-fab d-inline-flex" @click="collapsed = false" aria-label="사이드바 열기">
-    <i class="fas fa-bars"></i>
+  <button
+      v-if="collapsed"
+      class="sidebar-fab d-inline-flex"
+      @click="collapsed = false"
+      aria-label="사이드바 열기"
+  >
+    <i class="fas fa-chart-pie"></i>
   </button>
 
-
-  <!-- ▣ Sidebar Drawer -->
   <transition name="fade-slide">
     <aside v-if="!collapsed" class="sidebar-drawer glass shadow-lg">
-      <!-- ▣ Drawer Header -->
-      <header class="d-flex justify-content-between align-items-center mb-3">
-        <!-- Section Nav -->
-        <nav class="nav nav-pills gap-2 flex-grow-1">
-          <button
-              v-for="s in sections"
-              :key="s.id"
-              class="nav-link d-flex align-items-center gap-1"
-              :class="{ active: currentSection === s.id }"
-              @click="currentSection = s.id"
-              :title="s.title"
-          >
-            <i :class="s.icon"></i>
-            <span class="d-none d-lg-inline">{{ s.title }}</span>
-          </button>
-        </nav>
-        <button class="btn btn-sm btn-light ms-2" @click="collapsed = true">
+      <header class="sidebar-header d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+          <i class="fas fa-layer-group me-2"></i> Workly Insights
+        </h5>
+        <button class="btn btn-sm btn-light" @click="collapsed = true">
           <i class="fas fa-times"></i>
         </button>
       </header>
 
-      <!-- ▣ Dashboard: 방문자·Top Writers -->
+      <nav class="nav nav-tabs nav-fill mb-3">
+        <button
+            v-for="s in sections"
+            :key="s.id"
+            class="nav-link"
+            :class="{ active: currentSection === s.id }"
+            @click="currentSection = s.id"
+        >
+          <i :class="s.icon"></i> {{ s.title }}
+        </button>
+      </nav>
+
       <section v-show="currentSection === 'dashboard'" class="mb-4">
-        <!-- Visitor Stats Card -->
         <div class="card mb-3">
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2"><i class="fas fa-chart-line me-1"></i> 방문자 통계</h6>
-            <div class="d-flex justify-content-between small text-muted">
-              <div>
-                <span class="fw-bold">{{ visitorStats.active }}</span> 현재 접속
-              </div>
-              <div>
-                <span class="fw-bold">{{ visitorStats.today }}</span> 오늘
-              </div>
-              <div>
-                <span class="fw-bold">{{ visitorStats.total }}</span> 누적
-              </div>
+            <div class="d-flex justify-content-around small text-muted">
+              <div><span class="fw-bold">{{ visitorStats.active }}</span> 접속</div>
+              <div><span class="fw-bold">{{ visitorStats.today }}</span> 오늘</div>
+              <div><span class="fw-bold">{{ visitorStats.total }}</span> 누적</div>
             </div>
           </div>
         </div>
 
-        <!-- Top Writers Card -->
         <div class="card">
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2"><i class="fas fa-crown me-1"></i> Top 5 기여자</h6>
             <div v-if="!topWriters.length" class="text-muted small text-center">데이터가 없습니다</div>
-            <div v-for="(w, idx) in topWriters" :key="w.username" class="d-flex justify-content-between align-items-center small py-1">
+            <div
+                v-for="(w, idx) in topWriters"
+                :key="w.username"
+                class="d-flex justify-content-between align-items-center small py-1"
+            >
               <span>{{ rankIcon(idx) }} {{ w.username }}</span>
               <span class="text-muted">{{ w.viewCount }}점</span>
             </div>
@@ -61,14 +59,16 @@
         </div>
       </section>
 
-      <!-- ▣ Tasks: D-Day & Todo -->
       <section v-show="currentSection === 'tasks'" class="mb-4">
-        <!-- D-Day -->
         <div class="card mb-3">
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2"><i class="fas fa-flag-checkered me-1"></i> D-Day 목록</h6>
             <ul class="list-group list-group-flush">
-              <li v-for="d in dDayList" :key="d.id" class="list-group-item d-flex justify-content-between align-items-center px-0 py-1">
+              <li
+                  v-for="d in dDayList"
+                  :key="d.id"
+                  class="list-group-item d-flex justify-content-between align-items-center px-0 py-1"
+              >
                 <span>{{ d.examName }}</span>
                 <span class="badge bg-danger">D-{{ d.dday }}</span>
               </li>
@@ -77,13 +77,12 @@
           </div>
         </div>
 
-        <!-- Todo -->
         <div class="card">
           <div class="card-body p-3">
             <h6 class="fw-bold mb-2"><i class="fas fa-list-check me-1"></i> 오늘의 Todo</h6>
             <div class="progress mb-2" :title="todoProgress + '%'">
               <div
-                  class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+                  class="progress-bar bg-success progress-bar-striped progress-bar-animated"
                   role="progressbar"
                   :style="{ width: todoProgress + '%' }"
                   :aria-valuenow="todoProgress"
@@ -94,7 +93,11 @@
               </div>
             </div>
             <ul class="list-group list-group-flush">
-              <li v-for="t in todoList.slice(0, 3)" :key="t.id" class="list-group-item d-flex justify-content-between align-items-center px-0 py-1">
+              <li
+                  v-for="t in todoList.slice(0, 3)"
+                  :key="t.id"
+                  class="list-group-item d-flex justify-content-between align-items-center px-0 py-1"
+              >
                 <span>{{ statusIcon(t.status) }} {{ t.title }}</span>
                 <span class="badge bg-secondary">{{ t.priority }}</span>
               </li>
@@ -155,9 +158,31 @@ const rankIcon = i => ['👑', '🥇', '🥈', '🥉'][i] || `${i + 1}.`
 </script>
 
 <style scoped>
-/*****************
-* Layout & Glass *
-*****************/
+.sidebar-fab {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bs-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  z-index: 1050;
+}
+
+.sidebar-header h5 {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.01rem;
+}
 .sidebar-drawer {
   position: fixed;
   top: 70px;
@@ -183,7 +208,7 @@ const rankIcon = i => ['👑', '🥇', '🥈', '🥉'][i] || `${i + 1}.`
     right: 0;
     bottom: 0;
     top: auto;
-    max-height: 85vh;
+    height: 60vh; /* 기존보다 높게 조정 */
     border-radius: 1.25rem 1.25rem 0 0;
   }
 }

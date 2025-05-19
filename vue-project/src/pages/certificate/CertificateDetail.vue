@@ -20,7 +20,7 @@
             <h5 class="card-title">{{ item.title }}</h5>
             <p class="card-text text-muted">
               <RouterLink
-                  :to="`/search/view/feed/id/${item.feedUID}`"
+                  :to="`api/search/view/feed/id/${item.feedUID}`"
                   class="text-decoration-none text-muted"
               >
                 {{ truncate(item.description || '설명 없음', 10) }}
@@ -66,7 +66,7 @@ onMounted(async () => {
   }
 
   try {
-    const { data } = await axios.get('/search/content', { params: { text } })
+    const { data } = await axios.get('/api/search/content', { params: { text } })
     contentList.value = data.data || []
     pageTitle.value = `"${text}" 관련 자료 (${contentList.value.length}개)`
   } catch (err) {
