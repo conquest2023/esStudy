@@ -23,7 +23,15 @@ export default {
           :root{
             --c-surface:var(--c-surface-dark);
             --c-text:var(--c-text-dark);
+           
           }
+           .feed-card .text-muted {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .feed-card .meta-stats {
+    color: rgba(255, 255, 255, 0.8);
+  }
           body{background:var(--c-surface);color:var(--c-text);}
         }`;
         document.head.appendChild(style)

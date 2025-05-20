@@ -79,7 +79,6 @@
         </div>
 
 
-        <!-- 답글 작성 영역 -->
       <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
       <div v-show="activeReply === c.commentUID" class="mt-2">
         <textarea v-model="replyTexts[c.commentUID]" rows="2" class="form-control mb-2" placeholder="답글 입력"/>
@@ -112,7 +111,6 @@ import { useToast } from '@/composables/useToast'
   const route   = useRoute()
   const router  = useRouter()
   const store   = useUserStore()
-  const { push } = useToast()
 
   const id         = route.params.id
   const feed       = ref({})
@@ -129,7 +127,7 @@ import { useToast } from '@/composables/useToast'
   const commentText= ref('')
   const sending    = ref(false)
   const reloadTrigger = ref(0)
-  const login      = computed(() => !!store.token)
+  const login = computed(() => store.isLoggedIn)
   const isOwner = computed(() => feed.value?.Owner === true)
 
 
@@ -143,6 +141,7 @@ import { useToast } from '@/composables/useToast'
     el.innerHTML = encoded
     return el.value
   }
+
 
 onMounted(async () => {
     try {
@@ -213,7 +212,8 @@ const dateText = computed(() => formatDate(feed.value.createdAt))
 
 
   async function toggleLike(){
-    if(!login.value){ push('로그인이 필요합니다'); return }
+    if(!login.value){
+      push('로그인이 필요합니다'); return }
     const prev = liked.value
     liked.value = !prev
     likeCount.value += prev?-1:1

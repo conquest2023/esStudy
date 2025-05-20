@@ -3,7 +3,6 @@
   <section class="board-wrap">
     <SearchBar class="mb-3" />
 
-
     <section class="my-4">
       <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-2">

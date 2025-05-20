@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,11 +49,12 @@ public class NoticeServiceImpl  implements NoticeService {
     public List<NoticeRequest> getAllNotices() {
         String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
 
-//        if (cachedNotices != null) {
-//            return deserializeNotices(cachedNotices);
-//        }
+        if (cachedNotices != null) {
+            log.info("캐시 성공!");
+            return deserializeNotices(cachedNotices);
+        }
         List<NoticeRequest> notices = feedMapper.fromNoticeList(noticeRepository.findNoticeByCreatedAtDESC());
-//      redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
+        redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
         return notices;
     }
 
@@ -75,7 +77,7 @@ public class NoticeServiceImpl  implements NoticeService {
             asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
         });
-        log.info(notice.toString());
+        redisTemplate.delete(NOTICE_KEY);
         List<String> userIds = userRepository.findAllUserIds();
         notificationService.sendNoticeNotification(userIds,String.valueOf(notice.getFeedUID()), "📢 새로운 공지사항이 등록되었습니다!");
     }

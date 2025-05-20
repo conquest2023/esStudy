@@ -23,7 +23,7 @@ const showUserMenu    = ref(false)
 onMounted(() => {
   applySavedTheme()
   user.fetchMe()                   // 세션 확인
-  fetchNotifications()
+  // fetchNotifications()
 })
 function applySavedTheme () {
   const saved = localStorage.getItem('theme') || 'light'
@@ -61,15 +61,15 @@ function toggleNoti(){
   showNoti.value = !showNoti.value
   if(showNoti.value) user.markAllRead()
 }
-async function fetchNotifications(){
-  const token = localStorage.getItem('token')
-  if(!token) return
-  try{
-    const { data } = await api.get('/notifications/all',
-        { headers:{ Authorization:`Bearer ${token}` }})
-    user.notifications = data || []
-  }catch(e){ console.error('알림 불러오기 실패', e) }
-}
+// async function fetchNotifications(){
+//   const token = localStorage.getItem('token')
+//   if(!token) return
+//   try{
+//     const { data } = await api.get('/notifications/all',
+//         { headers:{ Authorization:`Bearer ${token}` }})
+//     user.notifications = data || []
+//   }catch(e){ console.error('알림 불러오기 실패', e) }
+// }
 function logout(){
   user.logout()
   router.push('/login')

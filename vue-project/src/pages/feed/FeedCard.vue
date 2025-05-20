@@ -12,8 +12,9 @@
         </h6>
         <small class="text-muted">{{ post.username }} · {{ time }}</small>
       </div>
-      <div v-if="!notice && !isVote" class="d-flex align-items-center text-muted small gap-3 flex-shrink-0">
-        <span><i class="bi bi-eye me-1"></i>{{ post.viewCount }}</span>
+      <div v-if="!notice && !isVote"
+           class="d-flex align-items-center meta-stats small gap-3 flex-shrink-0">
+      <span><i class="bi bi-eye me-1"></i>{{ post.viewCount }}</span>
         <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ post.likeCount }}</span>
       </div>
     </div>
@@ -43,13 +44,21 @@ function goToDetail(){
 </script>
 
 <style scoped>
-.feed-card{
+.feed-card {
   border:none;
   box-shadow: var(--elev-1, 0 1px 3px rgba(0,0,0,.08));
   border-radius:var(--radius-lg);
   cursor:pointer;
+  font-weight: 500;
   background: var(--c-surface, #fff);
-  color: var(--c-text, #000);
+  //color: rgba(255, 255, 255, 0.85);
+}
+.feed-card .text-muted {
+  color: var(--c-text-muted);
+}
+
+.feed-card .meta-stats {
+  color: var(--c-meta-stats);
 }
 .feed-card.notice{border:2px solid #f0ad4e;}
 </style>

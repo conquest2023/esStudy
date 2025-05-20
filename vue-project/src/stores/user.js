@@ -5,16 +5,12 @@ import api from '@/utils/api'
 export const useUserStore = defineStore('user', {
     /* ---------------- state ---------------- */
     state: () => ({
-        /** 인증 여부 */
         isLoggedIn: !!localStorage.getItem('token'),
 
-        /** 프로필 */
         username:   localStorage.getItem('username') || '',
 
-        /** 알림 센터 */
         notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
 
-        /** 전역 로딩 flag (선택) */
         loading: false,
     }),
 

@@ -63,5 +63,10 @@ watch(route, (to) => {
 </script>
 
 <style>
-:root { --radius-lg: 1rem; }
+:root {
+  --radius-lg: 1rem;
+  --c-text-muted-dark: rgba(255, 255, 255, 0.85);
+  --c-meta-stats-dark: rgba(255, 255, 255, 0.8);
+
+}
 </style>
