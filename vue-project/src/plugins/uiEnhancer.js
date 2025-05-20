@@ -36,7 +36,6 @@ export default {
         }`;
         document.head.appendChild(style)
 
-        // 2) 마이크로 인터랙션 directive (hover lift)
         app.directive('lift', {
             mounted(el){
                 el.style.transition = 'transform .2s ease, box-shadow .2s ease';
@@ -51,7 +50,6 @@ export default {
             }
         })
 
-        // 3) vueuse/motion 등록
         app.use(MotionPlugin)
     }
 }

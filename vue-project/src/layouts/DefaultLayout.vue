@@ -5,6 +5,15 @@ import RightSidebar      from '@/components/sidebar/RightSidebar.vue'
 import NotificationToast from '@/components/common/NotificationToast.vue'
 import MobileBottomNav   from '@/components/mobile/MobileBottomNav.vue'
 import { useRouter }     from 'vue-router'
+import { ref, watch, nextTick ,onMounted,computed} from 'vue'
+import {useSidebarStore} from "@/stores/sidebar";
+import {useUserStore} from "@/stores/user";
+const sb = useSidebarStore()
+const store = useUserStore()
+// onMounted(async () => {
+//     await sb.loadStatic()
+//     await sb.loadLive()
+// })
 
 const router = useRouter()
 
@@ -52,7 +61,6 @@ const navItems = [
 </template>
 
 <style>
-/* ❗ scoped 제거 → 자식 컴포넌트에도 적용됨 */
 .page-wrap{display:flex;justify-content:center;gap:30px;max-width:1280px;margin:0 auto;padding:0 20px}
 .main-wrap {
   flex: 1 1 0;

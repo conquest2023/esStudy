@@ -4,6 +4,7 @@ import JobView from '@/pages/site/JobView.vue'
 import JobSiteList from '@/pages/site/JobSiteList.vue'
 import Todo from '@/pages/todo/Todo.vue'
 import NewTodo from '@/pages/todo/TodoAdd.vue'
+import FeedUpdate from '@/pages/feed/FeedUpdate.vue'
 import QuestionBank from '@/pages/certificate/QuestionBank.vue'
 import PracticeQuestion from '@/pages/certificate/PracticeQuestion.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
@@ -37,6 +38,7 @@ const routes = [
 
     { path: '/login', name:`Login`, component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
     { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
+    { path: '/search/view/feed/update', name: 'feed-update', component: FeedUpdate },
     { path: '/search/view/vote/detail', name: 'vote-detail', component: voteDetail, meta: { hideLayout: true } },
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },
     { path: '/search/view/feed/id/:id', name: 'feed-detail', component: () => import('@/pages/feed/FeedDetail.vue'), meta: { hideLayout: true } },

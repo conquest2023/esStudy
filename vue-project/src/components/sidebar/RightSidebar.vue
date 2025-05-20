@@ -137,32 +137,28 @@ const sections = [
 
 watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v))
 
-/* ───────── Pinia 스토어 바인딩 ───────── */
 const sb = useSidebarStore()
-const {
-  dDayList, todoList, todoProgress,
-  visitorStats, topWriters
-} = storeToRefs(sb)
-const activeUsers = computed(() => sb.visitorStats.active)
-const todayUsers  = computed(() => sb.visitorStats.today)
-const totalUsers  = computed(() => sb.visitorStats.total)
+const { dDayList, todoList, todoProgress, visitorStats, topWriters } = storeToRefs(sb)
 
-// onMounted(() => {
-//   sb.loadLive()
-// })
+const activeUsers = computed(() => visitorStats.value.active)
+const todayUsers  = computed(() => visitorStats.value.today)
+const totalUsers  = computed(() => visitorStats.value.total)
+let loadedOnce = false
+
+onMounted(() => {
+  if (!loadedOnce) {
+    sb.loadLive()
+    loadedOnce = true
+  }
+})
+
+// const activeUsers = computed(() => sb.visitorStats.active)
+// const todayUsers  = computed(() => sb.visitorStats.today)
+// const totalUsers  = computed(() => sb.visitorStats.total)
 const route      = useRoute()
 const isFeedMain = computed(() => route.path === '/')
 
 let timer = null
-// onMounted(async () => {
-//   if (!isFeedMain.value) return
-//
-//   await sb.loadStatic()   // 한 번만
-//   await sb.loadLive()     // 방문자·작가 최신
-//
-//   // 30초마다 실시간 데이터 갱신
-//   timer = setInterval(sb.loadLive, 30_000)
-// })
 onBeforeUnmount(() => clearInterval(timer))
 
 /* ▣ 헬퍼 */

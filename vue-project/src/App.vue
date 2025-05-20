@@ -2,8 +2,7 @@
   <NavBar />
 
   <!-- 사이드바: 로그인 상태 + 레이아웃이 숨김이 아닐 때만 -->
-  <RightSidebar v-if="store.token && !hideLayout" />
-
+<!--  <RightSidebar v-if="store.token && !hideLayout" />-->
   <RouterView v-slot="{ Component }">
     <keep-alive include="FeedList">
       <component :is="Component" />
@@ -12,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick ,onMounted} from 'vue'
+import {computed} from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useSidebarStore } from '@/stores/sidebar'
@@ -24,24 +23,31 @@ const route = useRoute()
 const store = useUserStore()
 const sb = useSidebarStore()
 
-/* ▣ 레이아웃 감춤 여부 계산 */
-const hideLayout = ref(false)
-watch(
-    route,
-    async () => {
-      hideLayout.value = route.meta.hideLayout === true
-      await nextTick()
-
-      if (!hideLayout.value && store.token) {
-        await sb.loadStatic()
-        await sb.loadLive()
-        initSSE()
-      }
-    },
-    { immediate: true }
-)
-
-/* ▣ SSE 싱글턴 */
+// /* ▣ 레이아웃 감춤 여부 계산 */
+// const hideLayout = ref(false)
+// watch(
+//     route,
+//     async () => {
+//       hideLayout.value = route.meta.hideLayout === true
+//       await nextTick()
+//
+//       if (!hideLayout.value && store.token) {
+//         await sb.loadStatic()
+//         await sb.loadLive()
+//         initSSE()
+//       }
+//     },
+//     { immediate: true }
+// )
+const hideLayout = computed(() => route.meta.hideLayout === true)
+// watch(
+//     () => route.name,
+//     async name => {
+//       if (name === 'FeedList') {
+//         await sb.loadLive()
+//       }
+//     }
+// )
 let sseInit = false
 function initSSE () {
   if (!sseInit && store.token) {
@@ -55,11 +61,11 @@ function initSSE () {
 //   await sb.loadLive()
 //   initSSE()
 // })
-watch(route, (to) => {
-  if (to.name === 'FeedList' && !hideLayout.value) {
-    sb.loadLive()
-  }
-})
+// watch(route, (to) => {
+//   if (to.name === 'FeedList' && !hideLayout.value) {
+//     sb.loadLive()
+//   }
+// })
 </script>
 
 <style>

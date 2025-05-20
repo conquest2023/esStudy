@@ -106,6 +106,7 @@
 import { ref, computed, watch, onMounted , onActivated, onDeactivated } from 'vue'
 import { useRouter }             from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
+import { storeToRefs } from 'pinia'
 import api                       from '@/utils/api'
 import * as bootstrap from 'bootstrap'
 import SearchBar from '@/components/SearchBar.vue'
@@ -113,29 +114,25 @@ import Pagination                from '@/common/Pagination.vue'
 import BoardTabs                 from '@/components/BoardTabs.vue'
 import FeedCard                  from '@/pages/feed/FeedCard.vue'
 import Spinner                   from '@/components/Spinner.vue'
-  const keyword   = ref('')
-  const todoAlert = ref('')
+const keyword   = ref('')
+const todoAlert = ref('')
   function doSearch () {
     if (!keyword.value.trim()) return
     router.push({ path:'/search', query:{ q:keyword.value.trim() } })
   }
-const sidebar = useSidebarStore()
-onMounted(async () => {
-  await sidebar.loadStatic()   // 오늘 할 일·D-Day
-  await sidebar.loadLive()     // 방문자·TOP 작가
-})
+// const sb = useSidebarStore()
+//
+//
+// const { dDayList, todoList, todoProgress, visitorStats, topWriters } = storeToRefs(sb)
 
-/* ── 2. 라우터 keep-alive 상태에서 돌아올 때 ── */
-onActivated(() => sidebar.loadLive())
 
-/* ── 3. (선택) 30초마다 실시간 데이터 자동 갱신 ── */
-let timer = null
-onActivated(() => {
-  timer = setInterval(sidebar.loadLive, 30_000)   // 30초
-})
-onDeactivated(() => {
-  if (timer) clearInterval(timer)
-})
+// let timer = null
+// onActivated(() => {
+//   timer = setInterval(sidebar.loadLive, 30_000)   // 30초
+// })
+// onDeactivated(() => {
+//   if (timer) clearInterval(timer)
+// })
   const itQs  = ref([])
   const genQs = ref([])
   const curCat = ref('IT')

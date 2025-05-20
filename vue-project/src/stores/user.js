@@ -34,7 +34,6 @@ export const useUserStore = defineStore('user', {
             }
         },
 
-        /** ▣ 로그인 성공 시 호출 */
         setAuth (token, name) {
             localStorage.setItem('token', token)
             localStorage.setItem('username', name)
@@ -61,10 +60,7 @@ export const useUserStore = defineStore('user', {
             localStorage.setItem('notifications', JSON.stringify(this.notifications))
         },
 
-        /** ▣ 상태 초기화(내장) + 커스텀 필드 클리어 */
         $reset () {
-            // Pinia option-store엔 기본 $reset이 있으므로
-            // 필요한 값만 덮어씌워도 됩니다.
             this.isLoggedIn   = false
             this.username     = ''
             this.notifications = []

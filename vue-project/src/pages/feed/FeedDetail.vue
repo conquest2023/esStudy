@@ -257,7 +257,8 @@ const dateText = computed(() => formatDate(feed.value.createdAt))
   }
 function goEdit(){
   router.push({
-    path:'/search/view/feed/update', query:{ id:feed.value.feedUID}
+    path:'/search/view/feed/update',
+    query:{ id:feed.value.feedUID}
       }
   )}
   async function onDelete(){
@@ -266,7 +267,7 @@ function goEdit(){
     await api.post('/search/view/feed/delete',{ id:feed.value.id })
       push('게시글이 삭제되었습니다')
       await new Promise(resolve => setTimeout(resolve, 1000))
-      router.push('/')
+      router.push(`/api/search/view/feed/id/${id}`)
     } catch(e){
       push('삭제 중 오류 발생')
     }

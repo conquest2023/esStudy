@@ -4,8 +4,7 @@ import { useRouter }      from 'vue-router'
 import api                from '@/utils/api'
 import { useUserStore }   from '@/stores/user'
 
-/* ▣ 스토어 ---------------------------------------- */
-const user = useUserStore()        // ← store 인스턴스
+const user = useUserStore()
 const notifications = computed(() => user.notifications)
 // const unreadCount   = computed(() =>
 //     notifications.value.filter(n => !n.read).length)
@@ -13,13 +12,11 @@ const unreadCount = computed(() =>
     notifications.value.filter(n => !n.read).length
 )
 
-/* ▣ UI 전용 상태 ---------------------------------- */
 const router          = useRouter()
 const openDropdownIdx = ref(null)
 const showNoti        = ref(false)
 const showUserMenu    = ref(false)
 
-/* ▣ 초기 작업 ------------------------------------- */
 onMounted(() => {
   applySavedTheme()
   user.fetchMe()                   // 세션 확인
@@ -46,14 +43,10 @@ function applySavedTheme () {
 window.addEventListener('storage', e => {
   if (e.key === 'token') user.fetchMe()
 })
-
-/* 알림이 store에 추가될 때 로컬에도 반영 */
 watch(notifications,
     n => localStorage.setItem('notifications', JSON.stringify(n)),
     { deep: true })
 
-/* ------------------------------------------------- */
-/* 기존 헬퍼·API 호출 함수들은 user.* 로만 교체하면 끝 */
 function toggleDropdown(idx){
   openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
 }

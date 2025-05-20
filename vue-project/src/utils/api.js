@@ -16,7 +16,6 @@ api.interceptors.response.use(
     res => res,
     err => {
         if (err.response?.status === 401) {
-            // 세션 만료 → 자동 로그아웃
             const store = useUserStore()
             store.logout()
         }

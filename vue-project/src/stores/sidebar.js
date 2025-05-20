@@ -13,7 +13,9 @@ export const useSidebarStore = defineStore('sidebar', {
 
         _staticLoaded: false,
         _staticInFlight: null,
-        _liveInFlight: null
+
+        _liveLoaded: false,      // ← 추가
+        _liveInFlight: null,
     }),
 
     getters: {
@@ -26,7 +28,7 @@ export const useSidebarStore = defineStore('sidebar', {
     },
 
     actions: {
-        async loadStatic () {
+        async loadStatic() {
             if (this._staticLoaded) return
             if (this._staticInFlight) return this._staticInFlight
 
@@ -36,8 +38,8 @@ export const useSidebarStore = defineStore('sidebar', {
                         api.get('/day'),
                         api.get('/search/today/todo')
                     ])
-                    this.dDayList  = dayRes.data.D_Day ?? []
-                    this.todoList  = todoRes.data.todos ?? []
+                    this.dDayList = dayRes.data.D_Day ?? []
+                    this.todoList = todoRes.data.todos ?? []
                     this.remaining = todoRes.data.remainingCount ?? 0
                     this._staticLoaded = true
                 } catch (err) {
@@ -50,8 +52,12 @@ export const useSidebarStore = defineStore('sidebar', {
             return this._staticInFlight
         },
 
-        async loadLive () {
+        async loadLive() {
+            if (this._liveLoaded) return
             if (this._liveInFlight) return this._liveInFlight
+
+
+            this._liveLoaded = true
 
             this._liveInFlight = (async () => {
                 try {
@@ -61,12 +67,14 @@ export const useSidebarStore = defineStore('sidebar', {
                     ])
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
-                        today:  ipRes.data.data.todayVisitors,
-                        total:  ipRes.data.data.totalVisitors
+                        today: ipRes.data.data.todayVisitors,
+                        total: ipRes.data.data.totalVisitors
                     }
                     this.topWriters = writerRes.data ?? []
-                } catch (err) {
-                    console.error('[sidebar] live 로딩 실패', err)
+
+                } catch (e) {
+                    console.error('[sidebar] live 로딩 실패', e)
+                    this._liveLoaded = false
                 } finally {
                     this._liveInFlight = null
                 }
