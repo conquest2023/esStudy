@@ -5,6 +5,7 @@ import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
+import es.board.repository.entity.FeedImage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,9 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
 
+
+
+    FeedImage saveFeedImages(String imageUrl);
     Map<String, Object>  getNoticeFeed(int page, int size);
     Integer getPointAll(String userId);
     Map<String, Double> getDayAggregation();

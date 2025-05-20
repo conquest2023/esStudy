@@ -6,6 +6,7 @@ import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.FeedCreateResponse;
+import es.board.repository.entity.FeedImage;
 import es.board.service.AuthService;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
@@ -82,11 +83,11 @@ public class MainFeedController {
         return "feed-detail";
     }
 
-    @GetMapping("/search/view/feed/update")
-    public String editFeed(@RequestParam("id") String id,Model model) {
-        model.addAttribute("feedUpdate", feedService.getFeedDetail(id));
-        return "basic/feed/EditFeed";
-    }
+//    @GetMapping("/search/view/feed/update")
+//    public String editFeed(@RequestParam("id") String id,Model model) {
+//        model.addAttribute("feedUpdate", feedService.getFeedDetail(id));
+//        return "basic/feed/EditFeed";
+//    }
 
     @GetMapping("/search/view/feed/category")
     public String getCategory(Model model, String text) {
@@ -97,11 +98,11 @@ public class MainFeedController {
     }
 
 
-    @PostMapping("/search/view/feed/update/save")
-    public String editSaveFeed(@RequestBody FeedUpdate feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
+    @PostMapping("/search/view/feed/update")
+    public ResponseEntity<?> editSaveFeed(@RequestBody FeedUpdate feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
         log.info(feedUpdate.toString());
         feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
-        return "redirect:/search/view/feed/id?id=" + feedUpdate.getFeedUID();
+        return ResponseEntity.ok("수정이 완료되었습니다");
     }
 
     @GetMapping("/search/view/feed/id")
@@ -326,12 +327,11 @@ public class MainFeedController {
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
-            @RequestParam(required = false, value = "imageFiles") MultipartFile file,
             @RequestPart("feed") FeedCreateResponse res,
             @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            processFileUpload(file, res);
+//            processFileUpload(file, res);
             authService.extractUserIdFromToken(token, res);
             log.info(res.toString());
             response.put("feed", feedService.saveFeed(res));
@@ -348,7 +348,23 @@ public class MainFeedController {
                     .body(Map.of("success", false, "error", "요청 처리 중 오류가 발생했습니다."));
         }
     }
-
+    @PostMapping("/upload-images")
+    @ResponseBody
+    public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file) {
+        log.info("asdd");
+        try {
+            String imageUrl = s3Uploader.upload(file, "feed");
+            log.info(imageUrl);
+            FeedImage saved= feedService.saveFeedImages(imageUrl);
+            return ResponseEntity.ok(Map.of(
+                    "url", imageUrl,
+                    "imageId", saved.getId()
+            ));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "이미지 업로드 실패"));
+        }
+    }
     @GetMapping("/search/view/feed/list/job")
     public String getProgrammersList() {
         return "basic/feed/ItCrawlingFeed";
@@ -421,16 +437,8 @@ public class MainFeedController {
             log.info("File upload started");
             feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUsername()));
             }
+
         }
-    private boolean isBot(String ua) {
-        String lowered = ua.toLowerCase();
-        return lowered.contains("kakaotalk") ||
-                lowered.contains("facebookexternalhit") ||
-                lowered.contains("slackbot") ||
-                lowered.contains("twitterbot") ||
-                lowered.contains("naver") ||
-                lowered.contains("telegrambot");
-    }
 
 }
 

@@ -11,12 +11,10 @@ import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
+import es.board.repository.entity.FeedImage;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Post;
-import es.board.repository.entity.entityrepository.LikeRepository;
-import es.board.repository.entity.entityrepository.NotificationRepository;
-import es.board.repository.entity.entityrepository.PointHistoryRepository;
-import es.board.repository.entity.entityrepository.PostRepository;
+import es.board.repository.entity.entityrepository.*;
 import es.board.service.FeedService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,15 +24,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +50,8 @@ public class FeedServiceImpl implements FeedService {
 
 
     private final FeedMapper feedMapper;
+
+    private  final FeedImageRepository feedImageRepository;
 
     private  final PointHistoryRepository pointHistoryRepository;
 
@@ -104,14 +108,16 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse feedSaveDTO) {
+    public CompletableFuture<FeedCreateResponse> saveFeed(FeedCreateResponse res) {
         return CompletableFuture.supplyAsync(() -> {
-            checkValueFeed(feedSaveDTO);
-            Map<String,Object> Ids = savePost(feedSaveDTO);
-            asyncService.savePostAsync(feedMapper.toBoardDocument(feedSaveDTO, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
-            return feedSaveDTO;
+            checkValueFeed(res);
+            Map<String,Object> Ids = savePost(res);
+            asyncService.savePostAsync(feedMapper.toBoardDocument(res, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
+            List<String> imageUrls = extractImageUrls(res.getDescription());
+            feedImageRepository.updateFeedIdByImageUrls((Long) Ids.get("postId"), imageUrls);
+            return res;
         }).thenApplyAsync(response -> {
-            grantFeedPoint(feedSaveDTO.getUserId(),feedSaveDTO.getUsername());
+            grantFeedPoint(res.getUserId(),res.getUsername());
             return  null;
         });
 
@@ -194,6 +200,16 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public Map<String, Object> getDataFeed(int page, int size,String  category) {
         return  feedDAO.findDataFeed(page,size,category);
+    }
+
+    @Override
+    public FeedImage saveFeedImages(String imageUrl) {
+        FeedImage saved = feedImageRepository.save(
+                FeedImage.builder()
+                        .imageUrl(imageUrl)
+                        .build()
+        );
+         return  saved;
     }
 
     @Override
@@ -310,6 +326,14 @@ public class FeedServiceImpl implements FeedService {
         }
         return boards;
     }
+    private List<String> extractImageUrls(String html) {
+        List<String> urls = new ArrayList<>();
+        Matcher matcher = Pattern.compile("<img[^>]+src=[\"']([^\"']+)[\"']").matcher(html);
+        while (matcher.find()) {
+            urls.add(matcher.group(1));
+        }
+        return urls;
+    }
 
     private Map<String,Object>  savePost(FeedCreateResponse feedSaveDTO) {
         Map<String,Object> Ids=new HashMap<>();
@@ -381,6 +405,25 @@ public class FeedServiceImpl implements FeedService {
         return topWriters;
     }
 
+    // 예시 Java 스케줄러 (Spring Boot)
+    @Scheduled(cron = "0 0 * * * *") // 매 시 정각
+    public void cleanUnusedImages() {
+        File uploadDir = new File("/Users/wngud/esfile/file/");
+        File[] files = uploadDir.listFiles();
+
+        if (files == null) return;
+
+        for (File file : files) {
+            String url = "/static/feed-images/" + file.getName();
+            boolean inUse = feedImageRepository.existsByImageUrl(url);
+
+            if (!inUse) {
+                file.delete();
+                s3Uploader.deleteFile(url);
+                log.info("삭제됨: {}", file.getName());
+            }
+        }
+    }
 }
 
 

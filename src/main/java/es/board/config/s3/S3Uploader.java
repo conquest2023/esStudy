@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.apache.commons.io.FilenameUtils.getExtension;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -59,7 +61,10 @@ public class S3Uploader {
     }
 
     private Optional<File> convert(MultipartFile file) throws IOException {
-        File convertFile = new File(file.getOriginalFilename());
+        String extension = getExtension(file.getOriginalFilename());
+        String safeName = UUID.randomUUID() + "." + extension; // ← 영문 안전 이름
+
+        File convertFile = new File(safeName);
         if (convertFile.createNewFile()) {
             try (FileOutputStream fos = new FileOutputStream(convertFile)) {
                 fos.write(file.getBytes());
@@ -69,9 +74,25 @@ public class S3Uploader {
         return Optional.empty();
     }
 
+
     // 랜덤 파일 이름 메서드 (파일 이름 중복 방지)
     private String changedImageName(String originName) {
         String random = UUID.randomUUID().toString();
         return random + originName;
+    }
+    public void deleteFile(String fileUrl) {
+        try {
+            String fileKey = extractFileKey(fileUrl);
+            amazonS3Client.deleteObject(bucket, fileKey);
+            log.info("S3 삭제 성공: {}", fileKey);
+        } catch (Exception e) {
+            log.error("S3 삭제 실패: {}", fileUrl, e);
+        }
+    }
+    private String getExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
+    private String extractFileKey(String fileUrl) {
+        return fileUrl.substring(fileUrl.indexOf(".com/") + 5);
     }
 }

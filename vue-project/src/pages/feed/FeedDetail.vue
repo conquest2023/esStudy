@@ -179,9 +179,14 @@ onMounted(async () => {
       router.replace('/')
     }
   })
-  function convertLinks(txt=''){
-    return txt.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>')
-  }
+function convertLinks(txt = '') {
+  return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
+    // 바로 앞 5글자 안에 src=" 가 있으면 <img> 내부이므로 건너뜀
+    const prev = str.slice(Math.max(0, offset - 5), offset)
+    return /src=\"?$/.test(prev) ? m
+        : `<a href="${url}" target="_blank">${url}</a>`
+  })
+}
 function formatDate(dateTimeString) {
   if (!dateTimeString) return '';
 

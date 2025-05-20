@@ -33,7 +33,7 @@ public class FeedCreateResponse {
     @JsonSerialize(using = XssSafeSerializer.class)
     private String username;
 
-    @JsonSerialize(using = XssSafeSerializer.class)
+//    @JsonSerialize(using = XssSafeSerializer.class)
     private  String imageURL;
 
     private int  viewCount;
@@ -44,7 +44,7 @@ public class FeedCreateResponse {
     @JsonSerialize(using = XssSafeSerializer.class)
     private  String category;
 
-    @JsonSerialize(using = XssSafeSerializer.class)
+//    @JsonSerialize(using = XssSafeSerializer.class)
     private String description;
 
     private  boolean anonymous;
