@@ -3,6 +3,7 @@ package es.board.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
+import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.FeedUpdate;
@@ -71,6 +72,8 @@ public class FeedServiceImpl implements FeedService {
 
     private final LikeRepository likeRepository;
 
+    private  final SlackNotifier slackNotifier;
+
     private  final ObjectMapper objectMapper;
 
     private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
@@ -113,11 +116,17 @@ public class FeedServiceImpl implements FeedService {
             checkValueFeed(res);
             Map<String,Object> Ids = savePost(res);
             asyncService.savePostAsync(feedMapper.toBoardDocument(res, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
+            slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
+                    res.getUsername(),
+                    res.getDescription().replace("\"", "'")));
             List<String> imageUrls = extractImageUrls(res.getDescription());
-            feedImageRepository.updateFeedIdByImageUrls((Long) Ids.get("postId"), imageUrls);
+            if (imageUrls!=null){
+                feedImageRepository.updateFeedIdByImageUrls((Long) Ids.get("postId"), imageUrls);
+            }
             return res;
         }).thenApplyAsync(response -> {
             grantFeedPoint(res.getUserId(),res.getUsername());
+
             return  null;
         });
 
@@ -360,7 +369,8 @@ public class FeedServiceImpl implements FeedService {
         return value == null || value.trim().isEmpty();
     }
     public void grantFeedPoint(String userId,String username) {
-        if (userId ==null || username =="익명"){
+        if (userId ==null || username=="hoeng" || username=="asd" || username =="익명"){
+            log.info("포인트 지급불가");
             return;
         }
         String today = LocalDate.now().toString();
@@ -377,7 +387,6 @@ public class FeedServiceImpl implements FeedService {
         }
         createPointHistory(userId,username);
         log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
-
         }
         public void createPointHistory(String userId,String username) {
            PointHistory history = PointHistory.builder()
@@ -394,7 +403,8 @@ public class FeedServiceImpl implements FeedService {
         List<TopWriter> topWriters = feedDAO.findTopWriters();
         List<PointHistory> pointHistories = pointHistoryRepository.findByUserAllId();
         Map<String, Integer> pointMap = pointHistories.stream()
-                .collect(Collectors.toMap(PointHistory::getUsername, PointHistory::getPointChange));
+                .collect(Collectors.toMap(PointHistory::getUsername,
+                                        PointHistory::getPointChange));
         for (TopWriter writer : topWriters) {
             Integer points = pointMap.get(writer.getUsername());
             if (points != null) {
@@ -406,7 +416,6 @@ public class FeedServiceImpl implements FeedService {
         return topWriters;
     }
 
-    // 예시 Java 스케줄러 (Spring Boot)
     @Scheduled(cron = "0 0 * * * *") // 매 시 정각
     public void cleanUnusedImages() {
         File uploadDir = new File("/Users/wngud/esfile/file/");

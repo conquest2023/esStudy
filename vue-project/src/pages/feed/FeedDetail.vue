@@ -293,7 +293,6 @@ function goEdit(){
     if(!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
     try{
     await api.post('/search/view/feed/delete',{ id:feed.value.id })
-      push('게시글이 삭제되었습니다')
       await new Promise(resolve => setTimeout(resolve, 1000))
       router.push(`/`)
     } catch(e){

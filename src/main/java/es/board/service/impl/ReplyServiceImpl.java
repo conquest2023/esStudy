@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.res.ReplyCreate;
@@ -42,6 +43,8 @@ public class ReplyServiceImpl implements ReplyService {
     private  final PointHistoryRepository pointHistoryRepository;
 
     private  final NotificationRepository notificationRepository;
+
+    private  final SlackNotifier slackNotifier;
     @Override
     public Map<String,Object> getPartialReply(String id){
         return replyDAO.findPartialReply(id);
@@ -56,6 +59,10 @@ public class ReplyServiceImpl implements ReplyService {
                 notificationService.sendReplyNotification(userId, response.getFeedUID(), response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
         }
         notificationRepository.save(feedMapper.toReplyNotification(userId,response));
+
+        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
+                response.getUsername(),
+                response.getContent().replace("\"", "'")));
     }
     public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
         List<ReplyRequest> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
@@ -71,6 +78,9 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     public void grantReplyPoint(String userId) {
+        if (userId ==null || userId=="hoeng" || userId=="asd") {
+            return;
+        }
         String today = LocalDate.now().toString();
         String key = "reply:point:" + userId + ":" + today;
         Long currentCount = stringRedisTemplate.opsForValue().increment(key);

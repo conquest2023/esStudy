@@ -1,5 +1,6 @@
 package es.board.service.impl;
 
+import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.CommentRequest;
@@ -30,6 +31,8 @@ public class CommentServiceImpl implements CommentService {
 
 
     private  final FeedMapper feedMapper;
+
+    private  final SlackNotifier slackNotifier;
 
     private  final CommentMapper commentMapper;
 
@@ -95,7 +98,6 @@ public class CommentServiceImpl implements CommentService {
     public void saveComment(CommentCreate dto) {
         checkValueComment(dto);
         commentDAO.saveCommentIndex(dto);
-        log.info(dto.toString());
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
 
         FeedEvent event = FeedEvent.builder()
@@ -108,8 +110,11 @@ public class CommentServiceImpl implements CommentService {
                 .createdAt(dto.getCreatedAt())
                 .build();
 
-        log.info(event.toString());
         commentEventPublisher.publishCommentEvent(event);
+
+        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
+                dto.getUsername(),
+                dto.getContent().replace("\"", "'")));
 
 //        if (userId!= null && !userId.equals(dto.getUserId())) {
 //            notificationService.sendCommentNotification(userId, dto.getFeedUID(),
