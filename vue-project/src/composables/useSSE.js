@@ -1,8 +1,7 @@
-// src/composables/useSSE.js
 import { onBeforeUnmount } from 'vue'
 import { useToast } from './useToast'
 import { useUserStore } from '@/stores/user'
-
+import { addFeedNotification } from '@/utils/notification'
 export function useSSE(token) {
     if (!token) return
     const { push } = useToast()
@@ -22,7 +21,9 @@ export function useSSE(token) {
             read:     false
         })
 
-        push(`${emoji} ${parsed.message}`)
+        addFeedNotification(parsed, store.notifications, (msg, id) => {
+            push(`${emoji} ${msg}`)
+        })
     }
 
     es.onopen = () => {

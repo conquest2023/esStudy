@@ -1,5 +1,7 @@
 <template>
+
   <NavBar />
+  <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
   <!-- 사이드바: 로그인 상태 + 레이아웃이 숨김이 아닐 때만 -->
 <!--  <RightSidebar v-if="store.token && !hideLayout" />-->
@@ -11,7 +13,7 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
+import {computed,onMounted} from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useSidebarStore } from '@/stores/sidebar'
@@ -22,7 +24,6 @@ import RightSidebar from '@/components/sidebar/RightSidebar.vue'
 const route = useRoute()
 const store = useUserStore()
 const sb = useSidebarStore()
-
 // /* ▣ 레이아웃 감춤 여부 계산 */
 // const hideLayout = ref(false)
 // watch(
@@ -48,13 +49,7 @@ const hideLayout = computed(() => route.meta.hideLayout === true)
 //       }
 //     }
 // )
-let sseInit = false
-function initSSE () {
-  if (!sseInit && store.token) {
-    useSSE(store.token)
-    sseInit = true
-  }
-}
+
 // onMounted(async () => {
 //   if (!store.token || hideLayout.value) return
 //   await sb.loadStatic()

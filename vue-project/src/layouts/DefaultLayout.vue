@@ -8,6 +8,7 @@ import { useRouter }     from 'vue-router'
 import { ref, watch, nextTick ,onMounted,computed} from 'vue'
 import {useSidebarStore} from "@/stores/sidebar";
 import {useUserStore} from "@/stores/user";
+import {useSSE} from "@/composables/useSSE";
 const sb = useSidebarStore()
 const store = useUserStore()
 // onMounted(async () => {
@@ -16,7 +17,22 @@ const store = useUserStore()
 // })
 
 const router = useRouter()
-
+let sseInit = false
+// function initSSE () {
+//   const token=localStorage.getItem("token")
+//   // if (!sseInit) {
+//   useSSE(token)
+//   // sseInit = true
+//   // }
+// }
+// onMounted(() => {
+//   initSSE ()
+// })
+// watch(() => localStorage.getItem("token"), (token) => {
+//   if (token) {
+//     useSSE(token)
+//   }
+// })
 const navItems = [
   { path:'/', icon:'fas fa-home fa-lg', label:'홈' },
   {

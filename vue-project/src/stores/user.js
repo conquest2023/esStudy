@@ -16,7 +16,6 @@ export const useUserStore = defineStore('user', {
 
     /* --------------- actions --------------- */
     actions: {
-        /** ▣ /info 호출해서 세션 확인 */
         async fetchMe () {
             const token = localStorage.getItem('token')
             if (!token) return this.$reset()
@@ -50,9 +49,11 @@ export const useUserStore = defineStore('user', {
 
         /** ▣ 알림 추가 */
         addNotification (n) {
-            this.notifications.unshift(n)
+            // Vue가 반응형으로 감지할 수 있도록 새 배열로 할당
+            this.notifications = [n, ...this.notifications]
             localStorage.setItem('notifications', JSON.stringify(this.notifications))
         },
+
 
         /** ▣ 알림 일괄 읽음 */
         markAllRead () {

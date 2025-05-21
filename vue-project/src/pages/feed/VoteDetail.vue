@@ -106,11 +106,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted ,computed } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/utils/api'
-import {d} from "../../../dist/assets/index-COm22Z05.js";
-
+import { useUserStore } from '@/stores/user'
 // ─── 상태 ─────────────────────────────────────────────────
 const route           = useRoute()
 const vote            = ref(null)
@@ -126,8 +125,8 @@ const replies         = ref({})
 const commentInput    = ref('')
 const replyInputs     = reactive({})
 const replyFormOpen   = reactive({})
-const currentUsername = ref('')
-
+const store = useUserStore()
+const currentUsername = computed(() => store.username)
 // ─── 유틸 ────────────────────────────────────────────────
 function formatDate(dt){
   const d = new Date(dt);const m=d.getMonth()+1;const day=d.getDate();let h=d.getHours();const mi=d.getMinutes();const p=h>=12?'오후':'오전';h=h%12||12;return `${m}. ${day}. ${p} ${h}:${mi.toString().padStart(2,'0')}`
@@ -147,8 +146,8 @@ async function fetchVote(){
   }
   voteCounts.value = status.data?.selectOption || {}
   totalVotes.value = Object.values(voteCounts.value).reduce((a,b)=>a+b,0)
-  badge.value = '🥇'
-  currentUsername.value = vote.value.username
+  // badge.value = '🥇'
+  currentUsername.value = store.username
   comments.value = detail.data.comment || []
   replies.value  = detail.data.replies || {}
 }
@@ -166,7 +165,7 @@ async function submitVote(){
 
 async function submitComment(){
   if(!commentInput.value.trim()) return alert('댓글 내용을 입력하세요.')
-  await api.post(`/search/view/vote/comment/id?feedUID=${route.query.id}`,{ username:currentUsername.value, content:commentInput.value.trim() })
+  await api.post(`/search/view/vote/comment/id?feedUID=${route.query.id}`,{ username: currentUsername, content:commentInput.value.trim() })
   commentInput.value = ''
   fetchVote()
 }

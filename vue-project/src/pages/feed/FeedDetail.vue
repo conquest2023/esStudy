@@ -179,14 +179,37 @@ onMounted(async () => {
       router.replace('/')
     }
   })
+// function convertLinks(txt = '') {
+//   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
+//     const prev = str.slice(Math.max(0, offset - 5), offset)
+//     return /src=\"?$/.test(prev) ? m
+//         : `<a href="${url}" target="_blank">${url}</a>`
+//   })
+// }
 function convertLinks(txt = '') {
   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
-    // 바로 앞 5글자 안에 src=" 가 있으면 <img> 내부이므로 건너뜀
     const prev = str.slice(Math.max(0, offset - 5), offset)
-    return /src=\"?$/.test(prev) ? m
-        : `<a href="${url}" target="_blank">${url}</a>`
+    if (/src=\"?$/.test(prev)) return m
+
+    // ▶️ 유튜브 링크면 iframe으로 변환
+    const youtubeMatch = m.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/)
+    if (youtubeMatch) {
+      const videoId = youtubeMatch[1]
+      return `
+        <iframe width="100%" height="315"
+          src="https://www.youtube.com/embed/${videoId}"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      `
+    }
+
+    // 일반 링크면 <a> 태그
+    return `<a href="${m}" target="_blank">${m}</a>`
   })
 }
+
 function formatDate(dateTimeString) {
   if (!dateTimeString) return '';
 
@@ -272,7 +295,7 @@ function goEdit(){
     await api.post('/search/view/feed/delete',{ id:feed.value.id })
       push('게시글이 삭제되었습니다')
       await new Promise(resolve => setTimeout(resolve, 1000))
-      router.push(`/api/search/view/feed/id/${id}`)
+      router.push(`/`)
     } catch(e){
       push('삭제 중 오류 발생')
     }

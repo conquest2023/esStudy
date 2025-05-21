@@ -3,7 +3,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter }      from 'vue-router'
 import api                from '@/utils/api'
 import { useUserStore }   from '@/stores/user'
-
+import { useSSE } from '@/composables/useSSE'
 const user = useUserStore()
 const notifications = computed(() => user.notifications)
 // const unreadCount   = computed(() =>
@@ -11,7 +11,6 @@ const notifications = computed(() => user.notifications)
 const unreadCount = computed(() =>
     notifications.value.filter(n => !n.read).length
 )
-
 const router          = useRouter()
 const openDropdownIdx = ref(null)
 const showNoti        = ref(false)
@@ -19,8 +18,10 @@ const showUserMenu    = ref(false)
 
 onMounted(() => {
   applySavedTheme()
-  user.fetchMe()                   // 세션 확인
-  // fetchNotifications()
+  user.fetchMe()
+  //   const token = localStorage.getItem('token')
+  //   if (token) useSSE(token)
+  // })
 })
 function applySavedTheme () {
   const saved = localStorage.getItem('theme') || 'light'
