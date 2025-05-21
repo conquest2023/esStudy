@@ -50,6 +50,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
                 uri.startsWith("/api/search/today/todo") ||
                 uri.startsWith("/api/list/notice") ||
                 uri.startsWith("/api/feeds") ||
+                uri.startsWith("/api/vote/detail") ||
+                uri.startsWith("/error") ||
+                uri.startsWith("/api/get/ticket/vote") ||
                 uri.startsWith("/api/search/view/feed/id") ||
                 uri.startsWith("/api/subscribe") ||
                 uri.startsWith("/api/notifications/all") ||
@@ -62,7 +65,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
         String userId = (token != null && token.startsWith("Bearer ")) ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
-        String uniqueKey = userId.equals("guest") ? ipAddress : userId;
+//        String uniqueKey = userId.equals("guest") ? ipAddress : userId;
+        String uniqueKey = ipAddress;
+
         String today = LocalDate.now().toString();
         String visitKey = VISIT_KEY_PREFIX + today + ":" + uniqueKey;
         Boolean hasVisited = redisTemplate.hasKey(visitKey);

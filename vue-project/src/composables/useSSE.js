@@ -2,6 +2,7 @@ import { onBeforeUnmount } from 'vue'
 import { useToast } from './useToast'
 import { useUserStore } from '@/stores/user'
 import { addFeedNotification } from '@/utils/notification'
+import { showToast } from '@/utils/showToast'
 export function useSSE(token) {
     if (!token) return
     const { push } = useToast()
@@ -20,10 +21,10 @@ export function useSSE(token) {
             message:  parsed.message,
             read:     false
         })
-
-        addFeedNotification(parsed, store.notifications, (msg, id) => {
-            push(`${emoji} ${msg}`)
-        })
+        addFeedNotification(parsed, store, showToast)
+        // addFeedNotification(parsed, store.notifications, (msg, id) => {
+        //     push(`${emoji} ${msg}`)
+        // })
     }
 
     es.onopen = () => {
@@ -31,9 +32,9 @@ export function useSSE(token) {
     }
 
     es.onerror = () => {
-        console.warn('[SSE] 오류 발생 – 10초 뒤 재연결 시도')
+        console.warn('[SSE] 오류 발생 – 20초 뒤 재연결 시도')
         es.close()
-        setTimeout(() => useSSE(token), 10000)
+        setTimeout(() => useSSE(token), 30000)
     }
 
     // 다양한 타입의 알림

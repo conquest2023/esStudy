@@ -1,13 +1,10 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter }      from 'vue-router'
-import api                from '@/utils/api'
 import { useUserStore }   from '@/stores/user'
 import { useSSE } from '@/composables/useSSE'
 const user = useUserStore()
 const notifications = computed(() => user.notifications)
-// const unreadCount   = computed(() =>
-//     notifications.value.filter(n => !n.read).length)
 const unreadCount = computed(() =>
     notifications.value.filter(n => !n.read).length
 )
@@ -19,9 +16,11 @@ const showUserMenu    = ref(false)
 onMounted(() => {
   applySavedTheme()
   user.fetchMe()
-  //   const token = localStorage.getItem('token')
-  //   if (token) useSSE(token)
-  // })
+})
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (token)
+    useSSE(token)
 })
 function applySavedTheme () {
   const saved = localStorage.getItem('theme') || 'light'
@@ -73,46 +72,46 @@ function updateTodoAlert(message) {
   if (todoAlert) todoAlert.innerText = message
 }
 
-function addFeedNotification (jsonMessage) {
-  let parsed
-  try {
-    parsed = (typeof jsonMessage === 'string') ? JSON.parse(jsonMessage) : jsonMessage
-  } catch (e) {
-    console.error('JSON 파싱 오류:', e, jsonMessage)
-    return
-  }
-  const { feedUID, message } = parsed
-  notifications.value = [
-    { id: Date.now(), feedUID, message, read: false },
-    ...notifications.value
-  ]
-  console.log('👉 파싱 결과:', parsed)
-  showToast(message, feedUID)
-}
+// function addFeedNotification (jsonMessage) {
+//   let parsed
+//   try {
+//     parsed = (typeof jsonMessage === 'string') ? JSON.parse(jsonMessage) : jsonMessage
+//   } catch (e) {
+//     console.error('JSON 파싱 오류:', e, jsonMessage)
+//     return
+//   }
+//   const { feedUID, message } = parsed
+//   notifications.value = [
+//     { id: Date.now(), feedUID, message, read: false },
+//     ...notifications.value
+//   ]
+//   console.log('👉 파싱 결과:', parsed)
+//   showToast(message, feedUID)
+// }
 
-function showToast (message, feedUID) {
-  const container = document.getElementById('toastContainer')
-  if (!container) return
-
-  const toast = document.createElement('div')
-  toast.className = 'toast align-items-center bg-dark border-0 shadow mb-2 show'
-  toast.setAttribute('role', 'alert')
-  toast.setAttribute('aria-live', 'assertive')
-  toast.setAttribute('aria-atomic', 'true')
-  toast.innerHTML = `
-    <div class="d-flex">
-      <div class="toast-body fw-bold text-white">
-        🔔 <a href="/search/view/feed/id/${feedUID}" class="text-white text-decoration-underline">${message}</a>
-      </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>`
-  container.appendChild(toast)
-
-  setTimeout(() => {
-    toast.classList.remove('show')
-    toast.addEventListener('transitionend', () => toast.remove())
-  }, 5000)
-}
+// function showToast (message, feedUID) {
+//   const container = document.getElementById('toastContainer')
+//   if (!container) return
+//
+//   const toast = document.createElement('div')
+//   toast.className = 'toast align-items-center bg-dark border-0 shadow mb-2 show'
+//   toast.setAttribute('role', 'alert')
+//   toast.setAttribute('aria-live', 'assertive')
+//   toast.setAttribute('aria-atomic', 'true')
+//   toast.innerHTML = `
+//     <div class="d-flex">
+//       <div class="toast-body fw-bold text-white">
+//         🔔 <a href="/search/view/feed/id/${feedUID}" class="text-white text-decoration-underline">${message}</a>
+//       </div>
+//       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+//     </div>`
+//   container.appendChild(toast)
+//
+//   setTimeout(() => {
+//     toast.classList.remove('show')
+//     toast.addEventListener('transitionend', () => toast.remove())
+//   }, 5000)
+// }
 
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
 

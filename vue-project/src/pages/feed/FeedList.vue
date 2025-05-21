@@ -105,8 +105,7 @@
 
 import { ref, computed, watch, onMounted , onActivated, onDeactivated } from 'vue'
 import { useRouter }             from 'vue-router'
-import { useSidebarStore } from '@/stores/sidebar'
-import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 import api                       from '@/utils/api'
 import * as bootstrap from 'bootstrap'
 import SearchBar from '@/components/SearchBar.vue'
@@ -116,6 +115,7 @@ import FeedCard                  from '@/pages/feed/FeedCard.vue'
 import Spinner                   from '@/components/Spinner.vue'
 const keyword   = ref('')
 const todoAlert = ref('')
+const route = useRoute()
   function doSearch () {
     if (!keyword.value.trim()) return
     router.push({ path:'/search', query:{ q:keyword.value.trim() } })
@@ -246,42 +246,45 @@ const todoAlert = ref('')
       console.error('공지사항 로딩 실패:', err)
     }
   }
-  async function fetchFeeds(newPage = 0) {
+async function fetchFeeds(newPage = page.value) {
+  const tab = TABS.find(t => t.id === activeTab.value)
+  if (!tab) return
 
-    const tab = TABS.find(t => t.id === activeTab.value)
-    if (!tab) return
+  loading.value = true
+  page.value = newPage
 
-    loading.value = true
-    page.value = newPage
+  // ⭐ 페이지 쿼리 URL 반영
+  router.replace({ query: { ...route.query, page: newPage } })
 
-    const params = { page: newPage, size: 10 }
-    if (tab.category) params.category = tab.category
-    if (tab.id === 'DATA') params.category = selectedCategory.value
-    try {
-      const { data } = await api.get(tab.url, { params })
-      const allPosts = [...(data.data ?? []), ...(data.vote ?? [])]
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 10)  // ✨ 최신순 정렬 후 상위 10개만 자르기
+  const params = { page: newPage, size: 10 }
+  if (tab.category) params.category = tab.category
+  if (tab.id === 'DATA') params.category = selectedCategory.value
 
-      posts.value = allPosts
-      counts.value = data.count ?? {}
-      totalPage.value = data.totalPage ?? 0
-      counts.value = data.count ?? {}
+  try {
+    const { data } = await api.get(tab.url, { params })
+    const allPosts = [...(data.data ?? []), ...(data.vote ?? [])]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 10)
 
-      if (activeTab.value === 'ALL') {
-        const noticeRes = await api.get('/list/notice')
-        notices.value = noticeRes.data ?? []
-      } else {
-        notices.value = []
-      }
-    } catch (err) {
-      console.error(`${tab.label} 로딩 실패`, err)
-    } finally {
-      loading.value = false
-      }
+    posts.value = allPosts
+    counts.value = data.count ?? {}
+    totalPage.value = data.totalPage ?? 0
+
+    if (activeTab.value === 'ALL') {
+      const noticeRes = await api.get('/list/notice')
+      notices.value = noticeRes.data ?? []
+    } else {
+      notices.value = []
     }
+  } catch (err) {
+    console.error(`${tab.label} 로딩 실패`, err)
+  } finally {
+    loading.value = false
+  }
+}
 
-  async function fetchPage (p = 0) {
+
+async function fetchPage (p = 0) {
     page.value = p;
     loading.value = true
 
@@ -309,7 +312,8 @@ const todoAlert = ref('')
     }
   }
   onMounted(() => {
-    fetchFeeds(0)
+    const p = parseInt(route.query.page) || 0
+    fetchFeeds(p)
     fetchNotice()
   })
 

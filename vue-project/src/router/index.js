@@ -26,6 +26,7 @@ const routes = [
             { path: 'todo/new', name: 'NewTodo', component: NewTodo },
             { path: 'calendar', name: 'calendar', component: calendar },
             { path: '/notice', component: () => import('@/pages/feed/PostFeed.vue') },
+            { path: '/mypage', component: () => import('@/pages/feed/MyPage.vue') },
             { path: 'certificate/data', component: () => import('@/pages/certificate/CertificateData.vue') },
             { path: 'certificate/detail', component: () => import('@/pages/certificate/CertificateDetail.vue') },
             { path: 'certificate/calendar', component: () => import('@/pages/certificate/CertificateCalendar.vue') },

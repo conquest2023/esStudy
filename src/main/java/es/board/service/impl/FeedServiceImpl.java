@@ -207,6 +207,7 @@ public class FeedServiceImpl implements FeedService {
         FeedImage saved = feedImageRepository.save(
                 FeedImage.builder()
                         .imageUrl(imageUrl)
+                        .createdAt(LocalDateTime.now())
                         .build()
         );
          return  saved;

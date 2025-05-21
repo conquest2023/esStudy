@@ -114,6 +114,32 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
+//    @PostMapping("/auth/refresh")
+//    @ResponseBody
+//    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+//        Cookie[] cookies = request.getCookies();
+//        if (cookies == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        String refreshToken = Arrays.stream(cookies)
+//                .filter(c -> c.getName().equals("refreshToken"))
+//                .map(Cookie::getValue)
+//                .findFirst()
+//                .orElse(null);
+//
+//        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+//        String userId = jwtTokenProvider.getUserId(refreshToken);
+//        JwtToken newToken = jwtTokenProvider.generateToken(authentication, userId);
+//
+//        return ResponseEntity.ok(Map.of(
+//                "accessToken", newToken.getAccessToken()
+//        ));
+//    }
 
 
 
@@ -160,6 +186,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
         }
+
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
         userService.updateVisitCount(response.getUserId());

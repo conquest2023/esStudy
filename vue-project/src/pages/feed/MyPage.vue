@@ -85,7 +85,7 @@ const tabs = [
 
 async function fetchMyPageData() {
   const headers = { Authorization: `Bearer ${token}` }
-  const res = await fetch('/mypage', { headers })
+  const res = await fetch('/api/mypage', { headers })
   const data = await res.json()
   user.value = data
   stats.value[0].value = data.feedCount
@@ -95,7 +95,7 @@ async function fetchMyPageData() {
 }
 
 async function fetchFeedList() {
-  const res = await fetch(`/mypage/feed/paging?page=0&size=10`, {
+  const res = await fetch(`/api/mypage/feed/paging?page=0&size=10`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()
@@ -103,7 +103,7 @@ async function fetchFeedList() {
 }
 
 async function fetchComments() {
-  const res = await fetch(`/mypage/comment/paging?page=0&size=10`, {
+  const res = await fetch(`/api/mypage/comment/paging?page=0&size=10`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()
@@ -111,7 +111,7 @@ async function fetchComments() {
 }
 
 async function fetchCommentedPosts() {
-  const res = await fetch(`/mypage/feed/comment/paging?page=0&size=10`, {
+  const res = await fetch(`/api/mypage/feed/comment/paging?page=0&size=10`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   const data = await res.json()
@@ -128,9 +128,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
 .btn-home {
   position: absolute;
-  top: 20px;
+  top: 80px;
   right: 20px;
   padding: 8px 15px;
   font-size: 14px;

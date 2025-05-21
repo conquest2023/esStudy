@@ -26,7 +26,6 @@ export const useUserStore = defineStore('user', {
                 this.isLoggedIn = !!data?.isLoggedIn
                 this.username   = data?.username || ''
             } catch (e) {
-                // 401·네트워크 오류 → 세션 초기화
                 this.$reset()
             } finally {
                 this.loading = false
