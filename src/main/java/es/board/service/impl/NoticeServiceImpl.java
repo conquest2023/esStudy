@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -27,23 +28,31 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class NoticeServiceImpl  implements NoticeService {
 
+
+
+    private final AsyncService asyncService;
+
+    private  final NotificationService notificationService;
+
+    private final UserRepository userRepository;
+
+    private final NoticeRepository noticeRepository;
+
+
+
+    private final StringRedisTemplate redisTemplate;
+
+
     private final FeedMapper feedMapper;
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final AsyncService asyncService;
-
-    private final StringRedisTemplate redisTemplate;
-
-    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    private  final NotificationService notificationService;
 
     private static final String NOTICE_KEY = "notice_daily";
 
 
-    private final NoticeRepository noticeRepository;
 
     @Override
     public List<NoticeRequest> getAllNotices() {
@@ -67,12 +76,12 @@ public class NoticeServiceImpl  implements NoticeService {
 
     @Override
     public void createNotice(String token, NoticeRequest noticeDTO) {
-
+        String feedUID= java.util.UUID.randomUUID().toString();
         String userId = jwtTokenProvider.getUserId(token);
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
-        NoticeRequest notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token), jwtTokenProvider.getUserId(token));
+        NoticeRequest notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token,feedUID), jwtTokenProvider.getUserId(token),feedUID);
         CompletableFuture.supplyAsync(() -> {
             asyncService.saveNoticeAsync(notice,notice.getId());
             return null;
@@ -83,12 +92,14 @@ public class NoticeServiceImpl  implements NoticeService {
     }
 
     private boolean isAdmin(String userId) {
+
         return noticeRepository.existsByUserId(userId);
+
     }
 
 
-    private Notice NoticeSaveId(NoticeRequest noticeDTO, String token) {
-       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token)));
+    private Notice NoticeSaveId(NoticeRequest noticeDTO, String token,String feedUID) {
+       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
     }
     private String serializeNotices(List<NoticeRequest> notices) {
         try {

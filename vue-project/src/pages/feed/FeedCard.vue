@@ -51,14 +51,16 @@ function goToDetail(){
   cursor:pointer;
   font-weight: 500;
   background: var(--c-surface, #fff);
-  //color: rgba(255, 255, 255, 0.85);
+  color: var(--c-text);
 }
 .feed-card .text-muted {
   color: var(--c-text-muted);
 }
-
 .feed-card .meta-stats {
   color: var(--c-meta-stats);
 }
-.feed-card.notice{border:2px solid #f0ad4e;}
+.feed-card.notice{
+  border:2px solid #f0ad4e;
+}
+
 </style>

@@ -17,6 +17,7 @@ import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Post;
 import es.board.repository.entity.entityrepository.*;
 import es.board.service.FeedService;
+import es.board.service.NotificationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.Builder;
@@ -53,6 +54,8 @@ public class FeedServiceImpl implements FeedService {
     private final FeedMapper feedMapper;
 
     private  final FeedImageRepository feedImageRepository;
+
+    private  final NotificationService notificationService;
 
     private  final PointHistoryRepository pointHistoryRepository;
 
@@ -120,13 +123,14 @@ public class FeedServiceImpl implements FeedService {
                     res.getUsername(),
                     res.getDescription().replace("\"", "'")));
             List<String> imageUrls = extractImageUrls(res.getDescription());
-            if (imageUrls!=null){
-                feedImageRepository.updateFeedIdByImageUrls((Long) Ids.get("postId"), imageUrls);
+            if (!imageUrls.isEmpty() || res.getImageURL()!=null){
+                Long postId = ((Number) Ids.get("postId")).longValue();
+                feedImageRepository.updateFeedIdByImageUrls(postId, imageUrls);
             }
             return res;
         }).thenApplyAsync(response -> {
-            grantFeedPoint(res.getUserId(),res.getUsername());
-
+            grantFeedPoint(response.getUserId(),response.getUsername());
+            notificationService.sendPointNotification(response.getUserId(),response.getFeedUID(),"피드 작성 포인트를 발급 받으셨습니디");
             return  null;
         });
 
@@ -369,7 +373,9 @@ public class FeedServiceImpl implements FeedService {
         return value == null || value.trim().isEmpty();
     }
     public void grantFeedPoint(String userId,String username) {
-        if (userId ==null || username=="hoeng" || username=="asd" || username =="익명"){
+        if ((userId == null) || Objects.equals(username, "hoeng") || (Objects.equals(username, "asd"))
+                || (Objects.equals(username, "익명"))){
+
             log.info("포인트 지급불가");
             return;
         }

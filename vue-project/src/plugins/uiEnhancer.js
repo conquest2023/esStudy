@@ -12,27 +12,28 @@ export default {
           --c-primary-600:#0b5ed7;
           --c-surface:#ffffff;
           --c-surface-dark:#1d1f24;
+          
           --c-text:#212529;
           --c-text-dark:#e5e7eb;
-          /* ◇◇ Radius & Elevation */
+          
+          --c-text-muted: #6c757d;
+          --c-meta-stats: #6c757d;
+        
           --radius-lg:1rem;
           --elev-1:0 1px 3px rgba(0,0,0,.08);
           --elev-2:0 4px 12px rgba(0,0,0,.12);
         }
         @media (prefers-color-scheme:dark){
-          :root{
-            --c-surface:var(--c-surface-dark);
-            --c-text:var(--c-text-dark);
-           
+          :root {
+            --c-surface: #1d1f24;       
+            --c-text: rgba(255, 255, 255, 0.95);
+            --c-heading: #ffffff;
+            --c-text-muted: rgba(255, 255, 255, 0.85);   
+            // --c-meta-stats: rgba(255, 255, 255, 0.8);
           }
-           .feed-card .text-muted {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .feed-card .meta-stats {
-    color: rgba(255, 255, 255, 0.8);
-  }
-          body{background:var(--c-surface);color:var(--c-text);}
+              body{background:var(--c-surface);
+              color:var(--c-text);
+          }
         }`;
         document.head.appendChild(style)
 

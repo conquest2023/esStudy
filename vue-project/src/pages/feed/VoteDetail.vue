@@ -165,7 +165,9 @@ async function submitVote(){
 
 async function submitComment(){
   if(!commentInput.value.trim()) return alert('댓글 내용을 입력하세요.')
-  await api.post(`/search/view/vote/comment/id?feedUID=${route.query.id}`,{ username: currentUsername, content:commentInput.value.trim() })
+  await api.post(`/search/view/vote/comment/id?feedUID=${route.query.id}`,{
+    username: currentUsername.value,
+    content:commentInput.value.trim() })
   commentInput.value = ''
   fetchVote()
 }
@@ -173,7 +175,9 @@ async function submitComment(){
 function toggleReply(cid){ replyFormOpen[cid] = !replyFormOpen[cid] }
 async function submitReply(cid){
   const text = replyInputs[cid]?.trim(); if(!text) return alert('답글 내용을 입력하세요.')
-  await api.post('/search/view/vote/reply/save',{ commentUID:cid, feedUID:route.query.id, username:currentUsername.value, content:text })
+  await api.post('/search/view/vote/reply/save',{ commentUID:cid, feedUID:route.query.id,
+    username:currentUsername.value,
+    content:text })
   replyInputs[cid] = ''
   fetchVote()
 }

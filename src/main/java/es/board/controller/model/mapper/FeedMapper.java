@@ -129,10 +129,10 @@ public class FeedMapper {
                 .build();
     }
 
-    public  Notice toNotice(NoticeRequest notice, String userId) {
+    public  Notice toNotice(NoticeRequest notice, String userId,String feedUID) {
         return Notice.builder()
                 .id(notice.getId())
-                .feedUID(UUID.randomUUID().toString())
+                .feedUID(feedUID)
                 .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())
@@ -143,11 +143,11 @@ public class FeedMapper {
                 .build();
     }
 
-    public NoticeRequest fromNoticeDocument(Notice notice, String userId) {
+    public NoticeRequest fromNoticeDocument(Notice notice, String userId,String feedUID) {
         return NoticeRequest.builder()
                 .id(notice.getId())
                 .username("관리자")
-                .feedUID(UUID.randomUUID().toString())
+                .feedUID(feedUID)
                 .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())

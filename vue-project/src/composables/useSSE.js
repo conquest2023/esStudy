@@ -42,6 +42,7 @@ export function useSSE(token) {
     es.addEventListener('todo-notification', e => handleNotification(e, '📝'))
     es.addEventListener('reply-notification', e => handleNotification(e, '↩️'))
     es.addEventListener('notice-notification', e => handleNotification(e, '📢'))
+    es.addEventListener('point-notification', e => handleNotification(e, '📢'))
 
     onBeforeUnmount(() => {
         console.log('[SSE] 연결 종료')

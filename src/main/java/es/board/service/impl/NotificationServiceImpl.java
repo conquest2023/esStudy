@@ -33,6 +33,8 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
 
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
+
+    private static final String POINT_NOTIFICATION_KEY = "notifications:point:";
     @Override
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(60 * 1000L);
@@ -44,6 +46,9 @@ public class NotificationServiceImpl implements NotificationService {
         sendPendingNotifications(userId,REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
 
         sendPendingNotifications(userId,NOTICE_NOTIFICATION_KEY, "notice-notification", emitter);
+
+        sendPendingNotifications(userId,POINT_NOTIFICATION_KEY, "point-notification", emitter);
+
 
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
@@ -58,6 +63,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendCommentNotification(String userId, String feedUID, String message) {
         sendFeedNotification(userId,feedUID, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
+    }
+
+    @Override
+    public void sendPointNotification(String userId, String feedUID, String message) {
+        sendFeedNotification(userId,feedUID, POINT_NOTIFICATION_KEY, "point-notification", message);
     }
 
     @Override
@@ -95,20 +105,17 @@ public class NotificationServiceImpl implements NotificationService {
             payload.put("feedUID", feedUID);
             payload.put("message", message);
             String jsonPayload = objectMapper.writeValueAsString(payload);
-            log.info(jsonPayload);
             if (!emitters.containsKey(userId)) {
                 redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
                 redisTemplate.opsForList().trim(redisKey, 0, 49); // 최대 50개 유지
                 log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
                 return;
             }
-
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {
                 log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
                 return;
             }
-
             emitter.send(SseEmitter.event()
                     .name(eventType)
                     .data(jsonPayload));

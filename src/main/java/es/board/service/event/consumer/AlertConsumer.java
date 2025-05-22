@@ -34,6 +34,7 @@ public class AlertConsumer {
                     event.getPostOwnerId(), event.getFeedUID(),
                     event.getUsername() + "님이 댓글을 작성하였습니다: " + event.getContent()
             );
+            notificationService.sendPointNotification(event.getCommenterId(),event.getFeedUID(),"댓글 작성 포인트를 발급 받으셨습니디");
             notificationRepository.save(commentMapper.toCommentEvent(event.getPostOwnerId(), event));
         }
     }
