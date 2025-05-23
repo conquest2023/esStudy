@@ -112,9 +112,9 @@ public class CommentServiceImpl implements CommentService {
 
         commentEventPublisher.publishCommentEvent(event);
 
-        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
-                dto.getUsername(),
-                dto.getContent().replace("\"", "'")));
+//        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
+//                dto.getUsername(),
+//                dto.getContent().replace("\"", "'")));
 
 //        if (userId!= null && !userId.equals(dto.getUserId())) {
 //            notificationService.sendCommentNotification(userId, dto.getFeedUID(),

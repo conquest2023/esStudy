@@ -85,7 +85,6 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> editSaveComment(
                                   @RequestBody CommentUpdate commentUpdate) {
-        log.info(commentUpdate.toString());
         Map<String, Object> response = Map.of(
                 "commentUID", commentUpdate.getCommentUID(),
 //                "feedUID", commentUpdate.getFeedUID(),

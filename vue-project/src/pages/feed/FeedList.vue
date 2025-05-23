@@ -1,259 +1,366 @@
 <!-- src/pages/feed/FeedList.vue -->
 <template>
-  <section class="board-wrap">
-    <SearchBar class="mb-3" />
 
-    <section class="my-4">
-      <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fas fa-comments fa-lg text-primary"></i>
-          <span class="fs-4 fw-bold">면접 질문</span>
+  <!-- ▣ 추천 글·본문·빈 공간을 하나의 row 에 3 : 6 : 3 -->
+  <section class="container-fluid px-4 mt-4">
+    <div class="row gx-4">
+      <!-- ─── ① 왼쪽 추천 글 (3) ─── -->
+      <aside class="col-lg-3 d-none d-lg-block">
+        <div class="card shadow-sm p-3">
+          <h6 class="fw-bold mb-3">🌟 추천 글</h6>
+          <ul class="list-unstyled mb-0 small">
+            <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-2">
+              <router-link
+                  :to="`/search/view/feed/id/${item.feedUID}`"
+                  class="text-dark text-decoration-none d-block">
+                <div class="fw-semibold text-truncate">{{ item.title }}</div>
+                <small class="text-muted">{{ item.username }}</small>
+              </router-link>
+            </li>
+          </ul>
         </div>
-        <button class="btn btn-sm btn-outline-secondary" @click="isInterviewOpen = !isInterviewOpen">
-          {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}
-        </button>
-      </h2>
+      </aside>
 
-      <transition name="fade">
-        <div v-show="isInterviewOpen" class="p-3 bg-light rounded-3 shadow-sm mt-3">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="btn-group rounded-pill shadow-sm">
-              <button v-for="cat in ['IT','일반']"
-                      :key="cat"
-                      class="btn btn-outline-primary"
-                      :class="{ active: curCat === cat }"
-                      @click="changeCat(cat)">
-                <i :class="cat==='IT' ? 'fas fa-laptop-code' : 'fas fa-building'"></i>
-                {{ cat }} 기업
-              </button>
-            </div>
-
-            <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1"
-                    @click="showBestAnswers">
-              <i class="fas fa-trophy text-warning"></i> 베스트 답변
-            </button>
-          </div>
-
-          <div v-if="curQuestion" class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom">
-              <strong>{{ curQuestion.question }}</strong>
-            </div>
-            <div class="card-body">
-        <textarea v-model="answerInput"
-                  class="form-control"
-                  rows="4"
-                  placeholder="최소 35자 이상 입력해주세요"
-                  maxlength="1000"></textarea>
-              <div class="text-end text-muted small mt-1">{{ answerInput.length }} / 1000자</div>
-              <button class="btn btn-primary w-100 mt-3" @click="submitAnswer">
-                <i class="fas fa-paper-plane me-1"></i> 제출하기
-              </button>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-between mt-3">
-            <button class="btn btn-outline-secondary" @click="prevQ"><i class="fas fa-arrow-left me-1"></i> 이전</button>
-            <button class="btn btn-outline-secondary" @click="nextQ">다음 <i class="fas fa-arrow-right ms-1"></i></button>
-          </div>
-        </div>
-      </transition>
-    </section>
-
-    <BoardTabs v-model="activeTab" :tabs="TABS" />
-    <div v-if="activeTab === 'DATA'" class="mb-2">
-      <ul class="nav nav-pills small">
-        <li v-for="cat in dataCategories" :key="cat"
-            class="nav-item">
-          <button class="nav-link"
-                  :class="{ active: selectedCategory === cat }"
-                  @click="changeCategory(cat)">
-            {{ cat }}
+      <main class="col-lg-6">
+        <div class="d-block d-lg-none">
+          <button class="btn btn-link text-primary px-2" @click="showSidebar = true">
+            <i class="fas fa-bars"></i> 추천 글
           </button>
-        </li>
-      </ul>
+        </div>
+
+
+        <!-- 👇 이게 모바일에서만 토글로 나타나는 추천 글 -->
+        <transition name="slide">
+          <div
+              v-if="showSidebar"
+              class="mobile-sidebar bg-white shadow position-fixed top-0 start-0 h-100 p-3"
+              style="z-index: 1050; width: 80%; max-width: 300px;"
+          >
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold">🌟 추천 글</h6>
+              <button class="btn-close" @click="showSidebar = false"></button>
+            </div>
+            <ul class="list-unstyled small">
+              <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-2">
+                <router-link
+                    :to="`/search/view/feed/id/${item.feedUID}`"
+                    class="text-dark text-decoration-none d-block"
+                    @click="showSidebar = false"
+                >
+                  <div class="fw-semibold text-truncate">{{ item.title }}</div>
+                  <small class="text-muted">{{ item.username }}</small>
+                </router-link>
+              </li>
+            </ul>
+          </div>
+        </transition>
+
+        <div class="board-wrap">
+          <SearchBar class="mb-3" />
+
+          <section class="my-4">
+            <h2
+                class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-comments fa-lg text-primary"></i>
+                <span class="fs-4 fw-bold">면접 질문</span>
+              </div>
+              <button
+                  class="btn btn-sm btn-outline-secondary"
+                  @click="isInterviewOpen = !isInterviewOpen"
+              >
+                {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}
+              </button>
+            </h2>
+
+            <transition name="fade">
+              <div
+                  v-show="isInterviewOpen"
+                  class="p-3 bg-light rounded-3 shadow-sm mt-3"
+              >
+                <div
+                    class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <div class="btn-group rounded-pill shadow-sm">
+                    <button
+                        v-for="cat in ['IT', '일반']"
+                        :key="cat"
+                        class="btn btn-outline-primary"
+                        :class="{ active: curCat === cat }"
+                        @click="changeCat(cat)"
+                    >
+                      <i
+                          :class="
+                          cat === 'IT'
+                            ? 'fas fa-laptop-code'
+                            : 'fas fa-building'
+                        "
+                      />
+                      {{ cat }} 기업
+                    </button>
+                  </div>
+                  <button
+                      class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1"
+                      @click="showBestAnswers"
+                  >
+                    <i class="fas fa-trophy text-warning" /> 베스트 답변
+                  </button>
+                </div>
+
+                <div v-if="curQuestion" class="card border-0 shadow-sm">
+                  <div class="card-header bg-white border-bottom">
+                    <strong>{{ curQuestion.question }}</strong>
+                  </div>
+                  <div class="card-body">
+                    <textarea
+                        v-model="answerInput"
+                        class="form-control"
+                        rows="4"
+                        placeholder="최소 35자 이상 입력해주세요"
+                        maxlength="1000"
+                    />
+                    <div class="text-end text-muted small mt-1">
+                      {{ answerInput.length }} / 1000자
+                    </div>
+                    <button
+                        class="btn btn-primary w-100 mt-3"
+                        @click="submitAnswer"
+                    >
+                      <i class="fas fa-paper-plane me-1" /> 제출하기
+                    </button>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                  <button class="btn btn-outline-secondary" @click="prevQ">
+                    <i class="fas fa-arrow-left me-1" /> 이전
+                  </button>
+                  <button class="btn btn-outline-secondary" @click="nextQ">
+                    다음 <i class="fas fa-arrow-right ms-1" />
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </section>
+
+          <!-- ▣ 게시판 탭 -->
+          <BoardTabs v-model="activeTab" :tabs="TABS" />
+
+          <!-- ▣ 학습 자료 카테고리 -->
+          <div v-if="activeTab === 'DATA'" class="mb-2">
+            <ul class="nav nav-pills small">
+              <li v-for="cat in dataCategories" :key="cat" class="nav-item">
+                <button
+                    class="nav-link"
+                    :class="{ active: selectedCategory === cat }"
+                    @click="changeCategory(cat)"
+                >
+                  {{ cat }}
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- ▣ 공지 / 피드 카드 -->
+          <FeedCard
+              v-for="n in notices"
+              :key="n.feedUID"
+              :post="n"
+              notice
+              class="mb-2"
+          />
+          <FeedCard
+              v-for="p in posts"
+              :key="p.feedUID"
+              :post="p"
+              :is-vote="!p.id"
+              :comment-count="counts[p.feedUID]"
+              class="mb-2"
+          />
+
+          <!-- ▣ 페이지네이션 & 로딩 -->
+          <Pagination
+              :page="page"
+              :totalPages="totalPage"
+              @change="fetchFeeds"
+          />
+          <Spinner v-if="loading" />
+        </div>
+      </main>
+
+      <!-- ─── ③ 오른쪽 여백 (3) ─── -->
+      <div class="col-lg-3 d-none d-lg-block" />
     </div>
-    <FeedCard
-        v-for="n in notices"
-        :key="n.feedUID"
-        :post="n"
-        notice
-        class="mb-2"
-    />
-
-
-    <FeedCard
-        v-for="p in posts"
-        :key="p.feedUID"
-        :post="p"
-        :is-vote="!p.id"
-        :comment-count="counts[p.feedUID]"
-        class="mb-2"
-    />
-
-
-    <Pagination
-        :page="page"
-        :totalPages="totalPage"
-        @change="fetchFeeds"
-    />
-
-    <Spinner v-if="loading" />
   </section>
 </template>
 
 <script setup>
-
-import { ref, computed, watch, onMounted , onActivated, onDeactivated } from 'vue'
-import { useRouter }             from 'vue-router'
-import { useRoute } from 'vue-router'
-import api                       from '@/utils/api'
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+} from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import api from '@/utils/api'
 import * as bootstrap from 'bootstrap'
+
 import SearchBar from '@/components/SearchBar.vue'
-import Pagination                from '@/common/Pagination.vue'
-import BoardTabs                 from '@/components/BoardTabs.vue'
-import FeedCard                  from '@/pages/feed/FeedCard.vue'
-import Spinner                   from '@/components/Spinner.vue'
-const keyword   = ref('')
-const todoAlert = ref('')
+import Pagination from '@/common/Pagination.vue'
+import BoardTabs from '@/components/BoardTabs.vue'
+import FeedCard from '@/pages/feed/FeedCard.vue'
+import Spinner from '@/components/Spinner.vue'
+
+/* ───── 상태 ───── */
 const route = useRoute()
-  function doSearch () {
-    if (!keyword.value.trim()) return
-    router.push({ path:'/search', query:{ q:keyword.value.trim() } })
+const router = useRouter()
+
+/* ▣ 추천 글 */
+const recommendPosts = ref([])
+onMounted(async () => {
+  showRecommend.value = window.innerWidth >= 992
+  try {
+    const { data } = await api.get('/search/view/feed/recommend')
+    recommendPosts.value = data.recommend ?? []
+  } catch (err) {
+    console.error('추천 글 로딩 실패:', err)
   }
-// const sb = useSidebarStore()
-//
-//
-// const { dDayList, todoList, todoProgress, visitorStats, topWriters } = storeToRefs(sb)
+})
 
+/* ▣ 면접 질문 */
+const itQs = ref([])
+const genQs = ref([])
+const curCat = ref('IT')
+const curIdx = ref(0)
+const showRecommend = ref(false)
+const answerInput = ref('')
+const isInterviewOpen = ref(false)
+const curArr = computed(() => (curCat.value === 'IT' ? itQs.value : genQs.value))
+const curQuestion = computed(() => curArr.value[curIdx.value] ?? null)
 
-// let timer = null
-// onActivated(() => {
-//   timer = setInterval(sidebar.loadLive, 30_000)   // 30초
-// })
-// onDeactivated(() => {
-//   if (timer) clearInterval(timer)
-// })
-  const itQs  = ref([])
-  const genQs = ref([])
-  const curCat = ref('IT')
-  const curIdx = ref(0)
-  const answerInput = ref('')
-  const isInterviewOpen = ref(false)
+function changeCat(cat) {
+  curCat.value = cat
+  curIdx.value = 0
+}
 
-  const curArr       = computed(() => curCat.value==='IT'?itQs.value:genQs.value)
-  const curQuestion  = computed(() => curArr.value[ curIdx.value ] ?? null)
+function prevQ() {
+  curIdx.value = (curIdx.value - 1 + curArr.value.length) % curArr.value.length
+}
+function nextQ() {
+  curIdx.value = (curIdx.value + 1) % curArr.value.length
+}
 
-  function changeCat (cat) {
-    curCat.value = cat
+async function loadInterviewQs() {
+  try {
+    const { data } = await api.get('/interview/test')
+    itQs.value = data.filter(q => q.category === 'IT')
+    genQs.value = data.filter(q => q.category === '일반')
     curIdx.value = 0
+  } catch (e) {
+    console.error('면접 질문 로드 실패', e)
   }
-  function prevQ(){ curIdx.value = (curIdx.value-1+curArr.value.length)%curArr.value.length }
-  function nextQ(){ curIdx.value = (curIdx.value+1)%curArr.value.length }
+}
+onMounted(loadInterviewQs)
 
-  async function loadInterviewQs(){
-    try {
-      const { data } = await api.get('/interview/test')
-      itQs.value  = data.filter(q => q.category === 'IT')
-      genQs.value = data.filter(q => q.category === '일반')
-
-      curIdx.value = 0
-    } catch (e) {
-      console.error('면접 질문 로드 실패', e)
-    }
+async function submitAnswer() {
+  const txt = answerInput.value.trim()
+  if (!txt) return alert('답변을 입력하세요')
+  if (txt.length < 35) return alert('답변은 최소 35자 이상입니다')
+  const token = localStorage.getItem('token')
+  if (!token) return alert('로그인이 필요합니다')
+  try {
+    await api.post(
+        '/api/save/interview/question',
+        {
+          questionId: curQuestion.value.id,
+          answer: txt,
+          title: curQuestion.value.question,
+          category: curQuestion.value.category,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+    )
+    alert('답변 저장 완료!')
+    answerInput.value = ''
+  } catch (e) {
+    alert('저장 실패')
   }
-  async function submitAnswer(){
-    const txt = answerInput.value.trim()
-    if(!txt)       return alert('답변을 입력하세요')
-    if(txt.length<35) return alert('답변은 최소 35자 이상입니다')
+}
 
-    const token = localStorage.getItem('token')
-    if(!token) return alert('로그인이 필요합니다')
-
-    try{
-      await api.post('/api/save/interview/question',{
-        questionId : curQuestion.value.id,
-        answer     : txt,
-        title      : curQuestion.value.question,
-        category   : curQuestion.value.category
-      },{ headers:{ Authorization:`Bearer ${token}` }})
-      alert('답변 저장 완료!')
-      answerInput.value=''
-    }catch(e){
-      alert('저장 실패')
-    }
-  }
-
-  const bestAnswers = ref([])
-  const bestIdx     = ref(0)
-  let   modal       = null
-
-  async function showBestAnswers(){
-    try{
-      const ids = ['263','87','93'].join(',')
-      const { data } = await api.get('/interview/best/answer',
-          { headers:{ 'X-Question-Ids':ids }})
-      if(!data.length) return alert('베스트 답변이 없습니다')
-
-      bestAnswers.value = data
-      bestIdx.value     = 0
-      openBestModal()
-    }catch(e){ alert('데이터 오류') }
-  }
-  function openBestModal(){
-    const ans = bestAnswers.value[bestIdx.value]
-    document.getElementById('bestAnswerModalLabel').innerText = `💬 ${ans.title}`
-    document.getElementById('bestAnswerModalBody').innerHTML  =
-        `<p><strong>작성자:</strong> ${ans.username||'익명'}</p><hr><p>${ans.answer}</p>`
-    modal ??= new bootstrap.Modal('#bestAnswerModal')
-    modal.show()
-  }
-  function nextBest(){
-    bestIdx.value = (bestIdx.value+1)%bestAnswers.value.length
+/* ▣ 베스트 답변 */
+const bestAnswers = ref([])
+const bestIdx = ref(0)
+let modal = null
+async function showBestAnswers() {
+  try {
+    const ids = ['263', '87', '93'].join(',')
+    const { data } = await api.get('/interview/best/answer', {
+      headers: { 'X-Question-Ids': ids },
+    })
+    if (!data.length) return alert('베스트 답변이 없습니다')
+    bestAnswers.value = data
+    bestIdx.value = 0
     openBestModal()
+  } catch {
+    alert('데이터 오류')
   }
+}
+function openBestModal() {
+  const ans = bestAnswers.value[bestIdx.value]
+  document.getElementById('bestAnswerModalLabel').innerText = `💬 ${ans.title}`
+  document.getElementById(
+      'bestAnswerModalBody',
+  ).innerHTML = `<p><strong>작성자:</strong> ${
+      ans.username || '익명'
+  }</p><hr><p>${ans.answer}</p>`
+  modal ??= new bootstrap.Modal('#bestAnswerModal')
+  modal.show()
+}
+function nextBest() {
+  bestIdx.value = (bestIdx.value + 1) % bestAnswers.value.length
+  openBestModal()
+}
 
-  onMounted(loadInterviewQs)
+/* ▣ 탭/피드 */
+const TABS = [
+  { id: 'ALL', label: '전체 글', url: '/feeds' },
+  { id: 'BEST', label: '이번주 인기글', url: '/search/view/feed/best' },
+  { id: 'VOTE', label: '투표', url: '/search/view/vote/page' },
+  { id: 'DATA', label: '학습 자료', url: '/data/feed', requiresCategory: true },
+  { id: 'NOTICE', label: '공지사항', url: '/notice/feed' },
+  { id: 'QNA', label: 'Q&A', url: '/data/feed', category: 'Q/A' },
+]
+const dataCategories = ['자료', '기술', '취업', '자격증']
+const activeTab = ref('ALL')
+const selectedCategory = ref('자료')
 
-  const TABS = [
-    { id: 'ALL', label: '전체 글', url: '/feeds' },
-    { id: 'BEST', label: '이번주 인기글', url: '/search/view/feed/best' },
-    { id: 'VOTE', label: '투표', url: '/search/view/vote/page' },
-    { id: 'DATA', label: '학습 자료', url: '/data/feed', requiresCategory: true },
-    { id: 'NOTICE', label: '공지사항', url: '/notice/feed' },
-    { id: 'QNA', label: 'Q&A', url: '/data/feed', category: 'Q/A' }
-  ]
-  const dataCategories = ['자료', '기술', '취업', '자격증'];
-  const activeTab  = ref('ALL')
-  const selectedCategory = ref('자료')
-  const loading    = ref(false)
-  const page       = ref(0)
-  const totalPage  = ref(0)
-  const posts      = ref([])
-  const notices    = ref([])
-  const counts     = ref({})
+const loading = ref(false)
+const page = ref(0)
+const totalPage = ref(0)
+const posts = ref([])
+const notices = ref([])
+const counts = ref({})
+const showSidebar = ref(false)
+function changeCategory(cat) {
+  selectedCategory.value = cat
+  fetchFeeds(0)
+}
 
-  const router = useRouter()
-  function changeCategory(cat) {
-    selectedCategory.value = cat
-    fetchFeeds(0)
+async function fetchNotice() {
+  try {
+    const { data } = await api.get('/list/notice')
+    notices.value = data ?? []
+  } catch (err) {
+    console.error('공지사항 로딩 실패:', err)
   }
+}
 
-  async function fetchNotice () {
-    try {
-      const { data } = await api.get('/list/notice')
-      notices.value = data ?? []
-    } catch (err) {
-      console.error('공지사항 로딩 실패:', err)
-    }
-  }
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
   if (!tab) return
-
   loading.value = true
   page.value = newPage
 
-  // ⭐ 페이지 쿼리 URL 반영
   router.replace({ query: { ...route.query, page: newPage } })
 
   const params = { page: newPage, size: 10 }
@@ -270,12 +377,8 @@ async function fetchFeeds(newPage = page.value) {
     counts.value = data.count ?? {}
     totalPage.value = data.totalPage ?? 0
 
-    if (activeTab.value === 'ALL') {
-      const noticeRes = await api.get('/list/notice')
-      notices.value = noticeRes.data ?? []
-    } else {
-      notices.value = []
-    }
+    if (activeTab.value === 'ALL') await fetchNotice()
+    else notices.value = []
   } catch (err) {
     console.error(`${tab.label} 로딩 실패`, err)
   } finally {
@@ -283,103 +386,87 @@ async function fetchFeeds(newPage = page.value) {
   }
 }
 
-
-async function fetchPage (p = 0) {
-    page.value = p;
-    loading.value = true
-
-    const tabInfo = TABS.find(t => t.id === activeTab.value)
-    if (!tabInfo) {
-      console.warn('탭 정보가 없습니다:', activeTab.value)
-      return
-    }
-
-    try {
-      const { data } = await api.get(tabInfo.url, { params: { page: p, size: 10 } })
-      posts.value      = data.data ?? []
-      counts.value     = data.count ?? {}
-      totalPage.value  = data.totalPage ?? 0
-
-      if (activeTab.value === 'ALL') {
-        await fetchNotice()
-      } else {
-        notices.value = []
-      }
-    } catch (err) {
-      console.error('피드 로딩 실패:', err)
-    } finally {
-      loading.value = false
-    }
-  }
-  onMounted(() => {
-    const p = parseInt(route.query.page) || 0
-    fetchFeeds(p)
-    fetchNotice()
-  })
-
-  watch(activeTab, () => fetchFeeds(0))
-  function goDetail (post) {
-    router.push({ name: 'feed-detail', params: { id: post.feedUID } })
-  }
+onMounted(() => {
+  const p = parseInt(route.query.page) || 0
+  fetchFeeds(p)
+  fetchNotice()
+})
+watch(activeTab, () => fetchFeeds(0))
 </script>
 
 <style scoped>
-  .board-wrap {
-    max-width: 750px;
-    margin: 0 auto;
-  }
+/* ▣ 가운데 본문 폭 100% */
+.board-wrap {
+  max-width: 100%;
+  margin: 0;
+}
 
+/* ===== 기존 스타일 ===== */
+.interview-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  cursor: pointer;
+}
+.search-bar {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+.search-bar input {
+  font-size: 0.95rem;
+}
+.btn-group .btn.active {
+  background: #0d6efd;
+  color: #fff;
+  border-color: #0d6efd;
+}
+textarea.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+@media (max-width: 576px) {
   .interview-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    font-size: 1.2rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .search-bar {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-  }
-  .search-bar input {
-    font-size: 0.95rem;
-  }
-  .search-bar i {
-    font-size: 1rem;
-  }
-  .interview-title i {
-    margin-right: 0.25rem;
-  }
-  .btn-group .btn.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
+}
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  height: 100%;
+  width: 80%;
+  max-width: 300px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+@media (max-width: 992px) {
+  .mobile-sidebar {
+    transition: transform 0.3s ease-in-out;
   }
 
-  textarea.form-control:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: transform 0.3s ease-in-out;
   }
 
-
-  .interview-title.active {
-    color: #0d6efd;
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateX(-100%);
   }
 
-  @media (max-width: 576px) {
-    .interview-title {
-      font-size: 1.2rem;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .toggle-icon {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-    }
+  .slide-enter-to,
+  .slide-leave-from {
+    transform: translateX(0);
   }
+}
 
 </style>

@@ -85,7 +85,7 @@ public class MainFeedAjaxController {
             cookie.setHttpOnly(true);
             cookie.setSecure(true);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 30);
+            cookie.setMaxAge(60 * 40);
             response.addCookie(cookie);
         }
         return ResponseEntity.ok("조회수 증가 성공");
@@ -198,6 +198,11 @@ public class MainFeedAjaxController {
                 "data", feedMapper.fromBoardDtoList(boardList),
                 "totalPage", results.get("total")));
     }
+    @GetMapping("/search/view/feed/recommend")
+    @ResponseBody
+    public ResponseEntity<?> getRecommendFeed() {
+        return ResponseEntity.ok(Map.of("recommend", feedService.getRecommendFeed()));
+    }
 
     @GetMapping("/notice/feed")
     public ResponseEntity<?> getPagingNoticeFeed(
@@ -250,7 +255,6 @@ public class MainFeedAjaxController {
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
         FeedRequest feedRequest=feedService.getFeedDetail(feedUID);
-        log.info(feedRequest.toString());
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -318,6 +322,7 @@ public class MainFeedAjaxController {
         response.put("data", feedRequest);
         return ResponseEntity.ok(response);
     }
+
 
 
     private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, FeedRequest req, Map<String, Object> response) {

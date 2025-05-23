@@ -119,7 +119,6 @@ public class MainFeedController {
 
 
     @GetMapping("/search/view/practical")
-
     public String getQuestionPractical(@RequestParam String category) {
         return "basic/feed/practical";
     }
@@ -291,11 +290,6 @@ public class MainFeedController {
         return "basic/feed/CategoryFeed";
     }
 
-    @GetMapping("/search/view/feed/recommend")
-    @ResponseBody
-    public ResponseEntity<?> getRecommendFeed() {
-        return ResponseEntity.ok(Map.of("recommend", feedService.getRecommendFeed()));
-    }
 
 
     @GetMapping("/search/view/feed/latest")
@@ -333,7 +327,6 @@ public class MainFeedController {
         try {
 //            processFileUpload(file, res);
             authService.extractUserIdFromToken(token, res);
-            log.info(res.toString());
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);
             response.put("redirectUrl", "/search/view/feed?index=board");
@@ -351,7 +344,6 @@ public class MainFeedController {
     @PostMapping("/upload-images")
     @ResponseBody
     public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file) {
-        log.info("asdd");
         try {
             String imageUrl = s3Uploader.upload(file, "feed");
             log.info(imageUrl);
@@ -384,6 +376,27 @@ public class MainFeedController {
 
         return feedService.createBulkFeed(comments);
     }
+    @GetMapping("/naver/callback")
+    public RedirectView naverCallbackView(@RequestParam String code) {
+        return new RedirectView("https://workly.info/naver/callback?code=" + code);
+    }
+
+    @GetMapping("/google/callback")
+    public RedirectView googleCallbackView(@RequestParam String code) {
+
+        return new RedirectView("https://workly.info/google/callback?code=" + code);
+    }
+    @GetMapping("/kakao/callback")
+    public RedirectView kakaoCallbackRedirect(@RequestParam String code) {
+        return new RedirectView("https://workly.info/kakao/callback?code=" + code);
+    }
+
+
+    @GetMapping("/get/user/vote/details")
+    public String getUserVoteDetail() {
+        return "basic/feed/VoteDetail";
+    }
+
 
     @GetMapping("/search/view/feed/best")
     public ResponseEntity<?> getWeekBestFeed(@RequestParam(defaultValue = "0") int page,
@@ -411,26 +424,6 @@ public class MainFeedController {
 //        model.addAttribute("code", code);
 //        return "basic/login/google_callback.html";
 //    }
-    @GetMapping("/naver/callback")
-    public RedirectView naverCallbackView(@RequestParam String code) {
-        return new RedirectView("https://workly.info/naver/callback?code=" + code);
-    }
-
-    @GetMapping("/google/callback")
-    public RedirectView googleCallbackView(@RequestParam String code) {
-
-        return new RedirectView("https://workly.info/google/callback?code=" + code);
-    }
-    @GetMapping("/kakao/callback")
-    public RedirectView kakaoCallbackRedirect(@RequestParam String code) {
-        return new RedirectView("https://workly.info/kakao/callback?code=" + code);
-    }
-
-
-    @GetMapping("/get/user/vote/details")
-    public String getUserVoteDetail() {
-        return "basic/feed/VoteDetail";
-    }
 
     private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
         if (file != null && !file.isEmpty()) {
