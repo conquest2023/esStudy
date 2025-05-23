@@ -16,7 +16,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
 
+    List<FeedRequest> findCommentDESC(int page, int size);
 
+
+    List<FeedRequest> findReplyDESC(int page, int size);
+    List<FeedRequest> findViewDESC(int page, int size);
 
     FeedImage saveFeedImages(String imageUrl);
     Map<String, Object>  getNoticeFeed(int page, int size);

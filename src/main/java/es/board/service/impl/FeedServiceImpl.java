@@ -96,6 +96,25 @@ public class FeedServiceImpl implements FeedService {
         return feedMapper.fromBoardDtoList(feedDAO.findWeekBestFeed(page,size));
     }
 
+
+    @Override
+    public   List<FeedRequest> findCommentDESC(int page, int size) {
+        return feedMapper.fromBoardDtoList(feedDAO.findCountComment(page,size));
+    }
+
+    @Override
+    public   List<FeedRequest> findReplyDESC(int page, int size) {
+        return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
+    }
+
+
+    @Override
+    public   List<FeedRequest> findViewDESC(int page, int size) {
+        return feedMapper.fromBoardDtoList(feedDAO.findViewDESC(page,size));
+    }
+
+
+
     @Override
     public Map<String, Object> getUserMapageLikeAndFeedCount(String userId) {
         return  feedDAO.findUserMyPageLikeAndFeedCount(userId);

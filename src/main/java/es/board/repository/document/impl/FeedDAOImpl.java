@@ -1,6 +1,7 @@
 package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
@@ -392,11 +393,11 @@ public class FeedDAOImpl implements FeedDAO {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
                             .size(0)
-                            .aggregations("totalFeedCount", a -> a.valueCount(vc -> vc.field("feedUID.keyword")))
+                            .aggregations("totalFeedCount",
+                                    a -> a.valueCount(vc -> vc.field("feedUID.keyword")))
                             .trackTotalHits(t -> t.enabled(true)),
                     Board.class);
             long totalFeedCount = (long) response.aggregations().get("totalFeedCount").valueCount().value();
-
 
             return Map.of(
                     "totalFeedCount", totalFeedCount
@@ -497,6 +498,120 @@ public class FeedDAOImpl implements FeedDAO {
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error fetching month popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch month popular feed", e);
+        }
+    }
+
+
+    @Override
+    public List<Board> findViewDESC(int page, int size) {
+        try {
+            SearchResponse<Board> response = client.search(s -> s
+                            .index("board")
+                            .from(page * size)
+                            .size(size)
+                            .sort(sort -> sort.field(f -> f
+                                    .field("viewCount")
+                                    .order(SortOrder.Desc)
+                            ))
+                    , Board.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error fetching month popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch month popular feed", e);
+        }
+    }
+
+    @Override
+    public List<Board> findCountComment(int page, int size) {
+        try {
+            SearchResponse<Void> response = client.search(s -> s
+                            .index("comment")
+                            .size(0)
+                            .from(page * size)
+                            .aggregations("totalFeed",
+                                    a -> a.terms(t -> t
+                                            .field("feedUID")
+                                            .size(1000)))
+                    ,Void.class);
+            // 전체 버킷에서 자바로 잘라서 페이징
+            List<String> feedUIDs = response.aggregations()
+                    .get("totalFeed")
+                    .sterms()
+                    .buckets()
+                    .array()
+                    .stream()
+                    .skip((long) page * size)  // 💡 Java 단 페이징
+                    .limit(size)
+                    .map(bucket -> bucket.key().stringValue())
+                    .collect(Collectors.toList());
+
+            List<FieldValue> fieldValues = feedUIDs.stream()
+                    .map(FieldValue::of)
+                    .collect(Collectors.toList());
+
+            SearchResponse<Board> res = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .terms(t -> t
+                                    .field("feedUID.keyword")
+                                    .terms(tf -> tf.value(fieldValues))
+                            )), Board.class);
+            return res.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+
+
+        } catch (IOException e) {
+            log.error("Error fetching month popular feed: {}", e.getMessage(), e);
+            throw new IndexException("Failed to fetch month popular feed", e);
+        }
+    }
+
+    @Override
+    public List<Board> findReplyCount(int page, int size) {
+        try {
+            SearchResponse<Void> response = client.search(s -> s
+                            .index("reply")
+                            .size(0)
+                            .from(page * size)
+                            .aggregations("totalReply",
+                                    a -> a.terms(t -> t
+                                            .field("feedUID")
+                                            .size(1000)))
+                    ,Void.class);
+            // 전체 버킷에서 자바로 잘라서 페이징
+            List<String> feedUIDs = response.aggregations()
+                    .get("totalReply")
+                    .sterms()
+                    .buckets()
+                    .array()
+                    .stream()
+                    .skip((long) page * size)  // 💡 Java 단 페이징
+                    .limit(size)
+                    .map(bucket -> bucket.key().stringValue())
+                    .collect(Collectors.toList());
+
+            List<FieldValue> fieldValues = feedUIDs.stream()
+                    .map(FieldValue::of)
+                    .collect(Collectors.toList());
+
+            SearchResponse<Board> res = client.search(s -> s
+                    .index("board")
+                    .query(q -> q
+                            .terms(t -> t
+                                    .field("feedUID.keyword")
+                                    .terms(tf -> tf.value(fieldValues))
+                            )), Board.class);
+            return res.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+
+
         } catch (IOException e) {
             log.error("Error fetching month popular feed: {}", e.getMessage(), e);
             throw new IndexException("Failed to fetch month popular feed", e);

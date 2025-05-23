@@ -407,6 +407,54 @@ public class MainFeedController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/reply/count")
+    public ResponseEntity<?> getReplyDesc(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
+
+        List<FeedRequest> data= feedService.findReplyDESC(page, size);
+        return ResponseEntity.ok(Map.of(
+                "data", data,
+                "totalPage",500
+        ));
+    }
+
+    @GetMapping("/comment/count")
+    public ResponseEntity<?> getCommentDesc(@RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+
+        List<FeedRequest> data= feedService.findCommentDESC(page, size);
+        return ResponseEntity.ok(Map.of(
+                "data", data,
+                "totalPage",500
+        ));
+    }
+
+    @GetMapping("/view/count")
+    @ResponseBody
+    public ResponseEntity<?> getViewDesc(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+
+        List<FeedRequest> data = feedService.findViewDESC(page, size);
+
+        return ResponseEntity.ok(Map.of(
+                "data", data,
+                "totalPage",500
+        ));
+    }
+
+
+
+
+
+//    @GetMapping("/view/count")
+//    public ResponseEntity<?> getViewDESC(@RequestParam(defaultValue = "0") int page,
+//                                             @RequestParam(defaultValue = "10") int size) {
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("data", feedService.findWeekBestFeed(page, size));
+//        return ResponseEntity.ok(response);
+//    }
+
 //    @GetMapping("/kakao/callback")
 //    public String kakaoCallbackView(@RequestParam String code, Model model) {
 //        model.addAttribute("code", code);

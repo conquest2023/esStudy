@@ -14,6 +14,12 @@ import java.util.Map;
 
 @Repository
 public interface FeedDAO {
+
+
+    List<Board> findReplyCount(int page, int size);
+
+    List<Board> findCountComment(int page, int size);
+    List<Board> findViewDESC(int page, int size);
     Map<String, Object> findNoticeFeed(int page, int size);
 
     Map<String, Object> findDataFeed(int page, int size,String category);
