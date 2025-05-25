@@ -16,1272 +16,1272 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <style>
-
-         .container{
-            max-width: 720px;          /* 읽기 좋은 폭 */
-             margin: 2rem auto;         /* 위·아래 여백 */
-             background:#fff;
-             padding: 2rem;
-             border-radius:12px;
-             box-shadow:0 2px 8px rgba(0,0,0,.08);
-         }
-        tr {
-            border-bottom: 1px solid #ddd;
-        }
-
-
-        .comment-box input,
-        .comment-box textarea {
-            width: 100%;
-            border: 1px solid #ccc;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            background: #f5f5f5;
-        }
-
-        .comment-box button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .comment-box button:hover {
-            background: #0056b3;
-        }
-
-        .comment-table th, .comment-table td {
-            padding: 8px;
-            text-align: left;
-        }
-
-        .comment-options a, .comment-options form {
-            display:inline-block;
-            margin-bottom: 5px;
-        }
-         body {
-             font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-         }
-        h1 {
-            margin-bottom: 30px;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        p {
-            margin: 5px 0;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .description-box {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            font-size: 1.2rem;
-            color: #333;
-            width: 100%;
-            max-width: 100%;
-            min-height: 250px;
-            word-break: break-word;
-            margin-top: 15px;
-            line-height: 1.6;
-        }
-        .like-comment-box {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .like-comment-box .fa-comment {
-            color: #007bff;
-        }
-
-        .like-comment-box .fa-heart {
-            color: #ff4d4d;
-        }
-
-        .like-comment-box p {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .like-btn {
-            background: none;
-            border: none;
-            padding: 0;
-            margin-left: 5px;
-            cursor: pointer;
-            vertical-align: middle;
-        }
-
-        .like-btn i {
-            font-size: 18px;
-            color: #ff4d4d;
-        }
-
-        .like-btn:hover i {
-            transform: scale(1.1);
-        }
-
-
-        @media (max-width: 768px) {
-            .description-box {
-                font-size: 1rem;
-                padding: 15px;
-                max-width: 100%;
-            }
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin-bottom: 15px;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-            padding: 15px;
-            border: none;
-            border-bottom: 1px solid #ddd;
-            color: inherit;
-        }
-
-
-
-        .btn-link {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .btn-link:hover {
-            text-decoration: underline;
-        }
-        .edit-btn, .delete-btn {
-            display: inline-block;
-        }
-        tr {
-            margin-bottom: 20px;
-        }
-        .like-comment-box {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .like-comment-box button {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .like-comment-box button i {
-            color: #ff4d4d;
-        }
-
-        .like-comment-box button:hover {
-            text-decoration: underline;
-        }
-        .comment-box input {
-            flex-grow: 1;
-            border: none;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            background: #f5f5f5;
-        }
-
-        .comment-box button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .comment-box button:hover {
-            background: #0056b3;
-        }
-        .comment-item{
-            display:flex;
-            gap:12px;
-            padding:12px 0;
-            border-bottom:1px solid #eee;
-        }
-        .comment-avatar{
-            width:36px;height:36px;
-            border-radius:50%;
-            /*background:#ddd url('/img/default-avatar.png') center/cover;*/
-            flex-shrink:0;
-        }
-        .comment-body .meta{
-            font-size:.85rem;color:#777;
-        }
-        .feed-card {
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .feed-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .feed-meta {
-            font-size: 0.95rem;
-            color: #666;
-            margin-bottom: 15px;
-        }
-         .feed-content {
-             font-size: 1rem;
-             color: #333;
-             line-height: 1.6;
-             word-break: break-word;
-             white-space: pre-wrap;
-             margin-top: 10px;
-             padding-left: 2px;
-             padding-right: 2px;
-         }
-         .feed-content a {
-             color: #007bff;
-             text-decoration: underline;
-             word-break: break-all;
-         }
-
-         .feed-content a:hover {
-             text-decoration: none;
-             color: #0056b3;
-         }
-        .feed-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .like-btn i {
-            font-size: 1.3rem;
-            color: red;
-        }
-        .delete-feed-btn {
-            background: red;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .delete-feed-btn:hover {
-            background: darkred;
-        }
-        .reply-toggle {
-            margin-left: auto;
-            display: block;
-            text-align: right;
-        }
-        .like-balloon {
-            position: absolute;
-            top: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #f8d7da;
-            color: #721c24;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            border-radius: 12px;
-            white-space: nowrap;
-            box-shadow: 0 0 6px rgba(0,0,0,0.15);
-            z-index: 10;
-            display: none;
-            animation: bounceFade 2s ease-in-out;
-        }
-
-        @keyframes bounceFade {
-            0% { opacity: 0; transform: translate(-50%, 10px); }
-            30% { opacity: 1; transform: translate(-50%, -2px); }
-            70% { opacity: 1; transform: translate(-50%, -5px); }
-            100% { opacity: 0; transform: translate(-50%, -10px); }
-        }
-
-    </style>
 </head>
-
-
-<div class="container my-4">
-    <button id="toggleSidebarBtn" class="btn btn-light position-fixed" style="top: 100px; left: 10px; z-index: 999;">
-        <i class="fas fa-book-reader"></i>
-    </button>
-
-    <div id="relatedSidebar" class="card shadow-sm position-fixed" style="top: 100px; left: -300px; width: 260px; z-index: 998; transition: left 0.3s;">
-        <!-- renderRelatedFeeds()로 이 안이 채워집니다 -->
-    </div>
-    <div id="feedDetailContainer"></div>
-    <div id="commentSection"></div>
-    <div id="commentForm"></div>
-    <div class="text-center mt-4">
-        <a href="/search/view/feed?index=board" class="btn btn-secondary">
-            <i class="fas fa-home"></i> 메인으로 돌아가기
-        </a>
-    </div>
-    </div>
-</div>
-<script>
-    function deleteComment(feedId, commentId) {
-        if (!confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
-            return;
-        }
-        fetch(`/search/view/comment/delete?id=${commentId}&feedUID=${feedId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-        })
-
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("댓글 삭제에 실패했습니다.");
-                }
-                return response.json();
-            })
-            .then(() => {
-                alert("댓글이 삭제되었습니다.");
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error("댓글 삭제 중 오류:", error);
-                alert("댓글 삭제에 실패했습니다.");
-            });
-    }
-    function convertLinks(text) {
-        const urlRegex = /(https?:\/\/[^\s<]+)/g;
-        return text.replace(urlRegex, (url) => {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggleBtn = document.getElementById("toggleSidebarBtn");
-        const sidebar = document.getElementById("relatedSidebar");
-
-        toggleBtn.addEventListener("click", () => {
-            if (sidebar.style.left === "0px") {
-                sidebar.style.left = "-300px";
-            } else {
-                sidebar.style.left = "0px";
-            }
-        });
-    });
-
-    function renderRelatedFeeds(bestList) {
-        const sidebar = document.getElementById("relatedSidebar");
-        if (!sidebar) return;
-
-        if (!bestList || bestList.length === 0) {
-            sidebar.innerHTML = "<p>읽을만한 글이 없습니다.</p>";
-            return;
-        }
-
-        let html = `
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-light fw-bold">🔥 읽어볼 만한 글</div>
-      <ul class="list-group list-group-flush">
-  `;
-
-        bestList.forEach(feed => {
-            html += `
-      <li class="list-group-item">
-        <a href="/search/view/feed/id?id=${feed.feedUID}" class="text-decoration-none">
-          ${feed.title}
-        </a>
-      </li>
-    `;
-        });
-
-        html += `</ul></div>`;
-        sidebar.innerHTML = html;
-    }
-
-    function renderFeedDetail(jsonData) {
-        fetchTopWriters();
-        const token = localStorage.getItem("token");
-        const container = document.getElementById('feedDetailContainer');
-        const board = jsonData.data;
-        const bestList = jsonData.best || [];
-
-        container.innerHTML = '';
-        fetch('/search/view/feed/list/most?page=0&size=5')
-            .then(res => res.json())
-            .then(data => renderRelatedFeeds(data.data))
-            .catch(err => {
-                console.warn("추천글 불러오기 실패:", err);
-            });
-        if (!board) {
-            container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';
-            return;
-        }
-        const rawDescription = board.description || "";
-        const withBr = rawDescription.replace(/\n/g, "<br>");
-        const converted = convertLinks(withBr);
-        const imageTag = board.imageURL && board.imageURL.trim()
-            ? `<img src="${board.imageURL}" alt="피드 이미지" style="max-width:100%; display:block; margin:10px 0; border-radius:8px;">`
-            : "";
-        // 2. <br> 개수에 따라 이미지 삽입 위치 결정
-        let descriptionWithImage = converted;
-        if (imageTag) {
-            const brMatches = rawDescription.match(/<br\s*\/?>/gi) || [];
-            const brCount = brMatches.length;
-
-            if (brCount === 0) {
-                // <br> 없음: 맨 뒤에 이미지
-                descriptionWithImage = rawDescription + imageTag;
-            } else if (brCount <= 2) {
-                // 1~2개: 첫 번째 <br> 뒤에 이미지
-                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/, match => match + imageTag);
-            } else {
-                // 3개 이상: 두 번째 <br> 뒤에 이미지
-                let replaced = false;
-                let count = 0;
-                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/gi, match => {
-                    count++;
-                    if (count === 2 && !replaced) {
-                        replaced = true;
-                        return match + imageTag;
-                    }
-                    return match;
-                });
-            }
-        }
-
-        let rank = topWriters[board.username] || 0;
-        let badge = rank === 1 ? "👑" :
-            rank === 2 ? "🥇" :
-                rank === 3 ? "🥈" :
-                    rank >= 4 && rank <= 5 ? "🥉" : "";
-
-        let actionButtonsHTML = '';
-        if (jsonData.Owner && token) {
-            actionButtonsHTML = `
-            <div class="dropdown d-none d-md-inline">
-        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">
-                <i class="fas fa-edit me-2"></i>수정</a></li>
-          <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">
-                <i class="fas fa-trash me-2"></i>삭제</a></li>
-        </ul>
-      </div>
-
-      <!-- mobile floating action button -->
-      <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"
-              style="bottom:80px;right:24px;width:56px;height:56px;"
-              data-bs-toggle="dropdown" data-bs-target="#fabMenu">
-        <i class="fas fa-ellipsis-v"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">
-        <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">수정</a></li>
-        <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">삭제</a></li>
-      </ul>
-        `;
-        }
-        document.title = board.title || "피드 상세";
-        const html = `
-        <div class="card feed-card">
-            <div class="card-body">
-               ${actionButtonsHTML ? `<div class="text-end mb-3">${actionButtonsHTML}</div>` : ""}
-
-                <h2 class="feed-title">${board.title}</h2>
-
-                <p class="feed-meta">
-                    <strong>작성자:</strong> ${badge} ${board.username} &nbsp;|&nbsp;
-                    <strong>작성일자:</strong> ${formatDate(board.createdAt)}
-                </p>
-
-                <div class="feed-content"></div>
-
-                <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
-                    <div class="text-muted">
-                        <i class="far fa-comment"></i> ${jsonData.count || 0}
-                    </div>
-                    <div class="position-relative">
-                        <strong>좋아요:</strong>
-                        <span id="like-count-feed-${board.feedUID}">
-                            ${board.likeCount || 0}
-                        </span>
-                        <button class="btn btn-sm btn-outline-danger like-btn position-relative" data-feed-uid="${board.feedUID}">
-                            <i class="fas fa-heart"></i>
-                            <div class="like-balloon" id="likeBalloon-${board.feedUID}">❤️ 좋아요도 눌러보세요!</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-        container.innerHTML = html;
-
-        container.querySelector('.feed-content').innerHTML = descriptionWithImage;
-
-        setTimeout(() => {
-            const likeBtn = document.querySelector(`button[data-feed-uid="${board.feedUID}"]`);
-            if (likeBtn) {
-                likeBtn.addEventListener("click", () => {
-                    toggleFeedLike(board.feedUID, board.likeCount);
-                });
-            }
-        }, 100);
-
-        setTimeout(() => {
-            const balloon = document.getElementById(`likeBalloon-${board.feedUID}`);
-            if (balloon) {
-                balloon.style.display = 'block';
-                setTimeout(() => {
-                    balloon.style.display = 'none';
-                }, 2000);
-            }
-        }, 150);
-    }
-
-    function renderCommentForm(userData) {
-        const el = document.getElementById("commentForm");
-
-        const isLogin = !!userData?.isLoggedIn;
-        const nick = userData?.username || "";
-
-        const loginButton = !isLogin
-            ? `<button class="btn btn-outline-primary btn-sm float-end" onclick="location.href='/login'">
-              <i class="fas fa-sign-in-alt"></i> 로그인
-           </button>`
-            : "";
-
-        el.innerHTML = `
-      <div class="card shadow-sm p-3">
-        <div class="card-body">
-          <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>
-
-          <div class="form-group mt-3 position-relative">
-            <label for="username" class="form-label d-flex justify-content-between align-items-center">
-              <span>이름</span>
-              ${loginButton}
-            </label>
-            <input type="text"
-                   id="username"
-                   class="form-control"
-                   readonly
-                   value="${isLogin ? nick : ""}"
-                   placeholder="${isLogin ? "" : "로그인이 필요합니다."}">
-            <small class="text-muted d-block mt-1">
-              로그인해야 댓글을 등록하실 수 있습니다.
-            </small>
-          </div>
-
-          <div class="form-group mt-3">
-            <label for="content" class="form-label">내용</label>
-            <textarea id="content" rows="4" class="form-control" required></textarea>
-          </div>
-
-          <button id="btnCommentSubmit"
-                  type="button"
-                  class="btn btn-success mt-3"
-                  onclick="submitComment()">
-            <i class="fas fa-pencil-alt"></i> 작성하기
-          </button>
-        </div>
-      </div>`;
-    }
-
-
-
-    function formatDate(dateTimeString) {
-            if (!dateTimeString) return '';
-
-            const date = new Date(dateTimeString);
-
-
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            let hour = date.getHours();
-            const minute = date.getMinutes();
-
-
-            const period = hour >= 12 ? '오후' : '오전';
-            hour = hour % 12 || 12;
-
-            const formattedMinute = minute < 10 ? `0${minute}` : minute;
-
-
-            return ` ${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
-    }
-    function initializeCommentEvents(feedId) {
-        document.querySelectorAll(".edit-comment-btn").forEach((btn) => {
-            btn.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                showEditCommentForm(commentId);
-            });
-        });
-        document.querySelectorAll(".delete-comment-btn").forEach(btn => {
-            btn.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                deleteComment(feedId, commentId);
-            });
-        });
-        document.querySelectorAll(".reply-toggle").forEach(btn => {
-            btn.addEventListener("click", function () {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    alert("로그인이 필요합니다.");
-                    window.location.href="/login"
-                    return;
-                }
-                const commentId = this.getAttribute("data-comment-id");
-                const replyForm = document.getElementById(`reply-form-${commentId}`);
-                if (!replyForm) return;
-                replyForm.style.display = (replyForm.style.display === "none" || replyForm.style.display === "")
-                    ? "block" : "none";
-            });
-        });
-    function showEditCommentForm(commentId) {
-        fetch(`/comment/update/get?commentUID=${commentId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch comment details");
-                }
-                return response.json();
-            })
-            .then(data => {
-
-                const targetRow = document.getElementById(`comment-${commentId}`);
-                if (!targetRow) {
-                    console.error(`Error: Target row #comment-${commentId} not found.`);
-                    return;
-                }
-
-                const existingForm = document.getElementById(`edit-comment-form-${commentId}`);
-                if (existingForm) {
-                    existingForm.remove();
-                }
-
-                console.log(`Found comment section container: #commentSection`);
-                const editFormHtml = `
-        <div id="edit-comment-form-${commentId}" class="mt-2 p-3 border rounded" style="background-color: #f9f9f9;">
-          <textarea id="edit-comment-content-${commentId}" class="form-control mb-2"  rows="4" >${data.content}</textarea>
-          <div class="text-end">
-            <button id="save-comment-btn-${commentId}" class="btn btn-primary btn-sm me-2" data-comment-id="${data.commentUID}"data-feed-id="${data.feedUID}" >
-              Save
-            </button>
-            <button id="cancel-edit-btn-${commentId}" class="btn btn-secondary btn-sm">
-              Cancel
-            </button>
-          </div>
-        </div>
-      `;
-
-                targetRow.insertAdjacentHTML("beforeend", editFormHtml);
-
-                document
-                    .getElementById(`save-comment-btn-${commentId}`)
-                    .addEventListener("click", saveEditedComment);
-
-                document
-                    .getElementById(`cancel-edit-btn-${commentId}`)
-                    .addEventListener("click", () => {
-                        document.getElementById(`edit-comment-form-${commentId}`).remove();
-                    });
-            })
-            .catch(error => {
-                console.error("Error fetching comment details:", error);
-                alert("Failed to fetch comment details");
-            });
-    }
-    function saveEditedComment(event) {
-        const button = event.target;
-        const commentId = button.getAttribute("data-comment-id");
-        const feedId = getFeedIdFromURL();
-        const updatedContent = document.getElementById(`edit-comment-content-${commentId}`).value;
-
-        setTimeout(() => {
-        fetch(`/comment/update/save`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                commentUID: commentId,
-                feedUID: feedId,
-                content: updatedContent,
-            }),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to save comment");
-                }
-                return response.json();
-            })
-            .then(data => {
-                const redirectUrl = data.redirectUrl;
-                const commentContentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                if (commentContentElement) {
-                    commentContentElement.innerText = data.updatedContent;
-                } else {
-                    console.error(`Error: Element #comment-content-${commentId} not found.`);
-                }
-                document.getElementById(`edit-comment-form-${commentId}`).remove();
-                window.location.href = redirectUrl;
-            })
-            .catch(error => {
-                console.error("Error saving comment:", error);
-                alert("Failed to save the comment");
-            });
-        }, 1000);
-        }
-        function getFeedIdFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get("id");
-        }
-        document.querySelectorAll(".submit-reply-btn").forEach((btn) => {
-            feedId=getFeedIdFromURL()
-            btn.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                const replyContent = document.querySelector(
-                    `#reply-form-${commentId} textarea`
-                ).value.trim();
-
-                if (!replyContent) {
-                    alert("답글 내용을 입력하세요.");
-                    return;
-                }
-                submitReply(feedId, commentId, replyContent);
-            });
-        });
-    }
-    function submitReply(feedId,commentId, replyContent) {
-        const username = localStorage.getItem("username") || "익명";
-        fetch('/search/view/reply/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                commentUID: commentId,
-                feedUID: feedId,
-                content: replyContent,
-                username: username,
-            }),
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.text();
-            })
-            .then(redirectUrl => {
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1000);
-            })
-            .catch(error => {
-                console.error('답글 저장 중 오류 발생:', error);
-            });
-    }
-    function editFeed(feedUID) {
-        window.location.href = `/search/view/feed/update?id=${feedUID}`;
-    }
-    function deleteFeed(feedId) {
-        const token = localStorage.getItem("token");
-        if (token) {
-            if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
-                return;
-            }
-            fetch(`/search/view/feed/delete`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                body: JSON.stringify({
-                    id: feedId,
-                }),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("게시글 삭제에 실패했습니다.");
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    const redirectUrl = data.redirectUrl;
-                    if (redirectUrl) {
-                        alert("게시글이 삭제되었습니다.");
-                        window.location.href = redirectUrl;
-                    } else {
-                        throw new Error("리다이렉트 URL이 응답에 없습니다.");
-                    }
-                })
-                .catch((error) => {
-                    console.error("삭제 중 오류 발생:", error);
-                    alert("삭제 중 문제가 발생했습니다. 다시 시도해주세요.");
-                });
-        }
-    }
-        document.addEventListener('DOMContentLoaded', function () {
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const feedId = urlParams.get('id');
-            const token = localStorage.getItem("token");
-            if (!feedId) {
-                alert("피드 ID가 없습니다.");
-                return;
-            }
-            fetch('/increaseViewCount', {
-                method: 'POST',
-                headers: {"Content-Type": "application/json"},
-                credentials: "include",
-                body: JSON.stringify({id: feedId })})
-
-            fetch(`/detail?id=${feedId}`, {
-
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": token ? `Bearer ${token}` : "",
-                },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`서버 응답 실패: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(userData => {
-                localStorage.setItem("username", userData.username);
-                renderFeedDetail(userData);
-                renderCommentSection(userData);
-                renderCommentForm(userData);
-                updateLikeButtonUI(userData.isLiked);
-                // enhanceLinksWithPreview();
-                const usernameInput = document.getElementById("username");
-                if (usernameInput) {
-                    usernameInput.value = userData.username;
-                    usernameInput.setAttribute("readonly", true);
-                }
-            })
-            .catch(error => {
-                console.error("데이터 불러오기 중 오류 발생:", error);
-                alert("데이터를 불러오는 중 문제가 발생했습니다.");
-            });
-    })
-
-    let debounceTimeout;
-    async function submitComment() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            window.location.href = "/login";
-            return;
-        }
-        if (debounceTimeout) clearTimeout(debounceTimeout);
-        const submitButton = document.getElementById("submitCommentBtn");
-        if (submitButton) submitButton.disabled = true;
-
-        debounceTimeout = setTimeout(async () => {
-            const content = document.getElementById("content").value.trim();
-            const token = localStorage.getItem("token");
-
-            if (!content) {
-                alert("댓글 내용을 입력하세요!");
-                if (submitButton) submitButton.disabled = false;
-                return;
-            }
-
-
-            let isLoggedIn = false;
-            let username = "";
-            if (token) {
-                try {
-                    const res = await fetch("/auth/status", {
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
-                    });
-                    const auth = await res.json();
-                    isLoggedIn = auth.isLoggedIn;
-                    username = auth.username;
-                } catch (e) {
-                    console.warn("인증 확인 실패");
-                }
-            }
-            if (!isLoggedIn) {
-                alert("댓글을 작성하려면 먼저 로그인해주세요!");
-                if (submitButton) submitButton.disabled = false;
-                return;
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const feedUID = urlParams.get('id');
-            const headers = {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            };
-
-            fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({
-                    content: content,
-                    username: username,
-                }),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error("댓글 저장 실패: " + response.status);
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    const redirectUrl = data.redirectUrl;
-                    if (redirectUrl) {
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 500);
-                    } else {
-                        console.error("리다이렉트 URL이 없습니다.");
-                    }
-                })
-                .catch((error) => {
-                    console.error("댓글 저장 중 오류 발생:", error);
-                    alert("댓글 저장 중 문제가 발생했습니다.");
-                })
-                .finally(() => {
-                    if (submitButton) submitButton.disabled = false;
-                });
-        }, 1000);
-    }
-
-    function renderReplies(replyList) {
-        if (!replyList || replyList.length === 0) {
-            return "";
-        }
-        let html = `<div class="mt-2">`;
-        replyList.forEach((rp) => {
-            let rank = topWriters[rp.username] || 0;
-            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";
-            html += `
-          <div class="border-start ps-3 mb-2" style="font-size:0.9rem;">
-            <strong>${badge}${rp.username}</strong>
-            <small class="text-muted ms-2">${formatDate(rp.createdAt)}</small>
-            <div>${rp.content}</div>
-          </div>
-        `;
-        });
-        html += `</div>`;
-        return html;
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const feedId = urlParams.get("id");
-
-
-        const submitButton = document.querySelector(".btn-success");
-        if (submitButton) {
-            submitButton.onclick = () => submitComment(feedId);
-            submitButton.onclick = () => submitComment(feedId);
-            }
-        });
-    /* 댓글 목록 + 아바타 + 3줄 레이아웃 */
-    function renderCommentSection(jsonData){
-        const wrap      = document.getElementById("commentSection");
-        const comments  = jsonData.comment||[];
-        const replies   = jsonData.replies||{};
-        wrap.innerHTML  = "";
-
-        if(comments.length===0){
-            wrap.innerHTML = "<p>댓글이 없습니다.</p>";
-            return;
-        }
-
-        let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;
-
-        comments.forEach(cmt=>{
-            const rank  = topWriters[cmt.username]||0;
-            const badge = rank===1?"👑":rank===2?"🥇":rank===3?"🥈":rank<=5&&rank>0?"🥉":"";
-            const name  = cmt.author
-                ? `<strong class="text-secondary">${badge}작성자(${cmt.username})</strong>`
-                : `<strong>${badge} ${cmt.username}</strong>`;
-
-            /* ◀── 한 사람의 댓글 카드 */
-            html += `
-      <div class="comment-item d-flex gap-3 pb-3 mb-3 border-bottom" id="comment-${cmt.commentUID}">
-        <div class="comment-avatar flex-shrink-0">
-          ${cmt.username.charAt(0).toUpperCase()}
-        </div>
-
-        <div class="comment-body flex-grow-1">
-          <div class="d-flex justify-content-between">
-            <div class="meta">
-              ${name}
-              <small class="ms-2 text-muted">${formatDate(cmt.createdAt)}</small>
-            </div>
-            <div>
-              ${cmt.commentOwner ? `
-                <button class="btn btn-sm btn-link text-secondary edit-comment-btn"
-                        data-comment-id="${cmt.commentUID}">수정</button>
-                <button class="btn btn-sm btn-link text-danger delete-comment-btn"
-                        data-comment-id="${cmt.commentUID}">삭제</button>` : ""}
-            </div>
-          </div>
-
-          <div class="mt-2" id="comment-content-${cmt.commentUID}">
-            ${convertLinks(cmt.content)}
-          </div>
-
-          <!-- 대댓글(스레드) -->
-          ${renderReplies(replies[cmt.commentUID]||[])}
-
-          <button class="btn btn-sm btn-outline-primary reply-toggle mt-2"
-                  data-comment-id="${cmt.commentUID}">답글 달기</button>
-
-          <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">
-            <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>
-            <button class="btn btn-sm btn-primary submit-reply-btn"
-                    data-comment-id="${cmt.commentUID}">답글 작성</button>
-          </div>
-        </div>
-      </div>`;
-        });
-
-        wrap.innerHTML = html;
-        initializeCommentEvents(jsonData.feedId);
-    }
-
-    function enhanceLinksWithPreview() {
-        const contentEl = document.querySelector(".feed-content");
-        if (!contentEl) return;
-
-        const urls = [...contentEl.innerHTML.matchAll(/https?:\/\/[^\s<"]+/g)].map(m => m[0]);
-        if (urls.length === 0) return;
-
-        urls.forEach(url => {
-            fetch(`/preview?url=${encodeURIComponent(url)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.title || data.image) {
-                        const preview = `
-                        <div class="card mt-3">
-                            ${data.image ? `<img src="${data.image}" class="card-img-top" alt="Preview image">` : ""}
-                            <div class="card-body">
-                                <h5 class="card-title">${data.title || '제목 없음'}</h5>
-                                <p class="card-text text-muted">${data.description || '설명 없음'}</p>
-                            </div>
-                        </div>`;
-                        contentEl.insertAdjacentHTML("beforeend", preview);
-                    }
-                });
-        });
-    }
-
-    function updateLikeButtonUI(isLiked) {
-            const likeButton = document.querySelector(`button.like-btn`);
-            if (!likeButton) return;
-
-            const heartIcon = likeButton.querySelector("i");
-            if (!heartIcon) return;
-
-            if (isLiked) {
-                heartIcon.classList.remove("far");
-                heartIcon.classList.add("fas");
-            } else {
-                heartIcon.classList.remove("fas");
-                heartIcon.classList.add("far");
-            }
-        }
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOMContentLoaded event triggered");
-
-        let token = null;
-        try {
-            token = localStorage.getItem("token");
-        } catch (error) {
-            console.error("Error retrieving token:", error);
-        }
-
-        const usernameInput = document.getElementById("username");
-        const anonymousToggle = document.getElementById("anonymous-toggle");
-
-        if (!token) {
-            console.warn("로그인하지 않은 상태입니다. 익명으로 고정됩니다.");
-
-
-            if (anonymousToggle) {
-                anonymousToggle.checked = true;
-                anonymousToggle.disabled = true;
-            } else {
-                console.warn("'anonymous-toggle' 요소를 찾을 수 없습니다.");
-            }
-
-            if (usernameInput) {
-                usernameInput.value = "익명";
-                usernameInput.readOnly = true;
-            } else {
-                console.warn("'username' 요소를 찾을 수 없습니다.");
-            }
-
-            document.querySelectorAll(".toggle-btn").forEach(toggleButton => {
-                toggleButton.style.display = "none";
-            });
-        } else {
-            if (anonymousToggle) {
-                anonymousToggle.disabled = false;}}
-    });
-
-
-        document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {
-            button.addEventListener("click", function () {
-                const commentId = this.getAttribute("data-comment-id");
-                const likeCountSpan = document.getElementById(`like-count-${commentId}`);
-                const heartIcon = this.querySelector("i");
-
-                if (heartIcon.classList.contains("far")) {
-                    heartIcon.classList.remove("far");
-                    heartIcon.classList.add("fas");
-                } else {
-                    heartIcon.classList.remove("fas");
-                    heartIcon.classList.add("far");
-                }
-
-                fetch(`/search/view/comment/increase-like/${commentId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-
-                        if (data.newLikeCount) {
-                            likeCountSpan.textContent = data.newLikeCount;
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error increasing like count:", error);
-                    });
-            });
-        });
-
-     function toggleFeedLike(feedUID,likeCount) {
-
-                 const likeButton = document.querySelector(`button[data-feed-uid="${feedUID}"]`);
-                 if (!likeButton) return;
-
-                 const likeCountSpan = document.getElementById(`like-count-feed-${feedUID}`);
-                 const heartIcon = likeButton.querySelector("i");
-                 let likeCurrentCount = parseInt(likeCountSpan.textContent, 10) || 0;
-                 let isLiked = heartIcon.classList.contains("fas");
-
-
-             if (isLiked) {
-                 heartIcon.classList.remove("fas");
-                 heartIcon.classList.add("far");
-                 likeCurrentCount -= 1;
-             } else {
-                 heartIcon.classList.remove("far");
-                 heartIcon.classList.add("fas");
-                 likeCurrentCount += 1;
-             }
-
-
-         likeCountSpan.textContent = likeCurrentCount;
-
-             let url = isLiked
-                 ? `/search/view/feed/cancel-like/${feedUID}`
-                 : `/search/view/feed/increase-like/${feedUID}`;
-
-             fetch(url, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${localStorage.getItem("token")}`
-                 },
-             })
-                 .then(response => response.json())
-                 .then(data => {
-                     if (data.newLikeCount !== undefined) {
-                         likeCountSpan.textContent = data.newLikeCount;
-                     }
-                 })
-                 .catch(error => {
-                     console.error("Error toggling like:", error);
-                 });
-         }
-        document.querySelectorAll(".toggle-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const targetId = this.getAttribute("data-id");
-                const targetElement = document.getElementById(targetId);
-
-                if (targetElement) {
-                    const isCurrentlyVisible = targetElement.style.display === "block";
-
-                    document.querySelectorAll(".comment-options").forEach(option => {
-                        option.style.display = "none";
-                    });
-
-                    targetElement.style.display = isCurrentlyVisible ? "none" : "block";
-                }
-            });
-        });
-
-    let topWriters = {};
-
-    function fetchTopWriters() {
-        let cachedData = localStorage.getItem("topWriters");
-        let cachedTime = localStorage.getItem("topWritersTimestamp");
-
-        if (cachedData && cachedTime && (Date.now() - cachedTime) < 3600000) {
-            console.log("캐싱된 Top Writers 사용");
-            topWriters = JSON.parse(cachedData);
-            return Promise.resolve(topWriters);
-        }
-
-        return fetch("/top-writers")
-            .then(response => response.json())
-            .then(data => {
-                topWriters = {};
-                data.forEach((writer, index) => {
-                    topWriters[writer.username] = index + 1;
-                });
-
-                console.log("새로 가져온 TopWriters:", topWriters);
-                localStorage.setItem("topWriters", JSON.stringify(topWriters));
-                localStorage.setItem("topWritersTimestamp", Date.now());
-
-                return topWriters;
-            })
-            .catch(error => {
-                console.error("Top 유저 데이터 가져오기 실패:", error);
-                return {};
-            });
-    }
-
-
-</script>
+<!--    <style>-->
+
+<!--         .container{-->
+<!--            max-width: 720px;          /* 읽기 좋은 폭 */-->
+<!--             margin: 2rem auto;         /* 위·아래 여백 */-->
+<!--             background:#fff;-->
+<!--             padding: 2rem;-->
+<!--             border-radius:12px;-->
+<!--             box-shadow:0 2px 8px rgba(0,0,0,.08);-->
+<!--         }-->
+<!--        tr {-->
+<!--            border-bottom: 1px solid #ddd;-->
+<!--        }-->
+
+
+<!--        .comment-box input,-->
+<!--        .comment-box textarea {-->
+<!--            width: 100%;-->
+<!--            border: 1px solid #ccc;-->
+<!--            padding: 10px;-->
+<!--            font-size: 1rem;-->
+<!--            border-radius: 5px;-->
+<!--            background: #f5f5f5;-->
+<!--        }-->
+
+<!--        .comment-box button {-->
+<!--            background: #007bff;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--        }-->
+
+<!--        .comment-box button:hover {-->
+<!--            background: #0056b3;-->
+<!--        }-->
+
+<!--        .comment-table th, .comment-table td {-->
+<!--            padding: 8px;-->
+<!--            text-align: left;-->
+<!--        }-->
+
+<!--        .comment-options a, .comment-options form {-->
+<!--            display:inline-block;-->
+<!--            margin-bottom: 5px;-->
+<!--        }-->
+<!--         body {-->
+<!--             font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;-->
+<!--         }-->
+<!--        h1 {-->
+<!--            margin-bottom: 30px;-->
+<!--        }-->
+<!--        .table {-->
+<!--            width: 100%;-->
+<!--            border-collapse: collapse;-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        h2 {-->
+<!--            font-size: 1.8rem;-->
+<!--            font-weight: bold;-->
+<!--            color: #333;-->
+<!--        }-->
+
+<!--        p {-->
+<!--            margin: 5px 0;-->
+<!--            font-size: 0.9rem;-->
+<!--            color: #555;-->
+<!--        }-->
+
+<!--        .description-box {-->
+<!--            background-color: #f5f5f5;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 8px;-->
+<!--            padding: 20px;-->
+<!--            font-size: 1.2rem;-->
+<!--            color: #333;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--            min-height: 250px;-->
+<!--            word-break: break-word;-->
+<!--            margin-top: 15px;-->
+<!--            line-height: 1.6;-->
+<!--        }-->
+<!--        .like-comment-box {-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            gap: 15px;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+<!--        .like-comment-box .fa-comment {-->
+<!--            color: #007bff;-->
+<!--        }-->
+
+<!--        .like-comment-box .fa-heart {-->
+<!--            color: #ff4d4d;-->
+<!--        }-->
+
+<!--        .like-comment-box p {-->
+<!--            margin: 0;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            gap: 5px;-->
+<!--        }-->
+
+<!--        .like-btn {-->
+<!--            background: none;-->
+<!--            border: none;-->
+<!--            padding: 0;-->
+<!--            margin-left: 5px;-->
+<!--            cursor: pointer;-->
+<!--            vertical-align: middle;-->
+<!--        }-->
+
+<!--        .like-btn i {-->
+<!--            font-size: 18px;-->
+<!--            color: #ff4d4d;-->
+<!--        }-->
+
+<!--        .like-btn:hover i {-->
+<!--            transform: scale(1.1);-->
+<!--        }-->
+
+
+<!--        @media (max-width: 768px) {-->
+<!--            .description-box {-->
+<!--                font-size: 1rem;-->
+<!--                padding: 15px;-->
+<!--                max-width: 100%;-->
+<!--            }-->
+<!--        }-->
+
+<!--        .image-container img {-->
+<!--            max-width: 100%;-->
+<!--            height: auto;-->
+<!--            display: block;-->
+<!--            margin-bottom: 15px;-->
+<!--        }-->
+<!--        .table th, .table td {-->
+<!--            vertical-align: middle;-->
+<!--            padding: 15px;-->
+<!--            border: none;-->
+<!--            border-bottom: 1px solid #ddd;-->
+<!--            color: inherit;-->
+<!--        }-->
+
+
+
+<!--        .btn-link {-->
+<!--            color: #007bff;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+<!--        .btn-link:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+<!--        .edit-btn, .delete-btn {-->
+<!--            display: inline-block;-->
+<!--        }-->
+<!--        tr {-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        .like-comment-box {-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            gap: 15px;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+
+<!--        .like-comment-box button {-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            gap: 5px;-->
+<!--            border: none;-->
+<!--            background: transparent;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 1rem;-->
+<!--        }-->
+
+<!--        .like-comment-box button i {-->
+<!--            color: #ff4d4d;-->
+<!--        }-->
+
+<!--        .like-comment-box button:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+<!--        .comment-box input {-->
+<!--            flex-grow: 1;-->
+<!--            border: none;-->
+<!--            padding: 10px;-->
+<!--            font-size: 1rem;-->
+<!--            border-radius: 5px;-->
+<!--            background: #f5f5f5;-->
+<!--        }-->
+
+<!--        .comment-box button {-->
+<!--            background: #007bff;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--        }-->
+<!--        .comment-box button:hover {-->
+<!--            background: #0056b3;-->
+<!--        }-->
+<!--        .comment-item{-->
+<!--            display:flex;-->
+<!--            gap:12px;-->
+<!--            padding:12px 0;-->
+<!--            border-bottom:1px solid #eee;-->
+<!--        }-->
+<!--        .comment-avatar{-->
+<!--            width:36px;height:36px;-->
+<!--            border-radius:50%;-->
+<!--            /*background:#ddd url('/img/default-avatar.png') center/cover;*/-->
+<!--            flex-shrink:0;-->
+<!--        }-->
+<!--        .comment-body .meta{-->
+<!--            font-size:.85rem;color:#777;-->
+<!--        }-->
+<!--        .feed-card {-->
+<!--            padding: 20px;-->
+<!--            border-radius: 10px;-->
+<!--            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);-->
+<!--        }-->
+<!--        .feed-title {-->
+<!--            font-size: 1.8rem;-->
+<!--            font-weight: bold;-->
+<!--            margin-bottom: 10px;-->
+<!--        }-->
+<!--        .feed-meta {-->
+<!--            font-size: 0.95rem;-->
+<!--            color: #666;-->
+<!--            margin-bottom: 15px;-->
+<!--        }-->
+<!--         .feed-content {-->
+<!--             font-size: 1rem;-->
+<!--             color: #333;-->
+<!--             line-height: 1.6;-->
+<!--             word-break: break-word;-->
+<!--             white-space: pre-wrap;-->
+<!--             margin-top: 10px;-->
+<!--             padding-left: 2px;-->
+<!--             padding-right: 2px;-->
+<!--         }-->
+<!--         .feed-content a {-->
+<!--             color: #007bff;-->
+<!--             text-decoration: underline;-->
+<!--             word-break: break-all;-->
+<!--         }-->
+
+<!--         .feed-content a:hover {-->
+<!--             text-decoration: none;-->
+<!--             color: #0056b3;-->
+<!--         }-->
+<!--        .feed-actions {-->
+<!--            display: flex;-->
+<!--            justify-content: space-between;-->
+<!--            align-items: center;-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+<!--        .like-btn i {-->
+<!--            font-size: 1.3rem;-->
+<!--            color: red;-->
+<!--        }-->
+<!--        .delete-feed-btn {-->
+<!--            background: red;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 8px 12px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--        }-->
+
+<!--        .delete-feed-btn:hover {-->
+<!--            background: darkred;-->
+<!--        }-->
+<!--        .reply-toggle {-->
+<!--            margin-left: auto;-->
+<!--            display: block;-->
+<!--            text-align: right;-->
+<!--        }-->
+<!--        .like-balloon {-->
+<!--            position: absolute;-->
+<!--            top: -35px;-->
+<!--            left: 50%;-->
+<!--            transform: translateX(-50%);-->
+<!--            background: #f8d7da;-->
+<!--            color: #721c24;-->
+<!--            padding: 5px 10px;-->
+<!--            font-size: 0.8rem;-->
+<!--            border-radius: 12px;-->
+<!--            white-space: nowrap;-->
+<!--            box-shadow: 0 0 6px rgba(0,0,0,0.15);-->
+<!--            z-index: 10;-->
+<!--            display: none;-->
+<!--            animation: bounceFade 2s ease-in-out;-->
+<!--        }-->
+
+<!--        @keyframes bounceFade {-->
+<!--            0% { opacity: 0; transform: translate(-50%, 10px); }-->
+<!--            30% { opacity: 1; transform: translate(-50%, -2px); }-->
+<!--            70% { opacity: 1; transform: translate(-50%, -5px); }-->
+<!--            100% { opacity: 0; transform: translate(-50%, -10px); }-->
+<!--        }-->
+
+<!--    </style>-->
+<!--</head>-->
+
+
+<!--<div class="container my-4">-->
+<!--    <button id="toggleSidebarBtn" class="btn btn-light position-fixed" style="top: 100px; left: 10px; z-index: 999;">-->
+<!--        <i class="fas fa-book-reader"></i>-->
+<!--    </button>-->
+
+<!--    <div id="relatedSidebar" class="card shadow-sm position-fixed" style="top: 100px; left: -300px; width: 260px; z-index: 998; transition: left 0.3s;">-->
+<!--        &lt;!&ndash; renderRelatedFeeds()로 이 안이 채워집니다 &ndash;&gt;-->
+<!--    </div>-->
+<!--    <div id="feedDetailContainer"></div>-->
+<!--    <div id="commentSection"></div>-->
+<!--    <div id="commentForm"></div>-->
+<!--    <div class="text-center mt-4">-->
+<!--        <a href="/search/view/feed?index=board" class="btn btn-secondary">-->
+<!--            <i class="fas fa-home"></i> 메인으로 돌아가기-->
+<!--        </a>-->
+<!--    </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<script>-->
+<!--    function deleteComment(feedId, commentId) {-->
+<!--        if (!confirm("정말로 이 댓글을 삭제하시겠습니까?")) {-->
+<!--            return;-->
+<!--        }-->
+<!--        fetch(`/search/view/comment/delete?id=${commentId}&feedUID=${feedId}`, {-->
+<!--            method: "POST",-->
+<!--            headers: { "Content-Type": "application/json" },-->
+<!--        })-->
+
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    throw new Error("댓글 삭제에 실패했습니다.");-->
+<!--                }-->
+<!--                return response.json();-->
+<!--            })-->
+<!--            .then(() => {-->
+<!--                alert("댓글이 삭제되었습니다.");-->
+<!--                window.location.reload();-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("댓글 삭제 중 오류:", error);-->
+<!--                alert("댓글 삭제에 실패했습니다.");-->
+<!--            });-->
+<!--    }-->
+<!--    function convertLinks(text) {-->
+<!--        const urlRegex = /(https?:\/\/[^\s<]+)/g;-->
+<!--        return text.replace(urlRegex, (url) => {-->
+<!--            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;-->
+<!--        });-->
+<!--    }-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        const toggleBtn = document.getElementById("toggleSidebarBtn");-->
+<!--        const sidebar = document.getElementById("relatedSidebar");-->
+
+<!--        toggleBtn.addEventListener("click", () => {-->
+<!--            if (sidebar.style.left === "0px") {-->
+<!--                sidebar.style.left = "-300px";-->
+<!--            } else {-->
+<!--                sidebar.style.left = "0px";-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+
+<!--    function renderRelatedFeeds(bestList) {-->
+<!--        const sidebar = document.getElementById("relatedSidebar");-->
+<!--        if (!sidebar) return;-->
+
+<!--        if (!bestList || bestList.length === 0) {-->
+<!--            sidebar.innerHTML = "<p>읽을만한 글이 없습니다.</p>";-->
+<!--            return;-->
+<!--        }-->
+
+<!--        let html = `-->
+<!--    <div class="card shadow-sm mb-3">-->
+<!--      <div class="card-header bg-light fw-bold">🔥 읽어볼 만한 글</div>-->
+<!--      <ul class="list-group list-group-flush">-->
+<!--  `;-->
+
+<!--        bestList.forEach(feed => {-->
+<!--            html += `-->
+<!--      <li class="list-group-item">-->
+<!--        <a href="/search/view/feed/id?id=${feed.feedUID}" class="text-decoration-none">-->
+<!--          ${feed.title}-->
+<!--        </a>-->
+<!--      </li>-->
+<!--    `;-->
+<!--        });-->
+
+<!--        html += `</ul></div>`;-->
+<!--        sidebar.innerHTML = html;-->
+<!--    }-->
+
+<!--    function renderFeedDetail(jsonData) {-->
+<!--        fetchTopWriters();-->
+<!--        const token = localStorage.getItem("token");-->
+<!--        const container = document.getElementById('feedDetailContainer');-->
+<!--        const board = jsonData.data;-->
+<!--        const bestList = jsonData.best || [];-->
+
+<!--        container.innerHTML = '';-->
+<!--        fetch('/search/view/feed/list/most?page=0&size=5')-->
+<!--            .then(res => res.json())-->
+<!--            .then(data => renderRelatedFeeds(data.data))-->
+<!--            .catch(err => {-->
+<!--                console.warn("추천글 불러오기 실패:", err);-->
+<!--            });-->
+<!--        if (!board) {-->
+<!--            container.innerHTML = '<p>게시글 정보를 불러오지 못했습니다.</p>';-->
+<!--            return;-->
+<!--        }-->
+<!--        const rawDescription = board.description || "";-->
+<!--        const withBr = rawDescription.replace(/\n/g, "<br>");-->
+<!--        const converted = convertLinks(withBr);-->
+<!--        const imageTag = board.imageURL && board.imageURL.trim()-->
+<!--            ? `<img src="${board.imageURL}" alt="피드 이미지" style="max-width:100%; display:block; margin:10px 0; border-radius:8px;">`-->
+<!--            : "";-->
+<!--        // 2. <br> 개수에 따라 이미지 삽입 위치 결정-->
+<!--        let descriptionWithImage = converted;-->
+<!--        if (imageTag) {-->
+<!--            const brMatches = rawDescription.match(/<br\s*\/?>/gi) || [];-->
+<!--            const brCount = brMatches.length;-->
+
+<!--            if (brCount === 0) {-->
+<!--                // <br> 없음: 맨 뒤에 이미지-->
+<!--                descriptionWithImage = rawDescription + imageTag;-->
+<!--            } else if (brCount <= 2) {-->
+<!--                // 1~2개: 첫 번째 <br> 뒤에 이미지-->
+<!--                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/, match => match + imageTag);-->
+<!--            } else {-->
+<!--                // 3개 이상: 두 번째 <br> 뒤에 이미지-->
+<!--                let replaced = false;-->
+<!--                let count = 0;-->
+<!--                descriptionWithImage = rawDescription.replace(/<br\s*\/?>/gi, match => {-->
+<!--                    count++;-->
+<!--                    if (count === 2 && !replaced) {-->
+<!--                        replaced = true;-->
+<!--                        return match + imageTag;-->
+<!--                    }-->
+<!--                    return match;-->
+<!--                });-->
+<!--            }-->
+<!--        }-->
+
+<!--        let rank = topWriters[board.username] || 0;-->
+<!--        let badge = rank === 1 ? "👑" :-->
+<!--            rank === 2 ? "🥇" :-->
+<!--                rank === 3 ? "🥈" :-->
+<!--                    rank >= 4 && rank <= 5 ? "🥉" : "";-->
+
+<!--        let actionButtonsHTML = '';-->
+<!--        if (jsonData.Owner && token) {-->
+<!--            actionButtonsHTML = `-->
+<!--            <div class="dropdown d-none d-md-inline">-->
+<!--        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">-->
+<!--          <i class="fas fa-ellipsis-v"></i>-->
+<!--        </button>-->
+<!--        <ul class="dropdown-menu dropdown-menu-end">-->
+<!--          <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">-->
+<!--                <i class="fas fa-edit me-2"></i>수정</a></li>-->
+<!--          <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">-->
+<!--                <i class="fas fa-trash me-2"></i>삭제</a></li>-->
+<!--        </ul>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; mobile floating action button &ndash;&gt;-->
+<!--      <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"-->
+<!--              style="bottom:80px;right:24px;width:56px;height:56px;"-->
+<!--              data-bs-toggle="dropdown" data-bs-target="#fabMenu">-->
+<!--        <i class="fas fa-ellipsis-v"></i>-->
+<!--      </button>-->
+<!--      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">-->
+<!--        <li><a class="dropdown-item" onclick="editFeed('${board.feedUID}')">수정</a></li>-->
+<!--        <li><a class="dropdown-item text-danger" onclick="deleteFeed('${board.id}')">삭제</a></li>-->
+<!--      </ul>-->
+<!--        `;-->
+<!--        }-->
+<!--        document.title = board.title || "피드 상세";-->
+<!--        const html = `-->
+<!--        <div class="card feed-card">-->
+<!--            <div class="card-body">-->
+<!--               ${actionButtonsHTML ? `<div class="text-end mb-3">${actionButtonsHTML}</div>` : ""}-->
+
+<!--                <h2 class="feed-title">${board.title}</h2>-->
+
+<!--                <p class="feed-meta">-->
+<!--                    <strong>작성자:</strong> ${badge} ${board.username} &nbsp;|&nbsp;-->
+<!--                    <strong>작성일자:</strong> ${formatDate(board.createdAt)}-->
+<!--                </p>-->
+
+<!--                <div class="feed-content"></div>-->
+
+<!--                <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">-->
+<!--                    <div class="text-muted">-->
+<!--                        <i class="far fa-comment"></i> ${jsonData.count || 0}-->
+<!--                    </div>-->
+<!--                    <div class="position-relative">-->
+<!--                        <strong>좋아요:</strong>-->
+<!--                        <span id="like-count-feed-${board.feedUID}">-->
+<!--                            ${board.likeCount || 0}-->
+<!--                        </span>-->
+<!--                        <button class="btn btn-sm btn-outline-danger like-btn position-relative" data-feed-uid="${board.feedUID}">-->
+<!--                            <i class="fas fa-heart"></i>-->
+<!--                            <div class="like-balloon" id="likeBalloon-${board.feedUID}">❤️ 좋아요도 눌러보세요!</div>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    `;-->
+
+<!--        container.innerHTML = html;-->
+
+<!--        container.querySelector('.feed-content').innerHTML = descriptionWithImage;-->
+
+<!--        setTimeout(() => {-->
+<!--            const likeBtn = document.querySelector(`button[data-feed-uid="${board.feedUID}"]`);-->
+<!--            if (likeBtn) {-->
+<!--                likeBtn.addEventListener("click", () => {-->
+<!--                    toggleFeedLike(board.feedUID, board.likeCount);-->
+<!--                });-->
+<!--            }-->
+<!--        }, 100);-->
+
+<!--        setTimeout(() => {-->
+<!--            const balloon = document.getElementById(`likeBalloon-${board.feedUID}`);-->
+<!--            if (balloon) {-->
+<!--                balloon.style.display = 'block';-->
+<!--                setTimeout(() => {-->
+<!--                    balloon.style.display = 'none';-->
+<!--                }, 2000);-->
+<!--            }-->
+<!--        }, 150);-->
+<!--    }-->
+
+<!--    function renderCommentForm(userData) {-->
+<!--        const el = document.getElementById("commentForm");-->
+
+<!--        const isLogin = !!userData?.isLoggedIn;-->
+<!--        const nick = userData?.username || "";-->
+
+<!--        const loginButton = !isLogin-->
+<!--            ? `<button class="btn btn-outline-primary btn-sm float-end" onclick="location.href='/login'">-->
+<!--              <i class="fas fa-sign-in-alt"></i> 로그인-->
+<!--           </button>`-->
+<!--            : "";-->
+
+<!--        el.innerHTML = `-->
+<!--      <div class="card shadow-sm p-3">-->
+<!--        <div class="card-body">-->
+<!--          <h5><i class="fas fa-pencil-alt"></i> Write a Comment</h5>-->
+
+<!--          <div class="form-group mt-3 position-relative">-->
+<!--            <label for="username" class="form-label d-flex justify-content-between align-items-center">-->
+<!--              <span>이름</span>-->
+<!--              ${loginButton}-->
+<!--            </label>-->
+<!--            <input type="text"-->
+<!--                   id="username"-->
+<!--                   class="form-control"-->
+<!--                   readonly-->
+<!--                   value="${isLogin ? nick : ""}"-->
+<!--                   placeholder="${isLogin ? "" : "로그인이 필요합니다."}">-->
+<!--            <small class="text-muted d-block mt-1">-->
+<!--              로그인해야 댓글을 등록하실 수 있습니다.-->
+<!--            </small>-->
+<!--          </div>-->
+
+<!--          <div class="form-group mt-3">-->
+<!--            <label for="content" class="form-label">내용</label>-->
+<!--            <textarea id="content" rows="4" class="form-control" required></textarea>-->
+<!--          </div>-->
+
+<!--          <button id="btnCommentSubmit"-->
+<!--                  type="button"-->
+<!--                  class="btn btn-success mt-3"-->
+<!--                  onclick="submitComment()">-->
+<!--            <i class="fas fa-pencil-alt"></i> 작성하기-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>`;-->
+<!--    }-->
+
+
+
+<!--    function formatDate(dateTimeString) {-->
+<!--            if (!dateTimeString) return '';-->
+
+<!--            const date = new Date(dateTimeString);-->
+
+
+<!--            const year = date.getFullYear();-->
+<!--            const month = date.getMonth() + 1;-->
+<!--            const day = date.getDate();-->
+<!--            let hour = date.getHours();-->
+<!--            const minute = date.getMinutes();-->
+
+
+<!--            const period = hour >= 12 ? '오후' : '오전';-->
+<!--            hour = hour % 12 || 12;-->
+
+<!--            const formattedMinute = minute < 10 ? `0${minute}` : minute;-->
+
+
+<!--            return ` ${month}. ${day}. ${period} ${hour}:${formattedMinute}`;-->
+<!--    }-->
+<!--    function initializeCommentEvents(feedId) {-->
+<!--        document.querySelectorAll(".edit-comment-btn").forEach((btn) => {-->
+<!--            btn.addEventListener("click", function () {-->
+<!--                const commentId = this.getAttribute("data-comment-id");-->
+<!--                showEditCommentForm(commentId);-->
+<!--            });-->
+<!--        });-->
+<!--        document.querySelectorAll(".delete-comment-btn").forEach(btn => {-->
+<!--            btn.addEventListener("click", function () {-->
+<!--                const commentId = this.getAttribute("data-comment-id");-->
+<!--                deleteComment(feedId, commentId);-->
+<!--            });-->
+<!--        });-->
+<!--        document.querySelectorAll(".reply-toggle").forEach(btn => {-->
+<!--            btn.addEventListener("click", function () {-->
+<!--                const token = localStorage.getItem("token");-->
+<!--                if (!token) {-->
+<!--                    alert("로그인이 필요합니다.");-->
+<!--                    window.location.href="/login"-->
+<!--                    return;-->
+<!--                }-->
+<!--                const commentId = this.getAttribute("data-comment-id");-->
+<!--                const replyForm = document.getElementById(`reply-form-${commentId}`);-->
+<!--                if (!replyForm) return;-->
+<!--                replyForm.style.display = (replyForm.style.display === "none" || replyForm.style.display === "")-->
+<!--                    ? "block" : "none";-->
+<!--            });-->
+<!--        });-->
+<!--    function showEditCommentForm(commentId) {-->
+<!--        fetch(`/comment/update/get?commentUID=${commentId}`)-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    throw new Error("Failed to fetch comment details");-->
+<!--                }-->
+<!--                return response.json();-->
+<!--            })-->
+<!--            .then(data => {-->
+
+<!--                const targetRow = document.getElementById(`comment-${commentId}`);-->
+<!--                if (!targetRow) {-->
+<!--                    console.error(`Error: Target row #comment-${commentId} not found.`);-->
+<!--                    return;-->
+<!--                }-->
+
+<!--                const existingForm = document.getElementById(`edit-comment-form-${commentId}`);-->
+<!--                if (existingForm) {-->
+<!--                    existingForm.remove();-->
+<!--                }-->
+
+<!--                console.log(`Found comment section container: #commentSection`);-->
+<!--                const editFormHtml = `-->
+<!--        <div id="edit-comment-form-${commentId}" class="mt-2 p-3 border rounded" style="background-color: #f9f9f9;">-->
+<!--          <textarea id="edit-comment-content-${commentId}" class="form-control mb-2"  rows="4" >${data.content}</textarea>-->
+<!--          <div class="text-end">-->
+<!--            <button id="save-comment-btn-${commentId}" class="btn btn-primary btn-sm me-2" data-comment-id="${data.commentUID}"data-feed-id="${data.feedUID}" >-->
+<!--              Save-->
+<!--            </button>-->
+<!--            <button id="cancel-edit-btn-${commentId}" class="btn btn-secondary btn-sm">-->
+<!--              Cancel-->
+<!--            </button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      `;-->
+
+<!--                targetRow.insertAdjacentHTML("beforeend", editFormHtml);-->
+
+<!--                document-->
+<!--                    .getElementById(`save-comment-btn-${commentId}`)-->
+<!--                    .addEventListener("click", saveEditedComment);-->
+
+<!--                document-->
+<!--                    .getElementById(`cancel-edit-btn-${commentId}`)-->
+<!--                    .addEventListener("click", () => {-->
+<!--                        document.getElementById(`edit-comment-form-${commentId}`).remove();-->
+<!--                    });-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("Error fetching comment details:", error);-->
+<!--                alert("Failed to fetch comment details");-->
+<!--            });-->
+<!--    }-->
+<!--    function saveEditedComment(event) {-->
+<!--        const button = event.target;-->
+<!--        const commentId = button.getAttribute("data-comment-id");-->
+<!--        const feedId = getFeedIdFromURL();-->
+<!--        const updatedContent = document.getElementById(`edit-comment-content-${commentId}`).value;-->
+
+<!--        setTimeout(() => {-->
+<!--        fetch(`/comment/update/save`, {-->
+<!--            method: "POST",-->
+<!--            headers: {-->
+<!--                "Content-Type": "application/json",-->
+<!--            },-->
+<!--            body: JSON.stringify({-->
+<!--                commentUID: commentId,-->
+<!--                feedUID: feedId,-->
+<!--                content: updatedContent,-->
+<!--            }),-->
+<!--        })-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    throw new Error("Failed to save comment");-->
+<!--                }-->
+<!--                return response.json();-->
+<!--            })-->
+<!--            .then(data => {-->
+<!--                const redirectUrl = data.redirectUrl;-->
+<!--                const commentContentElement = document.querySelector(`[data-comment-id="${commentId}"]`);-->
+<!--                if (commentContentElement) {-->
+<!--                    commentContentElement.innerText = data.updatedContent;-->
+<!--                } else {-->
+<!--                    console.error(`Error: Element #comment-content-${commentId} not found.`);-->
+<!--                }-->
+<!--                document.getElementById(`edit-comment-form-${commentId}`).remove();-->
+<!--                window.location.href = redirectUrl;-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("Error saving comment:", error);-->
+<!--                alert("Failed to save the comment");-->
+<!--            });-->
+<!--        }, 1000);-->
+<!--        }-->
+<!--        function getFeedIdFromURL() {-->
+<!--            const urlParams = new URLSearchParams(window.location.search);-->
+<!--            return urlParams.get("id");-->
+<!--        }-->
+<!--        document.querySelectorAll(".submit-reply-btn").forEach((btn) => {-->
+<!--            feedId=getFeedIdFromURL()-->
+<!--            btn.addEventListener("click", function () {-->
+<!--                const commentId = this.getAttribute("data-comment-id");-->
+<!--                const replyContent = document.querySelector(-->
+<!--                    `#reply-form-${commentId} textarea`-->
+<!--                ).value.trim();-->
+
+<!--                if (!replyContent) {-->
+<!--                    alert("답글 내용을 입력하세요.");-->
+<!--                    return;-->
+<!--                }-->
+<!--                submitReply(feedId, commentId, replyContent);-->
+<!--            });-->
+<!--        });-->
+<!--    }-->
+<!--    function submitReply(feedId,commentId, replyContent) {-->
+<!--        const username = localStorage.getItem("username") || "익명";-->
+<!--        fetch('/search/view/reply/save', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json',-->
+<!--                'Authorization': `Bearer ${localStorage.getItem("token")}`-->
+<!--            },-->
+<!--            body: JSON.stringify({-->
+<!--                commentUID: commentId,-->
+<!--                feedUID: feedId,-->
+<!--                content: replyContent,-->
+<!--                username: username,-->
+<!--            }),-->
+<!--        })-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);-->
+<!--                return response.text();-->
+<!--            })-->
+<!--            .then(redirectUrl => {-->
+<!--                setTimeout(() => {-->
+<!--                    window.location.href = redirectUrl;-->
+<!--                }, 1000);-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('답글 저장 중 오류 발생:', error);-->
+<!--            });-->
+<!--    }-->
+<!--    function editFeed(feedUID) {-->
+<!--        window.location.href = `/search/view/feed/update?id=${feedUID}`;-->
+<!--    }-->
+<!--    function deleteFeed(feedId) {-->
+<!--        const token = localStorage.getItem("token");-->
+<!--        if (token) {-->
+<!--            if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {-->
+<!--                return;-->
+<!--            }-->
+<!--            fetch(`/search/view/feed/delete`, {-->
+<!--                method: "POST",-->
+<!--                headers: {-->
+<!--                    "Content-Type": "application/json",-->
+<!--                    "Authorization": "Bearer " + token-->
+<!--                },-->
+<!--                body: JSON.stringify({-->
+<!--                    id: feedId,-->
+<!--                }),-->
+<!--            })-->
+<!--                .then((response) => {-->
+<!--                    if (!response.ok) {-->
+<!--                        throw new Error("게시글 삭제에 실패했습니다.");-->
+<!--                    }-->
+<!--                    return response.json();-->
+<!--                })-->
+<!--                .then((data) => {-->
+<!--                    const redirectUrl = data.redirectUrl;-->
+<!--                    if (redirectUrl) {-->
+<!--                        alert("게시글이 삭제되었습니다.");-->
+<!--                        window.location.href = redirectUrl;-->
+<!--                    } else {-->
+<!--                        throw new Error("리다이렉트 URL이 응답에 없습니다.");-->
+<!--                    }-->
+<!--                })-->
+<!--                .catch((error) => {-->
+<!--                    console.error("삭제 중 오류 발생:", error);-->
+<!--                    alert("삭제 중 문제가 발생했습니다. 다시 시도해주세요.");-->
+<!--                });-->
+<!--        }-->
+<!--    }-->
+<!--        document.addEventListener('DOMContentLoaded', function () {-->
+
+<!--            const urlParams = new URLSearchParams(window.location.search);-->
+<!--            const feedId = urlParams.get('id');-->
+<!--            const token = localStorage.getItem("token");-->
+<!--            if (!feedId) {-->
+<!--                alert("피드 ID가 없습니다.");-->
+<!--                return;-->
+<!--            }-->
+<!--            fetch('/increaseViewCount', {-->
+<!--                method: 'POST',-->
+<!--                headers: {"Content-Type": "application/json"},-->
+<!--                credentials: "include",-->
+<!--                body: JSON.stringify({id: feedId })})-->
+
+<!--            fetch(`/detail?id=${feedId}`, {-->
+
+<!--                method: "GET",-->
+<!--                headers: {-->
+<!--                    "Content-Type": "application/json",-->
+<!--                    "Authorization": token ? `Bearer ${token}` : "",-->
+<!--                },-->
+<!--            })-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    throw new Error(`서버 응답 실패: ${response.status}`);-->
+<!--                }-->
+<!--                return response.json();-->
+<!--            })-->
+<!--            .then(userData => {-->
+<!--                localStorage.setItem("username", userData.username);-->
+<!--                renderFeedDetail(userData);-->
+<!--                renderCommentSection(userData);-->
+<!--                renderCommentForm(userData);-->
+<!--                updateLikeButtonUI(userData.isLiked);-->
+<!--                // enhanceLinksWithPreview();-->
+<!--                const usernameInput = document.getElementById("username");-->
+<!--                if (usernameInput) {-->
+<!--                    usernameInput.value = userData.username;-->
+<!--                    usernameInput.setAttribute("readonly", true);-->
+<!--                }-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("데이터 불러오기 중 오류 발생:", error);-->
+<!--                alert("데이터를 불러오는 중 문제가 발생했습니다.");-->
+<!--            });-->
+<!--    })-->
+
+<!--    let debounceTimeout;-->
+<!--    async function submitComment() {-->
+<!--        const token = localStorage.getItem("token");-->
+<!--        if (!token) {-->
+<!--            alert("로그인이 필요합니다.");-->
+<!--            window.location.href = "/login";-->
+<!--            return;-->
+<!--        }-->
+<!--        if (debounceTimeout) clearTimeout(debounceTimeout);-->
+<!--        const submitButton = document.getElementById("submitCommentBtn");-->
+<!--        if (submitButton) submitButton.disabled = true;-->
+
+<!--        debounceTimeout = setTimeout(async () => {-->
+<!--            const content = document.getElementById("content").value.trim();-->
+<!--            const token = localStorage.getItem("token");-->
+
+<!--            if (!content) {-->
+<!--                alert("댓글 내용을 입력하세요!");-->
+<!--                if (submitButton) submitButton.disabled = false;-->
+<!--                return;-->
+<!--            }-->
+
+
+<!--            let isLoggedIn = false;-->
+<!--            let username = "";-->
+<!--            if (token) {-->
+<!--                try {-->
+<!--                    const res = await fetch("/auth/status", {-->
+<!--                        headers: {-->
+<!--                            "Authorization": `Bearer ${token}`-->
+<!--                        }-->
+<!--                    });-->
+<!--                    const auth = await res.json();-->
+<!--                    isLoggedIn = auth.isLoggedIn;-->
+<!--                    username = auth.username;-->
+<!--                } catch (e) {-->
+<!--                    console.warn("인증 확인 실패");-->
+<!--                }-->
+<!--            }-->
+<!--            if (!isLoggedIn) {-->
+<!--                alert("댓글을 작성하려면 먼저 로그인해주세요!");-->
+<!--                if (submitButton) submitButton.disabled = false;-->
+<!--                return;-->
+<!--            }-->
+
+<!--            const urlParams = new URLSearchParams(window.location.search);-->
+<!--            const feedUID = urlParams.get('id');-->
+<!--            const headers = {-->
+<!--                "Content-Type": "application/json",-->
+<!--                "Authorization": `Bearer ${token}`-->
+<!--            };-->
+
+<!--            fetch(`/search/view/comment/id?feedUID=${encodeURIComponent(feedUID)}`, {-->
+<!--                method: "POST",-->
+<!--                headers: headers,-->
+<!--                body: JSON.stringify({-->
+<!--                    content: content,-->
+<!--                    username: username,-->
+<!--                }),-->
+<!--            })-->
+<!--                .then((response) => {-->
+<!--                    if (!response.ok) {-->
+<!--                        throw new Error("댓글 저장 실패: " + response.status);-->
+<!--                    }-->
+<!--                    return response.json();-->
+<!--                })-->
+<!--                .then((data) => {-->
+<!--                    const redirectUrl = data.redirectUrl;-->
+<!--                    if (redirectUrl) {-->
+<!--                        setTimeout(() => {-->
+<!--                            window.location.href = redirectUrl;-->
+<!--                        }, 500);-->
+<!--                    } else {-->
+<!--                        console.error("리다이렉트 URL이 없습니다.");-->
+<!--                    }-->
+<!--                })-->
+<!--                .catch((error) => {-->
+<!--                    console.error("댓글 저장 중 오류 발생:", error);-->
+<!--                    alert("댓글 저장 중 문제가 발생했습니다.");-->
+<!--                })-->
+<!--                .finally(() => {-->
+<!--                    if (submitButton) submitButton.disabled = false;-->
+<!--                });-->
+<!--        }, 1000);-->
+<!--    }-->
+
+<!--    function renderReplies(replyList) {-->
+<!--        if (!replyList || replyList.length === 0) {-->
+<!--            return "";-->
+<!--        }-->
+<!--        let html = `<div class="mt-2">`;-->
+<!--        replyList.forEach((rp) => {-->
+<!--            let rank = topWriters[rp.username] || 0;-->
+<!--            let badge = rank === 1 ? "👑" : rank === 2 ? "🥇" : rank === 3 ? "🥈" : rank >= 4 && rank <= 5 ? "🥉" : "";-->
+<!--            html += `-->
+<!--          <div class="border-start ps-3 mb-2" style="font-size:0.9rem;">-->
+<!--            <strong>${badge}${rp.username}</strong>-->
+<!--            <small class="text-muted ms-2">${formatDate(rp.createdAt)}</small>-->
+<!--            <div>${rp.content}</div>-->
+<!--          </div>-->
+<!--        `;-->
+<!--        });-->
+<!--        html += `</div>`;-->
+<!--        return html;-->
+<!--    }-->
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        const urlParams = new URLSearchParams(window.location.search);-->
+<!--        const feedId = urlParams.get("id");-->
+
+
+<!--        const submitButton = document.querySelector(".btn-success");-->
+<!--        if (submitButton) {-->
+<!--            submitButton.onclick = () => submitComment(feedId);-->
+<!--            submitButton.onclick = () => submitComment(feedId);-->
+<!--            }-->
+<!--        });-->
+<!--    /* 댓글 목록 + 아바타 + 3줄 레이아웃 */-->
+<!--    function renderCommentSection(jsonData){-->
+<!--        const wrap      = document.getElementById("commentSection");-->
+<!--        const comments  = jsonData.comment||[];-->
+<!--        const replies   = jsonData.replies||{};-->
+<!--        wrap.innerHTML  = "";-->
+
+<!--        if(comments.length===0){-->
+<!--            wrap.innerHTML = "<p>댓글이 없습니다.</p>";-->
+<!--            return;-->
+<!--        }-->
+
+<!--        let html = `<h5 class="mt-4"><i class="fas fa-comments"></i> Comments</h5>`;-->
+
+<!--        comments.forEach(cmt=>{-->
+<!--            const rank  = topWriters[cmt.username]||0;-->
+<!--            const badge = rank===1?"👑":rank===2?"🥇":rank===3?"🥈":rank<=5&&rank>0?"🥉":"";-->
+<!--            const name  = cmt.author-->
+<!--                ? `<strong class="text-secondary">${badge}작성자(${cmt.username})</strong>`-->
+<!--                : `<strong>${badge} ${cmt.username}</strong>`;-->
+
+<!--            /* ◀── 한 사람의 댓글 카드 */-->
+<!--            html += `-->
+<!--      <div class="comment-item d-flex gap-3 pb-3 mb-3 border-bottom" id="comment-${cmt.commentUID}">-->
+<!--        <div class="comment-avatar flex-shrink-0">-->
+<!--          ${cmt.username.charAt(0).toUpperCase()}-->
+<!--        </div>-->
+
+<!--        <div class="comment-body flex-grow-1">-->
+<!--          <div class="d-flex justify-content-between">-->
+<!--            <div class="meta">-->
+<!--              ${name}-->
+<!--              <small class="ms-2 text-muted">${formatDate(cmt.createdAt)}</small>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              ${cmt.commentOwner ? `-->
+<!--                <button class="btn btn-sm btn-link text-secondary edit-comment-btn"-->
+<!--                        data-comment-id="${cmt.commentUID}">수정</button>-->
+<!--                <button class="btn btn-sm btn-link text-danger delete-comment-btn"-->
+<!--                        data-comment-id="${cmt.commentUID}">삭제</button>` : ""}-->
+<!--            </div>-->
+<!--          </div>-->
+
+<!--          <div class="mt-2" id="comment-content-${cmt.commentUID}">-->
+<!--            ${convertLinks(cmt.content)}-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; 대댓글(스레드) &ndash;&gt;-->
+<!--          ${renderReplies(replies[cmt.commentUID]||[])}-->
+
+<!--          <button class="btn btn-sm btn-outline-primary reply-toggle mt-2"-->
+<!--                  data-comment-id="${cmt.commentUID}">답글 달기</button>-->
+
+<!--          <div class="reply-form mt-2" id="reply-form-${cmt.commentUID}" style="display:none;">-->
+<!--            <textarea class="form-control mb-2" rows="2" placeholder="답글 작성..."></textarea>-->
+<!--            <button class="btn btn-sm btn-primary submit-reply-btn"-->
+<!--                    data-comment-id="${cmt.commentUID}">답글 작성</button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>`;-->
+<!--        });-->
+
+<!--        wrap.innerHTML = html;-->
+<!--        initializeCommentEvents(jsonData.feedId);-->
+<!--    }-->
+
+<!--    function enhanceLinksWithPreview() {-->
+<!--        const contentEl = document.querySelector(".feed-content");-->
+<!--        if (!contentEl) return;-->
+
+<!--        const urls = [...contentEl.innerHTML.matchAll(/https?:\/\/[^\s<"]+/g)].map(m => m[0]);-->
+<!--        if (urls.length === 0) return;-->
+
+<!--        urls.forEach(url => {-->
+<!--            fetch(`/preview?url=${encodeURIComponent(url)}`)-->
+<!--                .then(res => res.json())-->
+<!--                .then(data => {-->
+<!--                    if (data.title || data.image) {-->
+<!--                        const preview = `-->
+<!--                        <div class="card mt-3">-->
+<!--                            ${data.image ? `<img src="${data.image}" class="card-img-top" alt="Preview image">` : ""}-->
+<!--                            <div class="card-body">-->
+<!--                                <h5 class="card-title">${data.title || '제목 없음'}</h5>-->
+<!--                                <p class="card-text text-muted">${data.description || '설명 없음'}</p>-->
+<!--                            </div>-->
+<!--                        </div>`;-->
+<!--                        contentEl.insertAdjacentHTML("beforeend", preview);-->
+<!--                    }-->
+<!--                });-->
+<!--        });-->
+<!--    }-->
+
+<!--    function updateLikeButtonUI(isLiked) {-->
+<!--            const likeButton = document.querySelector(`button.like-btn`);-->
+<!--            if (!likeButton) return;-->
+
+<!--            const heartIcon = likeButton.querySelector("i");-->
+<!--            if (!heartIcon) return;-->
+
+<!--            if (isLiked) {-->
+<!--                heartIcon.classList.remove("far");-->
+<!--                heartIcon.classList.add("fas");-->
+<!--            } else {-->
+<!--                heartIcon.classList.remove("fas");-->
+<!--                heartIcon.classList.add("far");-->
+<!--            }-->
+<!--        }-->
+
+
+<!--    document.addEventListener("DOMContentLoaded", function () {-->
+<!--        console.log("DOMContentLoaded event triggered");-->
+
+<!--        let token = null;-->
+<!--        try {-->
+<!--            token = localStorage.getItem("token");-->
+<!--        } catch (error) {-->
+<!--            console.error("Error retrieving token:", error);-->
+<!--        }-->
+
+<!--        const usernameInput = document.getElementById("username");-->
+<!--        const anonymousToggle = document.getElementById("anonymous-toggle");-->
+
+<!--        if (!token) {-->
+<!--            console.warn("로그인하지 않은 상태입니다. 익명으로 고정됩니다.");-->
+
+
+<!--            if (anonymousToggle) {-->
+<!--                anonymousToggle.checked = true;-->
+<!--                anonymousToggle.disabled = true;-->
+<!--            } else {-->
+<!--                console.warn("'anonymous-toggle' 요소를 찾을 수 없습니다.");-->
+<!--            }-->
+
+<!--            if (usernameInput) {-->
+<!--                usernameInput.value = "익명";-->
+<!--                usernameInput.readOnly = true;-->
+<!--            } else {-->
+<!--                console.warn("'username' 요소를 찾을 수 없습니다.");-->
+<!--            }-->
+
+<!--            document.querySelectorAll(".toggle-btn").forEach(toggleButton => {-->
+<!--                toggleButton.style.display = "none";-->
+<!--            });-->
+<!--        } else {-->
+<!--            if (anonymousToggle) {-->
+<!--                anonymousToggle.disabled = false;}}-->
+<!--    });-->
+
+
+<!--        document.querySelectorAll(".like-btn[data-comment-id]").forEach(button => {-->
+<!--            button.addEventListener("click", function () {-->
+<!--                const commentId = this.getAttribute("data-comment-id");-->
+<!--                const likeCountSpan = document.getElementById(`like-count-${commentId}`);-->
+<!--                const heartIcon = this.querySelector("i");-->
+
+<!--                if (heartIcon.classList.contains("far")) {-->
+<!--                    heartIcon.classList.remove("far");-->
+<!--                    heartIcon.classList.add("fas");-->
+<!--                } else {-->
+<!--                    heartIcon.classList.remove("fas");-->
+<!--                    heartIcon.classList.add("far");-->
+<!--                }-->
+
+<!--                fetch(`/search/view/comment/increase-like/${commentId}`, {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    }-->
+<!--                })-->
+<!--                    .then(response => response.json())-->
+<!--                    .then(data => {-->
+
+<!--                        if (data.newLikeCount) {-->
+<!--                            likeCountSpan.textContent = data.newLikeCount;-->
+<!--                        }-->
+<!--                    })-->
+<!--                    .catch(error => {-->
+<!--                        console.error("Error increasing like count:", error);-->
+<!--                    });-->
+<!--            });-->
+<!--        });-->
+
+<!--     function toggleFeedLike(feedUID,likeCount) {-->
+
+<!--                 const likeButton = document.querySelector(`button[data-feed-uid="${feedUID}"]`);-->
+<!--                 if (!likeButton) return;-->
+
+<!--                 const likeCountSpan = document.getElementById(`like-count-feed-${feedUID}`);-->
+<!--                 const heartIcon = likeButton.querySelector("i");-->
+<!--                 let likeCurrentCount = parseInt(likeCountSpan.textContent, 10) || 0;-->
+<!--                 let isLiked = heartIcon.classList.contains("fas");-->
+
+
+<!--             if (isLiked) {-->
+<!--                 heartIcon.classList.remove("fas");-->
+<!--                 heartIcon.classList.add("far");-->
+<!--                 likeCurrentCount -= 1;-->
+<!--             } else {-->
+<!--                 heartIcon.classList.remove("far");-->
+<!--                 heartIcon.classList.add("fas");-->
+<!--                 likeCurrentCount += 1;-->
+<!--             }-->
+
+
+<!--         likeCountSpan.textContent = likeCurrentCount;-->
+
+<!--             let url = isLiked-->
+<!--                 ? `/search/view/feed/cancel-like/${feedUID}`-->
+<!--                 : `/search/view/feed/increase-like/${feedUID}`;-->
+
+<!--             fetch(url, {-->
+<!--                 method: 'POST',-->
+<!--                 headers: {-->
+<!--                     'Content-Type': 'application/json',-->
+<!--                     'Authorization': `Bearer ${localStorage.getItem("token")}`-->
+<!--                 },-->
+<!--             })-->
+<!--                 .then(response => response.json())-->
+<!--                 .then(data => {-->
+<!--                     if (data.newLikeCount !== undefined) {-->
+<!--                         likeCountSpan.textContent = data.newLikeCount;-->
+<!--                     }-->
+<!--                 })-->
+<!--                 .catch(error => {-->
+<!--                     console.error("Error toggling like:", error);-->
+<!--                 });-->
+<!--         }-->
+<!--        document.querySelectorAll(".toggle-btn").forEach(button => {-->
+<!--            button.addEventListener("click", function () {-->
+<!--                const targetId = this.getAttribute("data-id");-->
+<!--                const targetElement = document.getElementById(targetId);-->
+
+<!--                if (targetElement) {-->
+<!--                    const isCurrentlyVisible = targetElement.style.display === "block";-->
+
+<!--                    document.querySelectorAll(".comment-options").forEach(option => {-->
+<!--                        option.style.display = "none";-->
+<!--                    });-->
+
+<!--                    targetElement.style.display = isCurrentlyVisible ? "none" : "block";-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+
+<!--    let topWriters = {};-->
+
+<!--    function fetchTopWriters() {-->
+<!--        let cachedData = localStorage.getItem("topWriters");-->
+<!--        let cachedTime = localStorage.getItem("topWritersTimestamp");-->
+
+<!--        if (cachedData && cachedTime && (Date.now() - cachedTime) < 3600000) {-->
+<!--            console.log("캐싱된 Top Writers 사용");-->
+<!--            topWriters = JSON.parse(cachedData);-->
+<!--            return Promise.resolve(topWriters);-->
+<!--        }-->
+
+<!--        return fetch("/top-writers")-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                topWriters = {};-->
+<!--                data.forEach((writer, index) => {-->
+<!--                    topWriters[writer.username] = index + 1;-->
+<!--                });-->
+
+<!--                console.log("새로 가져온 TopWriters:", topWriters);-->
+<!--                localStorage.setItem("topWriters", JSON.stringify(topWriters));-->
+<!--                localStorage.setItem("topWritersTimestamp", Date.now());-->
+
+<!--                return topWriters;-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error("Top 유저 데이터 가져오기 실패:", error);-->
+<!--                return {};-->
+<!--            });-->
+<!--    }-->
+
+
+<!--</script>-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </html>

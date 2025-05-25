@@ -10,6 +10,7 @@ import es.board.repository.entity.FeedImage;
 import es.board.service.AuthService;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -325,11 +326,9 @@ public class MainFeedController {
             @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-//            processFileUpload(file, res);
             authService.extractUserIdFromToken(token, res);
             response.put("feed", feedService.saveFeed(res));
             response.put("success", true);
-            response.put("redirectUrl", "/search/view/feed?index=board");
             return ResponseEntity.ok(response);
         } catch (IllegalStateException e) {
             log.error("Invalid feed data: {}", e.getMessage());
@@ -438,13 +437,8 @@ public class MainFeedController {
 
         return ResponseEntity.ok(Map.of(
                 "data", data,
-                "totalPage",500
-        ));
+                "totalPage",500));
     }
-
-
-
-
 
 //    @GetMapping("/view/count")
 //    public ResponseEntity<?> getViewDESC(@RequestParam(defaultValue = "0") int page,

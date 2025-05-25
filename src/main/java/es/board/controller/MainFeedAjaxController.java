@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
@@ -248,8 +249,18 @@ public class MainFeedAjaxController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
     @GetMapping("/detail")
-    public ResponseEntity<?> getDetailInfo(HttpServletRequest request,
+    public Object getDetailInfo(HttpServletRequest request, @ModelAttribute Model model,
                                            @RequestParam(value = "id") String feedUID) {
+
+        if (isSocialMediaBot(request)){
+            log.info("봇");
+            FeedRequest feed = feedService.getFeedDetail(feedUID);
+            model.addAttribute("title", feed.getTitle());
+            model.addAttribute("description", feed.getDescription());
+            model.addAttribute("image", feed.getImageURL());
+            model.addAttribute("url", "https://workly.info/search/view/feed/id/" + feedUID);
+            return "redirect:/search/view/og/feed/id/" + feedUID;
+        }
         Map<String, Object> response = new HashMap<>();
         Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
@@ -312,6 +323,20 @@ public class MainFeedAjaxController {
                 }
             }
         }
+    }
+    private boolean isSocialMediaBot(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent == null) return false;
+
+        userAgent = userAgent.toLowerCase();
+
+        return userAgent.contains("kakaotalk") ||
+                userAgent.contains("facebookexternalhit") ||
+                userAgent.contains("twitterbot") ||
+                userAgent.contains("slackbot") ||
+                userAgent.contains("discordbot") ||
+                userAgent.contains("whatsapp") ||
+                userAgent.contains("telegrambot");
     }
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));

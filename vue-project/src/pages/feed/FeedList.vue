@@ -210,7 +210,7 @@ async function submitAnswer() {
   const token = localStorage.getItem('token')
   if (!token) return alert('로그인이 필요합니다')
   try {
-    await api.post('/api/save/interview/question', {
+    await api.post('/save/interview/question', {
       questionId: curQuestion.value.id,
       answer: txt,
       title: curQuestion.value.question,

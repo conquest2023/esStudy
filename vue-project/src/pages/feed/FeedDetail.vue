@@ -328,7 +328,7 @@ async function submitReply(commentUID) {
       feedUID: id,
       content: text,
     })
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
     const { data } = await api.get('/detail', {
       params: { id }
