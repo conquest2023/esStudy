@@ -7,11 +7,12 @@ import es.board.controller.model.res.SignUpResponse;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AuthService {
 
 
-
+    String findById(String  username);
     Boolean extractUserIdFromToken(String token, FeedCreateResponse response);
 
 

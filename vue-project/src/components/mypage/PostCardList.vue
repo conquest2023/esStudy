@@ -4,7 +4,7 @@
       작성된 항목이 없습니다.
     </div>
     <div v-for="post in items" :key="post.feedUID" class="col-md-6 col-lg-4">
-      <RouterLink :to="`/search/view/feed/id?id=${post.feedUID}`" class="text-decoration-none text-dark">
+      <RouterLink :to="`/search/view/feed/id/${post.feedUID}`" class="text-decoration-none text-dark">
         <div class="card shadow-sm rounded-4 overflow-hidden position-relative hover-effect">
           <div
               class="feed-img position-relative"

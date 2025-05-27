@@ -11,7 +11,7 @@
         <div class="mt-2">
           <RouterLink
               class="btn btn-sm btn-primary"
-              :to="`/search/view/feed/id?id=${comment.feedUID}`">
+              :to="`/search/view/feed/id/${comment.feedUID}`">
             게시물 보러 가기
           </RouterLink>
         </div>

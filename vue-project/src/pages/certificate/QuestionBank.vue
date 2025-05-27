@@ -113,7 +113,7 @@ const certList = [
   { name: '정보처리기사', icon: 'https://img.icons8.com/office/80/book.png' },
   { name: '정보보안기사', icon: 'https://img.icons8.com/office/80/security-checked.png' },
   { name: '정보처리기능사', icon: 'https://img.icons8.com/office/80/computer.png' },
-  { name: 'SQLD', icon: 'https://img.icons8.com/office/80/database.png' },
+  // { name: 'SQLD', icon: 'https://img.icons8.com/office/80/database.png' },
   { name: '빅분기', icon: 'https://img.icons8.com/office/80/analysis.png' }
 ]
 

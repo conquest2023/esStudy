@@ -591,7 +591,7 @@ public class FeedDAOImpl implements FeedDAO {
                     .buckets()
                     .array()
                     .stream()
-                    .skip((long) page * size)  // 💡 Java 단 페이징
+                    .skip((long) page * size)
                     .limit(size)
                     .map(bucket -> bucket.key().stringValue())
                     .collect(Collectors.toList());

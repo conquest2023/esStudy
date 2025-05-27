@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,6 +80,15 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
+    @Override
+    public String findById(String  username){
+        Optional<String> userId=userRepository.findById(username);
+        if (userId.isPresent()){
+            return  userId.get();
+        }else {
+            throw  new RuntimeException("찾으시는 유저가 없습니다");
+        }
+    }
 
     @Override
     public Boolean checkId(SignUpResponse sign) {

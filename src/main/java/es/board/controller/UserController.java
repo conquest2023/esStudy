@@ -114,7 +114,102 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
-//    @PostMapping("/auth/refresh")
+
+//    @GetMapping("/someone/feed/comment/paging")
+//    public ResponseEntity<?> getSomeoneCommentAndFeed(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+//                                                     @RequestParam(defaultValue = "10") int size,String username) {
+//        String token = request.getHeader("Authorization");
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//            if (jwtTokenProvider.validateToken(token)) {
+//                String userId = userService.findById(username);
+//                Map<String, Object> response = Map.of(
+//                        "commentAndFeed",commentService.getFeedAndCommentMyPage(userId,page,size));
+//                return ResponseEntity.ok(response);
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+//    }
+//
+//    @GetMapping("/someone/feed/paging")
+//    public ResponseEntity<?> getSomeoneFeed(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+//                                       @RequestParam(defaultValue = "10") int size,String username) {
+//        String token = request.getHeader("Authorization");
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//            if (jwtTokenProvider.validateToken(token)) {
+//                String userId = userService.findById(username);
+//                Map<String,Object> feedLists=feedService.getFeedUserList(userId,page,size);
+//                Map<String, Object> response = Map.of(
+//                        "feedList",  feedLists.get("boardList"),
+//                        "username", jwtTokenProvider.getUsername(token)
+//                );
+//
+//                return ResponseEntity.ok(response);
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+//    }
+//
+//    @GetMapping("/someone/comment/paging")
+//    public ResponseEntity<?> getSomeoneComment(HttpServletRequest request,@RequestParam(defaultValue = "0") int page,
+//                                              @RequestParam(defaultValue = "10") int size,String username) {
+//        String token = request.getHeader("Authorization");
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//            if (jwtTokenProvider.validateToken(token)) {
+//                String userId = userService.findById(username);
+//                List<Comment> commentList=commentService.getMyPageComment(userId,page,size);
+//                Map<String, Object> response = Map.of(
+//                        "commentList",commentList
+//                );
+//
+//                return ResponseEntity.ok(response);
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+//    }
+    @GetMapping("/someone/profile/full")
+    public ResponseEntity<?> getFullSomeoneInfo(HttpServletRequest request,
+                                            @RequestParam String username,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+
+    log.info("asd");
+    String token = request.getHeader("Authorization");
+    if (token != null && token.startsWith("Bearer ")) {
+        token = token.substring(7);
+        if (jwtTokenProvider.validateToken(token)) {
+            String userId = userService.findById(username);
+            if (userId == null) return ResponseEntity.notFound().build();
+
+            Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
+            Map<String,Object> commentStats = commentService.getUserComments(userId);
+            int point = Optional.ofNullable(feedService.getPointAll(userId)).orElse(0);
+            Map<String,Object> feedList  = feedService.getFeedUserList(userId, page, size);
+            List<Comment> commentList    = commentService.getMyPageComment(userId, page, size);
+            List<?> commentAndFeed       = commentService.getFeedAndCommentMyPage(userId, page, size);
+            Map<String, Object> response = Map.of(
+                    "user", Map.of(
+                            "like", boardStats.get("totalLikes"),
+                            "commentCount", commentStats.get("totalComments"),
+                            "feedCount",  boardStats.get("totalBoards"),
+                            "point", point,
+                            "username", username,
+                            "visitCount", userService.findVisitCount(userId)
+                    ),
+                    "feedList", feedList.get("boardList"),
+                    "commentList", commentList,
+                    "commentAndFeed", commentAndFeed
+            );
+
+            return ResponseEntity.ok(response);
+        }
+    }
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+}
+
+    //    @PostMapping("/auth/refresh")
 //    @ResponseBody
 //    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 //        Cookie[] cookies = request.getCookies();
@@ -140,13 +235,33 @@ public class UserController {
 //                "accessToken", newToken.getAccessToken()
 //        ));
 //    }
-
+    @GetMapping("/user/profile")
+    public ResponseEntity<?> getSomeoneInfo(HttpServletRequest request,String username) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+//                String userId = userService.findById(username);
+//                Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
+//                Map<String,Object> commentStats= commentService.getUserComments(userId);
+//                int point = Optional.ofNullable(feedService.getPointAll(userId)).orElse(0);
+//                Map<String, Object> response = Map.of(
+//                        "like", boardStats.get("totalLikes"),
+//                        "commentCount", commentStats.get("totalComments"),
+//                        "feedCount",  boardStats.get("totalBoards"),
+//                        "point",point,
+//                        "username",username,
+//                        "visitCount", userService.findVisitCount(userId));
+                return ResponseEntity.ok("ok");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
 
 
     @GetMapping("/mypage")
     public ResponseEntity<?> getMyPageInfo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info(token);
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -205,7 +320,7 @@ public class UserController {
                         "isLoggedIn", true
                 ));
     }
-        @PostMapping("/check")
+    @PostMapping("/check")
     public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpResponse sign) {
         boolean isAvailable = userService.checkId(sign);
         return ResponseEntity.ok(isAvailable);

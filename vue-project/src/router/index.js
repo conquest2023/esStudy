@@ -32,13 +32,16 @@ const routes = [
             { path: 'certificate/calendar', component: () => import('@/pages/certificate/CertificateCalendar.vue') },
             { path: 'certificate/list', component: () => import('@/pages/certificate/CertificateSearch.vue') },
             { path: 'search/view/question', name: 'QuestionBank', component: QuestionBank },
-            { path: 'search/view/practical/question', name: 'PracticeQuestion', component: PracticeQuestion }
-        ]
+            { path: 'search/view/practical/question', name: 'PracticeQuestion', component: PracticeQuestion },
+            { path: '/search/view/og/feed/id', meta: { ssrOnly: true },
+    }
+    ]
     },
 
 
     { path: '/login', name:`Login`, component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
     { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
+    { path: '/user/profile/:username', name: 'user-profile', component: () => import('@/pages/feed/user/SomeoneProfile.vue')},
     { path: '/search/view/feed/update', name: 'feed-update', component: FeedUpdate },
     { path: '/search/view/vote/detail', name: 'vote-detail', component: voteDetail, meta: { hideLayout: true } },
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },

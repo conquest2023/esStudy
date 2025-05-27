@@ -75,14 +75,8 @@ public class MainFeedController {
         }
     }
 
-    @GetMapping("/search/view/og/feed/id")
-    public String serveFeedPage(@RequestParam("id") String id, Model model) {
-        FeedRequest feed = feedService.getFeedDetail(id);
-        model.addAttribute("title", feed.getTitle());
-        model.addAttribute("description", feed.getDescription());
-        model.addAttribute("image", feed.getImageURL());
-        return "feed-detail";
-    }
+
+
 
 //    @GetMapping("/search/view/feed/update")
 //    public String editFeed(@RequestParam("id") String id,Model model) {
@@ -106,17 +100,8 @@ public class MainFeedController {
         return ResponseEntity.ok("수정이 완료되었습니다");
     }
 
-    @GetMapping("/search/view/feed/id")
-    public String getFeedDetail(@RequestParam("id") String id,
-                                Model model){
-        FeedRequest feed = feedService.getFeedDetail(id);
-        model.addAttribute("title", feed.getTitle());
-        model.addAttribute("description", feed.getDescription());
-        model.addAttribute("image", feed.getImageURL());
-        model.addAttribute("id", id);
-        model.addAttribute("url", "https://workly.info/search/view/feed/id?id=" + id);
-        return "basic/feed/FeedDetails";
-    }
+
+
 
 
     @GetMapping("/search/view/practical")
@@ -474,6 +459,7 @@ public class MainFeedController {
             }
 
         }
+
 
 }
 

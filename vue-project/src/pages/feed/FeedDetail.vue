@@ -55,7 +55,12 @@
     <div class="comment-body flex-grow-1">
         <div class="d-flex justify-content-between">
           <div class="meta">
-            <b>{{ rankBadge(c.username) }} {{ c.username }}</b>
+            <RouterLink
+                :to="`/user/profile/${c.username}`"
+                class="text-primary fw-semibold"
+            >
+              {{ rankBadge(c.username) }} {{ c.username }}
+            </RouterLink>
             <small class="ms-2 text-muted">{{ fmtDate(c.createdAt) }}</small>
           </div>
           <div v-if="c.commentOwner">
@@ -70,8 +75,7 @@
               v-for="rp in replies[c.commentUID]"
               :key="rp.replyUID"
               class="border-start ps-3 mb-2"
-              style="font-size:0.9rem;"
-          >
+              style="font-size:0.9rem;">
             <strong>{{ rankBadge(rp.username) }}{{ rp.username }}</strong>
             <small class="text-muted ms-2">{{ fmtDate(rp.createdAt) }}</small>
             <div>{{ rp.content }}</div>
@@ -107,6 +111,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
+import { RouterLink } from 'vue-router'
 
   const route   = useRoute()
   const router  = useRouter()
@@ -191,7 +196,6 @@ function convertLinks(txt = '') {
     const prev = str.slice(Math.max(0, offset - 5), offset)
     if (/src=\"?$/.test(prev)) return m
 
-    // ▶️ 유튜브 링크면 iframe으로 변환
     const youtubeMatch = m.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/)
     if (youtubeMatch) {
       const videoId = youtubeMatch[1]
