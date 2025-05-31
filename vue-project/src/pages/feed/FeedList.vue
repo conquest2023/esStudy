@@ -126,7 +126,7 @@
 
           <!-- ▣ 공지 / 피드 카드 -->
           <FeedCard v-for="n in notices" :key="n.feedUID" :post="n" notice class="mb-2" />
-          <FeedCard v-for="p in posts" :key="p.feedUID" :post="p" :is-vote="!p.id" :comment-count="counts[p.feedUID]" class="mb-2" />
+          <FeedCard v-for="p in posts" :key="p.feedUID" :post="p" :is-vote="!p.id" :comment-count="counts[p.feedUID]" class="mb-2"  :posts="posts" />
 
           <!-- ▣ 페이지네이션 & 로딩 -->
           <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
@@ -349,9 +349,12 @@ async function fetchFeeds(newPage = page.value) {
 onMounted(() => {
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
-  fetchNotice()
+  // fetchNotice()
 })
-watch(activeTab, () => fetchFeeds(0))
+
+watch(activeTab, () =>
+    fetchFeeds(0)
+)
 </script>
 
 <style scoped>

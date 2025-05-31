@@ -144,11 +144,19 @@ function handleFiles (e) {
   })
 }
 
-async function buildHtmlWithUploadedImages () {
+async function buildHtmlWithUploadedImages() {
   const idToUrl = {}
+
   for (const { id, file } of pendingFiles.value) {
+    const img = editor.value.querySelector(`.image-wrapper[data-id="${id}"] img`)
+    const width = img?.style?.width?.replace('px', '') || '400'
+    const height = img?.style?.height?.replace('px', '') || ''
+
     const form = new FormData()
     form.append('file', file)
+    form.append('width', width)
+    if (height) form.append('height', height)
+
     try {
       const res = await fetch('/api/upload-images', {
         method: 'POST',
@@ -171,14 +179,15 @@ async function buildHtmlWithUploadedImages () {
     clean.src = idToUrl[id] || img.src
     clean.removeAttribute('data-id')
     clean.style.maxWidth = '100%'
-    clean.style.width = '400px'
-    clean.style.height = 'auto'
+    clean.style.width = img.style.width
+    clean.style.height = img.style.height || 'auto'
 
     w.replaceWith(clean)
   })
 
   return clone.innerHTML
 }
+
 
 async function submitForm() {
   if (!category.value || !title.value || editor.value.innerText.trim() === '') {

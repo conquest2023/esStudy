@@ -11,14 +11,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+//@SuperBuilder
 @Builder
-public class FeedRequest {
+public class FeedRequest  {
 
     private int id;
 

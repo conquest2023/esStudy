@@ -49,16 +49,16 @@ public class NoticeController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String userId=jwtTokenProvider.getUserId(token);
-                processFileUpload(file, noticeDTO,userId);
+//                processFileUpload(file, noticeDTO,userId);
                 noticeService.createNotice(token,noticeDTO);
             }
         }
     }
 
-    private void processFileUpload(MultipartFile file, NoticeRequest noticeDTO, String  userId) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            log.info("File upload started");
-            noticeDTO.setImageURL(s3Uploader.upload(file,userId));
-        }
-    }
+//    private void processFileUpload(MultipartFile file, NoticeRequest noticeDTO, String  userId) throws IOException {
+//        if (file != null && !file.isEmpty()) {
+//            log.info("File upload started");
+//            noticeDTO.setImageURL(s3Uploader.upload(file,userId));
+//        }
+//    }
 }

@@ -1,5 +1,6 @@
 <template>
   <section v-if="loaded" class="container my-4 pt-navbar">
+
     <div v-if="isOwner" class="text-end mb-2">
       <div class="dropdown d-none d-md-inline">
         <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
@@ -18,6 +19,7 @@
           </li>
         </ul>
       </div>
+
       <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"
               style="bottom:80px;right:24px;width:56px;height:56px;"
               data-bs-toggle="dropdown" data-bs-target="#fabMenu">
@@ -28,6 +30,8 @@
         <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>
       </ul>
     </div>
+<!--    <PrevNextButtons :posts="posts" />-->
+
     <div class="card shadow-sm feed-card">
       <div class="card-body">
         <h2 class="feed-title">{{ feed.title }}</h2>
@@ -109,6 +113,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
+import PrevNextButtons from '@/components/PrevNextButtons.vue'
+
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { RouterLink } from 'vue-router'
@@ -134,6 +140,7 @@ import { RouterLink } from 'vue-router'
   const reloadTrigger = ref(0)
   const login = computed(() => store.isLoggedIn)
   const isOwner = computed(() => feed.value?.Owner === true)
+const posts = ref([])
 
 
   function linkify(text = '') {
@@ -161,7 +168,7 @@ onMounted(async () => {
             .replace(/<\/div>/g, '<br>')
             .replace(/<div>/g, '');
       }
-
+      posts.value = history.state?.posts || [feed.value]
       feedHtml.value = convertLinks(
           normalize(decodeHtmlEntities(data.data.description || ''))
       );
@@ -359,6 +366,9 @@ async function submitReply(commentUID) {
   .feed-content {
     line-height: 1.6;
     white-space: pre-line;
+  }
+  .mt-4 {
+    margin-top: 1.5rem;
   }
   .feed-card { border-radius:10px }
   .feed-title{ font-size:1.8rem;font-weight:700 }

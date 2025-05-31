@@ -290,19 +290,19 @@ public class MainFeedController {
         model.addAttribute("data", feedService.getRangeTimeFeed(startDate, endDate));
         return "/basic/feed/RangeFeed";
     }
-    @PostMapping("/search/view/feed/upload-image")
-    @ResponseBody
-    public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file,
-                                         @RequestHeader(value = "Authorization", required = false) String token) {
-        try {
-            String imageUrl = s3Uploader.upload(file, jwtTokenProvider.getUsername(token));
-            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
-        } catch (Exception e) {
-            log.error("이미지 업로드 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "이미지 업로드 실패"));
-        }
-    }
+//    @PostMapping("/search/view/feed/upload-image")
+//    @ResponseBody
+//    public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file,
+//                                         @RequestHeader(value = "Authorization", required = false) String token) {
+//        try {
+//            String imageUrl = s3Uploader.upload(file, jwtTokenProvider.getUsername(token));
+//            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+//        } catch (Exception e) {
+//            log.error("이미지 업로드 실패", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", "이미지 업로드 실패"));
+//        }
+//    }
 
     @PostMapping("/search/view/feed/save")
     @ResponseBody
@@ -325,13 +325,15 @@ public class MainFeedController {
                     .body(Map.of("success", false, "error", "요청 처리 중 오류가 발생했습니다."));
         }
     }
+
     @PostMapping("/upload-images")
     @ResponseBody
-    public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file,
+                                          @RequestParam("width") int width,
+                                          @RequestParam(value = "height", required = false) Integer height) {
         try {
-            String imageUrl = s3Uploader.upload(file, "feed");
-            log.info(imageUrl);
-            FeedImage saved= feedService.saveFeedImages(imageUrl);
+            String imageUrl = s3Uploader.upload(file, "feed", width);
+            FeedImage saved = feedService.saveFeedImages(imageUrl);
             return ResponseEntity.ok(Map.of(
                     "url", imageUrl,
                     "imageId", saved.getId()
@@ -341,6 +343,7 @@ public class MainFeedController {
                     .body(Map.of("error", "이미지 업로드 실패"));
         }
     }
+
     @GetMapping("/search/view/feed/list/job")
     public String getProgrammersList() {
         return "basic/feed/ItCrawlingFeed";
@@ -452,13 +455,13 @@ public class MainFeedController {
 //        return "basic/login/google_callback.html";
 //    }
 
-    private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            log.info("File upload started");
-            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUsername()));
-            }
-
-        }
+//    private void processFileUpload(MultipartFile file, FeedCreateResponse feedSaveDTO) throws IOException {
+//        if (file != null && !file.isEmpty()) {
+//            log.info("File upload started");
+//            feedSaveDTO.setImageURL(s3Uploader.upload(file, feedSaveDTO.getUsername()));
+//            }
+//
+//        }
 
 
 }

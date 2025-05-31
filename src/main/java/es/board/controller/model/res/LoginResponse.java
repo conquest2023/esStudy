@@ -24,9 +24,4 @@ public class LoginResponse {
 
     private LocalDateTime lastLogin;
 
-
-    public  LoginResponse(String username, String email){
-        this.username=username;
-        this.email=email;
-    }
 }

@@ -27,6 +27,7 @@ import { useRouter } from 'vue-router'
 
 const props = defineProps({
   post:Object,
+  posts: Array,
   notice:{type:Boolean,default:false},
   isVote:{type:Boolean,default:false},
   commentCount:{type:Number,default:0}
@@ -38,9 +39,23 @@ const time=computed(()=>{
   return `${d.getMonth()+1}. ${d.getDate()}. ${d.getHours()>=12?'오후':'오전'} ${(d.getHours()%12)||12}:${d.getMinutes().toString().padStart(2,'0')}`
 })
 const isVote=computed(()=>!props.notice&&!props.post.id)
-function goToDetail(){
-  router.push(isVote.value?`/search/view/vote/detail?id=${props.post.feedUID}`:`/search/view/feed/id/${props.post.feedUID}`)
+// function goToDetail(){
+//   router.push(isVote.value?`/search/view/vote/detail?id=${props.post.feedUID}`
+//       :`/search/view/feed/id/${props.post.feedUID}`,
+//   )
+function goToDetail() {
+  router.push({
+    path: isVote.value
+        ? `/search/view/vote/detail`
+        : `/search/view/feed/id/${props.post.feedUID}`,
+    query: isVote.value ? { id: props.post.feedUID } : undefined,
+    state: {
+      posts: props.posts
+    }
+  })
 }
+
+
 </script>
 
 <style scoped>
@@ -61,6 +76,11 @@ function goToDetail(){
 }
 .feed-card.notice{
   border:2px solid #f0ad4e;
+}
+@media (max-width: 576px) {
+  .feed-card .card-body > .me-2 {
+    max-width: 75%; /* 혹은 적절히 조절해도 좋아 */
+  }
 }
 
 </style>

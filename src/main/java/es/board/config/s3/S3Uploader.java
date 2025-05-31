@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,13 +30,13 @@ public class S3Uploader {
     private String bucket;
 
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
-        File uploadFile = convert(multipartFile)
+    public String upload(MultipartFile multipartFile, String dirName,int width) throws IOException {
+        File uploadFile = convert(multipartFile,width)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
-        return upload(uploadFile, dirName);
+        return upload(uploadFile, dirName,width);
     }
 
-    private String upload(File uploadFile, String dirName) {
+    private String upload(File uploadFile, String dirName, int width) {
         String fileName = dirName + "/" + changedImageName(uploadFile.getName());
         String uploadImageUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile); // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
@@ -54,25 +56,32 @@ public class S3Uploader {
     private void removeNewFile(File targetFile) {
         log.info(targetFile.toString());
         if (targetFile.delete()) {
-            log.info("파일이 삭제되었습니다.");
+            log.info("데스크탑 파일이 삭제되었습니다.");
         } else {
             log.info("파일이 삭제되지 못했습니다.");
         }
     }
 
-    private Optional<File> convert(MultipartFile file) throws IOException {
+    private Optional<File> convert(MultipartFile file,int width) throws IOException {
+        log.info(String.valueOf(width));
+//        log.info(String.valueOf(height));
         String extension = getExtension(file.getOriginalFilename());
         String safeName = UUID.randomUUID() + "." + extension; // ← 영문 안전 이름
 
         File convertFile = new File(safeName);
-        if (convertFile.createNewFile()) {
-            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-                fos.write(file.getBytes());
+//        if (convertFile.createNewFile()) {
+            try (InputStream in = file.getInputStream()) {
+                Thumbnails.of(in)
+                        .size(width, Integer.MAX_VALUE) // 비율 유지하고 너비만 고정
+                        .outputFormat(extension)        // 포맷 유지 (예: jpg, png)
+                        .toFile(convertFile);
+                return Optional.of(convertFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return Optional.empty();
             }
-            return Optional.of(convertFile);
         }
-        return Optional.empty();
-    }
+
 
 
     // 랜덤 파일 이름 메서드 (파일 이름 중복 방지)
@@ -89,10 +98,12 @@ public class S3Uploader {
             log.error("S3 삭제 실패: {}", fileUrl, e);
         }
     }
-    private String getExtension(String filename) {
+    private String getExtension(String filename)
+    {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
     private String extractFileKey(String fileUrl) {
+
         return fileUrl.substring(fileUrl.indexOf(".com/") + 5);
     }
 }

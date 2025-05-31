@@ -168,17 +168,6 @@ public class FeedMapper {
                 .build();
     }
 
-
-    public Vote voteUserToEntity(VoteRequest voteResponse, String  username, String userId) {
-        return Vote.builder()
-                .userId(userId)
-                .feedId(UUID.randomUUID().toString())
-                .username(username)
-                .title(voteResponse.getTitle())
-                .description(voteResponse.getDescription())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
     public VoteRequest changeVoteDTOToAnalytics(VoteRequest vote , String username, String userId) {
         return VoteRequest.builder()
                 .userId(userId)
