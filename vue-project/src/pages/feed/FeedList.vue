@@ -20,7 +20,11 @@
       </aside>
 
       <main class="col-lg-6">
+
         <div class="d-block d-lg-none">
+          <div class="d-lg-none mb-3">
+            <DailyQuestions />
+          </div>
           <button class="btn btn-link text-primary px-2" @click="showSidebar = true">
             <i class="fas fa-bars"></i> 추천 글
           </button>

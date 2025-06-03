@@ -70,14 +70,17 @@
 
 
               <div class="text-muted small">
-<!--                <span class="fw-bold">정답:</span> {{ q.answer }}-->
+                <button class="btn btn-sm btn-outline-secondary" @click="toggleAnswer(i)">
+                  {{ showAnswer[i] ? '정답 숨기기' : '정답 보기' }}
+                </button>
+                <div v-if="showAnswer[i]" class="mt-1">
+                  <span class="fw-bold">정답:</span> {{ q.answer }}
+                </div>
               </div>
             </li>
           </ul>
         </div>
 
-
-        <!-- 선택됐는데 질문이 없을 경우 -->
         <div v-else-if="selectedCategory || selectedSub" class="text-muted small">
           문제가 없습니다.
         </div>
@@ -94,7 +97,7 @@ const expanded = ref(false)
 const selectedCategory = ref('')
 const selectedSub = ref('')
 const questions = ref([])
-
+const showAnswer = ref([])
 const categories = {
   '공무원': ['경찰', '일반행정'],
   '토익': [],
@@ -104,7 +107,9 @@ const categories = {
 const subcategories = computed(() =>
     selectedCategory.value ? categories[selectedCategory.value] : []
 )
-
+function toggleAnswer(index) {
+  showAnswer.value[index] = !showAnswer.value[index]
+}
 function selectCategory(cat) {
   selectedCategory.value = cat
   selectedSub.value = categories[cat][0] || ''
@@ -131,17 +136,35 @@ function parseChoices(raw) {
 async function loadQuestions() {
   const target = selectedSub.value || selectedCategory.value
   if (!target) return
+
+  let endpoint = ''
+  let responseKey = ''
+
+  if (selectedCategory.value === '토익') {
+    endpoint = '/toeic'
+    responseKey = 'toeic'
+  } else if (selectedCategory.value === '공무원') {
+    endpoint = '/civil'
+    responseKey = 'civil'
+  } else {
+    // 예외 처리: 정처기 등
+    endpoint = '/daily'
+    responseKey = 'questions'
+  }
+
   try {
-    const { data } = await api.get('/toeic', {
+    const { data } = await api.get(endpoint, {
       params: { category: target }
     })
-    questions.value = data.toeic ?? []
-    console.log(questions.value)
+    questions.value = data[responseKey] ?? []
   } catch (err) {
     console.error('문제 불러오기 실패:', err)
     questions.value = []
   }
+  showAnswer.value = new Array(questions.value.length).fill(false)
+
 }
+
 </script>
 
 <style scoped>

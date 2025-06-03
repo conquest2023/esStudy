@@ -11,4 +11,8 @@ public interface DailyQuestionService {
 
 
     List<DailyQuestion> findToeicDailyQuestion(String category);
+
+
+    List<DailyQuestion> findCivilDailyQuestion(String category);
+
 }

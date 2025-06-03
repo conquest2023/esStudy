@@ -31,4 +31,12 @@ public class DailyQuestionController {
         return  ResponseEntity.ok(Map.of(
                 "toeic",toeic));
     }
+
+
+    @GetMapping("/civil")
+    public ResponseEntity<?> getCivilDailyQuestion(@RequestParam  String  category){
+        List<DailyQuestion> civil = dailyQuestionService.findCivilDailyQuestion(category);
+        return  ResponseEntity.ok(Map.of(
+                "civil",civil));
+    }
 }
