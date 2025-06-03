@@ -1,6 +1,6 @@
 package es.board.service.impl;
 
-import es.board.repository.entity.entityrepository.UserRepository;
+import es.board.repository.entity.repository.UserRepository;
 import es.board.repository.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

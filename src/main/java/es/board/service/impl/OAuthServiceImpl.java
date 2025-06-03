@@ -7,7 +7,7 @@ import es.board.controller.model.req.OAuthInfo;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.OAuthSignUp;
 import es.board.repository.entity.OAuthUser;
-import es.board.repository.entity.entityrepository.OAuthRepository;
+import es.board.repository.entity.repository.OAuthRepository;
 import es.board.service.OAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

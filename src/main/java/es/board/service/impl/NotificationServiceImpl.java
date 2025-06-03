@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.repository.entity.Notification;
-import es.board.repository.entity.entityrepository.NotificationRepository;
+import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,5 @@
 package es.board.repository.entity;
 
-import es.board.repository.entity.entityrepository.PointHistoryRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

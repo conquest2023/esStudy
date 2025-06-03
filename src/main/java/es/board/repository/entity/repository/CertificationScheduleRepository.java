@@ -1,8 +1,6 @@
-package es.board.repository.entity.entityrepository;
+package es.board.repository.entity.repository;
 
 import es.board.repository.entity.CertificationSchedule;
-import es.board.repository.entity.Likes;
-import es.board.repository.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

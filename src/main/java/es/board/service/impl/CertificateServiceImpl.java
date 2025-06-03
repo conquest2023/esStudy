@@ -2,23 +2,20 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.req.CertificateDTO;
 import es.board.repository.CertificateDAO;
 import es.board.repository.document.Certificate;
 import es.board.repository.entity.CertificationSchedule;
-import es.board.repository.entity.entityrepository.CertificationScheduleRepository;
+import es.board.repository.entity.repository.CertificationScheduleRepository;
 import es.board.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 //import org.bouncycastle.cert.cmp.CertificateStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service

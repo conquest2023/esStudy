@@ -3,7 +3,7 @@ package es.board.service.impl;
 
 import es.board.controller.model.mapper.CertificateMapper;
 import es.board.controller.model.req.QuestionPracticalDto;
-import es.board.repository.entity.entityrepository.QuestionPracticalRepository;
+import es.board.repository.entity.repository.QuestionPracticalRepository;
 import es.board.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

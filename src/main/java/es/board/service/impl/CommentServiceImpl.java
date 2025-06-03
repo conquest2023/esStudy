@@ -12,7 +12,7 @@ import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
-import es.board.repository.entity.entityrepository.PostRepository;
+import es.board.repository.entity.repository.PostRepository;
 import es.board.service.CommentService;
 import es.board.service.event.FeedEvent;
 import es.board.service.event.producer.CommentEventPublisher;

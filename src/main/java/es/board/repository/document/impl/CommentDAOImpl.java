@@ -12,7 +12,7 @@ import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 //import es.board.repository.entity.entityrepository.CommentRepository;
-import es.board.repository.entity.entityrepository.CommentRepository;
+import es.board.repository.entity.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

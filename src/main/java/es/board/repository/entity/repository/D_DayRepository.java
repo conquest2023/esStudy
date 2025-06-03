@@ -1,8 +1,7 @@
-package es.board.repository.entity.entityrepository;
+package es.board.repository.entity.repository;
 
 import es.board.repository.entity.D_Day;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

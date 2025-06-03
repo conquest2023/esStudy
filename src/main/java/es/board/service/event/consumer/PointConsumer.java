@@ -2,7 +2,7 @@ package es.board.service.event.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
 import es.board.repository.entity.PointHistory;
-import es.board.repository.entity.entityrepository.PointHistoryRepository;
+import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.event.FeedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

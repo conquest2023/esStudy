@@ -1,10 +1,6 @@
 package es.board;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +9,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "es.board.repository.entity.entityrepository") // JPA Repository로만 설정
+@EnableJpaRepositories(basePackages = "es.board.repository.entity.repository") // JPA Repository로만 설정
 @EnableRedisRepositories(basePackages = "es.board.config.redis")
 @EnableScheduling
 public class BoardApplication {

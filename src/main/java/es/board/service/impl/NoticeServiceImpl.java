@@ -8,8 +8,8 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.NoticeRequest;
 import es.board.repository.entity.Notice;
-import es.board.repository.entity.entityrepository.NoticeRepository;
-import es.board.repository.entity.entityrepository.UserRepository;
+import es.board.repository.entity.repository.NoticeRepository;
+import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NoticeService;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 

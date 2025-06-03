@@ -14,6 +14,9 @@
             </li>
           </ul>
         </div>
+        <div class="card shadow-sm p-3 mt-3">
+          <DailyQuestions />
+        </div>
       </aside>
 
       <main class="col-lg-6">
@@ -145,7 +148,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import api from '@/utils/api'
 import * as bootstrap from 'bootstrap'
-
+import DailyQuestions from '@/components/DailyQuestions.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import Pagination from '@/common/Pagination.vue'
 import BoardTabs from '@/components/BoardTabs.vue'

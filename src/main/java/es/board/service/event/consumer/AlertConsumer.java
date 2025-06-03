@@ -2,14 +2,13 @@ package es.board.service.event.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
 import es.board.controller.model.mapper.CommentMapper;
-import es.board.repository.entity.entityrepository.NotificationRepository;
+import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;
 import es.board.service.event.FeedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j

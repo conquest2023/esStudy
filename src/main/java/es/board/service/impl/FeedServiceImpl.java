@@ -15,7 +15,7 @@ import es.board.repository.document.Board;
 import es.board.repository.entity.FeedImage;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.Post;
-import es.board.repository.entity.entityrepository.*;
+import es.board.repository.entity.repository.*;
 import es.board.service.FeedService;
 import es.board.service.NotificationService;
 import jakarta.persistence.EntityManager;

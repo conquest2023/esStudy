@@ -6,7 +6,7 @@ import es.board.controller.model.req.JobListing;
 import es.board.controller.model.req.StudyTipRequest;
 import es.board.controller.model.req.WantedJobData;
 import es.board.repository.CertificateDAO;
-import es.board.repository.entity.entityrepository.TistoryPostRepository;
+import es.board.repository.entity.repository.TistoryPostRepository;
 import es.board.service.ItCrawlingService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.persistence.EntityManager;

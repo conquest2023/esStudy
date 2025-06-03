@@ -1,4 +1,4 @@
-package es.board.repository.entity.entityrepository;
+package es.board.repository.entity.repository;
 
 
 import es.board.repository.entity.Likes;
