@@ -33,7 +33,7 @@ public interface UserRepository  extends  JpaRepository<User,Integer> {
                          @Param("lastLogin") LocalDateTime lastLogin);
 
 
-    Optional<User> findByUserId(String username);
+    Optional<User> findByUserId(String userId);
 
     @Query("SELECT u.username from  User u  WHERE u.username = :username")
     String findByUserIdOne(String username);

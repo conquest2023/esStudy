@@ -5,6 +5,7 @@ import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.ScheduleRequest;
 import es.board.controller.model.req.SiteMeta;
 import es.board.controller.model.req.TodoRequest;
+import es.board.controller.model.res.DailyBookMark;
 import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.controller.model.res.JobSiteLogDTO;
 import es.board.controller.model.res.TodoResponse;
@@ -227,6 +228,15 @@ public class MainFunctionMapper {
                         .build())
                 .collect(Collectors.toList());
     }
+
+//    public  Bookmark fromDailyEntity(DailyBookMark dailyBookMark) {
+//        return Bookmark.builder()
+//                .user(dailyBookMark.getUserId())
+//                .questionId(dailyBookMark.getQuestionId())
+//                .category(dailyBookMark.getCategory())
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//    }
     private Schedule createSchedule(String userId, ScheduleRequest scheduleDTO, LocalDate currentDate) {
         return Schedule.builder()
                 .userId(userId)

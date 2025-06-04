@@ -1,6 +1,7 @@
 package es.board.service;
 
 
+import es.board.controller.model.res.DailyBookMark;
 import es.board.repository.entity.DailyQuestion;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public interface DailyQuestionService {
 
 
     List<DailyQuestion> findPoliceDailyQuestion(String category);
+
+
+    void saveDailyBookMark(String userId, DailyBookMark daily);
 
 
 }

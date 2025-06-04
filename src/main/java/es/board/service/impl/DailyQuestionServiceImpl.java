@@ -3,8 +3,13 @@ package es.board.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.req.InterviewQuestionRequest;
+import es.board.controller.model.res.DailyBookMark;
+import es.board.repository.entity.Bookmark;
 import es.board.repository.entity.DailyQuestion;
+import es.board.repository.entity.User;
+import es.board.repository.entity.repository.BookMarkRepository;
 import es.board.repository.entity.repository.DailyQuestionRepository;
+import es.board.repository.entity.repository.UserRepository;
 import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +17,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -37,6 +44,10 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     private final StringRedisTemplate redisTemplate;
 
     private final ObjectMapper objectMapper;
+
+    private  final UserRepository userRepository;
+
+    private  final BookMarkRepository  bookMarkRepository;
 
     private final DailyQuestionRepository dailyQuestionRepository;
 
@@ -73,6 +84,25 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
         List<DailyQuestion> questions = dailyQuestionRepository.findDailyQuestionByPolice(category);
         cacheData(questions, category);
         return questions;
+    }
+
+    @Override
+    public void saveDailyBookMark(String userId, DailyBookMark daily) {
+        log.info(daily.toString());
+        log.info(userId);
+        User user= userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        DailyQuestion question = dailyQuestionRepository.findById(daily.getQuestionId())
+                .orElseThrow(() -> new IllegalArgumentException("문제가 존재하지 않음"));
+
+         Bookmark bookmark= Bookmark.builder()
+                .user(user)
+                .dailyQuestion(question)
+                .category(daily.getCategory())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+         bookMarkRepository.save(bookmark);
     }
 
 

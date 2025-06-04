@@ -1,10 +1,13 @@
 package es.board.controller;
 
 
+import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.res.DailyBookMark;
 import es.board.repository.entity.DailyQuestion;
 import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DailyQuestionController {
 
+
+    private  final JwtTokenProvider jwtTokenProvider;
 
     private  final DailyQuestionService dailyQuestionService;
 
@@ -44,8 +49,17 @@ public class DailyQuestionController {
                 "police",police));
     }
 
-    @PostMapping("/daliy/bookmark")
-    public  ResponseEntity<?> saveDailyBookmark(){
-        return  null;
+    @PostMapping("/daily/bookmark")
+    public  ResponseEntity<?> saveDailyBookmark(@RequestHeader(value = "Authorization", required = false) String token
+            , @RequestBody DailyBookMark daily){
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+         dailyQuestionService.saveDailyBookMark(jwtTokenProvider.getUserId(token),daily);
+         return  ResponseEntity.ok("ok");
     }
 }

@@ -25,10 +25,13 @@ public class Bookmark {
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     private User user;
 
+    private String category;
+
     // 문제 정보
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private DailyQuestion dailyQuestion;
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

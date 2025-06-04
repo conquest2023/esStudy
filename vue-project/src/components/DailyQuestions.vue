@@ -53,17 +53,30 @@
                 :key="q.id || i"
                 class="list-group-item px-3 py-2 border-0"
             >
-              <div class="fw-semibold mb-2">
-                <i class="fas fa-question-circle text-primary me-2"></i>
-                {{ i + 1 }}. {{ q.question }}
+              <div class="fw-semibold mb-2 d-flex justify-content-between align-items-center">
+                <span>
+                  <i class="fas fa-question-circle text-primary me-2"></i>
+                  {{ i + 1 }}. {{ q.question }}
+                </span>
+
+                <!-- ⭐ 북마크 버튼 -->
+                <button
+                    class="btn btn-sm"
+                    :class="bookmarks[i] ? 'btn-warning' : 'btn-outline-secondary'"
+                    @click="toggleBookmark(i)"
+                >
+                  <i :class="bookmarks[i] ? 'fas fa-star' : 'far fa-star'"></i>
+                </button>
               </div>
 
+              <!-- 보기 출력 -->
               <ul class="mb-2 ps-3 small">
                 <li v-for="(choice, idx) in parseChoices(q.choices)" :key="idx">
                   {{ idx + 1 }}. {{ choice }}
                 </li>
               </ul>
 
+              <!-- 정답 토글 -->
               <div class="text-muted small">
                 <button class="btn btn-sm btn-outline-secondary" @click="toggleAnswer(i)">
                   {{ showAnswer[i] ? '정답 숨기기' : '정답 보기' }}
@@ -93,6 +106,7 @@ const selectedCategory = ref('')
 const selectedSub = ref('')
 const questions = ref([])
 const showAnswer = ref([])
+const bookmarks = ref([])
 
 const categories = {
   '공무원': ['경찰', '일반행정'],
@@ -106,6 +120,26 @@ const subcategories = computed(() =>
 
 function toggleAnswer(index) {
   showAnswer.value[index] = !showAnswer.value[index]
+}
+
+function toggleBookmark(index) {
+  const question = questions.value[index]
+  const isBookmarked = bookmarks.value[index]
+
+  if (isBookmarked) {
+    // 북마크 해제 (선택적)
+    bookmarks.value[index] = false
+  } else {
+    // 북마크 추가
+    api.post('/daily/bookmark', {
+      questionId: question.id,
+      category: selectedSub.value || selectedCategory.value
+    }).then(() => {
+      bookmarks.value[index] = true
+    }).catch(err => {
+      console.error('북마크 실패:', err)
+    })
+  }
 }
 
 function selectCategory(cat) {
@@ -143,7 +177,6 @@ async function loadQuestions() {
     endpoint = '/toeic'
     responseKey = 'toeic'
   } else if (selectedCategory.value === '공무원') {
-    // 👇 여기서 경찰/일반행정 모두 처리
     if (selectedSub.value === '경찰') {
       endpoint = '/police'
       responseKey = 'police'
@@ -162,10 +195,12 @@ async function loadQuestions() {
     })
     questions.value = data[responseKey] ?? []
     showAnswer.value = new Array(questions.value.length).fill(false)
+    bookmarks.value = new Array(questions.value.length).fill(false)
   } catch (err) {
     console.error('문제 불러오기 실패:', err)
     questions.value = []
     showAnswer.value = []
+    bookmarks.value = []
   }
 }
 </script>
