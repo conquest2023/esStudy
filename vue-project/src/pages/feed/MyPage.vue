@@ -1,9 +1,9 @@
 <template>
   <div class="container mt-4">
     <div class="d-flex justify-content-end">
-      <RouterLink to="/search/view/feed?index=board" class="btn btn-secondary btn-home">
-        <i class="fas fa-home"></i> 메인으로 돌아가기
-      </RouterLink>
+<!--      <RouterLink to="/search/view/feed?index=board" class="btn btn-secondary btn-home">-->
+<!--        <i class="fas fa-home"></i> 메인으로 돌아가기-->
+<!--      </RouterLink>-->
     </div>
 
     <div class="container mt-5">
@@ -47,6 +47,9 @@
           <div v-show="activeTab === 'likedPosts'">
             <PostCardList :items="likedPosts" type="liked" />
           </div>
+          <div v-show="activeTab === 'bookmarkedQuestions'">
+            <BookmarkList :items="bookmarkedQuestions" />
+          </div>
         </div>
       </div>
     </div>
@@ -58,6 +61,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import PostCardList from '@/components/mypage/PostCardList.vue'
 import CommentList from '@/components/mypage/CommentList.vue'
+import BookmarkList from '@/components/mypage/BookmarkList.vue'
 
 const router = useRouter()
 const token = localStorage.getItem('token')
@@ -80,7 +84,8 @@ const tabs = [
   { id: 'posts', label: '내가 작성한 게시글' },
   { id: 'comments', label: '작성한 댓글' },
   { id: 'commentedPosts', label: '댓글 단 게시물' },
-  { id: 'likedPosts', label: '좋아요 한 글' }
+  { id: 'likedPosts', label: '좋아요 한 글' },
+  { id: 'bookmarkedQuestions', label: '북마크한 문제' }
 ]
 
 async function fetchMyPageData() {
@@ -100,6 +105,15 @@ async function fetchFeedList() {
   })
   const data = await res.json()
   feedList.value = data.feedList || []
+}
+const bookmarkedQuestions = ref([])
+
+async function fetchBookmarkedQuestions() {
+  const res = await fetch(`/api/get/daily/bookmark`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  const data = await res.json()
+  bookmarkedQuestions.value = data.bookmarks || []
 }
 
 async function fetchComments() {
@@ -124,6 +138,7 @@ onMounted(() => {
   fetchFeedList()
   fetchComments()
   fetchCommentedPosts()
+  fetchBookmarkedQuestions()
 })
 </script>
 

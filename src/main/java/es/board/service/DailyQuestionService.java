@@ -20,6 +20,10 @@ public interface DailyQuestionService {
     List<DailyQuestion> findPoliceDailyQuestion(String category);
 
 
+    List<DailyQuestion> getDailyQuestion(String userId);
+
+
+
     void saveDailyBookMark(String userId, DailyBookMark daily);
 
 

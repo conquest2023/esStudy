@@ -14,6 +14,7 @@ public interface DailyQuestionRepository extends JpaRepository<DailyQuestion, Lo
 
 
 
+
     @Query("select u FROM DailyQuestion u WHERE u.category =:category ORDER BY RAND() LIMIT 3")
     List<DailyQuestion> findDailyQuestionByToeic(@Param("category") String category);
 

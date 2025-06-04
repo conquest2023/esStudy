@@ -87,6 +87,12 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     }
 
     @Override
+    public List<DailyQuestion> getDailyQuestion(String userId) {
+//        bookMarkRepository.
+        return  bookMarkRepository.findBookmarkedQuestionsByUserId(userId);
+    }
+
+    @Override
     public void saveDailyBookMark(String userId, DailyBookMark daily) {
         log.info(daily.toString());
         log.info(userId);
