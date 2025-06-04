@@ -15,4 +15,8 @@ public interface DailyQuestionService {
 
     List<DailyQuestion> findCivilDailyQuestion(String category);
 
+
+    List<DailyQuestion> findPoliceDailyQuestion(String category);
+
+
 }

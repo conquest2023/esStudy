@@ -46,6 +46,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         if (uri.startsWith("/api/top-writers") ||
                 uri.startsWith("/api/get-ip") ||
                 uri.startsWith("/api/day") ||
+                uri.startsWith("/api/toeic") ||
+                uri.startsWith("/api/police") ||
+                uri.startsWith("/api/civil") ||
                 uri.startsWith("/api/interview/test") ||
                 uri.startsWith("/api/search/today/todo") ||
                 uri.startsWith("/api/list/notice") ||

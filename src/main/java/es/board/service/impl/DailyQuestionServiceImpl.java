@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -20,77 +21,118 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class DailyQuestionServiceImpl implements DailyQuestionService {
 
-    private static final String  TOEIC_CACHE_KEY = "random_toeic_question";
+    private static final String TOEIC_CACHE_KEY = "random_toeic_questions";
 
-    private  static   final String  CIVIL_CACHE_KEY =  "random_civil_question";
+    private static final String CIVIL_CACHE_KEY = "random_civil_questions";
+
+    private static final String POLICE_CACHE_KEY = "random_police_questions";
+
+    private static final Map<String, String> CACHE_KEYS = Map.of(
+            "일반행정", CIVIL_CACHE_KEY,
+            "토익", TOEIC_CACHE_KEY,
+            "경찰", POLICE_CACHE_KEY
+    );
 
 
-    private  final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     private final ObjectMapper objectMapper;
 
-
-    private  final DailyQuestionRepository dailyQuestionRepository;
+    private final DailyQuestionRepository dailyQuestionRepository;
 
 
     @Override
     public List<DailyQuestion> findToeicDailyQuestion(String category) {
         String caches = redisTemplate.opsForValue().get(TOEIC_CACHE_KEY);
         if (caches != null) {
-            return deserializeJson(category,caches);
-            }
-            List<DailyQuestion> questions = dailyQuestionRepository.findDailyQuestionByToeic(category);
-            cacheData(questions);
-            return  questions;
+            return deserializeJson(category, caches);
+        }
+        List<DailyQuestion> questions = dailyQuestionRepository.findDailyQuestionByToeic(category);
+        cacheData(questions, category);
+        return questions;
     }
 
     @Override
     public List<DailyQuestion> findCivilDailyQuestion(String category) {
         String caches = redisTemplate.opsForValue().get(CIVIL_CACHE_KEY);
         if (caches != null) {
-            log.info("공무원 문제 캐시 성공");
-            return deserializeCivilJson(category,caches);
+            return deserializeJson(category, caches);
         }
         List<DailyQuestion> questions = dailyQuestionRepository.findDailyQuestionByCivil(category);
-        cacheCivilData(questions);
-        return  questions;
+        cacheData(questions, category);
+        return questions;
 
     }
 
+    @Override
+    public List<DailyQuestion> findPoliceDailyQuestion(String category) {
+        String caches = redisTemplate.opsForValue().get(POLICE_CACHE_KEY);
+        if (caches != null) {
+            return deserializeJson(category, caches);
+        }
+        List<DailyQuestion> questions = dailyQuestionRepository.findDailyQuestionByPolice(category);
+        cacheData(questions, category);
+        return questions;
+    }
+
+
+//    private List<DailyQuestion> deserializeJson(String category, String jsonData) {
+
+//    }
 
     private List<DailyQuestion> deserializeJson(String category, String jsonData) {
-        try {
-            return objectMapper.readValue(jsonData, new TypeReference<>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-            return dailyQuestionRepository.findDailyQuestionByToeic(category);
+            try {
+                log.info("공무원 문제 캐시 성공");
 
-        }
+                return objectMapper.readValue(jsonData, new TypeReference<>() {
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                return dailyQuestionRepository.findDailyQuestionByCivil(category);
+            }
     }
+    private void cacheData(List<DailyQuestion> questions, String category) {
+        String cacheKey = CACHE_KEYS.getOrDefault(category, POLICE_CACHE_KEY);
 
-    private List<DailyQuestion> deserializeCivilJson(String category, String jsonData) {
-        try {
-            return objectMapper.readValue(jsonData, new TypeReference<>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-            return dailyQuestionRepository.findDailyQuestionByCivil(category);
 
-        }
-    }
-    private void cacheCivilData(List<DailyQuestion> questions) {
         try {
             String jsonData = objectMapper.writeValueAsString(questions);
-            redisTemplate.opsForValue().set(CIVIL_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(cacheKey, jsonData, 1, TimeUnit.DAYS);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    private void cacheData(List<DailyQuestion> questions) {
-        try {
-            String jsonData = objectMapper.writeValueAsString(questions);
-            redisTemplate.opsForValue().set(TOEIC_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    private void cacheData(List<DailyQuestion> questions,String  category) {
+//        if (category.equals("일반행정")) {
+//            try {
+//                String jsonData = objectMapper.writeValueAsString(questions);
+//                redisTemplate.opsForValue().set(CIVIL_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+//                return;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } if (category.equals("토익")){
+//            try {
+//                String jsonData = objectMapper.writeValueAsString(questions);
+//                redisTemplate.opsForValue().set(TOEIC_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+//                return;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        try {
+//            String jsonData = objectMapper.writeValueAsString(questions);
+//            redisTemplate.opsForValue().set(POLICE_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    private void cacheData(List<DailyQuestion> questions) {
+//        try {
+//            String jsonData = objectMapper.writeValueAsString(questions);
+//            redisTemplate.opsForValue().set(TOEIC_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

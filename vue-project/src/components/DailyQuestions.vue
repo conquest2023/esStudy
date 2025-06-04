@@ -45,7 +45,6 @@
         </div>
 
         <!-- 문제 리스트 -->
-        <!-- 문제 리스트 -->
         <div v-if="questions.length">
           <h6 class="fw-bold mb-3">📌 오늘의 문제</h6>
           <ul class="list-group list-group-flush">
@@ -59,15 +58,11 @@
                 {{ i + 1 }}. {{ q.question }}
               </div>
 
-              <!-- ✅ 보기 출력: 배열을 줄마다 1~4번 붙여서 보여줌 -->
               <ul class="mb-2 ps-3 small">
-                <li
-                    v-for="(choice, idx) in parseChoices(q.choices)"
-                    :key="idx">
+                <li v-for="(choice, idx) in parseChoices(q.choices)" :key="idx">
                   {{ idx + 1 }}. {{ choice }}
                 </li>
               </ul>
-
 
               <div class="text-muted small">
                 <button class="btn btn-sm btn-outline-secondary" @click="toggleAnswer(i)">
@@ -98,6 +93,7 @@ const selectedCategory = ref('')
 const selectedSub = ref('')
 const questions = ref([])
 const showAnswer = ref([])
+
 const categories = {
   '공무원': ['경찰', '일반행정'],
   '토익': [],
@@ -107,9 +103,11 @@ const categories = {
 const subcategories = computed(() =>
     selectedCategory.value ? categories[selectedCategory.value] : []
 )
+
 function toggleAnswer(index) {
   showAnswer.value[index] = !showAnswer.value[index]
 }
+
 function selectCategory(cat) {
   selectedCategory.value = cat
   selectedSub.value = categories[cat][0] || ''
@@ -124,6 +122,7 @@ function selectSub(sub) {
 watch(selectedSub, () => {
   if (selectedSub.value) loadQuestions()
 })
+
 function parseChoices(raw) {
   if (!raw) return []
   try {
@@ -144,10 +143,15 @@ async function loadQuestions() {
     endpoint = '/toeic'
     responseKey = 'toeic'
   } else if (selectedCategory.value === '공무원') {
-    endpoint = '/civil'
-    responseKey = 'civil'
+    // 👇 여기서 경찰/일반행정 모두 처리
+    if (selectedSub.value === '경찰') {
+      endpoint = '/police'
+      responseKey = 'police'
+    } else {
+      endpoint = '/civil'
+      responseKey = 'civil'
+    }
   } else {
-    // 예외 처리: 정처기 등
     endpoint = '/daily'
     responseKey = 'questions'
   }
@@ -157,14 +161,13 @@ async function loadQuestions() {
       params: { category: target }
     })
     questions.value = data[responseKey] ?? []
+    showAnswer.value = new Array(questions.value.length).fill(false)
   } catch (err) {
     console.error('문제 불러오기 실패:', err)
     questions.value = []
+    showAnswer.value = []
   }
-  showAnswer.value = new Array(questions.value.length).fill(false)
-
 }
-
 </script>
 
 <style scoped>

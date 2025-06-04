@@ -6,10 +6,7 @@ import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,5 +35,17 @@ public class DailyQuestionController {
         List<DailyQuestion> civil = dailyQuestionService.findCivilDailyQuestion(category);
         return  ResponseEntity.ok(Map.of(
                 "civil",civil));
+    }
+
+    @GetMapping("/police")
+    public ResponseEntity<?> getPoliceDailyQuestion(@RequestParam  String  category){
+        List<DailyQuestion> police = dailyQuestionService.findPoliceDailyQuestion(category);
+        return  ResponseEntity.ok(Map.of(
+                "police",police));
+    }
+
+    @PostMapping("/daliy/bookmark")
+    public  ResponseEntity<?> saveDailyBookmark(){
+        return  null;
     }
 }

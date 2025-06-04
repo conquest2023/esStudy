@@ -21,4 +21,7 @@ public interface DailyQuestionRepository extends JpaRepository<DailyQuestion, Lo
 
     @Query("select u FROM DailyQuestion u WHERE u.subCategory = '일반행정' ORDER BY RAND() LIMIT 3")
     List<DailyQuestion> findDailyQuestionByCivil(String category);
+
+    @Query("select u FROM DailyQuestion u WHERE u.subCategory = '경찰' ORDER BY RAND() LIMIT 3")
+    List<DailyQuestion> findDailyQuestionByPolice(String category);
 }
