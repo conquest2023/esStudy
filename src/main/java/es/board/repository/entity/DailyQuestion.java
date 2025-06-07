@@ -42,4 +42,17 @@ public class DailyQuestion {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Override
+    public String toString() {
+        return "DailyQuestion{" +
+                "id=" + id +
+                ", category='" + category + '\'' +
+                ", subCategory='" + subCategory + '\'' +
+                ", question='" + question + '\'' +
+                ", choices='" + choices + '\'' +
+                ", answer='" + answer + '\'' +
+                '}';
+    }
+
 }

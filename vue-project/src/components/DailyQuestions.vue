@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <!-- 서브 카테고리 선택 -->
+        <!-- 세부 카테고리 선택 -->
         <div v-if="subcategories.length" class="mb-4">
           <h6 class="text-muted fw-semibold mb-2">세부 카테고리</h6>
           <div class="d-flex flex-wrap gap-2">
@@ -59,7 +59,7 @@
                   {{ i + 1 }}. {{ q.question }}
                 </span>
 
-                <!-- ⭐ 북마크 버튼 -->
+                <!-- 북마크 -->
                 <button
                     class="btn btn-sm"
                     :class="bookmarks[i] ? 'btn-warning' : 'btn-outline-secondary'"
@@ -69,19 +69,34 @@
                 </button>
               </div>
 
-              <!-- 보기 출력 -->
+              <!-- 보기 출력 (라디오 버튼) -->
               <ul class="mb-2 ps-3 small">
                 <li v-for="(choice, idx) in parseChoices(q.choices)" :key="idx">
-                  {{ idx + 1 }}. {{ choice }}
+                  <label class="d-flex align-items-center gap-2">
+                    <input
+                        type="radio"
+                        :name="'question-' + i"
+                        :value="mapIndexToNumber(idx)"
+                        v-model="userAnswers[i]"
+                    />
+                    {{ idx + 1 }}. {{ choice }}
+                  </label>
                 </li>
               </ul>
 
-              <!-- 정답 토글 -->
-              <div class="text-muted small">
-                <button class="btn btn-sm btn-outline-secondary" @click="toggleAnswer(i)">
-                  {{ showAnswer[i] ? '정답 숨기기' : '정답 보기' }}
+              <!-- 정답 제출 -->
+              <div class="mt-2">
+                <button class="btn btn-sm btn-primary" @click="submitAnswer(i, q)">
+                  정답 제출
                 </button>
-                <div v-if="showAnswer[i]" class="mt-1">
+
+                <div v-if="results[i] !== null" class="mt-1">
+                  <span class="fw-bold" :class="results[i] ? 'text-success' : 'text-danger'">
+                    {{ results[i] ? '정답입니다!' : '틀렸습니다.' }}
+                  </span>
+                </div>
+
+                <div v-if="showAnswer[i]" class="mt-1 text-muted small">
                   <span class="fw-bold">정답:</span> {{ q.answer }}
                 </div>
               </div>
@@ -107,6 +122,8 @@ const selectedSub = ref('')
 const questions = ref([])
 const showAnswer = ref([])
 const bookmarks = ref([])
+const userAnswers = ref([])
+const results = ref([])
 
 const categories = {
   '공무원': ['경찰', '일반행정'],
@@ -118,27 +135,24 @@ const subcategories = computed(() =>
     selectedCategory.value ? categories[selectedCategory.value] : []
 )
 
-function toggleAnswer(index) {
-  showAnswer.value[index] = !showAnswer.value[index]
-}
-
 function toggleBookmark(index) {
   const question = questions.value[index]
   const isBookmarked = bookmarks.value[index]
 
   if (isBookmarked) {
-    // 북마크 해제 (선택적)
     bookmarks.value[index] = false
   } else {
-    // 북마크 추가
-    api.post('/daily/bookmark', {
-      questionId: question.id,
-      category: selectedSub.value || selectedCategory.value
-    }).then(() => {
-      bookmarks.value[index] = true
-    }).catch(err => {
-      console.error('북마크 실패:', err)
-    })
+    api
+        .post('/daily/bookmark', {
+          questionId: question.id,
+          category: selectedSub.value || selectedCategory.value
+        })
+        .then(() => {
+          bookmarks.value[index] = true
+        })
+        .catch(err => {
+          console.error('북마크 실패:', err)
+        })
   }
 }
 
@@ -156,14 +170,20 @@ function selectSub(sub) {
 watch(selectedSub, () => {
   if (selectedSub.value) loadQuestions()
 })
+function mapIndexToNumber(index) {
+  const map = ['①', '②', '③', '④', '⑤', '⑥']
+  return map[index] || ''
+}
 
 function parseChoices(raw) {
   if (!raw) return []
-  try {
-    return typeof raw === 'string' ? JSON.parse(raw) : raw
-  } catch {
-    return []
+  if (Array.isArray(raw)) return raw
+  if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+    try {
+      return JSON.parse(raw)
+    } catch {}
   }
+  return typeof raw === 'string' ? raw.split('||') : []
 }
 
 async function loadQuestions() {
@@ -177,30 +197,81 @@ async function loadQuestions() {
     endpoint = '/toeic'
     responseKey = 'toeic'
   } else if (selectedCategory.value === '공무원') {
-    if (selectedSub.value === '경찰') {
-      endpoint = '/police'
-      responseKey = 'police'
-    } else {
-      endpoint = '/civil'
-      responseKey = 'civil'
-    }
+    endpoint = selectedSub.value === '경찰' ? '/police' : '/civil'
+    responseKey = selectedSub.value === '경찰' ? 'police' : 'civil'
   } else {
     endpoint = '/daily'
     responseKey = 'questions'
   }
 
   try {
-    const { data } = await api.get(endpoint, {
-      params: { category: target }
-    })
+    const { data } = await api.get(endpoint, { params: { category: target } })
     questions.value = data[responseKey] ?? []
     showAnswer.value = new Array(questions.value.length).fill(false)
     bookmarks.value = new Array(questions.value.length).fill(false)
+    userAnswers.value = new Array(questions.value.length).fill(null)
+    results.value = new Array(questions.value.length).fill(null)
   } catch (err) {
     console.error('문제 불러오기 실패:', err)
     questions.value = []
     showAnswer.value = []
     bookmarks.value = []
+    userAnswers.value = []
+    results.value = []
+  }
+}
+
+async function submitAnswer(index, question) {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    window.location.href = '/login'
+    return
+  }
+
+  const userAnswerSymbol = userAnswers.value[index] // → 예: "①"
+  const correctAnswer = question.answer // → 예: "①"
+
+  // const choiceList = parseChoices(question.choices)
+  // console.log(choiceList)
+  // const userAnswerText = choiceList[userAnswers.value[index]]
+  // console.log(userAnswerText)
+
+  if (!userAnswerSymbol) {
+    alert('보기를 선택해주세요!')
+    return
+  }
+
+  try {
+    const { data } = await api.post(
+        '/check/daily',
+        {
+          category: selectedSub.value || selectedCategory.value,
+          matter: question.question,
+          answer: userAnswerSymbol,
+          correct: correctAnswer
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+    )
+
+    results.value[index] = data.ok === true
+    showAnswer.value[index] = true // ✅ 정답 자동 표시
+
+  } catch (err) {
+
+    if (err.response?.data?.message === '이미 문제를 제출하셨습니다') {
+      alert('이미 제출한 문제입니다.')
+    } else if (err.response?.status === 401) {
+      alert('세션이 만료되었습니다. 다시 로그인해주세요.')
+      window.location.href = '/login'
+    } else {
+      alert('정답 제출 중 오류가 발생했습니다.')
+    }
   }
 }
 </script>
@@ -218,10 +289,13 @@ async function loadQuestions() {
   border-color: #0d6efd !important;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: all 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }

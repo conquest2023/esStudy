@@ -2,6 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.req.DailyCheckRequest;
 import es.board.controller.model.res.DailyBookMark;
 import es.board.repository.entity.DailyQuestion;
 import es.board.service.DailyQuestionService;
@@ -73,5 +74,20 @@ public class DailyQuestionController {
         }
         List<DailyQuestion> questions=dailyQuestionService.getDailyQuestion(jwtTokenProvider.getUserId(token));
         return ResponseEntity.ok(Map.of("bookmarks", questions));
+    }
+
+    @PostMapping("/check/daily")
+    public  ResponseEntity<?> checkDailyBookmark(@RequestHeader(value = "Authorization", required = false)
+                                                     String token, @RequestBody DailyCheckRequest req)
+        {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+        }
+        Boolean questions=dailyQuestionService.checkDailyAnswer(jwtTokenProvider.getUserId(token),req);
+        return ResponseEntity.ok(Map.of("ok", questions));
     }
 }

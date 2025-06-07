@@ -1,8 +1,9 @@
 package es.board.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.req.InterviewQuestionRequest;
+import es.board.controller.model.req.DailyCheckRequest;
 import es.board.controller.model.res.DailyBookMark;
 import es.board.repository.entity.Bookmark;
 import es.board.repository.entity.DailyQuestion;
@@ -14,13 +15,13 @@ import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -32,13 +33,14 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
 
     private static final String CIVIL_CACHE_KEY = "random_civil_questions";
 
-    private static final String POLICE_CACHE_KEY = "random_police_questions";
+    private static final String POLICE_CACHE_KEY = "random_police_office_questions";
 
     private static final Map<String, String> CACHE_KEYS = Map.of(
             "일반행정", CIVIL_CACHE_KEY,
             "토익", TOEIC_CACHE_KEY,
             "경찰", POLICE_CACHE_KEY
     );
+
 
 
     private final StringRedisTemplate redisTemplate;
@@ -51,10 +53,34 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
 
     private final DailyQuestionRepository dailyQuestionRepository;
 
+    @Override
+    public boolean checkDailyAnswer(String userId, DailyCheckRequest req) {
+        String problemCacheKey = CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY);
+        String userCheckKey = problemCacheKey+req.getMatter() + ":" + userId;
+        String submitted = redisTemplate.opsForValue().get(userCheckKey);
+//        String caches= redisTemplate.opsForValue()
+//                .get(CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY));
+//        String submitted = redisTemplate.opsForValue().get(CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY)+":" + userId);
+        if (submitted != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 문제를 제출하셨습니다");
+        }
+        try {
+            String caches = redisTemplate.opsForValue().get(problemCacheKey);
+            List<DailyQuestion> questions = objectMapper.readValue(caches, new TypeReference<List<DailyQuestion>>() {});
+            boolean isCorrect = checkAnswer(questions, req);
+            log.info(String.valueOf(isCorrect));
+            redisTemplate.opsForValue().set(userCheckKey, isCorrect ? "1" : "0", 1, TimeUnit.DAYS);
+            return isCorrect;
+//            checkAnswer(questions,userId,CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY),req);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public List<DailyQuestion> findToeicDailyQuestion(String category) {
         String caches = redisTemplate.opsForValue().get(TOEIC_CACHE_KEY);
+        log.info(caches);
         if (caches != null) {
             return deserializeJson(category, caches);
         }
@@ -94,8 +120,6 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
 
     @Override
     public void saveDailyBookMark(String userId, DailyBookMark daily) {
-        log.info(daily.toString());
-        log.info(userId);
         User user= userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
         DailyQuestion question = dailyQuestionRepository.findById(daily.getQuestionId())
@@ -112,14 +136,8 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     }
 
 
-//    private List<DailyQuestion> deserializeJson(String category, String jsonData) {
-
-//    }
-
     private List<DailyQuestion> deserializeJson(String category, String jsonData) {
             try {
-                log.info("공무원 문제 캐시 성공");
-
                 return objectMapper.readValue(jsonData, new TypeReference<>() {
                 });
             } catch (Exception e) {
@@ -129,8 +147,6 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     }
     private void cacheData(List<DailyQuestion> questions, String category) {
         String cacheKey = CACHE_KEYS.getOrDefault(category, POLICE_CACHE_KEY);
-
-
         try {
             String jsonData = objectMapper.writeValueAsString(questions);
             redisTemplate.opsForValue().set(cacheKey, jsonData, 1, TimeUnit.DAYS);
@@ -138,6 +154,49 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
             e.printStackTrace();
         }
     }
+
+    private boolean checkAnswer(List<DailyQuestion> questions, DailyCheckRequest req) {
+        for (DailyQuestion q : questions) {
+            if (q.getQuestion().equals(req.getMatter())) {
+                String userAnswer = convertSymbolToNumber(req.getAnswer());  // "①" → "1"
+                String correctAnswer = convertSymbolToNumber(q.getAnswer().trim());                 // "3" → 그대로
+                log.info("사용자: " + userAnswer);
+                log.info("정답: " + correctAnswer);
+                return userAnswer.equals(correctAnswer);
+            }
+        }
+        return false;
+    }
+    private String convertSymbolToNumber(String symbol) {
+        switch (symbol) {
+            case "①":
+                return "1";
+            case "②":
+                return "2";
+            case "③":
+                return "3";
+            case "④":
+                return "4";
+            case "⑤":
+                return "5";
+            case "⑥":
+                return "6";
+            default:
+                return symbol;
+        }
+    }
+//    private boolean checkAnswer(List<DailyQuestion> dailyQuestions,String cacheKey,String userId,DailyCheckRequest req){
+//        for (DailyQuestion dailyQuestion : dailyQuestions) {
+//            if (dailyQuestion.getQuestion().equals(req.getMatter())){
+//                if (dailyQuestion.getAnswer().equals(req.getAnswer())){
+//                    redisTemplate.opsForValue().set(cacheKey,cacheKey+":"+userId,1, TimeUnit.DAYS);
+//                    return  true;
+//                }
+//            }
+//        }
+//        redisTemplate.opsForValue().set(cacheKey,userId,1, TimeUnit.DAYS);
+//        return  false;
+//    }
 //    private void cacheData(List<DailyQuestion> questions,String  category) {
 //        if (category.equals("일반행정")) {
 //            try {

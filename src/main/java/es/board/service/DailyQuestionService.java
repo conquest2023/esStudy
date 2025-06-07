@@ -1,6 +1,7 @@
 package es.board.service;
 
 
+import es.board.controller.model.req.DailyCheckRequest;
 import es.board.controller.model.res.DailyBookMark;
 import es.board.repository.entity.DailyQuestion;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +23,8 @@ public interface DailyQuestionService {
 
     List<DailyQuestion> getDailyQuestion(String userId);
 
+
+    boolean checkDailyAnswer(String userId, DailyCheckRequest request);
 
 
     void saveDailyBookMark(String userId, DailyBookMark daily);
