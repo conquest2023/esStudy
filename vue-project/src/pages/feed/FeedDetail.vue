@@ -1,6 +1,6 @@
 <template>
+  <PrevNextButtons :posts="posts" />
   <section v-if="loaded" class="container my-4 pt-navbar">
-
     <div v-if="isOwner" class="text-end mb-2">
       <div class="dropdown d-none d-md-inline">
         <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
@@ -30,14 +30,18 @@
         <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>
       </ul>
     </div>
-<!--    <PrevNextButtons :posts="posts" />-->
-
     <div class="card shadow-sm feed-card">
       <div class="card-body">
         <h2 class="feed-title">{{ feed.title }}</h2>
         <p class="feed-meta">
-          <strong>작성자:</strong> {{ badge }} {{ feed.username }} ·
-          <span>{{ dateText }}</span>
+          <strong>작성자:</strong>
+
+          <RouterLink
+              :to="`/user/profile/${feed.username}`"
+              class="text-primary fw-semibold">
+            {{ rankBadge(feed.username) }} {{ feed.username }}
+          </RouterLink>
+          · <span>{{ dateText }}</span>
         </p>
         <div class="feed-content" v-html="feedHtml" />
 
@@ -122,7 +126,7 @@ import { RouterLink } from 'vue-router'
   const route   = useRoute()
   const router  = useRouter()
   const store   = useUserStore()
-
+  const posts = ref([])
   const id         = route.params.id
   const feed       = ref({})
   const feedHtml   = ref('')
@@ -140,7 +144,6 @@ import { RouterLink } from 'vue-router'
   const reloadTrigger = ref(0)
   const login = computed(() => store.isLoggedIn)
   const isOwner = computed(() => feed.value?.Owner === true)
-const posts = ref([])
 
 
   function linkify(text = '') {
@@ -240,14 +243,11 @@ function formatDate(dateTimeString) {
 const fmtDate = formatDate
 
 const dateText = computed(() => formatDate(feed.value.createdAt))
-
-
-
-  const topWriters = JSON.parse(localStorage.getItem('topWriters')||'{}')
-    function rankBadge(name){
-      const r = topWriters[name]||0
-      return r===1?'👑':r===2?'🥇':r===3?'🥈':r>0&&r<=5?'🥉':''
-    }
+const topWriters = JSON.parse(localStorage.getItem('topWriters')||'{}')
+function rankBadge(name){
+  const r = topWriters[name]||0
+  return r===1?'👑':r===2?'🥇':r===3?'🥈':r>0&&r<=5?'🥉':''
+}
 
 
   async function toggleLike(){

@@ -158,10 +158,8 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     private boolean checkAnswer(List<DailyQuestion> questions, DailyCheckRequest req) {
         for (DailyQuestion q : questions) {
             if (q.getQuestion().equals(req.getMatter())) {
-                String userAnswer = convertSymbolToNumber(req.getAnswer());  // "①" → "1"
-                String correctAnswer = convertSymbolToNumber(q.getAnswer().trim());                 // "3" → 그대로
-                log.info("사용자: " + userAnswer);
-                log.info("정답: " + correctAnswer);
+                String userAnswer = convertSymbolToNumber(req.getAnswer());
+                String correctAnswer = convertSymbolToNumber(q.getAnswer().trim());
                 return userAnswer.equals(correctAnswer);
             }
         }

@@ -49,8 +49,10 @@ async function fetchFullProfileData() {
 }
 
 onMounted(() => {
-  if (!token) return
-  // console.log('유저명:', route.params.username)
+  if (!token) {
+    alert("로그인을 하셔야 이용가능합니다")
+    router.push("/login")
+  }
   fetchFullProfileData()
 })
 </script>

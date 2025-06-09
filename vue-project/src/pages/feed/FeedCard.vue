@@ -49,9 +49,9 @@ function goToDetail() {
         ? `/search/view/vote/detail`
         : `/search/view/feed/id/${props.post.feedUID}`,
     query: isVote.value ? { id: props.post.feedUID } : undefined,
-    state: {
-      posts: props.posts
-    }
+    // state: {
+    //   posts: props.posts
+    // }
   })
 }
 

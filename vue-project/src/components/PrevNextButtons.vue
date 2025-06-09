@@ -30,14 +30,12 @@ const props = defineProps({
     required: true
   }
 })
-
 const route = useRoute()
 const router = useRouter()
 
 const currentFeedUID = computed(() => route.params.id || route.query.id)
-
 const currentIndex = computed(() =>
-    props.posts.findIndex(p => p.feedUID === currentFeedUID.value)
+    props.posts.findIndex(p => String(p.feedUID) === String(currentFeedUID.value))
 )
 
 const prevPost = computed(() =>
@@ -49,6 +47,7 @@ const nextPost = computed(() =>
         ? props.posts[currentIndex.value + 1]
         : null
 )
+console.log('feedUIDs in posts:', props.posts.map(p => p.feedUID))
 
 function goTo(feedUID) {
   router.push({
