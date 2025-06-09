@@ -1,5 +1,6 @@
 <template>
-  <PrevNextButtons :posts="posts" />
+  <PrevNextButtons  v-if="loaded" :posts="posts" />
+
   <section v-if="loaded" class="container my-4 pt-navbar">
     <div v-if="isOwner" class="text-end mb-2">
       <div class="dropdown d-none d-md-inline">
@@ -7,29 +8,31 @@
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <a class="dropdown-item" @click="goEdit">
-              <i class="fas fa-edit me-2"></i>수정
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item text-danger" @click="onDelete">
-              <i class="fas fa-trash me-2"></i>삭제
-            </a>
-          </li>
+          <li><a class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</a></li>
+          <li><a class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</a></li>
         </ul>
       </div>
-
-      <button class="btn btn-primary rounded-circle shadow d-md-none position-fixed"
-              style="bottom:80px;right:24px;width:56px;height:56px;"
-              data-bs-toggle="dropdown" data-bs-target="#fabMenu">
-        <i class="fas fa-ellipsis-v"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">
-        <li><a class="dropdown-item" @click="goEdit">수정</a></li>
-        <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>
-      </ul>
+      <div class="dropup d-md-none position-fixed" style="bottom:80px;right:24px;z-index:1051">
+        <button
+            class="btn btn-primary rounded-circle shadow dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="width:56px;height:56px;">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</a></li>
+          <li><a class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</a></li>
+        </ul>
+      </div>
     </div>
+
+      <!--      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">-->
+<!--        <li><a class="dropdown-item" @click="goEdit">수정</a></li>-->
+<!--        <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>-->
+<!--      </ul>-->
+<!--    </div>-->
+
     <div class="card shadow-sm feed-card">
       <div class="card-body">
         <h2 class="feed-title">{{ feed.title }}</h2>
@@ -112,9 +115,9 @@
   </section>
   <div v-else class="text-center pt-5"><i class="bi bi-arrow-repeat fs-2 spin"></i></div>
 </template>
-
+<!-- 보통 public/index.html 에 포함되어야 함 -->
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed ,watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
@@ -145,62 +148,11 @@ import { RouterLink } from 'vue-router'
   const login = computed(() => store.isLoggedIn)
   const isOwner = computed(() => feed.value?.Owner === true)
 
-
-  function linkify(text = '') {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
-  }
-
-  function decodeHtmlEntities (encoded = '') {
-    const el = document.createElement('textarea')
-    el.innerHTML = encoded
-    return el.value
-  }
-
-
-onMounted(async () => {
-    try {
-      const { data } = await api.get('/detail', { params: { id } })
-      feed.value = {
-        ...data.data,
-        Owner: data.Owner
-      }
-      function normalize(html = '') {
-        return html
-            .replace(/></g, '>\u200B<')
-            .replace(/<\/div>/g, '<br>')
-            .replace(/<div>/g, '');
-      }
-      posts.value = history.state?.posts || [feed.value]
-      feedHtml.value = convertLinks(
-          normalize(decodeHtmlEntities(data.data.description || ''))
-      );
-      comments.value   = data.comment || []
-      replies.value    = data.replies || {}
-      liked.value      = data.isLiked
-      likeCount.value  = data.data.likeCount || 0
-      loaded.value     = true
-
-      fetch('/api/increaseViewCount', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ id })   // feedUID
-      }).catch(e => console.error('조회수 증가 실패', e))
-
-
-    } catch (e) {
-      push('게시글을 불러오지 못했습니다.')
-      router.replace('/')
-    }
-  })
-// function convertLinks(txt = '') {
-//   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
-//     const prev = str.slice(Math.max(0, offset - 5), offset)
-//     return /src=\"?$/.test(prev) ? m
-//         : `<a href="${url}" target="_blank">${url}</a>`
-//   })
-// }
+const PAGE_SIZE = 10
+const pageParam = computed(() => {
+  const q = parseInt(route.query.page ?? '0', 10)
+  return Number.isNaN(q) ? 0 : q        // 잘못된 값이면 0
+})
 function convertLinks(txt = '') {
   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
     const prev = str.slice(Math.max(0, offset - 5), offset)
@@ -249,6 +201,68 @@ function rankBadge(name){
   return r===1?'👑':r===2?'🥇':r===3?'🥈':r>0&&r<=5?'🥉':''
 }
 
+  function linkify(text = '') {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
+  }
+
+  function decodeHtmlEntities (encoded = '') {
+    const el = document.createElement('textarea')
+    el.innerHTML = encoded
+    return el.value
+  }
+
+
+async function loadFeedDetail(feedUID) {
+  try {
+    loaded.value = false
+    const { data } = await api.get('/detail', { params: { id: feedUID } })
+    feed.value = { ...data.data, Owner: data.Owner }
+    function normalize(html = '') {
+      return html
+          .replace(/></g, '>\u200B<')
+          .replace(/<\/div>/g, '<br>')
+          .replace(/<div>/g, '');
+    }
+    /* UID 목록 그대로 가져오던 로직 유지 */
+    const uidList = await fetchFeedUIDs(pageParam.value, PAGE_SIZE)
+    posts.value   = uidList.map(uid => ({ feedUID: uid }))
+
+    /* 나머지 상태 세팅도 그대로 */
+    feedHtml.value = convertLinks(normalize(decodeHtmlEntities(data.data.description || '')))
+    comments.value = data.comment || []
+    replies.value  = data.replies || {}
+    likeCount.value= data.data.likeCount || 0
+    liked.value    = data.isLiked
+    loaded.value   = true
+    fetch('/api/increaseViewCount', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id })
+    }).catch(e => console.error('조회수 증가 실패', e))
+  } catch (e) {
+    console.error(e)
+    router.replace('/')
+  }
+}
+onMounted(() => loadFeedDetail(route.params.id))
+async function fetchFeedUIDs(p = 0, size = 10) {
+  try {
+    const res = await fetch(`/api/feeds/ids?page=${p}&size=${size}`)
+    const json = await res.json()
+    return json.ids || []
+  } catch (e) {
+    console.error('feedUID 목록 로딩 실패', e)
+    return []
+  }
+}
+watch(
+    () => route.params.id,
+    (newId, oldId) => {
+      if (newId && newId !== oldId) loadFeedDetail(newId)
+    }
+)
 
   async function toggleLike(){
     if(!login.value){
@@ -370,11 +384,13 @@ async function submitReply(commentUID) {
   .mt-4 {
     margin-top: 1.5rem;
   }
+  .btn-primary.position-fixed { box-shadow:0 2px 6px rgba(0,0,0,.1); }
   .feed-card { border-radius:10px }
   .feed-title{ font-size:1.8rem;font-weight:700 }
   .comment-item{ gap:12px;padding:12px 0;border-bottom:1px solid #eee }
   .comment-avatar{ width:36px;height:36px
-          ;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold }
+  ;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold }
   .spin{ animation:spin 1s linear infinite }
 @keyframes spin{100%{transform:rotate(360deg)}}
+
 </style>

@@ -133,7 +133,13 @@
 
           <!-- ▣ 공지 / 피드 카드 -->
           <FeedCard v-for="n in notices" :key="n.feedUID" :post="n" notice class="mb-2" />
-          <FeedCard v-for="p in posts" :key="p.feedUID" :post="p" :is-vote="!p.id" :comment-count="counts[p.feedUID]" class="mb-2"  :posts="posts" />
+          <FeedCard v-for="p in posts"
+                    :key="p.feedUID"
+                    :post="p"
+                    :is-vote="!p.id"
+                    :comment-count="counts[p.feedUID]" class="mb-2"
+                    :page="page"
+                    :posts="posts" />
 
           <!-- ▣ 페이지네이션 & 로딩 -->
           <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
@@ -327,7 +333,6 @@ async function fetchFeeds(newPage = page.value) {
   if (tab.category) params.category = tab.category
   if (tab.id === 'DATA') params.category = selectedCategory.value
 
-  // ▣ URL 결정 로직 : ALL 탭 + 정렬값에 따라 별도 API로 교체
   let url = tab.url
   if (tab.id === 'ALL') {
     if (curSort.value === 'COMMENT')      url = '/comment/count'

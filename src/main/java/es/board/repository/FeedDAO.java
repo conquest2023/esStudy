@@ -15,6 +15,7 @@ import java.util.Map;
 @Repository
 public interface FeedDAO {
 
+    List<String> findPagingIds(int page,int size);
 
     List<Board> findReplyCount(int page, int size);
 

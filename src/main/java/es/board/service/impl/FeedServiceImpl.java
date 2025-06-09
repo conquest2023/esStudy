@@ -103,6 +103,11 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
+    public List<String> findPagingFeedIds(int page, int size) {
+        return feedDAO.findPagingIds(page,size);
+    }
+
+    @Override
     public   List<FeedRequest> findReplyDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
     }

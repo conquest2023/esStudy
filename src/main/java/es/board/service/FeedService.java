@@ -19,6 +19,8 @@ public interface FeedService {
     List<FeedRequest> findCommentDESC(int page, int size);
 
 
+    List<String> findPagingFeedIds(int page, int size);
+
     List<FeedRequest> findReplyDESC(int page, int size);
     List<FeedRequest> findViewDESC(int page, int size);
 

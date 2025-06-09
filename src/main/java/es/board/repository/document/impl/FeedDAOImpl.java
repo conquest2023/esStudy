@@ -573,6 +573,30 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
+    public List<String> findPagingIds(int page, int size) {
+            try {
+                SearchResponse<Board> response = client.search(s -> s
+                                .index("board")
+                                .from(page * size)
+                                .size(size)
+                                .sort(sort -> sort.field(f -> f
+                                        .field("createdAt")
+                                        .order(SortOrder.Desc)
+                                )).source(src -> src
+                                        .filter(f -> f.includes("feedUID"))
+                                ),
+                        Board.class);
+                return response.hits().hits().stream()
+                        .map(hit -> hit.source().getFeedUID())
+                        .collect(Collectors.toList());
+            } catch (IOException e) {
+                log.error("Error fetching paging feed: {}", e.getMessage(), e);
+                throw new IndexException("Failed to fetch paging feed", e);
+            }
+        }
+
+
+    @Override
     public List<Board> findReplyCount(int page, int size) {
         try {
             SearchResponse<Void> response = client.search(s -> s

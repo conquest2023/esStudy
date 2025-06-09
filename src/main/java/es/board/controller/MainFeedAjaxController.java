@@ -180,6 +180,14 @@ public class MainFeedAjaxController {
                     "data", data
             ));
         }
+    @GetMapping("/feeds/ids")
+    public ResponseEntity<?> getPagingFeedIds(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<String> ids=feedService.findPagingFeedIds(page,size);
+        return ResponseEntity.ok(Map.of( "ids",ids));
+    }
+
     @GetMapping("/search/view/feed/list/most")
     public ResponseEntity<?> getMostViewFeed(
                                   @RequestParam(defaultValue = "0") int page,

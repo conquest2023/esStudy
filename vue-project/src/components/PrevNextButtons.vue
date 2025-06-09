@@ -1,59 +1,44 @@
 <template>
-  <div class="prev-next-fixed" v-if="prevPost || nextPost">
-    <button
-        class="nav-btn"
-        :disabled="!prevPost"
-        @click="prevPost && goTo(prevPost.feedUID)"
-        title="이전글"
-    >
+  <div class="prev-next-fixed" v-if="prevUID || nextUID">
+    <button class="nav-btn" :disabled="!prevUID" @click="goTo(prevUID)" title="이전글">
       <i class="bi bi-chevron-up"></i>
     </button>
-
-    <button
-        class="nav-btn"
-        :disabled="!nextPost"
-        @click="nextPost && goTo(nextPost.feedUID)"
-        title="다음글"
-    >
+    <button class="nav-btn" :disabled="!nextUID" @click="goTo(nextUID)" title="다음글">
       <i class="bi bi-chevron-down"></i>
     </button>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {computed} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 
-const props = defineProps({
-  posts: {
-    type: Array,
-    required: true
-  }
-})
+const props = defineProps({posts: Array})
 const route = useRoute()
 const router = useRouter()
 
 const currentFeedUID = computed(() => route.params.id || route.query.id)
+const feedUIDs = computed(() => props.posts.map(p => p.feedUID))
+
 const currentIndex = computed(() =>
-    props.posts.findIndex(p => String(p.feedUID) === String(currentFeedUID.value))
+    feedUIDs.value.findIndex(uid => String(uid) === String(currentFeedUID.value))
 )
 
-const prevPost = computed(() =>
-    currentIndex.value > 0 ? props.posts[currentIndex.value - 1] : null
+const prevUID = computed(() =>
+    currentIndex.value > 0 ? feedUIDs.value[currentIndex.value - 1] : null
 )
 
-const nextPost = computed(() =>
-    currentIndex.value < props.posts.length - 1
-        ? props.posts[currentIndex.value + 1]
+const nextUID = computed(() =>
+    currentIndex.value < feedUIDs.value.length - 1
+        ? feedUIDs.value[currentIndex.value + 1]
         : null
 )
-console.log('feedUIDs in posts:', props.posts.map(p => p.feedUID))
 
-function goTo(feedUID) {
-  router.push({
-    path: `/search/view/feed/id/${feedUID}`,
-    state: {posts: props.posts}
-  })
+
+function goTo(uid) {
+  if (uid) {
+    router.push({path: `/search/view/feed/id/${uid}`})
+  }
 }
 </script>
 
