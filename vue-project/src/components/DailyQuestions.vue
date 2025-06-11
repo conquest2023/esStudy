@@ -230,14 +230,12 @@ async function submitAnswer(index, question) {
     return
   }
 
-  const userAnswerSymbol = userAnswers.value[index] // → 예: "①"
-  const correctAnswer = question.answer // → 예: "①"
-
-  // const choiceList = parseChoices(question.choices)
-  // console.log(choiceList)
-  // const userAnswerText = choiceList[userAnswers.value[index]]
-  // console.log(userAnswerText)
-
+  const userAnswerSymbol = userAnswers.value[index] // ex: "①"
+  const choices = parseChoices(question.choices)   // 보기 배열
+  const correctAnswerIndex = choices.findIndex(c =>
+      c.trim() === question.answer.trim()
+  )
+  const correctAnswerSymbol = mapIndexToNumber(correctAnswerIndex)
   if (!userAnswerSymbol) {
     alert('보기를 선택해주세요!')
     return
@@ -250,7 +248,7 @@ async function submitAnswer(index, question) {
           category: selectedSub.value || selectedCategory.value,
           matter: question.question,
           answer: userAnswerSymbol,
-          correct: correctAnswer
+          correct: correctAnswerSymbol
         },
         {
           headers: {
