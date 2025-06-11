@@ -2,6 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.ex.TokenValidator;
 import es.board.repository.document.Certificate;
 import es.board.service.CertificateService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,8 @@ import java.util.Map;
 public class CertificateController {
 
 
-    private  final JwtTokenProvider jwtTokenProvider;
+
+    private  final TokenValidator tokenValidator;
 
     private  final CertificateService certificateService;
 
@@ -37,35 +39,21 @@ public class CertificateController {
     @GetMapping("/certificate/top5")
     @ResponseBody
     public ResponseEntity<?> getCertificate(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("certificateTop5", certificateService.getTop5CertificateCount());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("certificateTop5",certificateService.getTop5CertificateCount()));
     }
     @GetMapping("/certificate/schedule/{text}")
     @ResponseBody
     public ResponseEntity<?> getScheduleCertificate(@RequestHeader(value = "Authorization", required = false) String token,
                                                     @PathVariable String text) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("certSchedule", certificateService.getCertificationSchedule(text));
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("certSchedule", certificateService.getCertificationSchedule(text)));
     }
 
     @GetMapping("/search/certificate")
@@ -74,37 +62,20 @@ public class CertificateController {
                                                   @RequestParam String text
                                          , HttpServletRequest request) {
 
-        String clientIp = request.getRemoteAddr();
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        List<Certificate> certificate =certificateService.getCertificate(text,clientIp);
-        Map<String, Object> response = new HashMap<>();
-        response.put("certificate", certificate);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("certificate", certificateService.getCertificate(text, request.getRemoteAddr())));
     }
     @GetMapping("/certificate/category/{mainCategory}/{subCategory}")
     @ResponseBody
     public ResponseEntity<?> getMainCategoryAndSubCategory(@RequestHeader(value = "Authorization", required = false) String token,
                                                     @PathVariable String mainCategory ,@PathVariable String subCategory ) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        Map<String, Object> response = new HashMap<>();
-
-        List<String> cert=certificateService.getMainCategoryAndSubCategory(mainCategory,subCategory);
-        response.put("certSchedule", cert);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("certSchedule",certificateService.getMainCategoryAndSubCategory(mainCategory,subCategory)));
     }
 }

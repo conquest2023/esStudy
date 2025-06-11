@@ -5,6 +5,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.res.ReplyCreate;
+import es.board.ex.TokenValidator;
 import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
 import jakarta.validation.Valid;
@@ -25,6 +26,8 @@ public class ReplyController {
 
     private final ReplyService replyService;
 
+    private  final TokenValidator tokenValidator;
+
     private  final JwtTokenProvider jwtTokenProvider;
 
 
@@ -34,18 +37,16 @@ public class ReplyController {
 //    }
 
     @PostMapping("/search/view/reply/save")
-    public ResponseEntity<String> postReply(@RequestHeader(value = "Authorization", required = false) String token,
+    public ResponseEntity<?> postReply(@RequestHeader(value = "Authorization", required = false) String token,
                                             @Valid @RequestBody ReplyCreate response) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                response.replyBasicSetting( jwtTokenProvider.getUsername(token),jwtTokenProvider.getUserId(token));
-            } else {
-                response.replyAnonymousBasicSetting();
-            }
-        } else {
-            response.replyAnonymousBasicSetting();
+
+
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
+        token=token.substring(7);
+        response.replyBasicSetting(jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         replyService.saveReply(response);
         return ResponseEntity.ok("/search/view/feed/id?id=" + response.getFeedUID());
     }
@@ -53,17 +54,13 @@ public class ReplyController {
 
 
     @PostMapping("/search/view/vote/reply/save")
-    public ResponseEntity<String> postVoteReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                response.replyBasicSetting(jwtTokenProvider.getUsername(token),jwtTokenProvider.getUserId(token));
-            } else {
-                response.replyAnonymousBasicSetting();
-            }
-        } else {
-            response.replyAnonymousBasicSetting();
+    public ResponseEntity<?> postVoteReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
+        token=token.substring(7);
+        response.replyBasicSetting(jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         replyService.saveReply(response);
         return ResponseEntity.ok("/search/view/vote/detail?id=" + response.getFeedUID());
     }

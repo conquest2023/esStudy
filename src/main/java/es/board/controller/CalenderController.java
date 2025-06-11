@@ -134,12 +134,9 @@ public class CalenderController {
         if (!jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
-        log.info(requestBody.toString());
         String createdAtStr = requestBody.get("createdAt");
         String startDateTimeAtStr=requestBody.get("startDatetime");
         String endDateTimeAtStr=requestBody.get("endDatetime");
-
-
 
         LocalDateTime createdAt = LocalDateTime.parse(createdAtStr);
 

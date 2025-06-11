@@ -3,6 +3,7 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.InterviewQuestionRequest;
 import es.board.controller.model.res.InterviewAnswerDTO;
+import es.board.ex.TokenValidator;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ public class InterviewQuestionController {
     private  final RedisTemplate redisTemplate;
 
     private  final JwtTokenProvider jwtTokenProvider;
+
+    private  final TokenValidator tokenValidator;
 
     private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
 
@@ -57,15 +60,12 @@ public class InterviewQuestionController {
 
     @PostMapping("/save/interview/question")
     public ResponseEntity<?> getRepeatSchedule(@RequestBody InterviewAnswerDTO dto, @RequestHeader(value = "Authorization") String token) {
-        log.info(dto.toString());
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
-        }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
 
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
+        }
+        token=token.substring(7);
         interviewService.saveQuestion(dto,jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
         return ResponseEntity.ok(Map.of("success", true, "message", "답변이 성공적으로 저장되었습니다."));
     }
@@ -89,5 +89,18 @@ public class InterviewQuestionController {
                 "IT_count", itCount,
                 "GENERAL_count", generalCount
         ));
+
     }
+
+    public  boolean checkedToken(String token) {
+        if (token == null) {
+            return false;
+        }
+        token = token.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return false;
+        }
+        return true;
+    }
+
 }

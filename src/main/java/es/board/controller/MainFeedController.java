@@ -309,12 +309,9 @@ public class MainFeedController {
     public ResponseEntity<Map<String, Object>> saveFeed(
             @RequestPart("feed") FeedCreateResponse res,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        Map<String, Object> response = new HashMap<>();
         try {
             authService.extractUserIdFromToken(token, res);
-            response.put("feed", feedService.saveFeed(res));
-            response.put("success", true);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
         } catch (IllegalStateException e) {
             log.error("Invalid feed data: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

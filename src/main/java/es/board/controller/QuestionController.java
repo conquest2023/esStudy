@@ -3,6 +3,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.QuestionPracticalDto;
+import es.board.ex.TokenValidator;
 import es.board.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
+    private  final TokenValidator tokenValidator;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -31,38 +33,22 @@ public class QuestionController {
     public ResponseEntity<?> getPractical(@RequestHeader(value = "Authorization", required = false) String token,
                                          @RequestParam String  category,
                                          @RequestParam(required = false) String  round) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        List<QuestionPracticalDto> certificateDTOS=questionService.getQuestionPracticalList(category,round);
-        response.put("DTOS", certificateDTOS);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("DTOS",questionService.getQuestionPracticalList(category,round)));
     }
 
 
     @GetMapping("/practical/random")
     @ResponseBody
     public ResponseEntity<?> getRandomPractical(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        List<QuestionPracticalDto> certificateDTOS=questionService.getRandomPracticalList();
-        response.put("DTOS", certificateDTOS);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("DTOS",questionService.getRandomPracticalList()));
     }
 
 
@@ -70,19 +56,10 @@ public class QuestionController {
     @ResponseBody
     public ResponseEntity<?> getTagPractical(@RequestHeader(value = "Authorization", required = false) String token,
                                               @RequestParam Long  tagId) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        Map<String, Object> response = new HashMap<>();
-        List<QuestionPracticalDto> certificateDTOS=questionService.getTagPractical(tagId);
-        response.put("DTOS", certificateDTOS);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("DTOS",questionService.getTagPractical(tagId)));
     }
-
-
-
 }

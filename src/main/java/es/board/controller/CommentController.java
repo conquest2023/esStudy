@@ -26,7 +26,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    private  final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
 
     @PostMapping("/search/view/comment/id")
@@ -37,15 +37,12 @@ public class CommentController {
             @RequestHeader(value = "Authorization", required = false) String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
-
             if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id,jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
+                response.commentBasicSetting(id, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
             }
         }
         commentService.saveComment(response);
-        Map<String, String> res = new HashMap<>();
-        res.put("redirectUrl", "/search/view/feed/id/" + id);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(Map.of("redirectUrl", "/search/view/feed/id/" + id));
     }
 
     @PostMapping("/search/view/vote/comment/id")
@@ -57,17 +54,15 @@ public class CommentController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id,jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
+                response.commentBasicSetting(id, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
             }
         }
         commentService.saveComment(response);
-        Map<String, String> res = new HashMap<>();
-        res.put("redirectUrl", "/search/view/vote/detail?id=" + id);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(Map.of("redirectUrl", "/search/view/vote/detail?id=" + id));
     }
 
     @GetMapping("/commentEx")
-    public  void Test(){
+    public void Test() {
         log.info(commentService.getMostCommentCount().toString());
     }
 
@@ -76,23 +71,26 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> updateComment(@RequestParam String commentUID) {
 
-         Map<String, Object> response = Map.of(
+        Map<String, Object> response = Map.of(
                 "id", commentService.getCommentOne(commentUID),
                 "commentUID", commentUID,
                 "redirectUrl", "basic/comment/EditComment");
-            return ResponseEntity.ok(response);}
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/comment/update/save")
     @ResponseBody
     public ResponseEntity<?> editSaveComment(
-                                  @RequestBody CommentUpdate commentUpdate) {
+            @RequestBody CommentUpdate commentUpdate) {
         Map<String, Object> response = Map.of(
                 "commentUID", commentUpdate.getCommentUID(),
-//                "feedUID", commentUpdate.getFeedUID(),
-                "CommentUpdate",   commentService.editComment(commentUpdate.getCommentUID(), commentUpdate),
+//
+                "CommentUpdate", commentService.editComment(commentUpdate.getCommentUID(), commentUpdate),
                 "redirectUrl", "/search/view/feed/id?id=" + commentUpdate.getFeedUID()
         );
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/search/view/comment/like")
     public String getLikeCount(Model model) {
         model.addAttribute("data", commentService.getLikeCount());
@@ -100,13 +98,13 @@ public class CommentController {
     }
 
     @GetMapping("/feeds/popular-by-comment")
-    public ResponseEntity<?> getManyComment(){
+    public ResponseEntity<?> getManyComment() {
         return ResponseEntity.ok(commentService.getMantComment());
     }
 
 
     @PostMapping("/search/view/comment/delete")
-    @ResponseBody // JSON 응답을 위해 추가
+    @ResponseBody
     public ResponseEntity<?> CommentRemove(@RequestParam("id") String commentId,
                                            @RequestParam("feedUID") String feedId) {
         try {
@@ -116,11 +114,11 @@ public class CommentController {
             response.put("redirectUrl", "/search/view/feed/id?id=" + feedId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // 에러 응답 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("댓글 삭제 중 오류가 발생했습니다.");
         }
     }
+
     @PostMapping("/search/view/comment/increase-like/{commentUID}")
     public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String commentUID) {
         commentService.plusCommentLike(commentUID);
@@ -128,15 +126,6 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    private String extractUserIdFromToken(String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                return jwtTokenProvider.getUserId(token);
-            }
-        }
-        return "익명"; // 인증되지 않은 사용자는 익명으로 처리
-    }
 }
 //    @GetMapping("/search/view/comment/time")
 //    public String getRecentCommentList(Model model) {

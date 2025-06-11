@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.TodoRequest;
 import es.board.controller.model.res.TodoResponse;
+import es.board.ex.TokenValidator;
 import es.board.service.ToDoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ import java.util.Map;
 public class ToDoController {
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private  final TokenValidator tokenValidator;
 
 
     private final ToDoService toDoService;
@@ -54,78 +57,52 @@ public class ToDoController {
     @GetMapping("/search/todo")
     @ResponseBody
     public ResponseEntity<?> getTodoById(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        List<TodoRequest> todos = toDoService.getUserToDo(jwtTokenProvider.getUserId(token));
-        Long completedCount = toDoService.getDoneTodo(jwtTokenProvider.getUserId(token));
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("todos", todos);
-        response.put("completedCount", completedCount);
-
-        return ResponseEntity.ok(response);
+        token=token.substring(7);
+        String userId=jwtTokenProvider.getUserId(token);
+        return ResponseEntity.ok(Map.of("todos",toDoService.getUserToDo(userId),
+                "completedCount", toDoService.getDoneTodo(userId)));
     }
 
 
         @GetMapping("/search/today/todo")
         @ResponseBody
         public ResponseEntity<?> getTodoByToday(@RequestHeader(value = "Authorization", required = false) String token) {
-            if (token == null || !token.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+            ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+            if (tokenCheckResponse != null) {
+                return tokenCheckResponse;
             }
-
-            token = token.substring(7);
-            if (!jwtTokenProvider.validateToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-            }
-            List<TodoRequest> todos = toDoService.getUserToDo(jwtTokenProvider.getUserId(token));
-            Object remainingCount = toDoService.getRemainingTodos(jwtTokenProvider.getUserId(token));
-            Map<String, Object> response = new HashMap<>();
-            response.put("remainingCount", remainingCount);
-            response.put("todos", todos);
-            return ResponseEntity.ok(response);
+            token=token.substring(7);
+            String userId=jwtTokenProvider.getUserId(token);
+            return ResponseEntity.ok(Map.of("remainingCount", toDoService.getRemainingTodos(userId)
+            ,"todos", toDoService.getRemainingTodos(userId)));
     }
 
     @GetMapping("/search/alltodo")
     @ResponseBody
     public ResponseEntity<?> getTodoAll(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        List<TodoRequest> todos = toDoService.getUserAllToDo(jwtTokenProvider.getUserId(token));
-        Map<String, Object> response = new HashMap<>();
-        response.put("todos", todos);
-
-        return ResponseEntity.ok(response);
+        token=token.substring(7);
+        String userId=jwtTokenProvider.getUserId(token);
+        return ResponseEntity.ok(Map.of("todos",toDoService.getUserAllToDo(userId)));
     }
 
     @GetMapping("/todo/remaining")
     @ResponseBody
     public ResponseEntity<?> getRemainingTodos(@RequestHeader("Authorization") String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         String userId = jwtTokenProvider.getUserId(token);
-        Object remainingCount = toDoService.getRemainingTodos(userId);
-
-        return ResponseEntity.ok(Map.of("remainingCount", remainingCount));
+        return ResponseEntity.ok(Map.of("remainingCount", toDoService.getRemainingTodos(userId)));
     }
 
 
@@ -156,15 +133,11 @@ public class ToDoController {
             @PathVariable Long id,
             @RequestHeader(value = "Authorization") String token) {
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        toDoService.completeTodo(token, id);
+        toDoService.completeTodo(token.substring(7), id);
         return ResponseEntity.ok(Map.of("message", "Todo 상태가 DONE으로 변경되었습니다."));
     }
 
@@ -179,14 +152,12 @@ public class ToDoController {
     }
     @GetMapping("/search/project/todo")
     public ResponseEntity<?> getProjectToDo(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
+        token=token.substring(7);
 
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
         List<TodoRequest> projectTodo = toDoService.getProjectTodo(jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         response.put("todos", projectTodo);
@@ -196,14 +167,11 @@ public class ToDoController {
     @GetMapping("/day")
     public ResponseEntity<?> getD_Day(@RequestHeader(value = "Authorization") String token) {
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         List<D_DayRequest> dDayList = toDoService.getD_Day(token);
 
         Map<String, Object> response = new HashMap<>();
@@ -215,14 +183,11 @@ public class ToDoController {
     @PostMapping("/day/save")
     public ResponseEntity<?> saveD_Day(@RequestBody D_DayRequest dDayDTO, @RequestHeader(value = "Authorization") String token) {
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
 
         Map<String, String> response = new HashMap<>();
         toDoService.addD_Day(token,dDayDTO);
@@ -234,15 +199,10 @@ public class ToDoController {
     @PostMapping("/day/delete")
     public ResponseEntity<?> delete_D_Day(@RequestParam Long id, @RequestHeader(value = "Authorization") String token) {
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
         Map<String, String> response = new HashMap<>();
         toDoService.delete_D_Day(id);
         response.put("message", "D-DAY가 성공적으로 삭제되었습니다.");

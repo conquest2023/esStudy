@@ -4,6 +4,7 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.DailyCheckRequest;
 import es.board.controller.model.res.DailyBookMark;
+import es.board.ex.TokenValidator;
 import es.board.repository.entity.DailyQuestion;
 import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,8 @@ public class DailyQuestionController {
 
 
     private  final JwtTokenProvider jwtTokenProvider;
+
+    private  final TokenValidator tokenValidator;
 
     private  final DailyQuestionService dailyQuestionService;
 
@@ -53,41 +56,31 @@ public class DailyQuestionController {
     @PostMapping("/daily/bookmark")
     public  ResponseEntity<?> saveDailyBookmark(@RequestHeader(value = "Authorization", required = false) String token
             , @RequestBody DailyBookMark daily){
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-         dailyQuestionService.saveDailyBookMark(jwtTokenProvider.getUserId(token),daily);
+         dailyQuestionService.saveDailyBookMark(jwtTokenProvider.getUserId(token.substring(7)),daily);
          return  ResponseEntity.ok("ok");
     }
     @GetMapping("/get/daily/bookmark")
     public  ResponseEntity<?> getDailyBookmark(@RequestHeader(value = "Authorization", required = false) String token){
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        List<DailyQuestion> questions=dailyQuestionService.getDailyQuestion(jwtTokenProvider.getUserId(token));
+        List<DailyQuestion> questions=dailyQuestionService.getDailyQuestion(jwtTokenProvider.getUserId(token.substring(7)));
         return ResponseEntity.ok(Map.of("bookmarks", questions));
     }
 
     @PostMapping("/check/daily")
     public  ResponseEntity<?> checkDailyBookmark(@RequestHeader(value = "Authorization", required = false)
-                                                     String token, @RequestBody DailyCheckRequest req)
-        {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+                                                     String token, @RequestBody DailyCheckRequest req) {
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        Boolean questions=dailyQuestionService.checkDailyAnswer(jwtTokenProvider.getUserId(token),req);
+        Boolean questions=dailyQuestionService.checkDailyAnswer(jwtTokenProvider.getUserId(token.substring(7)),req);
         return ResponseEntity.ok(Map.of("ok", questions));
     }
 }

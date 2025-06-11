@@ -3,6 +3,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.VoteRequest;
+import es.board.ex.TokenValidator;
 import es.board.repository.document.Board;
 import es.board.service.VoteService;
 import lombok.RequiredArgsConstructor;
@@ -24,19 +25,19 @@ public class VoteController {
 
     private final VoteService voteService;
 
+    private  final TokenValidator tokenValidator;
+
 
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/save/vote")
     @ResponseBody
     public ResponseEntity<?> saveVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         voteService.saveVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(response);
@@ -46,13 +47,11 @@ public class VoteController {
     @PostMapping("/save/user/vote")
     @ResponseBody
     public ResponseEntity<?> saveUserVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         voteService.createdFeedVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(response);
@@ -62,13 +61,11 @@ public class VoteController {
     @PostMapping("/save/ticket/vote")
     @ResponseBody
     public ResponseEntity<?> saveFeedVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         voteService.saveFeedTicket(vote,jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         return ResponseEntity.ok(response);
@@ -76,13 +73,11 @@ public class VoteController {
     @PostMapping("/save/aggregation/vote")
     public ResponseEntity<?> saveAggregationVote(@RequestBody VoteRequest vote,
                                                  @RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         voteService.saveAgreeVote(vote, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         response.put("message", "투표 완료");
@@ -161,13 +156,11 @@ public class VoteController {
     public ResponseEntity<?> deleteVoteFeed(
             @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
         String id = requestData.get("id");
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
+        token=token.substring(7);
         voteService.deleteVoteFeed(id, jwtTokenProvider.getUserId(token));
 
         Map<String, String> response = new HashMap<>();

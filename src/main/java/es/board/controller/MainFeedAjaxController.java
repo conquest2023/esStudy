@@ -8,6 +8,7 @@ import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.FeedRequest;
 import es.board.controller.model.req.VoteRequest;
 import es.board.controller.model.res.LoginResponse;
+import es.board.ex.TokenValidator;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import es.board.service.*;
@@ -46,6 +47,8 @@ public class MainFeedAjaxController {
 
     private  final JwtTokenProvider jwtTokenProvider;
 
+    private  final TokenValidator tokenValidator;
+
     private  final VisitorService visitService;
 
     private  final FeedService feedService;
@@ -67,10 +70,8 @@ public class MainFeedAjaxController {
 //        List<String> todayKeys = new ArrayList<>();
 //        todayAggregation(rawKeys, todayKeys);
 //        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
-        log.info(activeUsers.toString());
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
-//                "todayUsers",todayKeys.size(),
                 "data", visitService.getStats()));
     }
 
@@ -106,17 +107,12 @@ public class MainFeedAjaxController {
     }
 
     @GetMapping("/user/id")
-    public ResponseEntity<Map<String, String>> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+    public ResponseEntity<?> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-
-        String userId = jwtTokenProvider.getUserId(token);
+        String userId = jwtTokenProvider.getUserId(token.substring(7));
         return ResponseEntity.ok(Map.of("userId", userId));
     }
     @GetMapping("/info")
@@ -231,12 +227,11 @@ public class MainFeedAjaxController {
     public ResponseEntity<Map<String, Object>> getAuthStatus(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         Map<String, Object> response = new HashMap<>();
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
 
-                if (jwtTokenProvider.validateToken(token)) {
+            if (jwtTokenProvider.validateToken(token)) {
                     response.put("isLoggedIn", true);
-//                    response.put("userId",jwtTokenProvider.getUserId(token));
                     response.put("username", jwtTokenProvider.getUsername(token));
                     return ResponseEntity.ok(response);
                 }
@@ -284,8 +279,7 @@ public class MainFeedAjaxController {
         response.put("count",commentRes.get("commentCount"));
         VoteRequest req=voteService.getVoteDetail(feedUID);
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
+            if (jwtTokenProvider.validateToken(token.substring(7))) {
                 return handleAuthenticatedVoteRequest(req, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
             }
         }
@@ -296,32 +290,14 @@ public class MainFeedAjaxController {
     public ResponseEntity<?> deleteFeed(
             @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
         String id = requestData.get("id");
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
-        }
-        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token));
-
+        feedService.deleteFeed(id, jwtTokenProvider.getUserId(token.substring(7)));
         Map<String, String> response = new HashMap<>();
         response.put("redirectUrl", "/");
         return ResponseEntity.ok(response);
-    }
-    private void todayAggregation(List<String> rawKeys, List<String> todayKeys) {
-        if (rawKeys != null) {
-            long secondsUntilMidnight = ChronoUnit.SECONDS.between(
-                    LocalDateTime.now(),
-                    LocalDate.now().plusDays(1).atStartOfDay()
-            );
-            for (String key : rawKeys) {
-                Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-                if (ttl != null && ttl > 0 && ttl <= secondsUntilMidnight) {
-                    todayKeys.add(key);
-                }
-            }
-        }
     }
     private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(FeedRequest feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
         response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
@@ -332,9 +308,6 @@ public class MainFeedAjaxController {
         response.put("data", feedRequest);
         return ResponseEntity.ok(response);
     }
-
-
-
     private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, FeedRequest req, Map<String, Object> response) {
 
         if (!(comments instanceof List<?>)) {
@@ -382,5 +355,20 @@ public class MainFeedAjaxController {
                 response.put("isLoggedIn", false);
                 response.put("data", req);
                 return ResponseEntity.ok(response);
+    }
+
+    private void todayAggregation(List<String> rawKeys, List<String> todayKeys) {
+        if (rawKeys != null) {
+            long secondsUntilMidnight = ChronoUnit.SECONDS.between(
+                    LocalDateTime.now(),
+                    LocalDate.now().plusDays(1).atStartOfDay()
+            );
+            for (String key : rawKeys) {
+                Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+                if (ttl != null && ttl > 0 && ttl <= secondsUntilMidnight) {
+                    todayKeys.add(key);
+                }
+            }
+        }
     }
 }

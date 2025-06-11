@@ -130,7 +130,6 @@ public class JwtTokenProvider {
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-
             return true;
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token");

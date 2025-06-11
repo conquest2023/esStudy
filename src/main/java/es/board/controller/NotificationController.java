@@ -1,6 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.ex.TokenValidator;
 import es.board.repository.entity.Notification;
 import es.board.service.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,9 @@ public class NotificationController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+
+    private  final TokenValidator tokenValidator;
+
     // 클라이언트가 SSE 연결을 요청할 때 호출됨
 //    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 //    public SseEmitter subscribe(HttpServletRequest request) {
@@ -38,23 +42,24 @@ public class NotificationController {
 //        return notificationService.subscribe(jwtTokenProvider.getUserId(token));
 //    }
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token, HttpServletResponse res) {
-        if (token != null) {
-            String userId = jwtTokenProvider.getUserId(token);
-            SseEmitter emitter = notificationService.subscribe(userId);
-            return new ResponseEntity<>(emitter, HttpStatus.OK);
-        }
+    public ResponseEntity<?> subscribe(@RequestParam("token") String token, HttpServletResponse res) {
 
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
+        }
+        SseEmitter emitter = notificationService.subscribe(
+                jwtTokenProvider.getUserId(token.substring(7)));
+        return new ResponseEntity<>(emitter, HttpStatus.OK);
     }
 
     @GetMapping("/notifications/all")
     public ResponseEntity<?> getAllNotifications(@RequestHeader("Authorization") String token) {
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse != null) {
+            return tokenCheckResponse;
         }
-        String userId = jwtTokenProvider.getUserId(token.substring(7));
-        List<Notification> notifications = notificationService.getNotificationList(userId);
+        List<Notification> notifications = notificationService.getNotificationList(jwtTokenProvider.getUserId(token.substring(7)));
         return ResponseEntity.ok(notifications);
     }
 
