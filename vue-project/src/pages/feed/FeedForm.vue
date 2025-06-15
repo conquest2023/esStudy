@@ -73,8 +73,14 @@
         <p class="m-0 text-muted small">클릭 또는 드래그하여 이미지 업로드</p>
       </div>
 
-      <button class="btn btn-success w-100 py-2 fs-6">
-        <i class="bi bi-pencil-square me-1"></i> 작성하기
+      <button class="btn btn-success w-100 py-2 fs-6" :disabled="isSubmitting">
+        <span v-if="isSubmitting">
+          <i class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></i>
+          작성 중...
+        </span>
+        <span v-else>
+          <i class="bi bi-pencil-square me-1"></i> 작성하기
+        </span>
       </button>
     </form>
   </div>
@@ -93,6 +99,7 @@ const categories       = ['자유', '자격증', '문제', '기술', '취업', '
 const showPlaceholder  = ref(true)
 const editor           = ref(null)
 const pendingFiles     = ref([])
+const isSubmitting     = ref(false) // 중복 제출 방지
 
 const applyFormat = type => {
   if (type === 'link') {
@@ -188,44 +195,56 @@ async function buildHtmlWithUploadedImages() {
   return clone.innerHTML
 }
 
-
 async function submitForm() {
-  if (!category.value || !title.value || editor.value.innerText.trim() === '') {
-    alert('필수 항목을 입력하세요')
-    return
-  }
-
-  const descriptionHtml = await buildHtmlWithUploadedImages()
-
-  const feedBlob = new Blob([
-    JSON.stringify({
-      title: title.value,
-      category: category.value,
-      description: descriptionHtml,
-      username: anonymous.value ? username.value.trim() : username.value
-    })
-  ], {type: 'application/json'})
-
-  const form = new FormData()
-  form.append('feed', feedBlob)
+  if (isSubmitting.value) return
+  isSubmitting.value = true
 
   try {
+    if (!category.value || !title.value || editor.value.innerText.trim() === '') {
+      alert('필수 항목을 입력하세요')
+      return
+    }
+
+    const descriptionHtml = await buildHtmlWithUploadedImages()
+
+    const feedBlob = new Blob([
+      JSON.stringify({
+        title: title.value,
+        category: category.value,
+        description: descriptionHtml,
+        username: anonymous.value ? username.value.trim() : username.value
+      })
+    ], {type: 'application/json'})
+
+    const form = new FormData()
+    form.append('feed', feedBlob)
+
     const token = localStorage.getItem('token')
     const res = await fetch('/api/search/view/feed/save', {
       method: 'POST',
       body: form,
       headers: {Authorization: `Bearer ${token}`}
     })
-    const data = await res.json()
-    if (data.success) {
-      alert('작성 완료')
-      router.push('/')
-    } else {
-      throw new Error(data.error)
+
+    if (!res.ok) {
+      const error = await res.json()
+      if (res.status === 401 && error.code === 'INVALID_TOKEN') {
+        alert('로그인이 필요합니다!')
+        router.push('/login')
+        return
+      } else {
+        throw new Error(error.message || '알 수 없는 오류 발생')
+      }
     }
+
+    alert('작성 완료')
+    const data = await res.json()
+    router.push('/')
   } catch (e) {
     console.error(e)
-    alert('작성 실패')
+    alert('작성 실패: ' + e.message)
+  } finally {
+    isSubmitting.value = false
   }
 }
 

@@ -67,7 +67,8 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
-        String userId = (token != null && token.startsWith("Bearer ")) ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
+        String userId = (token != null && token.startsWith("Bearer "))
+                ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
 //        String uniqueKey = userId.equals("guest") ? ipAddress : userId;
         String uniqueKey = ipAddress;
 

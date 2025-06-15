@@ -34,7 +34,7 @@ public class CommentController {
     public ResponseEntity<?> saveCommentId(
             @RequestParam("feedUID") String id,
             @Valid @RequestBody CommentCreate response,
-            @RequestHeader(value = "Authorization", required = false) String token) {
+            @RequestHeader(value = "Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {

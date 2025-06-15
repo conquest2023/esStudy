@@ -6,6 +6,7 @@ import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
+import es.board.ex.TokenInvalidException;
 import es.board.repository.UserDAO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.PointHistory;
@@ -17,6 +18,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,6 +30,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -116,11 +120,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Boolean extractUserIdFromToken(String token, FeedCreateResponse response) {
         if (token == null || !token.startsWith("Bearer ") || token.length() < 8) {
-            throw new IllegalStateException("토큰이 비어있습니다.");
+            throw new TokenInvalidException("토큰이 비어있습니다.");
         }
         token = token.substring(7);
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new IllegalStateException("유효하지 않은 토큰입니다.");
+            throw  new TokenInvalidException("권한이 없습니다");
         }
         response.setUserId(jwtTokenProvider.getUserId(token));
         return true;

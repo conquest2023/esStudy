@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import es.board.ex.annotation.ValidCategory;
 import es.board.filter.XssSafeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,11 +37,11 @@ public class FeedCreateResponse {
 //    @JsonSerialize(using = XssSafeSerializer.class)
     private  String imageURL;
 
-    private int  viewCount;
 
     @JsonSerialize(using = XssSafeSerializer.class)
     private String title;
 
+    @ValidCategory
     @JsonSerialize(using = XssSafeSerializer.class)
     private  String category;
 
@@ -48,6 +49,9 @@ public class FeedCreateResponse {
     private String description;
 
     private  boolean anonymous;
+
+    private int  viewCount;
+
 
     private  int likeCount;
 

@@ -1,6 +1,7 @@
 package es.board.config.jwt;
 
 import es.board.controller.model.jwt.JwtToken;
+import es.board.ex.TokenInvalidException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -149,7 +150,7 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         } catch (JwtException e) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.");
+            throw new TokenInvalidException("유효하지 않은 토큰입니다.");
         }
     }
 

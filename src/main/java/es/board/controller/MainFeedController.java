@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
@@ -307,16 +308,11 @@ public class MainFeedController {
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
-            @RequestPart("feed") FeedCreateResponse res,
+            @Validated @RequestPart("feed") FeedCreateResponse res,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        try {
+
             authService.extractUserIdFromToken(token, res);
             return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
-        } catch (IllegalStateException e) {
-            log.error("Invalid feed data: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("success", false, "error", e.getMessage()));
-        }
     }
 
     @PostMapping("/upload-images")

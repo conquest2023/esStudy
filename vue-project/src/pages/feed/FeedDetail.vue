@@ -27,21 +27,12 @@
       </div>
     </div>
 
-      <!--      <ul class="dropdown-menu dropdown-menu-end" id="fabMenu">-->
-<!--        <li><a class="dropdown-item" @click="goEdit">수정</a></li>-->
-<!--        <li><a class="dropdown-item text-danger" @click="onDelete">삭제</a></li>-->
-<!--      </ul>-->
-<!--    </div>-->
-
     <div class="card shadow-sm feed-card">
       <div class="card-body">
         <h2 class="feed-title">{{ feed.title }}</h2>
         <p class="feed-meta">
           <strong>작성자:</strong>
-
-          <RouterLink
-              :to="`/user/profile/${feed.username}`"
-              class="text-primary fw-semibold">
+          <RouterLink :to="`/user/profile/${feed.username}`" class="text-primary fw-semibold">
             {{ rankBadge(feed.username) }} {{ feed.username }}
           </RouterLink>
           · <span>{{ dateText }}</span>
@@ -63,13 +54,10 @@
     <h5 class="mt-5"><i class="bi bi-chat"></i> 댓글</h5>
     <div v-if="comments.length === 0" class="text-muted">댓글이 없습니다.</div>
     <div v-for="c in comments" :key="c.commentUID + '-' + reloadTrigger" class="comment-item">
-    <div class="comment-body flex-grow-1">
+      <div class="comment-body flex-grow-1">
         <div class="d-flex justify-content-between">
           <div class="meta">
-            <RouterLink
-                :to="`/user/profile/${c.username}`"
-                class="text-primary fw-semibold"
-            >
+            <RouterLink :to="`/user/profile/${c.username}`" class="text-primary fw-semibold">
               {{ rankBadge(c.username) }} {{ c.username }}
             </RouterLink>
             <small class="ms-2 text-muted">{{ fmtDate(c.createdAt) }}</small>
@@ -80,7 +68,6 @@
         </div>
         <div class="mt-1" v-html="linkify(c.content)"></div>
 
-        <!-- 대댓글 표시 -->
         <div class="mt-2" v-if="replies && replies[c.commentUID]">
           <div
               v-for="rp in replies[c.commentUID]"
@@ -93,13 +80,18 @@
           </div>
         </div>
 
-
-      <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
-      <div v-show="activeReply === c.commentUID" class="mt-2">
-        <textarea v-model="replyTexts[c.commentUID]" rows="2" class="form-control mb-2" placeholder="답글 입력"/>
-        <button class="btn btn-sm btn-primary" @click="submitReply(c.commentUID)">답글 작성</button>
+        <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
+        <div v-show="activeReply === c.commentUID" class="mt-2">
+          <textarea v-model="replyTexts[c.commentUID]" rows="2" class="form-control mb-2" placeholder="답글 입력" />
+          <button
+              class="btn btn-sm btn-primary"
+              @click="submitReply(c.commentUID)"
+              :disabled="replySendingMap[c.commentUID]"
+          >
+            답글 작성
+          </button>
+        </div>
       </div>
-    </div>
     </div>
 
     <div class="card shadow-sm p-3 mt-4">
@@ -115,6 +107,7 @@
   </section>
   <div v-else class="text-center pt-5"><i class="bi bi-arrow-repeat fs-2 spin"></i></div>
 </template>
+
 <!-- 보통 public/index.html 에 포함되어야 함 -->
 <script setup>
 import { ref, onMounted, computed ,watch } from 'vue'
@@ -140,7 +133,7 @@ import { RouterLink } from 'vue-router'
   const replies = ref({})
   const replyText = ref('')
   const replyTexts = ref({})
-
+  const replySendingMap = ref({})
   const activeReply = ref(null)
   const commentText= ref('')
   const sending    = ref(false)
@@ -275,39 +268,37 @@ watch(
     } catch(e){ liked.value=prev; likeCount.value+=prev?1:-1 }
   }
 
-  async function submitComment() {
-    if (!commentText.value.trim()) {
-      alert("댓글 내용을 입력하세요!")
-      return
-    }
-    const token = localStorage.getItem("token")
-    if (!token) {
-      alert("로그인이 필요합니다.")
-      router.push("/login")
-      return
-    }
-
-    sending.value = true
-    try {
-      await api.post(`/search/view/comment/id?feedUID=${id}`, {
-        content: commentText.value
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      const { data } = await api.get('/detail', { params: { id } })
-      comments.value = data.comment || []
-
-      commentText.value = ''
-    } catch (e) {
-      console.error(e)
-      alert("댓글 저장 중 오류 발생")
-    } finally {
-      sending.value = false
-    }
+async function submitComment() {
+  if (sending.value) return
+  if (!commentText.value.trim()) {
+    alert("댓글 내용을 입력하세요!")
+    return
   }
+  const token = localStorage.getItem("token")
+  if (!token) {
+    alert("로그인이 필요합니다.")
+    router.push("/login")
+    return
+  }
+  sending.value = true
+  try {
+    await api.post(`/search/view/comment/id?feedUID=${id}`, {
+      content: commentText.value
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    const { data } = await api.get('/detail', { params: { id } })
+    comments.value = data.comment || []
+    commentText.value = ''
+  } catch (e) {
+    console.error(e)
+    alert("댓글 저장 중 오류 발생")
+  } finally {
+    sending.value = false
+  }
+}
+
 function goEdit(){
   router.push({
     path:'/search/view/feed/update',
@@ -335,41 +326,37 @@ function goEdit(){
   }
 async function submitReply(commentUID) {
   const text = replyTexts.value[commentUID] || ''
-
   if (!login.value) {
     push('로그인이 필요합니다')
     router.push('/login')
     return
   }
-
   if (!text.trim()) {
     alert('답글 내용을 입력하세요.')
     return
   }
-
+  if (replySendingMap.value[commentUID]) return
+  replySendingMap.value[commentUID] = true
   try {
     await api.post('/search/view/reply/save', {
       commentUID,
       feedUID: id,
       content: text,
     })
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    const { data } = await api.get('/detail', {
-      params: { id }
-    })
-
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    const { data } = await api.get('/detail', { params: { id } })
     comments.value = data.comment || []
     replies.value = JSON.parse(JSON.stringify(data.replies))
     activeReply.value = null
-    replyTexts.value[commentUID] = ''  // 초기화
+    replyTexts.value[commentUID] = ''
     reloadTrigger.value++
   } catch (e) {
     console.error(e)
     push('답글 저장 실패')
-    }
+  } finally {
+    replySendingMap.value[commentUID] = false
   }
-
+}
 
 </script>
 
