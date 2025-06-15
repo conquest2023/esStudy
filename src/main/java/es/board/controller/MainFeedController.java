@@ -316,10 +316,6 @@ public class MainFeedController {
             log.error("Invalid feed data: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("success", false, "error", e.getMessage()));
-        } catch (Exception e) {
-            log.error("Unexpected error occurred: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "error", "요청 처리 중 오류가 발생했습니다."));
         }
     }
 

@@ -16,4 +16,15 @@ public class DailyCheckRequest {
 
     private String correct;
     // getters, setters
+
+
+    @Override
+    public String toString() {
+        return "DailyCheckRequest{" +
+                "category='" + category + '\'' +
+                ", matter='" + matter + '\'' +
+                ", answer='" + answer + '\'' +
+                ", correct='" + correct + '\'' +
+                '}';
+    }
 }

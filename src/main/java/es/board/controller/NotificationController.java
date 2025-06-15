@@ -42,23 +42,21 @@ public class NotificationController {
 //        return notificationService.subscribe(jwtTokenProvider.getUserId(token));
 //    }
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<?> subscribe(@RequestParam("token") String token, HttpServletResponse res) {
-
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
-            return tokenCheckResponse;
+    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token) {
+        if (token == null || token.isBlank()) {
+            throw  new RuntimeException("토근이 필요합니다");
         }
-        SseEmitter emitter = notificationService.subscribe(
-                jwtTokenProvider.getUserId(token.substring(7)));
+        SseEmitter emitter = notificationService.subscribe(jwtTokenProvider.getUserId(token));
         return new ResponseEntity<>(emitter, HttpStatus.OK);
     }
 
     @GetMapping("/notifications/all")
     public ResponseEntity<?> getAllNotifications(@RequestHeader("Authorization") String token) {
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
-            return tokenCheckResponse;
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "토큰이 필요합니다."));
         }
+        token=token.substring(7);
         List<Notification> notifications = notificationService.getNotificationList(jwtTokenProvider.getUserId(token.substring(7)));
         return ResponseEntity.ok(notifications);
     }

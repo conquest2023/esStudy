@@ -27,7 +27,6 @@ public class TokenValidator {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
-
         String rawToken = token.startsWith("Bearer ") ? token.substring(7) : token;
         if (!jwtTokenProvider.validateToken(rawToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

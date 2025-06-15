@@ -67,11 +67,9 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
         try {
             String caches = redisTemplate.opsForValue().get(problemCacheKey);
             List<DailyQuestion> questions = objectMapper.readValue(caches, new TypeReference<List<DailyQuestion>>() {});
-            boolean isCorrect = checkAnswer(questions, req);
-            log.info(String.valueOf(isCorrect));
+            boolean isCorrect = checkAnswer(problemCacheKey, questions, req);
             redisTemplate.opsForValue().set(userCheckKey, isCorrect ? "1" : "0", 1, TimeUnit.DAYS);
             return isCorrect;
-//            checkAnswer(questions,userId,CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY),req);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -155,11 +153,30 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
         }
     }
 
-    private boolean checkAnswer(List<DailyQuestion> questions, DailyCheckRequest req) {
+    private boolean checkAnswer(String cacheKey, List<DailyQuestion> questions, DailyCheckRequest req) {
+       if (cacheKey.equals("random_toeic_questions")){
+           return  toeicCheckAnswer(questions,req);
+       }
         for (DailyQuestion q : questions) {
             if (q.getQuestion().equals(req.getMatter())) {
                 String userAnswer = convertSymbolToNumber(req.getAnswer());
+                log.info(userAnswer);
                 String correctAnswer = convertSymbolToNumber(q.getAnswer().trim());
+                log.info(correctAnswer);
+                return userAnswer.equals(correctAnswer);
+            }
+        }
+        return false;
+    }
+
+    private boolean toeicCheckAnswer(List<DailyQuestion> questions, DailyCheckRequest req) {
+        log.info(req.toString());
+        for (DailyQuestion q : questions) {
+            if (q.getQuestion().equals(req.getMatter())) {
+                String userAnswer = convertSymbolToNumber(req.getAnswer().trim());
+                log.info(userAnswer);
+                String correctAnswer = convertSymbolToNumber(req.getCorrect().trim());
+                log.info(correctAnswer);
                 return userAnswer.equals(correctAnswer);
             }
         }
