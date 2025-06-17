@@ -48,7 +48,10 @@ public class IpLimitInterceptor implements HandlerInterceptor {
                 uri.startsWith("/api/day") ||
                 uri.startsWith("/api/toeic") ||
                 uri.startsWith("/api/police") ||
+                uri.startsWith("/api/upload-images") ||
                 uri.startsWith("/api/civil") ||
+                uri.startsWith("/api/auth/status")||
+                uri.startsWith("/api/info") ||
                 uri.startsWith("/api/interview/test") ||
                 uri.startsWith("/api/search/today/todo") ||
                 uri.startsWith("/api/list/notice") ||

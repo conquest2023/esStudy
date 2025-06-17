@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,24 +65,28 @@ public class S3Uploader {
     }
 
     private Optional<File> convert(MultipartFile file,int width) throws IOException {
-        log.info(String.valueOf(width));
-//        log.info(String.valueOf(height));
+        BufferedImage image = ImageIO.read(file.getInputStream());
+        log.info("원본 파일명: {}", file.getOriginalFilename());
+        log.info("파일 사이즈: {} bytes", file.getSize());
+        log.info("원본 해상도: {}x{}", image.getWidth(), image.getHeight());
+
         String extension = getExtension(file.getOriginalFilename());
         String safeName = UUID.randomUUID() + "." + extension; // ← 영문 안전 이름
 
         File convertFile = new File(safeName);
-//        if (convertFile.createNewFile()) {
             try (InputStream in = file.getInputStream()) {
                 Thumbnails.of(in)
-                        .size(width, Integer.MAX_VALUE) // 비율 유지하고 너비만 고정
-                        .outputFormat(extension)        // 포맷 유지 (예: jpg, png)
+                        .width(width)
+                        .keepAspectRatio(true)
+                        .outputFormat(extension)
+                        .outputQuality(1.0)
                         .toFile(convertFile);
                 return Optional.of(convertFile);
             } catch (IOException e) {
                 e.printStackTrace();
                 return Optional.empty();
             }
-        }
+    }
 
 
 

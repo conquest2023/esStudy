@@ -113,88 +113,220 @@ const checkEditorEmpty = () => (showPlaceholder.value = !editor.value?.innerText
 const onEditorInput    = () => checkEditorEmpty()
 
 function filesDropped (files) { handleFiles({ target: { files } }) }
+
 function handleFiles (e) {
   const files = Array.from(e.target.files)
-  files.forEach(file => {
+
+  files.forEach((file) => {
     const id  = crypto.randomUUID()
     const url = URL.createObjectURL(file)
 
+    /* 3-1. 미리보기 IMG */
     const img = document.createElement('img')
     img.src = url
     img.dataset.id = id
-    Object.assign(img.style, { maxWidth: '100%', margin: '10px 0', display: 'block' })
-
-    const wrap = document.createElement('div')
-    wrap.className = 'image-wrapper'
-    wrap.dataset.id = id
-    Object.assign(wrap.style, {
-      position: 'relative', display: 'inline-block',
-      resize: 'both', overflow: 'auto', maxWidth: '100%'
+    Object.assign(img.style, {
+      maxWidth: '100%',
+      margin   : '10px 0',
+      display  : 'block',
+      /* 초기 400px 폭 지정 (사용자 조절 가능) */
+      width    : '400px',
+      height   : 'auto'
     })
-    wrap.contentEditable = 'false'
 
+    /* 3-2. Resize 가능한 Wrapper */
+    const wrap = document.createElement('div')
+    wrap.className   = 'image-wrapper'
+    wrap.dataset.id  = id
+    wrap.contentEditable = 'false'
+    Object.assign(wrap.style, {
+      position : 'relative',
+      display  : 'inline-block',
+      resize   : 'both',
+      overflow : 'auto',
+      maxWidth : '100%'
+    })
+
+    /* 3-3. X 삭제 버튼 */
     const del = document.createElement('button')
     del.innerHTML = '&times;'
     Object.assign(del.style, {
-      position: 'absolute', top: '5px', right: '5px', width: '26px', height: '26px',
-      background: '#dc3545', color: '#fff', border: 'none', borderRadius: '50%', cursor: 'pointer'
+      position   : 'absolute',
+      top        : '5px',
+      right      : '5px',
+      width      : '26px',
+      height     : '26px',
+      background : '#dc3545',
+      color      : '#fff',
+      border     : 'none',
+      borderRadius: '50%',
+      cursor     : 'pointer'
     })
     del.onclick = () => {
       wrap.remove()
-      pendingFiles.value = pendingFiles.value.filter(p => p.id !== id)
+      pendingFiles.value = pendingFiles.value.filter((p) => p.id !== id)
+      URL.revokeObjectURL(url)
     }
 
+    /* 3-4. Wrapper-IMG 동기화 (사용자 resize → img.style 갱신) */
     wrap.append(img, del)
-    editor.value.append(wrap, document.createElement('br'))
+    attachResizeSync(wrap, img)
 
+    editor.value.append(wrap, document.createElement('br'))
     pendingFiles.value.push({ id, file })
   })
 }
 
-async function buildHtmlWithUploadedImages() {
-  const idToUrl = {}
+function attachResizeSync (wrap, img) {
+  const init = () => {
+    const w = img.naturalWidth  || 400
+    const h = img.naturalHeight || 300
+    wrap.style.width  = `${w}px`
+    wrap.style.height = `${h}px`
+    img.style.width   = `${w}px`
+    img.style.height  = `${h}px`
+  }
+
+  if (img.complete) init()       // 캐시된 이미지도 커버
+  else img.onload = init
+
+  new ResizeObserver(() => {
+    img.style.width  = `${wrap.offsetWidth}px`
+    img.style.height = `${wrap.offsetHeight}px`
+  }).observe(wrap)
+}
+
+// function handleFiles (e) {
+//   const files = Array.from(e.target.files)
+//   files.forEach(file => {
+//     const id  = crypto.randomUUID()
+//     const url = URL.createObjectURL(file)
+//
+//     const img = document.createElement('img')
+//     img.src = url
+//     img.dataset.id = id
+//     Object.assign(img.style, { maxWidth: '100%', margin: '10px 0', display: 'block' })
+//
+//     const wrap = document.createElement('div')
+//     wrap.className = 'image-wrapper'
+//     wrap.dataset.id = id
+//     Object.assign(wrap.style, {
+//       position: 'relative', display: 'inline-block',
+//       resize: 'both', overflow: 'auto', maxWidth: '100%'
+//     })
+//     wrap.contentEditable = 'false'
+//
+//     const del = document.createElement('button')
+//     del.innerHTML = '&times;'
+//     Object.assign(del.style, {
+//       position: 'absolute', top: '5px', right: '5px', width: '26px', height: '26px',
+//       background: '#dc3545', color: '#fff', border: 'none', borderRadius: '50%', cursor: 'pointer'
+//     })
+//     del.onclick = () => {
+//       wrap.remove()
+//       pendingFiles.value = pendingFiles.value.filter(p => p.id !== id)
+//     }
+//     wrap.append(img, del)
+//     editor.value.append(wrap, document.createElement('br'))
+//
+//     pendingFiles.value.push({ id, file })
+//   })
+// }
+
+// async function buildHtmlWithUploadedImages() {
+//   const idToUrl = {}
+//
+//   for (const { id, file } of pendingFiles.value) {
+//     const img = editor.value.querySelector(`.image-wrapper[data-id="${id}"] img`)
+//     const width = img?.style?.width?.replace('px', '') || '400'
+//     const height = img?.style?.height?.replace('px', '') || ''
+//
+//     const form = new FormData()
+//     form.append('file', file)
+//     form.append('width', width)
+//     if (height) form.append('height', height)
+//
+//     try {
+//       const res = await fetch('/api/upload-images', {
+//         method: 'POST',
+//         body: form
+//       })
+//       const { url } = await res.json()
+//       idToUrl[id] = url
+//     } catch (err) {
+//       console.error('이미지 업로드 실패', err)
+//     }
+//   }
+//
+//   const clone = editor.value.cloneNode(true)
+//   clone.querySelectorAll('.image-wrapper').forEach(w => {
+//     const id = w.dataset.id
+//     const img = w.querySelector('img')
+//     if (!img) return
+//
+//     const clean = img.cloneNode(false)
+//     clean.src = idToUrl[id] || img.src
+//     clean.removeAttribute('data-id')
+//     clean.style.maxWidth = '100%'
+//     clean.style.width = img.style.width
+//     clean.style.height = img.style.height || 'auto'
+//
+//     w.replaceWith(clean)
+//   })
+//
+//   return clone.innerHTML
+// }
+async function buildHtmlWithUploadedImages () {
+  const idToUrl = {} // {id: s3Url}
 
   for (const { id, file } of pendingFiles.value) {
-    const img = editor.value.querySelector(`.image-wrapper[data-id="${id}"] img`)
-    const width = img?.style?.width?.replace('px', '') || '400'
-    const height = img?.style?.height?.replace('px', '') || ''
+    const wrap = editor.value.querySelector(`.image-wrapper[data-id="${id}"]`)
+    const img  = wrap?.querySelector('img')
+    if (!img) continue
 
+    /* (1) 실제 표시 px 크기 계산 */
+    const width  = parseInt(img.style.width)  || img.naturalWidth
+    const height = parseInt(img.style.height) || img.naturalHeight
+
+    /* (2) FormData 전송 */
     const form = new FormData()
-    form.append('file', file)
-    form.append('width', width)
-    if (height) form.append('height', height)
+    form.append('file',   file)
+    form.append('width',  width)
+    form.append('height', height)
 
     try {
-      const res = await fetch('/api/upload-images', {
-        method: 'POST',
-        body: form
-      })
-      const { url } = await res.json()
-      idToUrl[id] = url
+      const res      = await fetch('/api/upload-images', { method: 'POST', body: form })
+      const { url }  = await res.json()
+      idToUrl[id]    = url
     } catch (err) {
       console.error('이미지 업로드 실패', err)
     }
   }
 
+  /* (3) 에디터 복제 → wrapper 를 <img> 로 치환 */
   const clone = editor.value.cloneNode(true)
-  clone.querySelectorAll('.image-wrapper').forEach(w => {
-    const id = w.dataset.id
+
+  clone.querySelectorAll('.image-wrapper').forEach((w) => {
+    const id  = w.dataset.id
     const img = w.querySelector('img')
     if (!img) return
 
+    const width  = parseInt(img.style.width)  || img.naturalWidth
+    const height = parseInt(img.style.height) || img.naturalHeight
+
     const clean = img.cloneNode(false)
-    clean.src = idToUrl[id] || img.src
+    clean.src  = idToUrl[id] || img.src
     clean.removeAttribute('data-id')
+    clean.removeAttribute('style')
+    clean.setAttribute('width',  width)
+    clean.setAttribute('height', height)
     clean.style.maxWidth = '100%'
-    clean.style.width = img.style.width
-    clean.style.height = img.style.height || 'auto'
 
     w.replaceWith(clean)
   })
 
   return clone.innerHTML
 }
-
 async function submitForm() {
   if (isSubmitting.value) return
   isSubmitting.value = true
