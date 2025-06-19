@@ -321,6 +321,44 @@ async function fetchNotice() {
 /************************************************
  * 5. 메인 피드 로딩 (✔ 핵심 수정 – URL 분기만 단순하게)
  ************************************************/
+// async function fetchFeeds(newPage = page.value) {
+//   const tab = TABS.find(t => t.id === activeTab.value)
+//   if (!tab) return
+//
+//   loading.value = true
+//   page.value = newPage
+//   router.replace({ query: { ...route.query, page: newPage } })
+//
+//   const params = { page: newPage, size: 10 }
+//   if (tab.category) params.category = tab.category
+//   if (tab.id === 'DATA') params.category = selectedCategory.value
+//
+//   let url = tab.url
+//   if (tab.id === 'ALL') {
+//     if (curSort.value === 'COMMENT')      url = '/comment/count'
+//     else if (curSort.value === 'REPLY')   url = '/reply/count'
+//     else if (curSort.value === 'VIEW')    url = '/view/count'
+//     else url = '/feeds'
+//   }
+//
+//   try {
+//     const { data } = await api.get(url, { params })
+//
+//     // 반환 형식이 리스트든 기존 구조든 동일하게 posts 로만 세팅 (최소 변경)
+//     posts.value      = data.data ?? data ?? []
+//     counts.value     = data.count ?? {}
+//     totalPage.value  = data.totalPage ?? Math.ceil(posts.value.length / 10)
+//
+//     if (activeTab.value === 'ALL') await fetchNotice()
+//     else notices.value = []
+//   } catch (err) {
+//     console.error(`${tab.label} 로딩 실패`, err)
+//   } finally {
+//     loading.value = false
+//   }
+// }
+
+
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
   if (!tab) return
@@ -329,11 +367,9 @@ async function fetchFeeds(newPage = page.value) {
   page.value = newPage
   router.replace({ query: { ...route.query, page: newPage } })
 
-  const params = { page: newPage, size: 10 }
-  if (tab.category) params.category = tab.category
-  if (tab.id === 'DATA') params.category = selectedCategory.value
-
+  const params = { page: 0, size: 100 } // ✅ 많이 불러와서 프론트에서 자름
   let url = tab.url
+
   if (tab.id === 'ALL') {
     if (curSort.value === 'COMMENT')      url = '/comment/count'
     else if (curSort.value === 'REPLY')   url = '/reply/count'
@@ -344,10 +380,20 @@ async function fetchFeeds(newPage = page.value) {
   try {
     const { data } = await api.get(url, { params })
 
-    // 반환 형식이 리스트든 기존 구조든 동일하게 posts 로만 세팅 (최소 변경)
-    posts.value      = data.data ?? data ?? []
-    counts.value     = data.count ?? {}
-    totalPage.value  = data.totalPage ?? Math.ceil(posts.value.length / 10)
+    // ✅ 글 병합
+    const merged = [...(data.data ?? []), ...(data.vote ?? [])]
+
+    // ✅ createdAt 기준 내림차순 정렬
+    merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    // ✅ 10개씩 잘라서 현재 페이지 데이터만 사용
+    const pageSize = 10
+    const start = newPage * pageSize
+    const end   = start + pageSize
+    posts.value = merged.slice(start, end)
+
+    counts.value    = data.count ?? {}
+    totalPage.value = Math.ceil(merged.length / pageSize)
 
     if (activeTab.value === 'ALL') await fetchNotice()
     else notices.value = []

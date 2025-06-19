@@ -125,9 +125,15 @@ const replies         = ref({})
 const commentInput    = ref('')
 const replyInputs     = reactive({})
 const replyFormOpen   = reactive({})
-const store = useUserStore()
 const currentUsername = computed(() => store.username)
+const store = useUserStore()
+
 // ─── 유틸 ────────────────────────────────────────────────
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  isLoggedIn.value = !!token
+  fetchVote()
+})
 function formatDate(dt){
   const d = new Date(dt);const m=d.getMonth()+1;const day=d.getDate();let h=d.getHours();const mi=d.getMinutes();const p=h>=12?'오후':'오전';h=h%12||12;return `${m}. ${day}. ${p} ${h}:${mi.toString().padStart(2,'0')}`
 }
@@ -136,6 +142,7 @@ function selectOption(idx){ selectedIndex.value = idx }
 
 async function fetchVote(){
   const id = route.query.id
+
   const [detail,status] = await Promise.all([
     api.get(`/vote/detail?id=${id}`),
     api.get(`/get/ticket/vote?id=${id}`)
@@ -144,10 +151,10 @@ async function fetchVote(){
     ...detail.data.data,
     Owner: detail.data.Owner
   }
+
   voteCounts.value = status.data?.selectOption || {}
   totalVotes.value = Object.values(voteCounts.value).reduce((a,b)=>a+b,0)
   // badge.value = '🥇'
-  currentUsername.value = store.username
   comments.value = detail.data.comment || []
   replies.value  = detail.data.replies || {}
 }
@@ -201,11 +208,6 @@ async function deleteVote(){
   }
 }
 
-onMounted(() => {
-  const token = localStorage.getItem('token')
-  isLoggedIn.value = !!token
-  fetchVote()
-})
 </script>
 
 <style scoped>

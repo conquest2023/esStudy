@@ -279,7 +279,8 @@ public class MainFeedAjaxController {
         response.put("count",commentRes.get("commentCount"));
         VoteRequest req=voteService.getVoteDetail(feedUID);
         if (token != null && token.startsWith("Bearer ")) {
-            if (jwtTokenProvider.validateToken(token.substring(7))) {
+            token =token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
                 return handleAuthenticatedVoteRequest(req, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
             }
         }
