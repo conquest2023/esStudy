@@ -58,52 +58,52 @@
           <!-- ▣ 검색바 -->
           <SearchBar class="mb-3" />
 
-          <!-- ▣ 면접 질문 섹션 -->
-          <section class="my-4">
-            <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-comments fa-lg text-primary"></i>
-                <span class="fs-4 fw-bold">면접 질문</span>
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" @click="isInterviewOpen = !isInterviewOpen">
-                {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}
-              </button>
-            </h2>
+<!--          &lt;!&ndash; ▣ 면접 질문 섹션 &ndash;&gt;-->
+<!--          <section class="my-4">-->
+<!--            <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">-->
+<!--              <div class="d-flex align-items-center gap-2">-->
+<!--                <i class="fas fa-comments fa-lg text-primary"></i>-->
+<!--                <span class="fs-4 fw-bold">면접 질문</span>-->
+<!--              </div>-->
+<!--              <button class="btn btn-sm btn-outline-secondary" @click="isInterviewOpen = !isInterviewOpen">-->
+<!--                {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}-->
+<!--              </button>-->
+<!--            </h2>-->
 
-            <transition name="fade">
-              <div v-show="isInterviewOpen" class="p-3 bg-light rounded-3 shadow-sm mt-3">
-                <!-- 카테고리 버튼 -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <div class="btn-group rounded-pill shadow-sm">
-                    <button v-for="cat in ['IT', '일반']" :key="cat" class="btn btn-outline-primary" :class="{ active: curCat === cat }" @click="changeCat(cat)">
-                      <i :class="cat === 'IT' ? 'fas fa-laptop-code' : 'fas fa-building'" />
-                      {{ cat }} 기업
-                    </button>
-                  </div>
-                  <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1" @click="showBestAnswers">
-                    <i class="fas fa-trophy text-warning" /> 베스트 답변
-                  </button>
-                </div>
+<!--            <transition name="fade">-->
+<!--              <div v-show="isInterviewOpen" class="p-3 bg-light rounded-3 shadow-sm mt-3">-->
+<!--                &lt;!&ndash; 카테고리 버튼 &ndash;&gt;-->
+<!--                <div class="d-flex justify-content-between align-items-center mb-3">-->
+<!--                  <div class="btn-group rounded-pill shadow-sm">-->
+<!--                    <button v-for="cat in ['IT', '일반']" :key="cat" class="btn btn-outline-primary" :class="{ active: curCat === cat }" @click="changeCat(cat)">-->
+<!--                      <i :class="cat === 'IT' ? 'fas fa-laptop-code' : 'fas fa-building'" />-->
+<!--                      {{ cat }} 기업-->
+<!--                    </button>-->
+<!--                  </div>-->
+<!--                  <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1" @click="showBestAnswers">-->
+<!--                    <i class="fas fa-trophy text-warning" /> 베스트 답변-->
+<!--                  </button>-->
+<!--                </div>-->
 
-                <!-- 질문 카드 -->
-                <div v-if="curQuestion" class="card border-0 shadow-sm">
-                  <div class="card-header bg-white border-bottom"><strong>{{ curQuestion.question }}</strong></div>
-                  <div class="card-body">
-                    <textarea v-model="answerInput" class="form-control" rows="4" placeholder="최소 35자 이상 입력해주세요" maxlength="1000" />
-                    <div class="text-end text-muted small mt-1">{{ answerInput.length }} / 1000자</div>
-                    <button class="btn btn-primary w-100 mt-3" @click="submitAnswer">
-                      <i class="fas fa-paper-plane me-1" /> 제출하기
-                    </button>
-                  </div>
-                </div>
+<!--                &lt;!&ndash; 질문 카드 &ndash;&gt;-->
+<!--                <div v-if="curQuestion" class="card border-0 shadow-sm">-->
+<!--                  <div class="card-header bg-white border-bottom"><strong>{{ curQuestion.question }}</strong></div>-->
+<!--                  <div class="card-body">-->
+<!--                    <textarea v-model="answerInput" class="form-control" rows="4" placeholder="최소 35자 이상 입력해주세요" maxlength="1000" />-->
+<!--                    <div class="text-end text-muted small mt-1">{{ answerInput.length }} / 1000자</div>-->
+<!--                    <button class="btn btn-primary w-100 mt-3" @click="submitAnswer">-->
+<!--                      <i class="fas fa-paper-plane me-1" /> 제출하기-->
+<!--                    </button>-->
+<!--                  </div>-->
+<!--                </div>-->
 
-                <div class="d-flex justify-content-between mt-3">
-                  <button class="btn btn-outline-secondary" @click="prevQ"><i class="fas fa-arrow-left me-1" /> 이전</button>
-                  <button class="btn btn-outline-secondary" @click="nextQ">다음 <i class="fas fa-arrow-right ms-1" /></button>
-                </div>
-              </div>
-            </transition>
-          </section>
+<!--                <div class="d-flex justify-content-between mt-3">-->
+<!--                  <button class="btn btn-outline-secondary" @click="prevQ"><i class="fas fa-arrow-left me-1" /> 이전</button>-->
+<!--                  <button class="btn btn-outline-secondary" @click="nextQ">다음 <i class="fas fa-arrow-right ms-1" /></button>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </transition>-->
+<!--          </section>-->
 
           <!-- ▣ 정렬 드롭다운 (오른쪽 정렬) -->
           <div class="d-flex justify-content-end mb-3">
@@ -367,8 +367,11 @@ async function fetchFeeds(newPage = page.value) {
   page.value = newPage
   router.replace({ query: { ...route.query, page: newPage } })
 
-  const params = { page: 0, size: 100 } // ✅ 많이 불러와서 프론트에서 자름
+  // const params = { page: 0, size: 100 }
   let url = tab.url
+    const params = { page: 0, size: 100 }
+  if (tab.category) params.category = tab.category
+  if (tab.id === 'DATA') params.category = selectedCategory.value
 
   if (tab.id === 'ALL') {
     if (curSort.value === 'COMMENT')      url = '/comment/count'

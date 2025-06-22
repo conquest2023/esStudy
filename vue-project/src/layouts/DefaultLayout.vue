@@ -10,28 +10,8 @@ import {useSidebarStore} from "@/stores/sidebar";
 import {useUserStore} from "@/stores/user";
 const sb = useSidebarStore()
 const store = useUserStore()
-// onMounted(async () => {
-//     await sb.loadStatic()
-//     await sb.loadLive()
-// })
-
 const router = useRouter()
-let sseInit = false
-// function initSSE () {
-//   const token=localStorage.getItem("token")
-//   // if (!sseInit) {
-//   useSSE(token)
-//   // sseInit = true
-//   // }
-// }
-// onMounted(() => {
-//   initSSE ()
-// })
-// watch(() => localStorage.getItem("token"), (token) => {
-//   if (token) {
-//     useSSE(token)
-//   }
-// })
+
 const navItems = [
   { path:'/', icon:'fas fa-home fa-lg', label:'홈' },
   {
@@ -56,7 +36,13 @@ const navItems = [
       { path:'/certificate/list',   label:'자격증 분석' },
       { path:'/certificate/calendar', label:'자격증 일정' }
     ]
-  }
+  },
+  {
+    icon:'fas fa-certificate fa-lg', label:'면접',
+    children:[
+      { path:'/interview/list', label:'면접 질문' }
+    ]
+  },
 ]
 </script>
 

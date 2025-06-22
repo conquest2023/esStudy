@@ -182,7 +182,36 @@ const menus = [
         icon: 'fas fa-calendar-alt text-warning',
         title: '자격증 캘린더',
         desc: 'D‑DAY & 원서접수 일정 한눈에!'
-      }
+      },
+    ]
+  },
+  {
+    label: '면접',
+    items: [
+      {
+        href: '/search/view/question',
+        icon: 'fas fa-user-shield text-primary',
+        title: '공무원',
+        desc: '실제 면접 기출 문제로 철저 대비!'
+      },
+      {
+        href: '/certificate/data',
+        icon: 'fas fa-laptop-code text-info',
+        title: 'IT',
+        desc: '기술면접/코테까지 완벽 준비!'
+      },
+      {
+        href: '/certificate/list',
+        icon: 'fas fa-building text-success',
+        title: '사기업',
+        desc: '기업별 면접 포인트와 합격 전략'
+      },
+      {
+        href: '/certificate/calendar',
+        icon: 'fas fa-landmark text-warning',
+        title: '공기업',
+        desc: 'NCS부터 인성까지 완벽 분석'
+      },
     ]
   }
 ]

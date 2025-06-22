@@ -23,7 +23,7 @@ const router = useRouter()
   <nav v-if="isMobile" class="mobile-bottom-nav shadow-sm">
     <template v-for="n in navItems" :key="n.label">
       <RouterLink
-          v-if="!n.children"
+          v-if="!n.children || n.children.length === 0"
           :to="n.path"
           class="nav-link text-center flex-fill"
       >
