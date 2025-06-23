@@ -40,7 +40,7 @@ const navItems = [
   {
     icon:'fas fa-certificate fa-lg', label:'면접',
     children:[
-      { path:'/interview/list', label:'면접 질문' }
+      { path:'/interview/GovInterviewPanel', label:'면접 질문' }
     ]
   },
 ]

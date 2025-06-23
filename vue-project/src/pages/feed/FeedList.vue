@@ -357,55 +357,106 @@ async function fetchNotice() {
 //     loading.value = false
 //   }
 // }
+async function fetchFeedsAll(newPage = page.value) {
+  loading.value = true
+  page.value = newPage
+  router.replace({ query: { ...route.query, page: newPage } })
 
+  const params = { page: newPage, size: 10 }  // ✅ page/size 그대로 사용
+  let url = '/feeds'
+  if (curSort.value === 'COMMENT')      url = '/comment/count'
+  else if (curSort.value === 'REPLY')   url = '/reply/count'
+  else if (curSort.value === 'VIEW')    url = '/view/count'
+
+  try {
+    const { data } = await api.get(url, { params })
+
+    posts.value = data.data ?? []
+    counts.value = data.count ?? {}           // 있으면 사용, 없어도 무관
+    totalPage.value = data.totalPage ?? 0
+
+    await fetchNotice()
+  } catch (err) {
+    console.error(`전체 글 로딩 실패`, err)
+  } finally {
+    loading.value = false
+  }
+}
 
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
   if (!tab) return
 
+  if (tab.id === 'ALL') return fetchFeedsAll(newPage)
+
   loading.value = true
   page.value = newPage
   router.replace({ query: { ...route.query, page: newPage } })
 
-  // const params = { page: 0, size: 100 }
-  let url = tab.url
-    const params = { page: 0, size: 100 }
+  const params = { page: newPage, size: 10 }
   if (tab.category) params.category = tab.category
   if (tab.id === 'DATA') params.category = selectedCategory.value
 
-  if (tab.id === 'ALL') {
-    if (curSort.value === 'COMMENT')      url = '/comment/count'
-    else if (curSort.value === 'REPLY')   url = '/reply/count'
-    else if (curSort.value === 'VIEW')    url = '/view/count'
-    else url = '/feeds'
-  }
-
   try {
-    const { data } = await api.get(url, { params })
+    const { data } = await api.get(tab.url, { params })
 
-    // ✅ 글 병합
-    const merged = [...(data.data ?? []), ...(data.vote ?? [])]
-
-    // ✅ createdAt 기준 내림차순 정렬
-    merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-
-    // ✅ 10개씩 잘라서 현재 페이지 데이터만 사용
-    const pageSize = 10
-    const start = newPage * pageSize
-    const end   = start + pageSize
-    posts.value = merged.slice(start, end)
-
+    posts.value     = data.data ?? data ?? []
     counts.value    = data.count ?? {}
-    totalPage.value = Math.ceil(merged.length / pageSize)
+    totalPage.value = data.totalPage ?? Math.ceil(posts.value.length / 10)
 
-    if (activeTab.value === 'ALL') await fetchNotice()
-    else notices.value = []
+    notices.value = []
   } catch (err) {
     console.error(`${tab.label} 로딩 실패`, err)
   } finally {
     loading.value = false
   }
 }
+
+
+// async function fetchFeeds(newPage = page.value) {
+//   const tab = TABS.find(t => t.id === activeTab.value)
+//   if (!tab) return
+//
+//   loading.value = true
+//   page.value = newPage
+//   router.replace({ query: { ...route.query, page: newPage } })
+//
+//   // const params = { page: 0, size: 100 }
+//   const params = { page: 0, size: 1000 }
+//   if (tab.category) params.category = tab.category
+//   if (tab.id === 'DATA') params.category = selectedCategory.value
+//   let url = tab.url
+//
+//   if (tab.id === 'ALL') {
+//     if (curSort.value === 'COMMENT')      url = '/comment/count'
+//     else if (curSort.value === 'REPLY')   url = '/reply/count'
+//     else if (curSort.value === 'VIEW')    url = '/view/count'
+//     else url = '/feeds'
+//   }
+//
+//   try {
+//     const { data } = await api.get(url, { params })
+//
+//     const merged = [...(data.data ?? []), ...(data.vote ?? [])]
+//
+//     merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+//
+//     const pageSize = 10
+//     const start = newPage * pageSize
+//     const end   = start + pageSize
+//     posts.value = merged.slice(start, end)
+//
+//     counts.value    = data.count ?? {}
+//     totalPage.value = Math.ceil(merged.length / pageSize)
+//
+//     if (activeTab.value === 'ALL') await fetchNotice()
+//     else notices.value = []
+//   } catch (err) {
+//     console.error(`${tab.label} 로딩 실패`, err)
+//   } finally {
+//     loading.value = false
+//   }
+// }
 
 onMounted(() => {
   const p = parseInt(route.query.page) || 0

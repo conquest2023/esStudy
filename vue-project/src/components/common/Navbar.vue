@@ -189,7 +189,7 @@ const menus = [
     label: '면접',
     items: [
       {
-        href: '/search/view/question',
+        href: '/interview/govinterview',
         icon: 'fas fa-user-shield text-primary',
         title: '공무원',
         desc: '실제 면접 기출 문제로 철저 대비!'
