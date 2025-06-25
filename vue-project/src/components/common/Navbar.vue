@@ -254,18 +254,32 @@ const menus = [
 
           <div class="notification-dropdown dropdown-menu shadow rounded p-3" :class="{ show: showNoti }">
             <ul v-if="notifications.some(n => !n.read)" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
+              <!-- 알림 항목 -->
               <li
                   v-for="n in notifications.filter(n => !n.read)"
                   :key="n.id"
-                  class="py-2 border-bottom"
+                  class="py-2 border-bottom d-flex justify-content-between align-items-start"
               >
-                <router-link
-                    :to="'/search/view/feed/id/' + n.feedUID"
-                    class="text-decoration-none"
-                    @click="n.read = true"
-                >
-                  {{ n.message }}
-                </router-link>
+                <div>
+                  <router-link
+                      :to="'/search/view/feed/id/' + n.feedUID"
+                      class="text-decoration-none fw-bold"
+                      @click="markAsRead([n.id])"
+                  >
+                    🔔 {{ n.message }}
+                  </router-link>
+                  <div class="small text-muted mt-1">{{ formatDate(n.createdAt) }}</div>
+                </div>
+
+                <!-- 버튼 그룹 -->
+                <div class="btn-group btn-group-sm ms-2">
+                  <button class="btn btn-outline-success btn-sm" @click="markAsRead([n.id])" title="읽음">
+                    <i class="fas fa-eye" />
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" @click="deleteNotification([n.id])" title="삭제">
+                    <i class="fas fa-trash" />
+                  </button>
+                </div>
               </li>
             </ul>
             <ul v-else class="list-unstyled mb-0 small text-muted text-center py-3">
@@ -394,3 +408,42 @@ const menus = [
 }
 
 </style>
+<script>
+import api from '@/utils/api'
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+async function markAsRead(ids) {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    await api.post('/notification/check', ids, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    // 읽은 항목 업데이트
+    user.notifications = user.notifications.map(n =>
+        ids.includes(n.id) ? { ...n, read: true } : n
+    )
+  } catch (e) {
+    console.error('읽음 처리 실패', e)
+  }
+}
+
+async function deleteNotification(ids) {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    await api.post('/notification/delete', ids, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    user.notifications = user.notifications.filter(n => !ids.includes(n.id))
+  } catch (e) {
+    console.error('삭제 실패', e)
+  }
+}
+
+
+</script>

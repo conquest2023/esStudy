@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +23,10 @@ public class Notification {
 
     @Column(name = "user_id",nullable = false, length = 100)
     private String userId;
+
+
+    @Column(name = "is_check")
+    private Boolean isCheck;
 
     private  String sender;
 

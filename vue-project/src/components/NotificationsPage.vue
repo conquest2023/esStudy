@@ -1,13 +1,30 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/utils/api'
 
 const router = useRouter()
 const notifications = ref([])
 
-onMounted(() => {
-  notifications.value = JSON.parse(localStorage.getItem('notifications') ?? '[]')
+function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+
+onMounted(async () => {
+  try {
+    const {data} = await api.get('/notifications/all', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    notifications.value = data
+  } catch (e) {
+    console.error('알림 불러오기 실패', e)
+  }
 })
+
 </script>
 
 <template>
@@ -20,7 +37,7 @@ onMounted(() => {
         <router-link :to="'/search/view/feed/id/' + n.feedUID" class="text-decoration-none me-3">
           {{ n.message }}
         </router-link>
-        <small class="text-muted">{{ new Date(n.id).toLocaleString() }}</small>
+        <div class="small text-muted mt-1">{{ formatDate(n.createdAt) }}</div>
       </li>
       <li v-if="!notifications.length" class="list-group-item text-center text-muted">
         도착한 알림이 없습니다
