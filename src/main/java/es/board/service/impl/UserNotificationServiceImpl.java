@@ -17,19 +17,23 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     private  final NotificationRepository notificationRepository;
     @Override
-    public void deleteNotification(String userId, List<String> id) {
+    public void deleteNotification(String userId, List<Long> id) {
         notificationRepository.deleteById(userId,id);
     }
 
     @Override
-    public void checkedNotification(String userId, List<String> id) {
+    public void checkedNotification(String userId, List<Long> id) {
 
         notificationRepository.checkId(userId,id);
     }
 
     @Override
-    public List<Notification> getCheckNotifications(String userId) {
+    public int getCountCheckNotification(String userId) {
+        return  notificationRepository.countByIsCheckNotification(userId);
+    }
 
+    @Override
+    public List<Notification> getCheckNotifications(String userId) {
 
       return    notificationRepository.findByCheckNotification(userId);
     }

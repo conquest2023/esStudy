@@ -7,13 +7,13 @@ import java.util.List;
 public interface UserNotificationService {
 
 
-    void deleteNotification(String  userId, List<String> id);
+    void deleteNotification(String  userId, List<Long> id);
 
 
-    void checkedNotification(String  userId, List<String> id);
+    void checkedNotification(String  userId, List<Long> id);
 
 
-
+    int getCountCheckNotification(String userId);
 
     List<Notification> getCheckNotifications(String  userId);
 

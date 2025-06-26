@@ -1,31 +1,69 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
-import { useRouter }      from 'vue-router'
-import { useUserStore }   from '@/stores/user'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import { useSSE } from '@/composables/useSSE'
+import api from '@/utils/api'
+
 const user = useUserStore()
-const notifications = computed(() => user.notifications)
-const unreadCount = computed(() =>
-    notifications.value.filter(n => !n.read).length
-)
-const router          = useRouter()
+const notifications = ref([])
+const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
+const router = useRouter()
 const openDropdownIdx = ref(null)
-const showNoti        = ref(false)
-const showUserMenu    = ref(false)
+const showNoti = ref(false)
+const showUserMenu = ref(false)
+const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
 
 onMounted(() => {
   applySavedTheme()
   user.fetchMe()
-})
-onMounted(() => {
+  fetchNotifications()
   const token = localStorage.getItem('token')
-  if (token)
-    useSSE(token)
+  if (token) useSSE(token)
 })
-function applySavedTheme () {
+
+async function fetchNotifications() {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    const { data } = await api.get('/notifications/check', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    notifications.value = data || []
+  } catch (e) {
+    console.error('알림 불러오기 실패', e)
+  }
+}
+
+window.addEventListener('storage', e => {
+  if (e.key === 'token') user.fetchMe()
+})
+
+watch(notifications, n => {
+  localStorage.setItem('notifications', JSON.stringify(n))
+}, { deep: true })
+
+function toggleDropdown(idx) {
+  openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
+}
+
+function toggleNoti() {
+  showNoti.value = !showNoti.value
+}
+
+function logout() {
+  user.logout()
+  router.push('/login')
+}
+
+function updateTodoAlert(message) {
+  const todoAlert = document.getElementById("todo-alert")
+  if (todoAlert) todoAlert.innerText = message
+}
+
+function applySavedTheme() {
   const saved = localStorage.getItem('theme') || 'light'
   isDarkMode.value = (saved === 'dark')
-
   const root = document.documentElement
   if (isDarkMode.value) {
     root.style.setProperty('--c-surface', '#1d1f24')
@@ -39,86 +77,38 @@ function applySavedTheme () {
     document.body.style.color = '#212529'
   }
 }
-/* 탭/창 간 토큰 동기화 */
-window.addEventListener('storage', e => {
-  if (e.key === 'token') user.fetchMe()
-})
-watch(notifications,
-    n => localStorage.setItem('notifications', JSON.stringify(n)),
-    { deep: true })
 
-function toggleDropdown(idx){
-  openDropdownIdx.value = openDropdownIdx.value === idx ? null : idx
-}
-function toggleNoti(){
-  showNoti.value = !showNoti.value
-  if(showNoti.value) user.markAllRead()
-}
-// async function fetchNotifications(){
-//   const token = localStorage.getItem('token')
-//   if(!token) return
-//   try{
-//     const { data } = await api.get('/notifications/all',
-//         { headers:{ Authorization:`Bearer ${token}` }})
-//     user.notifications = data || []
-//   }catch(e){ console.error('알림 불러오기 실패', e) }
-// }
-function logout(){
-  user.logout()
-  router.push('/login')
-}
-function updateTodoAlert(message) {
-  const todoAlert = document.getElementById("todo-alert")
-  if (todoAlert) todoAlert.innerText = message
+function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-// function addFeedNotification (jsonMessage) {
-//   let parsed
-//   try {
-//     parsed = (typeof jsonMessage === 'string') ? JSON.parse(jsonMessage) : jsonMessage
-//   } catch (e) {
-//     console.error('JSON 파싱 오류:', e, jsonMessage)
-//     return
-//   }
-//   const { feedUID, message } = parsed
-//   notifications.value = [
-//     { id: Date.now(), feedUID, message, read: false },
-//     ...notifications.value
-//   ]
-//   console.log('👉 파싱 결과:', parsed)
-//   showToast(message, feedUID)
-// }
+async function markAsRead(ids) {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    await api.post('/notification/check', ids, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    notifications.value = notifications.value.map(n =>
+        ids.includes(n.notificationId) ? { ...n, read: true, isCheck: true } : n
+    )
+  } catch (e) {
+    console.error('읽음 처리 실패', e)
+  }
+}
 
-// function showToast (message, feedUID) {
-//   const container = document.getElementById('toastContainer')
-//   if (!container) return
-//
-//   const toast = document.createElement('div')
-//   toast.className = 'toast align-items-center bg-dark border-0 shadow mb-2 show'
-//   toast.setAttribute('role', 'alert')
-//   toast.setAttribute('aria-live', 'assertive')
-//   toast.setAttribute('aria-atomic', 'true')
-//   toast.innerHTML = `
-//     <div class="d-flex">
-//       <div class="toast-body fw-bold text-white">
-//         🔔 <a href="/search/view/feed/id/${feedUID}" class="text-white text-decoration-underline">${message}</a>
-//       </div>
-//       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-//     </div>`
-//   container.appendChild(toast)
-//
-//   setTimeout(() => {
-//     toast.classList.remove('show')
-//     toast.addEventListener('transitionend', () => toast.remove())
-//   }, 5000)
-// }
-
-const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
-
-function toggleTheme () {
-  isDarkMode.value = !isDarkMode.value
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light')
-  applySavedTheme()
+async function deleteNotification(ids) {
+  const token = localStorage.getItem('token')
+  if (!token) return
+  try {
+    await api.post('/notification/delete', ids, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    notifications.value = notifications.value.filter(n => !ids.includes(n.notificationId))
+  } catch (e) {
+    console.error('삭제 실패', e)
+  }
 }
 
 const menus = [
@@ -147,13 +137,7 @@ const menus = [
         icon: 'fas fa-check text-success',
         title: '투두 & D‑Day 매니저',
         desc: '자격증/취업 일정 관리 & 리마인더'
-      },
-      // {
-      //   href: '/calendar',
-      //   icon: 'fas fa-calendar-check text-warning',
-      //   title: '캘린더',
-      //   desc: '월별 일정 보기 & 전체 관리'
-      // }
+      }
     ]
   },
   {
@@ -182,7 +166,7 @@ const menus = [
         icon: 'fas fa-calendar-alt text-warning',
         title: '자격증 캘린더',
         desc: 'D‑DAY & 원서접수 일정 한눈에!'
-      },
+      }
     ]
   },
   {
@@ -211,11 +195,12 @@ const menus = [
         icon: 'fas fa-landmark text-warning',
         title: '공기업',
         desc: 'NCS부터 인성까지 완벽 분석'
-      },
+      }
     ]
   }
 ]
 </script>
+
 
 <template>
   <nav class="okky-navbar navbar fixed-top bg-white shadow-sm px-3">
@@ -250,21 +235,24 @@ const menus = [
         <!-- 알림 -->
         <div class="position-relative me-2">
           <i class="fas fa-bell fa-lg text-secondary" style="cursor:pointer" @click="toggleNoti" />
-          <span v-if="unreadCount.value > 0" class="badge bg-danger position-absolute top-0 start-100 translate-middle p-1">!</span>
+          <span v-if="unreadCount > 0"
+                class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle"
+                style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+            {{ unreadCount }}
+          </span>
 
           <div class="notification-dropdown dropdown-menu shadow rounded p-3" :class="{ show: showNoti }">
             <ul v-if="notifications.some(n => !n.read)" class="list-unstyled mb-0 small" style="max-height:200px;overflow:auto;">
               <!-- 알림 항목 -->
               <li
-                  v-for="n in notifications.filter(n => !n.read)"
-                  :key="n.id"
-                  class="py-2 border-bottom d-flex justify-content-between align-items-start"
-              >
+                  v-for="n in notifications.filter(n => !n.isCheck)"
+                  :key="n.notificationId"
+                  class="py-2 border-bottom d-flex justify-content-between align-items-start">
                 <div>
                   <router-link
                       :to="'/search/view/feed/id/' + n.feedUID"
                       class="text-decoration-none fw-bold"
-                      @click="markAsRead([n.id])"
+                      @click="markAsRead([n.notificationId])"
                   >
                     🔔 {{ n.message }}
                   </router-link>
@@ -273,10 +261,10 @@ const menus = [
 
                 <!-- 버튼 그룹 -->
                 <div class="btn-group btn-group-sm ms-2">
-                  <button class="btn btn-outline-success btn-sm" @click="markAsRead([n.id])" title="읽음">
+                  <button class="btn btn-outline-success btn-sm" @click="markAsRead([n.notificationId])" title="읽음">
                     <i class="fas fa-eye" />
                   </button>
-                  <button class="btn btn-outline-danger btn-sm" @click="deleteNotification([n.id])" title="삭제">
+                  <button class="btn btn-outline-danger btn-sm" @click="deleteNotification([n.notificationId])" title="삭제">
                     <i class="fas fa-trash" />
                   </button>
                 </div>
@@ -411,39 +399,39 @@ const menus = [
 <script>
 import api from '@/utils/api'
 
-function formatDate(dateStr) {
-  const date = new Date(dateStr)
-  return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-}
-
-async function markAsRead(ids) {
-  const token = localStorage.getItem('token')
-  if (!token) return
-  try {
-    await api.post('/notification/check', ids, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    // 읽은 항목 업데이트
-    user.notifications = user.notifications.map(n =>
-        ids.includes(n.id) ? { ...n, read: true } : n
-    )
-  } catch (e) {
-    console.error('읽음 처리 실패', e)
-  }
-}
-
-async function deleteNotification(ids) {
-  const token = localStorage.getItem('token')
-  if (!token) return
-  try {
-    await api.post('/notification/delete', ids, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    user.notifications = user.notifications.filter(n => !ids.includes(n.id))
-  } catch (e) {
-    console.error('삭제 실패', e)
-  }
-}
+// function formatDate(dateStr) {
+//   const date = new Date(dateStr)
+//   return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+// }
+//
+// async function markAsRead(ids) {
+//   const token = localStorage.getItem('token')
+//   if (!token) return
+//   try {
+//     await api.post('/notification/check', ids, {
+//       headers: { Authorization: `Bearer ${token}` }
+//     })
+//     // 읽은 항목 업데이트
+//     user.notifications = user.notifications.map(n =>
+//         ids.includes(n.id) ? { ...n, read: true } : n
+//     )
+//   } catch (e) {
+//     console.error('읽음 처리 실패', e)
+//   }
+// }
+//
+// async function deleteNotification(ids) {
+//   const token = localStorage.getItem('token')
+//   if (!token) return
+//   try {
+//     await api.post('/notification/delete', ids, {
+//       headers: { Authorization: `Bearer ${token}` }
+//     })
+//     user.notifications = user.notifications.filter(n => !ids.includes(n.id))
+//   } catch (e) {
+//     console.error('삭제 실패', e)
+//   }
+// }
 
 
 </script>

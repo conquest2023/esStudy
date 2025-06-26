@@ -71,12 +71,22 @@ public class NotificationController {
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
         List<Notification> notifications = userNotificationService.getCheckNotifications(jwtTokenProvider.getUserId(token.substring(7)));
+        log.info(notifications.toString());
         return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/notifications/count")
+    public ResponseEntity<?> getCountNotifications(@RequestHeader("Authorization") String token) {
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "토큰이 필요합니다."));
+        }
+        return ResponseEntity.ok(userNotificationService.getCheckNotifications(jwtTokenProvider.getUserId(token)));
     }
 
     @PostMapping("/notification/delete")
     public  ResponseEntity<?> deleteNotifications(@RequestHeader("Authorization") String token,
-                                                @RequestBody List<String> id) {
+                                                @RequestBody List<Long> id) {
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
@@ -89,7 +99,8 @@ public class NotificationController {
 
     @PostMapping("/notification/check")
     public  ResponseEntity<?> checkNotifications(@RequestHeader("Authorization") String token,
-                                                  @RequestBody List<String> id) {
+                                                  @RequestBody List<Long> id) {
+
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
