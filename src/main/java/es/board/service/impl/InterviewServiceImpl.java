@@ -58,6 +58,12 @@ public class InterviewServiceImpl implements InterviewService {
 
         return question;
     }
+
+    @Override
+    public List<InterviewQuestion> getCategoryQuestion(String category, String subCategory) {
+        return questionRepository.findByCategoryAndSubCategory(category,subCategory);
+    }
+
     @Override
     public List<InterviewQuestionRequest> getRandomQuestions() {
         String cachedData = redisTemplate.opsForValue().get(INTERVIEW_CACHE_KEY);

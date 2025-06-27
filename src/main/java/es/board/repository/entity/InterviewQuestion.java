@@ -19,7 +19,12 @@ public class InterviewQuestion {
     private Long id;
 
     private String category;
+
+    @Column(name = "sub_category")
+    private String subCategory;
+
     private String question;
+
     private LocalDateTime createdAt;
 
 

@@ -4,6 +4,7 @@ package es.board.repository.entity.repository;
 import es.board.repository.entity.InterviewQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,5 +17,10 @@ public interface InterviewQuestionRepository extends JpaRepository<InterviewQues
             "(SELECT * FROM interview_questions WHERE category = '일반' ORDER BY RAND() LIMIT 3)",
             nativeQuery = true)
     List<InterviewQuestion> findRandomITAndGeneralQuestions();
+
+
+
+    @Query("SELECT q FROM InterviewQuestion q WHERE q.category = :category AND q.subCategory = :subCategory")
+    List<InterviewQuestion> findByCategoryAndSubCategory(@Param("category") String category, @Param("subCategory") String subCategory);
 
 }

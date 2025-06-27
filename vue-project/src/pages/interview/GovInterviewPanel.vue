@@ -6,7 +6,7 @@
       <h1 class="h3 fw-bold mb-0">공무원 면접 질문 뱅크</h1>
     </header>
 
-    <!-- Trending Top‑5 by Clicks -->
+    <!-- Trending Top‑5 -->
     <section class="mb-4">
       <h6 class="fw-semibold mb-2"><i class="fas fa-fire me-2 text-danger"></i>이번 주 인기 TOP 5</h6>
       <ul class="list-group list-group-horizontal-md overflow-auto flex-nowrap">
@@ -44,7 +44,7 @@
               @click="toggleSeries(s)"
               :class="[
               'badge rounded-pill py-2 px-3 cursor-pointer',
-              filters.series.includes(s) ? 'bg-primary' : 'bg-light text-dark'
+              filters.series.includes(s) ? 'bg-primary text-white' : 'bg-light text-dark'
             ]"
           >
             {{ s }}
@@ -60,34 +60,31 @@
           <div class="spinner-border" role="status"></div>
         </div>
 
-        <div v-if="!loading && questions.length === 0" class="text-center py-5 text-muted">
-          검색 결과가 없습니다.
-        </div>
-
-        <div
-            v-for="q in questions"
-            :key="q.id"
-            class="card mb-3 shadow-sm hover-shadow cursor-pointer"
-            @click="openQuestion(q)"
-        >
-          <div class="card-body">
-            <h5 class="card-title mb-2 text-truncate-2">{{ q.title }}</h5>
-            <p class="card-text text-truncate-3 small" v-html="q.body"></p>
-            <div class="d-flex justify-content-between text-muted small">
-              <span><i class="fas fa-eye me-1"></i>{{ q.viewCount }}</span>
-              <time :datetime="q.createdAt">{{ formatDate(q.createdAt) }}</time>
+        <div v-if="!loading && questions && questions.length > 0">
+          <div
+              v-for="q in questions"
+              :key="q.id"
+              class="card mb-3 shadow-sm hover-shadow cursor-pointer"
+              @click="openQuestion(q)"
+          >
+            <div class="card-body">
+              <h5 class="card-title mb-2 text-truncate-2">{{ q.question }}</h5>
+              <p class="card-text small text-muted mb-1">카테고리: {{ q.category }} / {{ q.subCategory }}</p>
+              <div class="d-flex justify-content-between text-muted small">
+                <span><i class="fas fa-clock me-1"></i>{{ formatDate(q.createdAt) }}</span>
+              </div>
             </div>
           </div>
         </div>
+
       </main>
 
       <!-- Sidebar -->
       <aside class="col-lg-4 d-none d-lg-block">
-        <!-- Similar Top‑3 -->
         <h6 class="fw-semibold mb-3">유사 질문 Top 3</h6>
         <ul class="list-group mb-4">
           <li
-              v-for="rel in related.slice(0,3)"
+              v-for="rel in related.slice(0, 3)"
               :key="rel.id"
               class="list-group-item list-group-item-action"
               @click="openQuestion(rel)"
@@ -108,8 +105,7 @@
           </div>
           <div class="modal-body">
             <div v-html="active?.body" class="mb-4"></div>
-            <hr />
-            <!-- Answer Section -->
+            <hr/>
             <h6 class="fw-bold mb-2">내 답변</h6>
             <textarea
                 v-model="myAnswer"
@@ -121,8 +117,7 @@
               <span v-if="!saving">저장</span>
               <span v-else class="spinner-border spinner-border-sm"></span>
             </button>
-
-            <hr class="my-4" />
+            <hr class="my-4"/>
             <h6 class="fw-bold mb-2">모범 답안 / 해설</h6>
             <div v-html="active?.answerKey"></div>
           </div>
@@ -136,45 +131,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import axios from 'axios'
-import { Modal } from 'bootstrap'
+import {Modal} from 'bootstrap'
 
 const seriesList = ['행정직', '세무직', '교정직', '경찰직', '소방직']
 
-const query      = ref('')
-const loading    = ref(false)
-const questions  = ref([])
-const related    = ref([])
-const trending   = ref([])
-const active     = ref(null)
-const myAnswer   = ref('')
-const saving     = ref(false)
+const query = ref('')
+const loading = ref(false)
+const questions = ref([])
+const related = ref([])
+const trending = ref([])
+const active = ref(null)
+const myAnswer = ref('')
+const saving = ref(false)
 const questionModal = ref(null)
 let bsModal = null
 
 const filters = reactive({
-  series: []
+  series: ['행정직']
 })
 
 function toggleSeries(s) {
-  const idx = filters.series.indexOf(s)
-  idx === -1 ? filters.series.push(s) : filters.series.splice(idx, 1)
+  filters.series = [s]
+  search()
 }
 
 async function fetchTrending() {
-  const { data } = await axios.get('/api/interview/gov/trending')
+  const {data} = await axios.get('/api/interview/gov/trending')
   trending.value = data
 }
 
 async function search() {
   loading.value = true
   try {
-    const { data } = await axios.get('/api/interview/gov', {
-      params: { q: query.value, series: filters.series }
+    const selected = filters.series[0] || '행정직'
+    const {data} = await axios.get(`/api/interview/공무원/${selected}`, {
+      params: {q: query.value}
     })
-    questions.value = data.questions
-    related.value   = data.related // already sorted by relevance
+    console.log('응답 확인:', data)
+    questions.value = data.interview || []
+    related.value = data.related || []
   } finally {
     loading.value = false
   }
@@ -203,16 +200,20 @@ function formatDate(dt) {
 
 async function loadMyAnswer(qid) {
   try {
-    const { data } = await axios.get(`/api/interview/answer/${qid}`)
+    const {data} = await axios.get(`/api/interview/answer/${qid}`)
     myAnswer.value = data.answer || ''
-  } catch {}
+  } catch {
+  }
 }
 
 async function saveAnswer() {
   if (!active.value) return
   saving.value = true
   try {
-    await axios.post('/api/interview/answer', { id: active.value.id, answer: myAnswer.value })
+    await axios.post('/api/interview/answer', {
+      id: active.value.id,
+      answer: myAnswer.value
+    })
   } finally {
     saving.value = false
   }
@@ -228,21 +229,25 @@ onMounted(() => {
 .cursor-pointer {
   cursor: pointer;
 }
+
 .text-truncate-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 .text-truncate-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 .hover-shadow:hover {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
+
 .min-width-200 {
   min-width: 200px;
 }

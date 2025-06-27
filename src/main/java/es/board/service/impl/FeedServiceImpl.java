@@ -397,7 +397,7 @@ public class FeedServiceImpl implements FeedService {
         return value == null || value.trim().isEmpty();
     }
     public void grantFeedPoint(String userId,String username) {
-        if ((userId == null) || Objects.equals(username, "hoeng") || (Objects.equals(username, "asd"))
+        if ((userId == null) || username.equals("heong") || username.equals("asd")
                 || (Objects.equals(username, "익명"))){
 
             log.info("포인트 지급불가");

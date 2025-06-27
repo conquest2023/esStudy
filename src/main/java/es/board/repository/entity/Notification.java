@@ -25,7 +25,7 @@ public class Notification {
     private String userId;
 
 
-    @Column(name = "is_check")
+    @Column(name = "is_check",nullable = false)
     private Boolean isCheck;
 
     private  String sender;

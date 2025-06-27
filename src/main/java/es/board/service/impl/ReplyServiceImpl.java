@@ -79,7 +79,7 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     public void grantReplyPoint(String userId) {
-        if (userId ==null || userId=="hoeng" || userId=="asd") {
+        if (userId ==null || userId.equals("hoeng") || userId.equals("asd")) {
             return;
         }
         String today = LocalDate.now().toString();

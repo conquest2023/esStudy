@@ -39,6 +39,7 @@ public class FeedMapper {
                 .username(reply.getUsername())
                 .feedUID(reply.getFeedUID())
                 .message(reply.getContent())
+                .isCheck(false)
                 .type("답글")
                 .username(reply.getUsername())
                 .createdAt(LocalDateTime.now())

@@ -52,6 +52,7 @@ public class CommentMapper {
                 .sender(event.getUsername())
                 .feedUID(event.getFeedUID())
                 .message(event.getContent())
+                .isCheck(false)
                 .type("댓글")
                 .username(event.getUsername())
                 .createdAt(LocalDateTime.now())
