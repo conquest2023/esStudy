@@ -65,7 +65,7 @@
               v-for="q in questions"
               :key="q.id"
               class="card mb-3 shadow-sm hover-shadow cursor-pointer"
-              @click="openQuestion(q)"
+              @click="handleQuestionClick(q)"
           >
             <div class="card-body">
               <h5 class="card-title mb-2 text-truncate-2">{{ q.question }}</h5>
@@ -85,19 +85,19 @@
       </div>
 
       <!-- Sidebar -->
-      <aside class="col-lg-4 d-none d-lg-block">
-        <h6 class="fw-semibold mb-3">유사 질문 Top 3</h6>
-        <ul class="list-group mb-4">
-          <li
-              v-for="rel in related.slice(0, 3)"
-              :key="rel.id"
-              class="list-group-item list-group-item-action"
-              @click="openQuestion(rel)"
-          >
-            {{ rel.title }}
-          </li>
-        </ul>
-      </aside>
+<!--      <aside class="col-lg-4 d-none d-lg-block">-->
+<!--        <h6 class="fw-semibold mb-3">유사 질문 Top 3</h6>-->
+<!--        <ul class="list-group mb-4">-->
+<!--          <li-->
+<!--              v-for="rel in related.slice(0, 3)"-->
+<!--              :key="rel.id"-->
+<!--              class="list-group-item list-group-item-action"-->
+<!--              @click="openQuestion(rel)"-->
+<!--          >-->
+<!--            {{ rel.title }}-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--      </aside>-->
     </div>
 
     <!-- Question Modal -->
@@ -159,22 +159,41 @@
   const myAnswer      = ref('')
   const saving        = ref(false)
   const questionModal = ref(null)
+  const token = localStorage.getItem("token")
+
   let   bsModal       = null
 
   /* ---------- 필터 ---------- */
   const filters = reactive({ series: ['행정직'] })
 
-  /* ===========================================
-  🔍 1) 검색어 기반 조회 ===================== */
   async function searchByQuery () {
-  page.value = 0                                 // 검색은 1페이지만
-  const { data } = await axios.get(
-  `/api/search/interview/${ encodeURIComponent(query.value.trim()) }`
-  )
-  questions.value     = data.searchResult || []
-  totalPages.value    = 1
-  totalElements.value = questions.value.length
-}
+    page.value = 0
+    const keyword = query.value.trim()
+
+    const { data } = await axios.get(
+        `/api/search/interview/${encodeURIComponent(keyword)}`
+    )
+    questions.value     = data.searchResult || []
+    totalPages.value    = 1
+    totalElements.value = questions.value.length
+
+    try {
+      await axios.post('/api/interview/log', {
+        eventType:   'search',
+        targetId:    null,
+        query:       keyword,
+        category:    '공무원',
+        subCategory: filters.series[0] || null,
+      },{
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined
+        }
+        })
+    } catch (e) {
+      console.warn('검색 로그 저장 실패:', e)
+    }
+  }
+
 
   /* ===========================================
   📚 2) 시리즈(카테고리) 기반 목록 ============ */
@@ -230,6 +249,30 @@
   const { data } = await axios.get('/api/interview/gov/trending')
   trending.value = data
 }
+  async function logInterviewClick(question) {
+    const token = localStorage.getItem('token') || null
+
+    const logData = {
+      eventType:   'click',
+      userId:      null,  // 서버에서 토큰으로 추출
+      username:    null,  // 서버에서 토큰으로 추출
+      targetId:    question.id,
+      query:       null,  // 클릭은 검색어 없음
+      category:    question.category || '공무원',
+      subCategory: question.subCategory || null,
+    }
+    try {
+      await axios.post('/api/interview/log', logData, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      })
+    } catch (e) {
+      console.warn('로그 저장 실패:', e.message)
+    }
+  }
+  function handleQuestionClick(q) {
+    openQuestion(q)                // 모달 열기
+    logInterviewClick(q)          // 로그 저장
+  }
 
   /* ---------- 모달 열기/닫기 ---------- */
   function openQuestion (q) { active.value = q; showModal() }

@@ -2,6 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.req.InterviewQuestionRequest;
 import es.board.controller.model.res.InterviewAnswerDTO;
+import es.board.controller.model.res.InterviewLogDTO;
 import es.board.repository.entity.InterviewQuestion;
 import org.springframework.data.domain.Page;
 
@@ -11,6 +12,10 @@ public interface InterviewService {
 
     String getTodayQuestion();
 
+
+
+
+    void saveLog(String  token , InterviewLogDTO dto);
 
     List<es.board.repository.document.InterviewQuestion> getSearchInterviewQuestion(String text);
 

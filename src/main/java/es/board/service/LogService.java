@@ -4,11 +4,11 @@ import es.board.controller.model.res.JobSiteLogDTO;
 
 import java.util.List;
 
-public interface LogService {
+public interface LogService<T> {
 
 
 
-    void saveSiteLog(JobSiteLogDTO dto);
+    void saveLog(String indexName , T dto);
 
 
     List<JobSiteLogDTO> getSiteLog();

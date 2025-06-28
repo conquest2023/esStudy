@@ -5,10 +5,7 @@ import es.board.controller.model.req.D_DayRequest;
 import es.board.controller.model.req.ScheduleRequest;
 import es.board.controller.model.req.SiteMeta;
 import es.board.controller.model.req.TodoRequest;
-import es.board.controller.model.res.DailyBookMark;
-import es.board.controller.model.res.InterviewAnswerDTO;
-import es.board.controller.model.res.JobSiteLogDTO;
-import es.board.controller.model.res.TodoResponse;
+import es.board.controller.model.res.*;
 import es.board.repository.document.JobSiteLog;
 import es.board.repository.entity.*;
 import lombok.Data;
@@ -26,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
-@Slf4j
+
 @Component
 public class MainFunctionMapper {
 

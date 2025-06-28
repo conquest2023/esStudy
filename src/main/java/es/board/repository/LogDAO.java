@@ -1,14 +1,13 @@
 package es.board.repository;
 
-import es.board.controller.model.res.JobSiteLogDTO;
 import es.board.repository.document.JobSiteLog;
 
 import java.util.List;
 
-public interface JobSiteLogDAO {
+public interface LogDAO<T> {
 
 
-    void saveJobSiteLog(JobSiteLogDTO dto);
+    void saveLog(String indexName, T dto);
 
 
     List<JobSiteLog> findJobSiteLog();

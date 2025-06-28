@@ -28,12 +28,13 @@ public class LogController {
 
     @PostMapping("/site/log")
     public ResponseEntity<?> saveSiteLog(@RequestBody JobSiteLogDTO dto, @RequestHeader(value = "Authorization", required = false) String token) {
+        String  indexName= "job_site_log";
         if (token == null) {
-            jobSiteLogService.saveSiteLog(dto);
+            jobSiteLogService.saveLog(indexName,dto);
         }
         token = token.substring(7);
         if (jwtTokenProvider.validateToken(token)) {
-           jobSiteLogService.saveSiteLog(mapper.toJobSiteDocument(dto, jwtTokenProvider.getUserId(token)));
+           jobSiteLogService.saveLog(indexName,mapper.toJobSiteDocument(dto, jwtTokenProvider.getUserId(token)));
         }
         return ResponseEntity.ok(Map.of(
                 "success", true,

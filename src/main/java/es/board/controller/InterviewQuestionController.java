@@ -3,6 +3,7 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.InterviewQuestionRequest;
 import es.board.controller.model.res.InterviewAnswerDTO;
+import es.board.controller.model.res.InterviewLogDTO;
 import es.board.ex.TokenValidator;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +32,16 @@ public class InterviewQuestionController {
 
     private  final TokenValidator tokenValidator;
 
+
     private  final InterviewService interviewService;
 
 
 
-
+    @PostMapping("/interview/log")
+    public  void saveInterviewLog( @RequestHeader(value = "Authorization") String token,
+                                   @RequestBody InterviewLogDTO logDTO){
+        interviewService.saveLog(token,logDTO);
+    }
 
     @GetMapping("/interview/random")
     public ResponseEntity<?> getRandomQuestion() {

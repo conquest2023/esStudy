@@ -2,18 +2,23 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.mapper.InterviewLogFactory;
 import es.board.controller.model.mapper.MainFunctionMapper;
 
 import es.board.controller.model.req.InterviewQuestionRequest;
 
 import es.board.controller.model.res.InterviewAnswerDTO;
+import es.board.controller.model.res.InterviewLogDTO;
 import es.board.repository.InterviewQuestionDAO;
+import es.board.repository.LogDAO;
 import es.board.repository.entity.InterviewQuestion;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.repository.InterviewQuestionAnswerRepository;
 import es.board.repository.entity.repository.InterviewQuestionRepository;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.InterviewService;
+import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,9 +47,13 @@ public class InterviewServiceImpl implements InterviewService {
 
     private  final MainFunctionMapper mapper;
 
+    private  final InterviewLogFactory factory;
+
     private  final ObjectMapper objectMapper;
 
     private final StringRedisTemplate redisTemplate;
+
+    private  final LogDAO logDAO;
 
     private  final InterviewQuestionDAO questionDAO;
 
@@ -66,12 +76,19 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
+    public void saveLog(String token, InterviewLogDTO dto) {
+
+        logDAO.saveLog("interview_logs",factory.createFrom(dto,token));
+
+    }
+
+
+    @Override
     public List<es.board.repository.document.InterviewQuestion> getSearchInterviewQuestion(String text) {
 
         if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("검색어는 필수입니다.");
         }
-
         return   questionDAO.searchInterviewQuestion(text);
     }
 
