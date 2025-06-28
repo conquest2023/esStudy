@@ -28,4 +28,8 @@ public interface InterviewQuestionRepository extends JpaRepository<InterviewQues
             @Param("subCategory") String subCategory,
             Pageable pageable
     );
+
+
+    @Query("SELECT q FROM InterviewQuestion q WHERE q.id IN :ids")
+    List<InterviewQuestion> findByIds(@Param("ids") List<String> ids);
 }

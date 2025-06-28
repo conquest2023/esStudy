@@ -6,21 +6,44 @@
       <h1 class="h3 fw-bold mb-0">공무원 면접 질문 뱅크</h1>
     </header>
 
-    <!-- Trending Top‑5 -->
+    <!-- 🔥 이번 주 인기 TOP 5 -->
     <section class="mb-4">
-      <h6 class="fw-semibold mb-2"><i class="fas fa-fire me-2 text-danger"></i>이번 주 인기 TOP 5</h6>
-      <ul class="list-group list-group-horizontal-md overflow-auto flex-nowrap">
-        <li
-            v-for="t in trending"
-            :key="t.id"
-            class="list-group-item list-group-item-action rounded shadow-sm me-2 cursor-pointer min-width-200"
-            @click="openQuestion(t)"
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-semibold mb-0">
+          <i class="fas fa-fire me-2 text-danger"></i>이번 주 인기 TOP 5
+        </h6>
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            @click.stop="toggleTrending"
+            style="z-index:1; position: relative;"
         >
-          <div class="small text-truncate">{{ t.title }}</div>
-          <span class="badge bg-secondary mt-1"><i class="fas fa-eye me-1"></i>{{ t.viewCount }}</span>
-        </li>
-      </ul>
+          <i :class="isTrendingOpen ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+        </button>
+      </div>
+
+      <transition name="fade">
+        <ul v-show="isTrendingOpen" class="list-group">
+          <li
+              v-for="(t, i) in trending"
+              :key="t.id"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-start py-3 px-3 hover-shadow-sm cursor-pointer"
+              @click="openQuestion(t)"
+          >
+            <div class="me-3">
+              <div class="fw-bold mb-1 text-truncate">{{ i + 1 }}. {{ t.question }}</div>
+              <small class="text-muted">카테고리: {{ t.category }} / {{ t.subCategory }}</small>
+            </div>
+<!--            <span class="badge bg-danger rounded-pill align-self-center">-->
+<!--          <i class="fas fa-fire me-1"></i>{{ t.viewCount ?? 0 }}-->
+<!--        </span>-->
+          </li>
+        </ul>
+      </transition>
     </section>
+
+
+
+
 
     <!-- Search & Filters -->
     <div class="row g-3 mb-4">
@@ -160,6 +183,10 @@
   const saving        = ref(false)
   const questionModal = ref(null)
   const token = localStorage.getItem("token")
+  const isTrendingOpen = ref(true)
+  function toggleTrending() {
+    isTrendingOpen.value = !isTrendingOpen.value
+  }
 
   let   bsModal       = null
 
@@ -246,9 +273,14 @@
 
   /* ---------- 트렌딩 ---------- */
   async function fetchTrending () {
-  const { data } = await axios.get('/api/interview/gov/trending')
-  trending.value = data
-}
+    const subCategory = filters.series[0] || '행정직'
+    try {
+      const { data } = await axios.get(`/api/interview/aggregation/${subCategory}`)
+      trending.value = data.aggregation || []
+    } catch (e) {
+      console.warn('TOP5 조회 실패:', e)
+    }
+  }
   async function logInterviewClick(question) {
     const token = localStorage.getItem('token') || null
 

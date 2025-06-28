@@ -48,4 +48,9 @@ public class InterviewLog {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+
+
+    public InterviewLog(String targetId) {
+        this.targetId = targetId;
+    }
 }

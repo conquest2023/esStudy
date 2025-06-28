@@ -12,6 +12,7 @@ import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.controller.model.res.InterviewLogDTO;
 import es.board.repository.InterviewQuestionDAO;
 import es.board.repository.LogDAO;
+import es.board.repository.document.InterviewLog;
 import es.board.repository.entity.InterviewQuestion;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.repository.InterviewQuestionAnswerRepository;
@@ -45,6 +46,9 @@ public class InterviewServiceImpl implements InterviewService {
 
     private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
 
+
+    private  static   final String  INTERVIEW_AGGREGATION_KEY =  "interview_aggregation_questions";
+
     private  final MainFunctionMapper mapper;
 
     private  final InterviewLogFactory factory;
@@ -73,6 +77,21 @@ public class InterviewServiceImpl implements InterviewService {
         }
 
         return question;
+    }
+
+    @Override
+    public  List<InterviewQuestion> getAggregationQuestion(String subCategory){
+        String key = INTERVIEW_AGGREGATION_KEY + subCategory;
+        String cachedData = redisTemplate.opsForValue().get(key);
+        if (cachedData != null) {
+            log.info("캐시를 성공했습니다");
+            return deserializeJson(cachedData);
+        }
+        List<String> list = logDAO.aggregationInterviewQuestionLog(subCategory);
+        List<InterviewQuestion> questions = questionRepository.findByIds(list);
+        cacheData(key,questions);
+
+        return  questions;
     }
 
     @Override
@@ -107,7 +126,7 @@ public class InterviewServiceImpl implements InterviewService {
             return deserializeJson(cachedData);
         }
         List<InterviewQuestionRequest> questions = getCollect();
-        cacheData(questions);
+        cacheData(INTERVIEW_CACHE_KEY,questions);
 
         return questions;
     }
@@ -140,15 +159,14 @@ public class InterviewServiceImpl implements InterviewService {
                 .map(InterviewQuestion::getQuestion)
                 .orElse("오늘의 질문을 찾을 수 없습니다.");
     }
-    private List<InterviewQuestionRequest> deserializeJson(String jsonData) {
+    private <T> List<T> deserializeJson(String jsonData) {
         try {
             return objectMapper.readValue(jsonData, new TypeReference<>() {});
         } catch (Exception e) {
-            e.printStackTrace();
-            return getCollect();
+            throw new RuntimeException(e);
         }
     }
-    private List<InterviewQuestionRequest> getCollect() {
+    private  List<InterviewQuestionRequest> getCollect() {
         return questionRepository.findRandomITAndGeneralQuestions().stream()
                 .map(question -> InterviewQuestionRequest.builder()
                         .id(question.getId())
@@ -158,14 +176,15 @@ public class InterviewServiceImpl implements InterviewService {
                 .collect(Collectors.toList());
     }
 
-    private void cacheData(List<InterviewQuestionRequest> questions) {
+    private <T> void cacheData(String key, List<T> data) {
         try {
-            String jsonData = objectMapper.writeValueAsString(questions);
-            redisTemplate.opsForValue().set(INTERVIEW_CACHE_KEY, jsonData, 1, TimeUnit.DAYS);
+            String json = objectMapper.writeValueAsString(data);
+            redisTemplate.opsForValue().set(key, json, 1, TimeUnit.DAYS);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     public void grantInterviewPoint(String userId,String username) {
         String today = LocalDate.now().toString();

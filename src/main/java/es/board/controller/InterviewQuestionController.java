@@ -47,7 +47,11 @@ public class InterviewQuestionController {
     public ResponseEntity<?> getRandomQuestion() {
         return ResponseEntity.ok(Map.of("question", interviewService.getRandomQuestions()));
     }
-
+    @GetMapping("/interview/aggregation/{subCategory}")
+    public ResponseEntity<?> getAggregationQuestion(@PathVariable String  subCategory) {
+        return ResponseEntity.ok(Map.of(
+                "aggregation", interviewService.getAggregationQuestion(subCategory)));
+    }
 
     @GetMapping("/search/interview/{text}")
     public ResponseEntity<?> getSearchInterviewQuestion(@PathVariable String text) {

@@ -42,10 +42,10 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String uri = request.getRequestURI();
-        log.info(uri);
         if (uri.startsWith("/api/top-writers") ||
                 uri.startsWith("/api/get-ip") ||
                 uri.startsWith("/api/day") ||
+                uri.startsWith("/api/interview/aggregation") ||
                 uri.startsWith("/api/toeic") ||
                 uri.startsWith("/api/police") ||
                 uri.startsWith("/api/upload-images") ||
@@ -63,7 +63,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
                 uri.startsWith("/api/subscribe") ||
                 uri.startsWith("/api/notifications/all") ||
                 uri.startsWith("/api/interview/best/answer") ||
-                uri.contains(".js") || uri.contains(".css") || uri.contains(".ico") || uri.contains(".png")) {
+                uri.contains(".js") || uri.contains(".css") || uri.contains(".ico") || uri.contains(".png"))
+        {
+            log.info(uri);
             return true;
         }
 

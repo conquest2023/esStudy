@@ -60,7 +60,6 @@ public class NotificationController {
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
         List<Notification> notifications = notificationService.getNotificationList(jwtTokenProvider.getUserId(token.substring(7)));
-        log.info(notifications.toString());
         return ResponseEntity.ok(notifications);
     }
 
@@ -71,7 +70,6 @@ public class NotificationController {
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
         List<Notification> notifications = userNotificationService.getCheckNotifications(jwtTokenProvider.getUserId(token.substring(7)));
-        log.info(notifications.toString());
         return ResponseEntity.ok(notifications);
     }
 
