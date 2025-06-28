@@ -6,11 +6,9 @@ import es.board.repository.entity.InterviewQuestion;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -27,12 +25,19 @@ public class InterviewCategoryController {
 
     @GetMapping("/interview/{category}/{subCategory}")
     public ResponseEntity<?> getInterviewData(@PathVariable String category,
-                                              @PathVariable String subCategory){
+                                              @PathVariable String subCategory,
+                                              @RequestParam int page,
+                                              @RequestParam int size){
 
 
-        List<InterviewQuestion> interviewQuestionList=interviewService.getCategoryQuestion(category,subCategory);
+        Page<InterviewQuestion> result=interviewService.getCategoryQuestion(category,subCategory,page,size);
 
-        return   ResponseEntity.ok(Map.of("interview",interviewQuestionList));
+        List<InterviewQuestion> content = result.getContent();
+        int totalPages = result.getTotalPages();
+        long totalElements = result.getTotalElements();
+        return   ResponseEntity.ok(Map.of("interview",content,
+                                          "totalPages",totalPages,
+                                          "totalElements",totalElements));
     }
 
 

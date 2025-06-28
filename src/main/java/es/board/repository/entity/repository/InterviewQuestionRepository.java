@@ -2,6 +2,8 @@ package es.board.repository.entity.repository;
 
 
 import es.board.repository.entity.InterviewQuestion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,9 @@ public interface InterviewQuestionRepository extends JpaRepository<InterviewQues
 
 
     @Query("SELECT q FROM InterviewQuestion q WHERE q.category = :category AND q.subCategory = :subCategory")
-    List<InterviewQuestion> findByCategoryAndSubCategory(@Param("category") String category, @Param("subCategory") String subCategory);
-
+    Page<InterviewQuestion> findByCategoryAndSubCategory(
+            @Param("category") String category,
+            @Param("subCategory") String subCategory,
+            Pageable pageable
+    );
 }

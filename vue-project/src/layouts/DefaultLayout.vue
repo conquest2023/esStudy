@@ -38,11 +38,35 @@ const navItems = [
     ]
   },
   {
-    icon:'fas fa-certificate fa-lg', label:'면접',
-    children:[
-      { path:'/interview/GovInterviewPanel', label:'면접 질문' }
+    icon: 'fas fa-comments fa-lg', // 면접 느낌나는 아이콘으로 변경!
+    label: '면접',
+    children: [
+      {
+        path: '/interview/govinterview',
+        label: '공무원',
+        icon: 'fas fa-user-shield text-primary',
+        desc: '실제 면접 기출 문제로 철저 대비!'
+      },
+      {
+        path: '/interview/it',
+        label: 'IT',
+        icon: 'fas fa-laptop-code text-info',
+        desc: '기술면접/코테까지 완벽 준비!'
+      },
+      {
+        path: '/interview/company',
+        label: '사기업',
+        icon: 'fas fa-building text-success',
+        desc: '기업별 면접 포인트와 합격 전략'
+      },
+      {
+        path: '/interview/public',
+        label: '공기업',
+        icon: 'fas fa-landmark text-warning',
+        desc: 'NCS부터 인성까지 완벽 분석'
+      }
     ]
-  },
+  }
 ]
 </script>
 

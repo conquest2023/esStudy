@@ -78,6 +78,11 @@
         </div>
 
       </main>
+      <div class="d-flex justify-content-center my-4" v-if="totalPages > 1">
+        <button class="btn btn-outline-secondary me-2" @click="prevPage" :disabled="page === 0">이전</button>
+        <span class="align-self-center">Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button class="btn btn-outline-secondary ms-2" @click="nextPage" :disabled="page + 1 >= totalPages">다음</button>
+      </div>
 
       <!-- Sidebar -->
       <aside class="col-lg-4 d-none d-lg-block">
@@ -146,6 +151,11 @@ const active = ref(null)
 const myAnswer = ref('')
 const saving = ref(false)
 const questionModal = ref(null)
+const totalPages = ref(0)
+const totalElements = ref(0)
+
+const page = ref(0) // 현재 페이지 (0부터 시작)
+const size = ref(10) // 한 페이지에 몇 개 보여줄지
 let bsModal = null
 
 const filters = reactive({
@@ -166,17 +176,33 @@ async function search() {
   loading.value = true
   try {
     const selected = filters.series[0] || '행정직'
-    const {data} = await axios.get(`/api/interview/공무원/${selected}`, {
-      params: {q: query.value}
+    const { data } = await axios.get(`/api/interview/공무원/${selected}`, {
+      params: {
+        q: query.value,
+        page: page.value,
+        size: size.value
+      }
     })
     console.log('응답 확인:', data)
     questions.value = data.interview || []
-    related.value = data.related || []
+    totalPages.value = data.totalPages
+    totalElements.value = data.totalElements
   } finally {
     loading.value = false
   }
 }
-
+function nextPage() {
+  if (page.value < totalPages.value - 1) {
+    page.value++
+    search()
+  }
+}
+function prevPage() {
+  if (page.value > 0) {
+    page.value--
+    search()
+  }
+}
 function openQuestion(q) {
   active.value = q
   myAnswer.value = ''

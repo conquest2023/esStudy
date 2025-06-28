@@ -15,6 +15,9 @@ import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.InterviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -60,8 +63,10 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public List<InterviewQuestion> getCategoryQuestion(String category, String subCategory) {
-        return questionRepository.findByCategoryAndSubCategory(category,subCategory);
+    public Page<InterviewQuestion> getCategoryQuestion(String category, String subCategory, int page , int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return questionRepository.findByCategoryAndSubCategory(category,subCategory,pageable);
     }
 
     @Override
