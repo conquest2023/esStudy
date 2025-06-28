@@ -4,7 +4,7 @@ import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.res.JobSiteLogDTO;
 import es.board.repository.JobSiteLogDAO;
 import es.board.repository.document.JobSiteLog;
-import es.board.service.JobSiteLogService;
+import es.board.service.LogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class JobSiteLogServiceImpl implements JobSiteLogService {
+public class LogServiceImpl implements LogService {
 
 
     private final MainFunctionMapper mapper;

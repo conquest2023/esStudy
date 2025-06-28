@@ -11,6 +11,9 @@ public interface InterviewService {
 
     String getTodayQuestion();
 
+
+    List<es.board.repository.document.InterviewQuestion> getSearchInterviewQuestion(String text);
+
     Page<InterviewQuestion> getCategoryQuestion(String category, String subCategory, int start, int end);
 
     List<InterviewQuestionRequest> getRandomQuestions();

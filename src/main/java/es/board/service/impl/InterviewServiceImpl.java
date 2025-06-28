@@ -7,6 +7,7 @@ import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.req.InterviewQuestionRequest;
 
 import es.board.controller.model.res.InterviewAnswerDTO;
+import es.board.repository.InterviewQuestionDAO;
 import es.board.repository.entity.InterviewQuestion;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.repository.InterviewQuestionAnswerRepository;
@@ -34,21 +35,23 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InterviewServiceImpl implements InterviewService {
 
-    private final InterviewQuestionRepository questionRepository;
+    private static final String INTERVIEW_CACHE_KEY = "random_interview_question_3";
+
+    private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
+
+    private  final MainFunctionMapper mapper;
+
+    private  final ObjectMapper objectMapper;
 
     private final StringRedisTemplate redisTemplate;
 
-    private  final ObjectMapper objectMapper;
+    private  final InterviewQuestionDAO questionDAO;
+
+    private final InterviewQuestionRepository questionRepository;
 
     private  final PointHistoryRepository pointHistoryRepository;
 
     private  final InterviewQuestionAnswerRepository answerRepository;
-
-    private  final MainFunctionMapper mapper;
-
-    private static final String INTERVIEW_CACHE_KEY = "random_interview_question_3";
-
-    private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
 
 
     @Override
@@ -60,6 +63,16 @@ public class InterviewServiceImpl implements InterviewService {
         }
 
         return question;
+    }
+
+    @Override
+    public List<es.board.repository.document.InterviewQuestion> getSearchInterviewQuestion(String text) {
+
+        if (text == null || text.isBlank()) {
+            throw new IllegalArgumentException("검색어는 필수입니다.");
+        }
+
+        return   questionDAO.searchInterviewQuestion(text);
     }
 
     @Override

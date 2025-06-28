@@ -136,120 +136,116 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
-import axios from 'axios'
-import {Modal} from 'bootstrap'
+  import { ref, reactive, onMounted } from 'vue'
+  import axios from 'axios'
+  import { Modal } from 'bootstrap'
 
-const seriesList = ['행정직', '세무직', '교정직', '경찰직', '소방직']
+  /* ---------- 상수 ---------- */
+  const seriesList = ['행정직', '세무직', '교정직', '경찰직', '소방직']
 
-const query = ref('')
-const loading = ref(false)
-const questions = ref([])
-const related = ref([])
-const trending = ref([])
-const active = ref(null)
-const myAnswer = ref('')
-const saving = ref(false)
-const questionModal = ref(null)
-const totalPages = ref(0)
-const totalElements = ref(0)
+  /* ---------- 상태 ---------- */
+  const query         = ref('')
+  const loading       = ref(false)
+  const questions     = ref([])
+  const trending      = ref([])
+  const related       = ref([])           // ← 추가기능용
+  const totalPages    = ref(0)
+  const totalElements = ref(0)
+  const page          = ref(0)            // 0-based
+  const size          = ref(10)
 
-const page = ref(0) // 현재 페이지 (0부터 시작)
-const size = ref(10) // 한 페이지에 몇 개 보여줄지
-let bsModal = null
+  /* ---------- 모달 ---------- */
+  const active        = ref(null)
+  const myAnswer      = ref('')
+  const saving        = ref(false)
+  const questionModal = ref(null)
+  let   bsModal       = null
 
-const filters = reactive({
-  series: ['행정직']
+  /* ---------- 필터 ---------- */
+  const filters = reactive({ series: ['행정직'] })
+
+  /* ===========================================
+  🔍 1) 검색어 기반 조회 ===================== */
+  async function searchByQuery () {
+  page.value = 0                                 // 검색은 1페이지만
+  const { data } = await axios.get(
+  `/api/search/interview/${ encodeURIComponent(query.value.trim()) }`
+  )
+  questions.value     = data.searchResult || []
+  totalPages.value    = 1
+  totalElements.value = questions.value.length
+}
+
+  /* ===========================================
+  📚 2) 시리즈(카테고리) 기반 목록 ============ */
+  async function searchBySeries () {
+  const selected = filters.series[0] || '행정직'
+  const { data }  = await axios.get(`/api/interview/공무원/${selected}`, {
+  params: { page: page.value, size: size.value }
 })
+  questions.value     = data.interview || []
+  totalPages.value    = data.totalPages
+  totalElements.value = data.totalElements
+}
 
-function toggleSeries(s) {
+  /* ===========================================
+  🔁 공통 진입 함수 ========================== */
+  async function search () {
+  loading.value = true
+  try {
+  if (query.value && query.value.trim() !== '') {
+  await searchByQuery()
+} else {
+  await searchBySeries()
+}
+} finally {
+  loading.value = false
+}
+}
+
+  /* ---------- 시리즈 토글 ---------- */
+  function toggleSeries (s) {
   filters.series = [s]
+  query.value    = ''     // 검색어 클리어
+  page.value     = 0
   search()
 }
 
-async function fetchTrending() {
-  const {data} = await axios.get('/api/interview/gov/trending')
+  /* ---------- 페이징 ---------- */
+  function nextPage () {
+  if (page.value < totalPages.value - 1) {
+  page.value++
+  searchBySeries()      // 페이지가 필요한 건 시리즈 목록뿐
+}
+}
+  function prevPage () {
+  if (page.value > 0) {
+  page.value--
+  searchBySeries()
+}
+}
+
+  /* ---------- 트렌딩 ---------- */
+  async function fetchTrending () {
+  const { data } = await axios.get('/api/interview/gov/trending')
   trending.value = data
 }
 
-async function search() {
-  loading.value = true
-  try {
-    const selected = filters.series[0] || '행정직'
-    const { data } = await axios.get(`/api/interview/공무원/${selected}`, {
-      params: {
-        q: query.value,
-        page: page.value,
-        size: size.value
-      }
-    })
-    console.log('응답 확인:', data)
-    questions.value = data.interview || []
-    totalPages.value = data.totalPages
-    totalElements.value = data.totalElements
-  } finally {
-    loading.value = false
-  }
-}
-function nextPage() {
-  if (page.value < totalPages.value - 1) {
-    page.value++
-    search()
-  }
-}
-function prevPage() {
-  if (page.value > 0) {
-    page.value--
-    search()
-  }
-}
-function openQuestion(q) {
-  active.value = q
-  myAnswer.value = ''
-  loadMyAnswer(q.id)
-  showModal()
-}
+  /* ---------- 모달 열기/닫기 ---------- */
+  function openQuestion (q) { active.value = q; showModal() }
+  function showModal ()     { if (!bsModal) bsModal = new Modal(questionModal.value); bsModal.show() }
+  function closeModal ()    { bsModal.hide(); active.value = null }
 
-function showModal() {
-  if (!bsModal) bsModal = new Modal(questionModal.value)
-  bsModal.show()
-}
+  /* ---------- 유틸 ---------- */
+  const formatDate = dt => new Date(dt).toLocaleDateString()
 
-function closeModal() {
-  bsModal.hide()
-  active.value = null
-}
-
-function formatDate(dt) {
-  return new Date(dt).toLocaleDateString()
-}
-
-async function loadMyAnswer(qid) {
-  try {
-    const {data} = await axios.get(`/api/interview/answer/${qid}`)
-    myAnswer.value = data.answer || ''
-  } catch {
-  }
-}
-
-async function saveAnswer() {
-  if (!active.value) return
-  saving.value = true
-  try {
-    await axios.post('/api/interview/answer', {
-      id: active.value.id,
-      answer: myAnswer.value
-    })
-  } finally {
-    saving.value = false
-  }
-}
-
-onMounted(() => {
+  /* ---------- 최초 로딩 ---------- */
+  onMounted(() => {
   fetchTrending()
-  search()
+  searchBySeries()        // 기본 목록
 })
 </script>
+
 
 <style scoped>
 .cursor-pointer {

@@ -5,11 +5,9 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import es.board.controller.model.req.TopWriter;
 import es.board.controller.model.res.JobSiteLogDTO;
 import es.board.ex.IndexException;
 import es.board.repository.JobSiteLogDAO;
-import es.board.repository.document.Board;
 import es.board.repository.document.JobSiteLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +20,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Repository
 @Slf4j
-public class JobSiteLogDAOImpl implements JobSiteLogDAO {
+public class LogDAOImpl implements JobSiteLogDAO {
 
     private  final ElasticsearchClient client;
 
     @Override
     public void saveJobSiteLog(JobSiteLogDTO dto) {
-        log.info(dto.toString());
         try{
             IndexResponse response=client.index(i->i
                     .index("job_site_log")

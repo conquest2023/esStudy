@@ -3,9 +3,8 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
-import es.board.controller.model.res.InterviewAnswerDTO;
 import es.board.controller.model.res.JobSiteLogDTO;
-import es.board.service.JobSiteLogService;
+import es.board.service.LogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 
-public class JobSiteLogController {
+public class LogController {
 
-    private final JobSiteLogService jobSiteLogService;
+    private final LogService jobSiteLogService;
 
     private  final  JwtTokenProvider jwtTokenProvider;
 

@@ -23,7 +23,7 @@ import java.util.Map;
 public class InterviewQuestionController {
 
 
-    private  final InterviewService interviewService;
+    private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
 
     private  final RedisTemplate redisTemplate;
 
@@ -31,12 +31,22 @@ public class InterviewQuestionController {
 
     private  final TokenValidator tokenValidator;
 
-    private  static   final String  ANSWER_CACHE_KEY =  "answer_interview_question";
+    private  final InterviewService interviewService;
+
+
+
 
 
     @GetMapping("/interview/random")
     public ResponseEntity<?> getRandomQuestion() {
         return ResponseEntity.ok(Map.of("question", interviewService.getRandomQuestions()));
+    }
+
+
+    @GetMapping("/search/interview/{text}")
+    public ResponseEntity<?> getSearchInterviewQuestion(@PathVariable String text) {
+        return ResponseEntity.ok(Map.of("searchResult",
+                interviewService.getSearchInterviewQuestion(text)));
     }
 
 
