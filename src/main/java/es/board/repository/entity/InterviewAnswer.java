@@ -24,6 +24,9 @@ public class InterviewAnswer {
     @Column(name = "question_id", nullable = false)
     private Long questionId;
 
+    private  String  username;
+
+
     @Column(name = "user_id", nullable = false, length = 50)
     private String userId;
 
@@ -35,6 +38,7 @@ public class InterviewAnswer {
 
     @Column(name = "likes")
     private int likes;
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

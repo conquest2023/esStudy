@@ -79,14 +79,17 @@ public class InterviewQuestionController {
     }
 
     @PostMapping("/save/interview/question")
-    public ResponseEntity<?> getRepeatSchedule(@RequestBody InterviewAnswerDTO dto, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveInterviewQuestion(@RequestBody InterviewAnswerDTO dto, @RequestHeader(value = "Authorization") String token) {
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse.getStatusCode() != HttpStatus.OK) {
             return tokenCheckResponse;
         }
-        token=token.substring(7);
-        interviewService.saveQuestion(dto,jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
+        Object body = tokenCheckResponse.getBody();
+        if (body instanceof Map<?, ?> mapBody) {
+            String rawToken = (String) mapBody.get("token");
+            interviewService.saveQuestion(dto, jwtTokenProvider.getUserId(rawToken), jwtTokenProvider.getUsername(rawToken));
+        }
         return ResponseEntity.ok(Map.of("success", true, "message", "답변이 성공적으로 저장되었습니다."));
     }
 

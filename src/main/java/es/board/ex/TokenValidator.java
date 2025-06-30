@@ -32,7 +32,7 @@ public class TokenValidator {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "세션이 만료되었습니다."));
         }
-        return null;
+        return ResponseEntity.ok(Map.of("token",rawToken));
     }
 
 }

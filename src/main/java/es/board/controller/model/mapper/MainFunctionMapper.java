@@ -36,13 +36,13 @@ public class MainFunctionMapper {
                         .build())
                         .collect(Collectors.toList());
     }
-    public  InterviewAnswer toInterviewEntity(InterviewAnswerDTO dto,String userId) {
+    public  InterviewAnswer toInterviewEntity(InterviewAnswerDTO dto,String userId,String username) {
         return InterviewAnswer.builder()
                 .questionId(dto.getQuestionId())
                 .userId(userId)
+                .username(username)
                 .title(dto.getTitle())
                 .answer(dto.getAnswer())
-                .likes(dto.getLikes())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

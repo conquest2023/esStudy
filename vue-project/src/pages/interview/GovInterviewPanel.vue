@@ -128,7 +128,7 @@
       <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ active?.title }}</h5>
+            <h5 class="modal-title">{{ active?.question }}</h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body">
@@ -164,7 +164,7 @@
   import { Modal } from 'bootstrap'
 
   /* ---------- 상수 ---------- */
-  const seriesList = ['행정직', '세무직', '교정직', '경찰직', '소방직']
+  const seriesList = ['행정직', '경찰직', '소방직']
 
   /* ---------- 상태 ---------- */
   const query         = ref('')
@@ -218,6 +218,46 @@
         })
     } catch (e) {
       console.warn('검색 로그 저장 실패:', e)
+    }
+  }
+  async function saveAnswer() {
+    if (!myAnswer.value || myAnswer.value.trim() === '') {
+      alert('답변을 입력해주세요.')
+      return
+    }
+
+    saving.value = true
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      const dto = {
+        questionId: active.value?.id,
+        title: active.value?.question,
+        answer: myAnswer.value
+      }
+
+      const res = await axios.post('/api/save/interview/question', dto, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (res.data.success) {
+        alert(res.data.message || '답변이 저장되었습니다.')
+        closeModal()
+        myAnswer.value = ''
+      } else {
+        alert('답변 저장에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('서버 오류가 발생했습니다.')
+    } finally {
+      saving.value = false
     }
   }
 

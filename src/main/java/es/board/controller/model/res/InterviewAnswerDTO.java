@@ -12,20 +12,23 @@ import java.time.LocalDateTime;
 @Data
 public class InterviewAnswerDTO {
 
+
     private Long id;
+
     private Long questionId;
 
     private String userId;
+
+    private String  username;
 
     private String title;
 
     private String  category;
 
+    private  String  subCategory;
+
     private String answer;
 
-    private int likes;
-
     private LocalDateTime createdAt;
-
 
 }

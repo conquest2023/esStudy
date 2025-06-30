@@ -139,17 +139,17 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public void saveQuestion(InterviewAnswerDTO dto,String  userId, String username) {
         checkQuestion(dto.getAnswer());
-        String categoryPrefix = dto.getCategory().equals("IT") ? "IT_" : "GENERAL_";
-        String cacheKey = categoryPrefix + ANSWER_CACHE_KEY + "_" + userId;
-
-        Integer count = redisTemplate.opsForValue().get(cacheKey) == null ? 0 :
-                Integer.parseInt(redisTemplate.opsForValue().get(cacheKey));
-
-        if (count >= 5) {
-            throw new IllegalStateException("오늘은 더 이상 답변을 작성할 수 없습니다.");
-        }
-        redisTemplate.opsForValue().set(cacheKey, String.valueOf(count + 1), Duration.ofDays(1));
-        answerRepository.save(mapper.toInterviewEntity(dto, userId));
+//        String categoryPrefix = dto.getCategory().equals("IT") ? "IT_" : "GENERAL_";
+//        String cacheKey = categoryPrefix + ANSWER_CACHE_KEY + "_" + userId;
+//
+//        Integer count = redisTemplate.opsForValue().get(cacheKey) == null ? 0 :
+//                Integer.parseInt(redisTemplate.opsForValue().get(cacheKey));
+//
+//        if (count >= 5) {
+//            throw new IllegalStateException("오늘은 더 이상 답변을 작성할 수 없습니다.");
+//        }
+//        redisTemplate.opsForValue().set(cacheKey, String.valueOf(count + 1), Duration.ofDays(1));
+        answerRepository.save(mapper.toInterviewEntity(dto, userId,username));
         grantInterviewPoint(userId,username);
     }
 
