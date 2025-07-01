@@ -38,7 +38,7 @@ const navItems = [
     ]
   },
   {
-    icon: 'fas fa-comments fa-lg', // 면접 느낌나는 아이콘으로 변경!
+    icon: 'fas fa-comments fa-lg',
     label: '면접',
     children: [
       {
@@ -48,13 +48,13 @@ const navItems = [
         desc: '실제 면접 기출 문제로 철저 대비!'
       },
       {
-        path: '/interview/it',
+        path: 'interview/priinterview',
         label: 'IT',
         icon: 'fas fa-laptop-code text-info',
         desc: '기술면접/코테까지 완벽 준비!'
       },
       {
-        path: '/interview/company',
+        path: '/interview/priinterview',
         label: '사기업',
         icon: 'fas fa-building text-success',
         desc: '기업별 면접 포인트와 합격 전략'
@@ -72,7 +72,7 @@ const navItems = [
 
 <template>
   <Navbar />
-  <NotificationToast />
+<!--  <NotificationToast />-->
 
   <div class="page-wrap">
     <main class="main-wrap"><router-view /></main>

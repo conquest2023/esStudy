@@ -32,6 +32,7 @@ const routes = [
             { path: 'certificate/calendar', component: () => import('@/pages/certificate/CertificateCalendar.vue') },
             { path: 'certificate/list', component: () => import('@/pages/certificate/CertificateSearch.vue') },
             { path: 'interview/govinterview', component: () => import('@/pages/interview/GovInterviewPanel.vue') },
+            { path: '/interview/priinterview', component: () => import('@/pages/interview/PriInterviewPanel.vue') },
             { path: 'search/view/question', name: 'QuestionBank', component: QuestionBank },
             { path: 'search/view/practical/question', name: 'PracticeQuestion', component: PracticeQuestion },
             { path: '/search/view/og/feed/id', meta: { ssrOnly: true },

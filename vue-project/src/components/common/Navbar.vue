@@ -185,7 +185,7 @@ const menus = [
         desc: '기술면접/코테까지 완벽 준비!'
       },
       {
-        href: '/certificate/list',
+        href: '/interview/priinterview',
         icon: 'fas fa-building text-success',
         title: '사기업',
         desc: '기업별 면접 포인트와 합격 전략'

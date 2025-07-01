@@ -29,10 +29,10 @@ public class MainFunctionMapper {
 
     public List<InterviewAnswerDTO> fromAnswerList(List<InterviewAnswer> answer) {
         return answer.stream()
-                .map(answer1 ->InterviewAnswerDTO.builder()
-                        .id(answer1.getId())
-                        .title(answer1.getTitle())
-                        .answer(answer1.getAnswer())
+                .map(o ->InterviewAnswerDTO.builder()
+                        .id(o.getId())
+                        .username(o.getUsername())
+                        .answer(o.getAnswer())
                         .build())
                         .collect(Collectors.toList());
     }

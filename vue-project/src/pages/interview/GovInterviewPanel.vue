@@ -147,6 +147,9 @@
             </button>
             <hr class="my-4"/>
             <h6 class="fw-bold mb-2">모범 답안 / 해설</h6>
+            <p class="text-muted small mb-1" v-if="active?.bestUsername">
+              <i class="fas fa-user me-1"></i>{{ active.bestUsername }}님의 답변
+            </p>
             <div v-html="active?.answerKey"></div>
           </div>
           <div class="modal-footer">
@@ -164,7 +167,7 @@
   import { Modal } from 'bootstrap'
 
   /* ---------- 상수 ---------- */
-  const seriesList = ['행정직', '경찰직', '소방직']
+  const seriesList = ['행정직', '경찰', '소방']
 
   /* ---------- 상태 ---------- */
   const query         = ref('')
@@ -261,6 +264,31 @@
     }
   }
 
+  async function fetchBestAnswer() {
+    if (!active.value?.id) return
+    try {
+      const res = await axios.get('/api/interview/best/answer', {
+        headers: {
+          'X-Question-Ids': active.value.id
+        }
+      })
+      const answerList = res.data
+      if (Array.isArray(answerList) && answerList.length > 0) {
+        const best = answerList[0]
+        // 👉 answerKey와 함께 username 따로 저장
+        active.value.answerKey = best.answer
+        active.value.bestUsername = best.username || '익명'
+      } else {
+        active.value.answerKey = '<p class="text-muted">베스트 답변이 아직 없습니다.</p>'
+        active.value.bestUsername = null
+      }
+    } catch (e) {
+      console.warn('베스트 답변 불러오기 실패:', e)
+      active.value.answerKey = '<p class="text-muted">불러오는 중 오류가 발생했습니다.</p>'
+      active.value.bestUsername = null
+    }
+  }
+
 
   /* ===========================================
   📚 2) 시리즈(카테고리) 기반 목록 ============ */
@@ -343,6 +371,7 @@
   }
   function handleQuestionClick(q) {
     openQuestion(q)                // 모달 열기
+    fetchBestAnswer()
     logInterviewClick(q)          // 로그 저장
   }
 
