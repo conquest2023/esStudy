@@ -2,8 +2,8 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
-import es.board.controller.model.req.CommentRequest;
-import es.board.controller.model.res.FeedCreateResponse;
+import es.board.controller.model.req.FeedDTO;
+import es.board.controller.model.res.CommentDTO;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import es.board.ex.TokenInvalidException;
@@ -101,11 +101,11 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
+    public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
         if (!(comments instanceof List<?>)) {
             throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
         }
-        List<CommentRequest> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
         return commentList.stream()
                 .peek(comment -> {
                     comment.setAuthor(comment.getUserId().equals(userId));
@@ -115,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean extractUserIdFromToken(String token, FeedCreateResponse response) {
+    public Boolean extractUserIdFromToken(String token, FeedDTO.Response response) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new TokenInvalidException("토큰이 비어있습니다.");
         }

@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.controller.model.req.TopWriter;
-import es.board.controller.model.res.CommentCreate;
+import es.board.controller.model.res.CommentDTO;
 import es.board.ex.IndexException;
 import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
@@ -213,7 +213,7 @@ public class CommentDAOImpl implements CommentDAO {
     }
 
     @Override
-    public String createCommentOne(String index, CommentCreate dto) {
+    public String createCommentOne(String index, CommentDTO.Response dto) {
         dto.TimeNow();
         try {
             IndexResponse response = client.index(i -> i
@@ -228,7 +228,7 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public void saveCommentIndex(CommentCreate dto) {
+    public void saveCommentIndex(CommentDTO.Response dto) {
 
         try {
             IndexResponse response = client.index(i -> i

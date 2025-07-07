@@ -1,10 +1,8 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentCreate;
-import es.board.controller.model.res.FeedCreateResponse;
+import es.board.controller.model.res.CommentDTO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.Notification;
 import es.board.service.event.FeedEvent;
@@ -17,22 +15,22 @@ import java.util.stream.Collectors;
 @Component
 public class CommentMapper {
 
-    public List<CommentRequest> changeCommentListDTO(List<Comment> comment){
+    public List<CommentDTO.Request> changeCommentListDTO(List<Comment> comment){
 
         return comment.stream()
-                .map(comment1 -> CommentRequest.builder()
+                .map(comment1 -> CommentDTO.Request.builder()
                         .feedUID(comment1.getFeedUID())
-                        .CommentUID(comment1.getCommentUID())
+                        .commentUID(comment1.getCommentUID())
                         .userId(comment1.getUserId())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
-                        .LikeCount(comment1.getLikeCount())
+                        .likeCount(comment1.getLikeCount())
                         .createdAt(comment1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
 
-    public Notification toCommentNotification(String userId, CommentCreate comment) {
+    public Notification toCommentNotification(String userId, CommentDTO.Request comment) {
         return Notification.builder()
                 .userId(userId)
                 .username(comment.getUsername())
@@ -58,30 +56,22 @@ public class CommentMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    public List<CommentRequest> isAuthorCommentList(List<Comment> comment,boolean isAuthor){
+    public List<CommentDTO.Request> isAuthorCommentList(List<Comment> comment,boolean isAuthor){
         return comment.stream()
-                .map(comment1 -> CommentRequest.builder()
+                .map(comment1 -> CommentDTO.Request.builder()
                         .feedUID(comment1.getFeedUID())
-                        .CommentUID(comment1.getCommentUID())
+                        .commentUID(comment1.getCommentUID())
                         .userId(comment1.getUserId())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
-                        .LikeCount(comment1.getLikeCount())
+                        .likeCount(comment1.getLikeCount())
                         .isAuthor(isAuthor)
                         .createdAt(comment1.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
 
-    public  CommentRequest changeCommentDTO(Comment comment){
 
-        return CommentRequest.builder()
-                .CommentUID(comment.getCommentUID())
-                .username(comment.getUsername())
-                .content(comment.getContent())
-                .build();
-
-    }
     public Comment convertDtoToEntity(CommentUpdate eq) {
         return  Comment.builder()
                 .commentUID(eq.getCommentUID())

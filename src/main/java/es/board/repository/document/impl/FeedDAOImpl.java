@@ -7,11 +7,11 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import es.board.controller.model.req.FeedDTO;
 import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.TopWriter;
 import es.board.ex.IndexException;
 import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class FeedDAOImpl implements FeedDAO {
     private final int increment = 1;
 
     @Override
-    public String saveFeed(String index, FeedCreateResponse dto) {
+    public String saveFeed(String index, FeedDTO.Response dto) {
         dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i

@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentCreate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

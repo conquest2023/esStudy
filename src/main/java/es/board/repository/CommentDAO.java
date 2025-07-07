@@ -1,7 +1,7 @@
 package es.board.repository;
 
 import es.board.controller.model.req.TopWriter;
-import es.board.controller.model.res.CommentCreate;
+import es.board.controller.model.res.CommentDTO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
@@ -28,11 +28,11 @@ public interface CommentDAO {
 
     double findUserCommentCount(String userId);
 
-    String createCommentOne(String index, CommentCreate dto);
+    String createCommentOne(String index, CommentDTO.Response dto);
 
     List<Comment> findRecentComment();
 
-    void saveCommentIndex(CommentCreate dto);
+    void saveCommentIndex(CommentDTO.Response dto);
 
     List<Comment> CreateManyComment(List<Comment> pages);
 

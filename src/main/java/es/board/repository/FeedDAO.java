@@ -1,10 +1,10 @@
 package es.board.repository;
 
 
+import es.board.controller.model.req.FeedDTO;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.TopWriter;
-import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +31,7 @@ public interface FeedDAO {
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeRequest dto, Long id);
     List<Board> findUserRangeTimeFeed(String userId);
-    String saveFeed(String index, FeedCreateResponse dto) ;
+    String saveFeed(String index, FeedDTO.Response dto) ;
 
     List<Board> saveBulkFeed(List<Board> pages) ;
 

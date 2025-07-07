@@ -1,7 +1,7 @@
 package es.board.service;
 
-import es.board.controller.model.req.CommentRequest;
-import es.board.controller.model.res.FeedCreateResponse;
+import es.board.controller.model.req.FeedDTO;
+import es.board.controller.model.res.CommentDTO;
 import es.board.controller.model.res.LoginResponse;
 import es.board.controller.model.res.SignUpResponse;
 import org.springframework.security.core.Authentication;
@@ -13,7 +13,7 @@ public interface AuthService {
 
 
     String findById(String  username);
-    Boolean extractUserIdFromToken(String token, FeedCreateResponse response);
+    Boolean extractUserIdFromToken(String token, FeedDTO.Response response);
 
 
     void updateVisitCount(String userId);
@@ -22,7 +22,7 @@ public interface AuthService {
     boolean login(LoginResponse login);
 
     Boolean checkId(SignUpResponse sign);
-    List<CommentRequest> getCommentOwnerList(Object comments, String commentOwner, String  feedUID,String userId);
+    List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String  feedUID, String userId);
     Long findVisitCount(String  userId);
 
     Authentication authenticate(LoginResponse login);

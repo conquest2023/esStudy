@@ -2,7 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentCreate;
+import es.board.controller.model.res.CommentDTO;
 import es.board.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> saveCommentId(
             @RequestParam("feedUID") String id,
-            @Valid @RequestBody CommentCreate response,
+            @Valid @RequestBody CommentDTO.Response response,
             @RequestHeader(value = "Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -49,7 +49,7 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> saveVoteCommentId(
             @RequestParam("feedUID") String id,
-            @RequestBody CommentCreate response,
+            @RequestBody CommentDTO.Response response,
             @RequestHeader(value = "Authorization", required = false) String token) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -136,7 +136,7 @@ public class CommentController {
 //
 //    @GetMapping("/search/view/comment")
 //    public String getCommentMainPage(@RequestParam String index, Model model) {
-//        model.addAttribute("CommentCreate", new CommentCreate());
+//        model.addAttribute("CommentDTO", new CommentDTO());
 //
 //        model.addAttribute("data",commentService.getComment());
 //        return "basic/commentList";

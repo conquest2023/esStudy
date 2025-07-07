@@ -1,11 +1,9 @@
 package es.board.controller.model.mapper;
 
-import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.FeedDTO;
 import es.board.controller.model.req.NoticeRequest;
 import es.board.controller.model.req.ReplyRequest;
 import es.board.controller.model.req.VoteRequest;
-import es.board.controller.model.res.CommentCreate;
-import es.board.controller.model.res.FeedCreateResponse;
 import es.board.controller.model.res.ReplyCreate;
 import es.board.repository.document.Board;
 import es.board.repository.document.Reply;
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class FeedMapper {
-    public Post toPostEntity(FeedCreateResponse feedSaveDTO) {
+    public Post toPostEntity(FeedDTO.Response feedSaveDTO) {
         return Post.builder()
                 .userId(feedSaveDTO.getUserId())
                 .feedUID(UUID.randomUUID().toString())
@@ -46,7 +44,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public Board toBoardDocument(FeedCreateResponse response, int id , String feedUID) {
+    public Board toBoardDocument(FeedDTO.Response response, int id , String feedUID) {
         return Board.builder()
                 .feedUID(feedUID)
                 .id(id)
@@ -62,9 +60,9 @@ public class FeedMapper {
                 .build();
     }
 
-    public List<FeedRequest> fromBoardDtoList(List<Board> boards) {
+    public List<FeedDTO.Request> fromBoardDtoList(List<Board> boards) {
         return boards.stream()
-                .map(board -> FeedRequest.builder()
+                .map(board -> FeedDTO.Request.builder()
                         .feedUID(board.getFeedUID())
                         .id(board.getId())
                         .username(board.getUsername())
@@ -79,8 +77,8 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public FeedRequest fromBoardDto(Board board) {
-        return FeedRequest.builder()
+    public FeedDTO.Request fromBoardDto(Board board) {
+        return FeedDTO.Request.builder()
                 .feedUID(board.getFeedUID())
                 .id(board.getId())
                 .userId(board.getUserId())

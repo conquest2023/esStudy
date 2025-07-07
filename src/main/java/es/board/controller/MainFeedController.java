@@ -2,17 +2,13 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.FeedDTO;
 import es.board.controller.model.req.FeedUpdate;
 import es.board.controller.model.req.TopWriter;
-import es.board.controller.model.res.FeedCreateResponse;
 import es.board.repository.entity.FeedImage;
 import es.board.service.AuthService;
-import es.board.service.CommentService;
 import es.board.service.FeedService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -308,7 +304,7 @@ public class MainFeedController {
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
-            @Validated @RequestPart("feed") FeedCreateResponse res,
+            @Validated @RequestPart("feed") FeedDTO.Response res,
             @RequestHeader(value = "Authorization", required = false) String token) {
             authService.extractUserIdFromToken(token, res);
             return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
@@ -338,19 +334,15 @@ public class MainFeedController {
     }
 
 
-    @GetMapping("/search/view/feed/Form")
-    public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token,
-                               Model model) {
-        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
-        return "basic/feed/PostFeed";
-    }
+//    @GetMapping("/search/view/feed/Form")
+//    public String feedSaveForm(@RequestHeader(value = "Authorization", required = false) String token,
+//                               Model model) {
+//        model.addAttribute("FeedCreateResponse", new FeedCreateResponse());
+//        return "basic/feed/PostFeed";
+//    }
 
 
-    @PostMapping("/feed/view/bulks")
-    public List<FeedCreateResponse> postBulkFeed(@RequestBody List<FeedCreateResponse> comments) {
 
-        return feedService.createBulkFeed(comments);
-    }
     @GetMapping("/naver/callback")
     public RedirectView naverCallbackView(@RequestParam String code) {
         return new RedirectView("https://workly.info/naver/callback?code=" + code);
@@ -386,7 +378,7 @@ public class MainFeedController {
     public ResponseEntity<?> getReplyDesc(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedRequest> data= feedService.findReplyDESC(page, size);
+        List<FeedDTO.Request> data= feedService.findReplyDESC(page, size);
         return ResponseEntity.ok(Map.of(
                 "data", data,
                 "totalPage",500
@@ -397,7 +389,7 @@ public class MainFeedController {
     public ResponseEntity<?> getCommentDesc(@RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedRequest> data= feedService.findCommentDESC(page, size);
+        List<FeedDTO.Request> data= feedService.findCommentDESC(page, size);
         return ResponseEntity.ok(Map.of(
                 "data", data,
                 "totalPage",500
@@ -409,7 +401,7 @@ public class MainFeedController {
     public ResponseEntity<?> getViewDesc(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedRequest> data = feedService.findViewDESC(page, size);
+        List<FeedDTO.Request> data = feedService.findViewDESC(page, size);
 
         return ResponseEntity.ok(Map.of(
                 "data", data,

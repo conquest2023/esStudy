@@ -1,11 +1,10 @@
 package es.board.controller;
 
-import es.board.controller.model.req.FeedRequest;
+import es.board.controller.model.req.FeedDTO;
 import es.board.service.FeedService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +35,7 @@ public class OGController {
     public String serveOGPage(@RequestParam("id") String id, Model model) {
 
         log.info("sadads");
-        FeedRequest feed = feedService.getFeedDetail(id);
+        FeedDTO.Request feed = feedService.getFeedDetail(id);
         model.addAttribute("title", feed.getTitle());
         model.addAttribute("description", feed.getDescription());
         model.addAttribute("image", feed.getImageURL());

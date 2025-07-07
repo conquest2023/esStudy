@@ -3,10 +3,9 @@ package es.board.service.impl;
 import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.CommentRequest;
 import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.req.FeedRequest;
-import es.board.controller.model.res.CommentCreate;
+import es.board.controller.model.req.FeedDTO;
+import es.board.controller.model.res.CommentDTO;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
@@ -62,13 +61,13 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findManyComment();
     }
     @Override
-    public List<CommentRequest> getUserRangeTimeActive(String userId) {
+    public List<CommentDTO.Request> getUserRangeTimeActive(String userId) {
 
       return  commentMapper.changeCommentListDTO(commentDAO.findUserRangeActive(userId));
     }
 
     @Override
-    public List<FeedRequest> getFeedAndCommentMyPage(String userId,int page ,int size) {
+    public List<FeedDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size) {
 
         return  feedMapper.fromBoardDtoList(commentDAO.findFeedAndCommentMypage(userId,page,size));
     }
@@ -89,13 +88,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentRequest> getRecentComment() {
+    public List<CommentDTO.Request> getRecentComment() {
 
         return commentMapper.changeCommentListDTO(commentDAO.findRecentComment());
     }
 
     @Override
-    public void saveComment(CommentCreate dto) {
+    public void saveComment(CommentDTO.Response dto) {
         checkValueComment(dto);
         commentDAO.saveCommentIndex(dto);
         String userId = postRepository.findByFeedUID(dto.getFeedUID());
@@ -132,7 +131,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentCreate> saveBulkComment(List<CommentCreate> comments) {
+    public List<CommentDTO.Response> saveBulkComment(List<CommentDTO.Response> comments) {
         commentDAO.CreateManyComment(BulkToEntity(comments));
         return comments;
     }
@@ -142,7 +141,7 @@ public class CommentServiceImpl implements CommentService {
         return commentDAO.findCommentsWithCount(feedUID);
     }
     @Override
-    public List<CommentRequest> getLikeCount() {
+    public List<CommentDTO.Request> getLikeCount() {
 
         return commentMapper.changeCommentListDTO(commentDAO.findLikeCount());
     }
@@ -159,7 +158,7 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public List<CommentRequest> getCommentOne(String commentUID){
+    public List<CommentDTO.Request> getCommentOne(String commentUID){
 
         return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(commentUID));
     }
@@ -178,9 +177,9 @@ public class CommentServiceImpl implements CommentService {
 
 
 
-    public List<Comment> BulkToEntity(List<CommentCreate> res) {
+    public List<Comment> BulkToEntity(List<CommentDTO.Response> res) {
         List<Comment> comments = new ArrayList<>();
-        for (CommentCreate dto : res) {
+        for (CommentDTO.Response dto : res) {
             Comment comment = Comment.builder()
                     .commentUID(dto.getCommentUID())
                     .username(dto.getUsername())
@@ -192,7 +191,7 @@ public class CommentServiceImpl implements CommentService {
         return comments;
     }
 
-    private static void checkValueComment(CommentCreate commentCreate) {
+    private static void checkValueComment(CommentDTO.Response commentCreate) {
         if (isEmpty(commentCreate.getContent())) {
             throw new IllegalArgumentException("내용은 필수 입력값입니다.");
         }
