@@ -48,13 +48,12 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
-
         // Access Token 생성
         String accessToken = Jwts.builder()
                 .setSubject(userId) // "sub"에 userId 저장
                 .claim("username", authentication.getName()) // "username" 클레임에 이름 저장
                 .claim("auth", authorities) // 권한 정보 저장
-                .claim("created_at", LocalDate.now().toString())
+//                .claim("created_at", LocalDate.now().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -105,7 +104,6 @@ public class JwtTokenProvider {
     }
 
     public  String getUserId(String token){
-
         return  parseClaims(token).get("sub",String.class);
     }
 

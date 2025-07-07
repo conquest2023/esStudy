@@ -18,8 +18,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -30,7 +28,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -71,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void updateVisitCount(String userId) {
-        userDAO.modifyVisitCount(userId);
+        userDAO.updateVisitCount(userId);
     }
 
     @Override
@@ -119,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Boolean extractUserIdFromToken(String token, FeedCreateResponse response) {
-        if (token == null || !token.startsWith("Bearer ") || token.length() < 8) {
+        if (token == null || !token.startsWith("Bearer ")) {
             throw new TokenInvalidException("토큰이 비어있습니다.");
         }
         token = token.substring(7);
@@ -138,8 +135,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Authentication authenticate(LoginResponse login) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        return authentication;
+        return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }
 
     public void grantLoginPoint(String userId) {

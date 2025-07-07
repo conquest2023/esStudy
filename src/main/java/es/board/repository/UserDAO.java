@@ -12,6 +12,6 @@ public interface UserDAO {
     Boolean checkUserId(SignUpResponse sign);
     User login(LoginResponse login);
 
-    void modifyVisitCount(String userId);
+    void updateVisitCount(String userId);
     void signUp();
 }

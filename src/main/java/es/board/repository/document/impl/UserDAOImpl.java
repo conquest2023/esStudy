@@ -85,7 +85,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void modifyVisitCount(String userId) {
+    public void updateVisitCount(String userId) {
         try {
             client.updateByQuery(u -> u
                     .index("user")

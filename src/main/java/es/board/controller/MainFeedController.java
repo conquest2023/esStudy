@@ -310,7 +310,6 @@ public class MainFeedController {
     public ResponseEntity<Map<String, Object>> saveFeed(
             @Validated @RequestPart("feed") FeedCreateResponse res,
             @RequestHeader(value = "Authorization", required = false) String token) {
-
             authService.extractUserIdFromToken(token, res);
             return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
     }
