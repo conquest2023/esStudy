@@ -3,9 +3,9 @@ package es.board.controller;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.VoteRequest;
-import es.board.controller.model.res.CommentDTO;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.VoteDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.ex.TokenValidator;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -106,7 +106,7 @@ public class MainFeedAjaxController {
     @GetMapping("/user/id")
     public ResponseEntity<?> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         String userId = jwtTokenProvider.getUserId(token.substring(7));
@@ -160,7 +160,7 @@ public class MainFeedAjaxController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
             Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
-            List<VoteRequest> vote=voteService.getVotePageFeed(page,size);
+            List<VoteDTO.Request> vote=voteService.getVotePageFeed(page,size);
             List<FeedDTO.Request> data = feedService.getPagingFeed(page, size);
             Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
             Long totalPage = (Long) feedCount.get("totalFeedCount");
@@ -274,7 +274,7 @@ public class MainFeedAjaxController {
         Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
         response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
         response.put("count",commentRes.get("commentCount"));
-        VoteRequest req=voteService.getVoteDetail(feedUID);
+        VoteDTO.Request req=voteService.getVoteDetail(feedUID);
         if (token != null && token.startsWith("Bearer ")) {
             token =token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -289,7 +289,7 @@ public class MainFeedAjaxController {
             @RequestBody Map<String, String> requestData, @RequestHeader(value = "Authorization") String token) {
         String id = requestData.get("id");
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         feedService.deleteFeed(id, jwtTokenProvider.getUserId(token.substring(7)));
@@ -326,7 +326,7 @@ public class MainFeedAjaxController {
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteRequest req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO.Request req, String commentOwner, Map<String, Object> response, String token, Object comments) {
 //        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
         response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
         response.put("username", jwtTokenProvider.getUsername(token));
@@ -335,7 +335,7 @@ public class MainFeedAjaxController {
         response.put("data", req);
         return ResponseEntity.ok(response);
     }
-    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteRequest req, Map<String, Object> response) {
+    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO.Request req, Map<String, Object> response) {
 
         if (!(comments instanceof List<?>)) {
             throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");

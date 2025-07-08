@@ -2,8 +2,8 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.document.Comment;
 import es.board.service.CommentService;
 import es.board.service.FeedService;
@@ -17,7 +17,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -285,7 +284,7 @@ public class UserController {
 
     @PostMapping("/signup/pass")
     @ResponseBody
-    public ResponseEntity<?> signIn(@RequestBody SignUpResponse sign) {
+    public ResponseEntity<?> signIn(@RequestBody SignUpDTO sign) {
         boolean isIdAvailable = userService.checkId(sign);
         if (isIdAvailable) {
             userService.createUser(sign);
@@ -296,7 +295,7 @@ public class UserController {
     }
     @PostMapping("/authlogin")
     @ResponseBody
-    public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
+    public ResponseEntity<?> loginPass(@RequestBody LoginDTO response) {
         if (!userService.login(response)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
@@ -321,14 +320,14 @@ public class UserController {
                 ));
     }
     @PostMapping("/check")
-    public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpResponse sign) {
+    public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpDTO sign) {
         boolean isAvailable = userService.checkId(sign);
         return ResponseEntity.ok(isAvailable);
     }
 
 
 //    @PostMapping("/login/pass")
-//    public String loginPass(Model model, LoginResponse response) {
+//    public String loginPass(Model model, LoginDTO response) {
 //        log.info("Gasdsadsa");
 //        if (!userService.login(response)) {
 //            model.addAttribute("error", "아이디 또는 비밀번호가 잘못되었습니다.");

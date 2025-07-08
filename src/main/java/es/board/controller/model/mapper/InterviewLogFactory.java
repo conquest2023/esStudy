@@ -1,7 +1,7 @@
 package es.board.controller.model.mapper;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.res.InterviewLogDTO;
+import es.board.controller.model.dto.interview.InterviewLogDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

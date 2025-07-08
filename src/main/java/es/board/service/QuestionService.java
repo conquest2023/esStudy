@@ -1,17 +1,17 @@
 package es.board.service;
 
-import es.board.controller.model.req.QuestionPracticalDto;
+import es.board.controller.model.dto.certificate.QuestionPracticalDTO;
 
 import java.util.List;
 
 public interface QuestionService {
 
 
-    List<QuestionPracticalDto> getQuestionPracticalList(String category, String type);
+    List<QuestionPracticalDTO> getQuestionPracticalList(String category, String type);
 
 
-    List<QuestionPracticalDto> getRandomPracticalList();
+    List<QuestionPracticalDTO> getRandomPracticalList();
 
-    List<QuestionPracticalDto> getTagPractical(Long tagId);
+    List<QuestionPracticalDTO> getTagPractical(Long tagId);
 
 }

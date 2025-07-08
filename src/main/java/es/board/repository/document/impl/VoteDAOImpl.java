@@ -1,17 +1,15 @@
 package es.board.repository.document.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import es.board.controller.model.req.VoteRequest;
+import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.ex.IndexException;
 import es.board.repository.VoteDAO;
-import es.board.repository.document.Comment;
 import es.board.repository.document.VoteAnalytics;
 import es.board.repository.document.VoteDocument;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ public class VoteDAOImpl implements VoteDAO {
     private  final ElasticsearchClient client;
 
     @Override
-    public void saveVoteContent(VoteRequest voteResponse, Long id) {
+    public void saveVoteContent(VoteDTO.Request voteResponse, Long id) {
         log.info(id.toString());
         try {
             IndexResponse response = client.index(i -> i
@@ -44,7 +42,7 @@ public class VoteDAOImpl implements VoteDAO {
     }
 
     @Override
-    public void saveVoteTicket(VoteRequest voteResponse) {
+    public void saveVoteTicket(VoteDTO.Request voteResponse) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("vote_analytics")
@@ -55,7 +53,7 @@ public class VoteDAOImpl implements VoteDAO {
         }
     }
     @Override
-    public void saveAggregationAgreeVote(VoteRequest voteResponse, Long id) {
+    public void saveAggregationAgreeVote(VoteDTO.Request voteResponse, Long id) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("vote_analytics")

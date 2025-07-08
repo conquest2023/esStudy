@@ -1,14 +1,12 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.QuestionPracticalDto;
-import es.board.controller.model.req.ScheduleRequest;
-import es.board.controller.model.req.TodoRequest;
-import es.board.controller.model.res.TodoResponse;
+import es.board.controller.model.dto.certificate.QuestionPracticalDTO;
+import es.board.controller.model.dto.todo.ScheduleDTO;
+import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.repository.entity.QuestionPractical;
 import es.board.repository.entity.Schedule;
 import es.board.repository.entity.Todo;
-import es.board.repository.entity.TodoStatus;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,9 +25,9 @@ import java.util.stream.Collectors;
 @Component
 public class CertificateMapper {
 
-        public List<QuestionPracticalDto> fromPracticalDTO(List<QuestionPractical> practicals) {
+        public List<QuestionPracticalDTO> fromPracticalDTO(List<QuestionPractical> practicals) {
             return practicals.stream()
-                    .map(practical -> QuestionPracticalDto.builder()
+                    .map(practical -> QuestionPracticalDTO.builder()
                             .questionId(practical.getQuestionId())
                             .category(practical.getCategory())
                             .type(practical.getType())
@@ -40,7 +38,7 @@ public class CertificateMapper {
                     .collect(Collectors.toList());
     }
 
-//    public QuestionPracticalDto ToQuestionPracticalEntity() {
+//    public QuestionPracticalDTO ToQuestionPracticalEntity() {
 //        return QuestionPractical.builder()
 //                .questionId()
 //                .title(todoResponse.getTitle())
@@ -55,22 +53,9 @@ public class CertificateMapper {
 
 
 
-    public Todo TodoToEntity(String userId, TodoResponse todoResponse) {
-        return Todo.builder()
-                .userId(userId)
-                .title(todoResponse.getTitle())
-                .priority(todoResponse.getPriority())
-                .category(todoResponse.getCategory())
-                .status(TodoStatus.IN_PROGRESS)
-                .description(todoResponse.getDescription())
-                .dueDate(todoResponse.getDueDate())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
-
-    public List<TodoRequest> EntityToTodo(List<Todo> todo) {
+    public List<TodoDTO.Request> EntityToTodo(List<Todo> todo) {
         return todo.stream()
-                .map(todo1 -> TodoRequest.builder()
+                .map(todo1 -> TodoDTO.Request.builder()
                         .todo_id(todo1.getTodo_id())
 //                        .userId(todo1.getUserId())
                         .title(todo1.getTitle())
@@ -85,9 +70,9 @@ public class CertificateMapper {
     }
 
 
-    public  List<ScheduleRequest> fromSchedule(List<Schedule> schedule) {
+    public  List<ScheduleDTO> fromSchedule(List<Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleRequest.builder()
+                .map(schedule1 -> ScheduleDTO.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -103,7 +88,7 @@ public class CertificateMapper {
     }
 
     // DTO -> 엔터티 변환 메서드
-    public Schedule toScheduleEntity(String userId, ScheduleRequest scheduleDTO) {
+    public Schedule toScheduleEntity(String userId, ScheduleDTO scheduleDTO) {
         return Schedule.builder()
                 .userId(userId)
                 .title(scheduleDTO.getTitle())
@@ -121,7 +106,7 @@ public class CertificateMapper {
     }
 
 
-    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleRequest scheduleDTO, Long id) {
+    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleDTO scheduleDTO, Long id) {
         return es.board.repository.document.Schedule.builder()
                 .scheduleId(id)
                 .userId(userId)
@@ -156,9 +141,9 @@ public class CertificateMapper {
     }
 
 
-    public  List<ScheduleRequest> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
+    public  List<ScheduleDTO> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleRequest.builder()
+                .map(schedule1 -> ScheduleDTO.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -171,7 +156,7 @@ public class CertificateMapper {
                 .collect(Collectors.toList());
     }
 
-    public List<Schedule> generateRepeatSchedules(String userId, ScheduleRequest scheduleDTO) {
+    public List<Schedule> generateRepeatSchedules(String userId, ScheduleDTO scheduleDTO) {
         List<Schedule> repeatSchedules = new ArrayList<>();
 
         LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();

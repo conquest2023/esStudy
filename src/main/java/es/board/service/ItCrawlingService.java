@@ -1,8 +1,8 @@
 package es.board.service;
 
-import es.board.controller.model.req.JobListing;
-import es.board.controller.model.req.StudyTipRequest;
-import es.board.controller.model.req.WantedJobData;
+import es.board.controller.model.dto.job.JobListing;
+import es.board.controller.model.dto.job.StudyTipRequest;
+import es.board.controller.model.dto.job.WantedJobData;
 
 import java.util.List;
 import java.util.Map;

@@ -2,9 +2,8 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.VoteRequest;
+import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.ex.TokenValidator;
-import es.board.repository.document.Board;
 import es.board.service.VoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +31,9 @@ public class VoteController {
 
     @PostMapping("/save/vote")
     @ResponseBody
-    public ResponseEntity<?> saveVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> saveVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -46,9 +45,9 @@ public class VoteController {
 
     @PostMapping("/save/user/vote")
     @ResponseBody
-    public ResponseEntity<?> saveUserVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveUserVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization") String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -60,9 +59,9 @@ public class VoteController {
 
     @PostMapping("/save/ticket/vote")
     @ResponseBody
-    public ResponseEntity<?> saveFeedVote(@RequestBody VoteRequest vote, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveFeedVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization") String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -71,10 +70,10 @@ public class VoteController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/save/aggregation/vote")
-    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteRequest vote,
+    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteDTO.Request vote,
                                                  @RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -111,7 +110,7 @@ public class VoteController {
 //        log.info(voteService.getVotePageFeed(page,size).toString().get);
         Map<String,Object> result= voteService.getVotePageMainFeed(page, size);
 
-        List<VoteRequest> voteRequests = (List<VoteRequest>) result.get("data");
+        List<VoteDTO> voteRequests = (List<VoteDTO>) result.get("data");
         return ResponseEntity.ok(Map.of(
                 "data", voteRequests,
                 "totalPage", result.get("totalPage")));
@@ -128,7 +127,7 @@ public class VoteController {
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam String id) {
         Map<String, Object> objectMap = voteService.getVoteTicketAll(id);
-        log.info(objectMap.toString());
+
         if (token == null) {
             return ResponseEntity.ok(Map.of(
                     "hasVoted", false,

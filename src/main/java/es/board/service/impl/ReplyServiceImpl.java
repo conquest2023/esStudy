@@ -2,8 +2,7 @@ package es.board.service.impl;
 
 import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.ReplyRequest;
-import es.board.controller.model.res.ReplyCreate;
+import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
 import es.board.repository.entity.PointHistory;
@@ -49,7 +48,7 @@ public class ReplyServiceImpl implements ReplyService {
         return replyDAO.findPartialReply(id);
     }
     @Override
-    public  void  saveReply(ReplyCreate response){
+    public  void  saveReply(ReplyDTO.Response response){
         checkValueReply(response);
         String userId=commentDAO.findCommentUID(response.getCommentUID()).getUserId();
         replyDAO.saveReply(response);
@@ -65,13 +64,13 @@ public class ReplyServiceImpl implements ReplyService {
         notificationService.sendPointNotification(response.getUserId(),response.getFeedUID(),"답글 작성 포인트를 발급 받으셨습니디");
 
     }
-    public Map<String, List<ReplyRequest>> getRepliesGroupedByComment(String feedId) {
-        List<ReplyRequest> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
+    public Map<String, List<ReplyDTO.Request>> getRepliesGroupedByComment(String feedId) {
+        List<ReplyDTO.Request> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
         return replies.stream()
-                .collect(Collectors.groupingBy(ReplyRequest::getCommentUID));
+                .collect(Collectors.groupingBy(ReplyDTO.Request::getCommentUID));
     }
 
-    private static void checkValueReply(ReplyCreate response) {
+    private static void checkValueReply(ReplyDTO.Response response) {
 
         if (isEmpty(response.getContent())) {
             throw new IllegalArgumentException("답글은 필수 입력값입니다.");

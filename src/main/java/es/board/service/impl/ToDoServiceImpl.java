@@ -2,9 +2,8 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
-import es.board.controller.model.req.D_DayRequest;
-import es.board.controller.model.req.TodoRequest;
-import es.board.controller.model.res.TodoResponse;
+import es.board.controller.model.dto.todo.D_DayDTO;
+import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.repository.ToDoDAO;
 import es.board.repository.document.Todo;
 import es.board.repository.entity.PointHistory;
@@ -57,17 +56,17 @@ public class ToDoServiceImpl implements ToDoService {
 
 
     @Override
-    public List<TodoRequest> getUserToDo(String userId) {
+    public List<TodoDTO.Request> getUserToDo(String userId) {
         return toDoMapper.EntityToTodo(todoRepository.findTodayTodos(userId,LocalDate.now()));
     }
 
     @Override
-    public List<TodoRequest> getUserAllToDo(String userId) {
+    public List<TodoDTO.Request> getUserAllToDo(String userId) {
         return  toDoMapper.EntityToTodo(todoRepository.findAllByTodos(userId));
     }
 
     @Override
-    public void addToDo(String token, TodoResponse todoResponse) {
+    public void addToDo(String token, TodoDTO.Response todoResponse) {
         todoRepository.save(toDoMapper.TodoToEntity(jwtTokenProvider.getUserId(token), todoResponse));
         String redisKey = REDIS_TODO_COUNT_KEY + jwtTokenProvider.getUserId(token);
         redisTemplate.opsForValue().increment(redisKey);
@@ -76,7 +75,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public void addD_Day(String token, D_DayRequest dDayDTO) {
+    public void addD_Day(String token, D_DayDTO dDayDTO) {
         dayRepository.save(toDoMapper.toEntityD_Day(jwtTokenProvider.getUserId(token),dDayDTO));
         grantTodoPoint(jwtTokenProvider.getUserId(token),jwtTokenProvider.getUsername(token));
     }
@@ -87,7 +86,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public List<D_DayRequest> getD_Day(String token) {
+    public List<D_DayDTO> getD_Day(String token) {
 
       return toDoMapper.fromD_DayEntityList(dayRepository.findAll(jwtTokenProvider.getUserId(token)));
     }
@@ -137,13 +136,13 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public void addProjectTodo(String userId, TodoResponse todoResponse,String username) {
+    public void addProjectTodo(String userId, TodoDTO.Response todoResponse, String username) {
         todoRepository.save(toDoMapper.TodoToEntity(userId,todoResponse));
         grantTodoPoint(userId,username);
     }
 
     @Override
-    public List<TodoRequest> getProjectTodo(String userId) {
+    public List<TodoDTO.Request> getProjectTodo(String userId) {
       return  toDoMapper.EntityToTodo(todoRepository.findProjectTodo(userId));
     }
 

@@ -1,11 +1,9 @@
 package es.board.service;
 
 
-import es.board.controller.model.req.DailyCheckRequest;
-import es.board.controller.model.res.DailyBookMark;
+import es.board.controller.model.dto.feed.DailyCheckDTO;
+import es.board.controller.model.dto.interview.DailyBookMark;
 import es.board.repository.entity.DailyQuestion;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -24,7 +22,7 @@ public interface DailyQuestionService {
     List<DailyQuestion> getDailyQuestion(String userId);
 
 
-    boolean checkDailyAnswer(String userId, DailyCheckRequest request);
+    boolean checkDailyAnswer(String userId, DailyCheckDTO request);
 
 
     void saveDailyBookMark(String userId, DailyBookMark daily);

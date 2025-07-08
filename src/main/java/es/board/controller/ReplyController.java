@@ -2,11 +2,8 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.ReplyRequest;
-import es.board.controller.model.res.ReplyCreate;
+import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.ex.TokenValidator;
-import es.board.repository.document.Reply;
 import es.board.service.ReplyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,11 +33,10 @@ public class ReplyController {
 
     @PostMapping("/search/view/reply/save")
     public ResponseEntity<?> postReply(@RequestHeader(value = "Authorization", required = false) String token,
-                                            @Valid @RequestBody ReplyCreate response) {
-
+                                            @Valid @RequestBody ReplyDTO.Response response) {
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -54,9 +48,10 @@ public class ReplyController {
 
 
     @PostMapping("/search/view/vote/reply/save")
-    public ResponseEntity<?> postVoteReply(@RequestHeader(value = "Authorization", required = false) String token,@RequestBody ReplyCreate response) {
+    public ResponseEntity<?> postVoteReply(@RequestHeader(value = "Authorization", required = false)
+                                               String token,@RequestBody ReplyDTO.Response response) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);

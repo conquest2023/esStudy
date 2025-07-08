@@ -1,6 +1,6 @@
 package es.board.repository;
 
-import es.board.controller.model.req.VoteRequest;
+import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.repository.document.VoteDocument;
 
 import java.util.List;
@@ -12,12 +12,12 @@ public interface VoteDAO {
 
     Map<String, Object>  findFeedPagingVote( int page, int size);
     Map<String, Object> getVoteFeedStatistics(String id);
-    void saveVoteTicket(VoteRequest voteResponse);
+    void saveVoteTicket(VoteDTO.Request voteResponse);
     List<VoteDocument> findFeedVoteAll();
     Map<String, Object> getVoteStatistics(String id);
-    void saveVoteContent(VoteRequest voteResponse, Long id);
+    void saveVoteContent(VoteDTO.Request voteResponse, Long id);
 
-    void saveAggregationAgreeVote(VoteRequest voteResponse, Long id);
+    void saveAggregationAgreeVote(VoteDTO.Request voteResponse, Long id);
 
     VoteDocument findVoteFeedDetail(String feedUID);
     List<VoteDocument> findVotePageFeed(int page, int size);

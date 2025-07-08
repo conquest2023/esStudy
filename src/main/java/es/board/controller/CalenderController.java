@@ -2,7 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.ScheduleRequest;
+import es.board.controller.model.dto.todo.ScheduleDTO;
 import es.board.service.CalenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class CalenderController {
     private  final CalenderService calenderService;
 
     @PostMapping("/save/schedule")
-    public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleRequest scheduleDTO) {
+    public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -37,7 +37,7 @@ public class CalenderController {
 
     }
     @PostMapping("/save/repeat/schedule")
-    public void saveRepeatCalendar(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleRequest scheduleDTO) {
+    public void saveRepeatCalendar(@RequestHeader(value = "Authorization") String token, @RequestBody ScheduleDTO scheduleDTO) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -61,7 +61,7 @@ public class CalenderController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
 
-        List<ScheduleRequest> scheduleDTOS = calenderService.getRepeatSchedule(token);
+        List<ScheduleDTO> scheduleDTOS = calenderService.getRepeatSchedule(token);
         Map<String, Object> response = new HashMap<>();
         response.put("repeatSchedules", scheduleDTOS);
         return ResponseEntity.ok(response);
@@ -78,7 +78,7 @@ public class CalenderController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
         }
 
-        List<ScheduleRequest> scheduleDTOS = calenderService.getSchedule(token);
+        List<ScheduleDTO> scheduleDTOS = calenderService.getSchedule(token);
         Map<String, Object> response = new HashMap<>();
         response.put("todos", scheduleDTOS);
         return ResponseEntity.ok(response);
@@ -104,7 +104,7 @@ public class CalenderController {
         }
 
 
-        List<ScheduleRequest> scheduleDTOS = calenderService.searchSchedule(token, query, searchType, sortType);
+        List<ScheduleDTO> scheduleDTOS = calenderService.searchSchedule(token, query, searchType, sortType);
 
         Map<String, Object> response = new HashMap<>();
 

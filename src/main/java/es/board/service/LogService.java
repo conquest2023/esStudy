@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.res.JobSiteLogDTO;
+import es.board.controller.model.dto.job.JobSiteLogDTO;
 
 import java.util.List;
 

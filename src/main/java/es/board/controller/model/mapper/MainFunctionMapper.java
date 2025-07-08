@@ -1,11 +1,12 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.D_DayRequest;
-import es.board.controller.model.req.ScheduleRequest;
-import es.board.controller.model.req.SiteMeta;
-import es.board.controller.model.req.TodoRequest;
-import es.board.controller.model.res.*;
+import es.board.controller.model.dto.interview.InterviewAnswerDTO;
+import es.board.controller.model.dto.job.JobSiteLogDTO;
+import es.board.controller.model.dto.todo.D_DayDTO;
+import es.board.controller.model.dto.todo.ScheduleDTO;
+import es.board.controller.model.dto.todo.TodoDTO;
+import es.board.controller.model.dto.job.SiteMeta;
 import es.board.repository.document.JobSiteLog;
 import es.board.repository.entity.*;
 import lombok.Data;
@@ -15,7 +16,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -47,7 +47,7 @@ public class MainFunctionMapper {
                 .build();
     }
 
-    public Todo TodoToEntity(String userId, TodoResponse todoResponse) {
+    public Todo TodoToEntity(String userId, TodoDTO.Response todoResponse) {
         return Todo.builder()
                 .userId(userId)
                 .title(todoResponse.getTitle())
@@ -61,9 +61,9 @@ public class MainFunctionMapper {
                 .build();
     }
 
-    public List<TodoRequest> EntityToTodo(List<Todo> todo) {
+    public List<TodoDTO.Request> EntityToTodo(List<Todo> todo) {
         return todo.stream()
-                .map(todo1 -> TodoRequest.builder()
+                .map(todo1 -> TodoDTO.Request.builder()
                         .todo_id(todo1.getTodo_id())
                         .title(todo1.getTitle())
                         .description(todo1.getDescription())
@@ -76,9 +76,9 @@ public class MainFunctionMapper {
     }
 
 
-    public  List<ScheduleRequest> fromSchedule(List<Schedule> schedule) {
+    public  List<ScheduleDTO> fromSchedule(List<Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleRequest.builder()
+                .map(schedule1 -> ScheduleDTO.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -93,7 +93,7 @@ public class MainFunctionMapper {
                 .collect(Collectors.toList());
     }
 
-    public Schedule toScheduleEntity(String userId, ScheduleRequest scheduleDTO) {
+    public Schedule toScheduleEntity(String userId, ScheduleDTO scheduleDTO) {
         return Schedule.builder()
                 .userId(userId)
                 .title(scheduleDTO.getTitle())
@@ -111,7 +111,7 @@ public class MainFunctionMapper {
     }
 
 
-    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleRequest scheduleDTO, Long id) {
+    public es.board.repository.document.Schedule toScheduleDocument(String userId, ScheduleDTO scheduleDTO, Long id) {
         return es.board.repository.document.Schedule.builder()
                 .scheduleId(id)
                 .userId(userId)
@@ -145,8 +145,8 @@ public class MainFunctionMapper {
                 .collect(Collectors.toList());
     }
 
-    public D_DayRequest toD_DayDTO(D_Day examSchedule) {
-        return D_DayRequest.builder()
+    public D_DayDTO toD_DayDTO(D_Day examSchedule) {
+        return D_DayDTO.builder()
                 .id(examSchedule.getId())
                 .userId(examSchedule.getUserId())
                 .category(examSchedule.getCategory())
@@ -158,7 +158,7 @@ public class MainFunctionMapper {
                 .build();
     }
 
-    public JobSiteLogDTO toJobSiteDocument(JobSiteLogDTO dto,String  userId) {
+    public JobSiteLogDTO toJobSiteDocument(JobSiteLogDTO dto, String  userId) {
         return JobSiteLogDTO.builder()
                 .userId(userId)
                 .siteName(dto.getSiteName())
@@ -169,7 +169,7 @@ public class MainFunctionMapper {
     }
 
 
-    public   D_Day toEntityD_Day(String userId, D_DayRequest dto) {
+    public   D_Day toEntityD_Day(String userId, D_DayDTO dto) {
         return D_Day.builder()
                 .id(dto.getId())
                 .userId(userId)
@@ -180,9 +180,9 @@ public class MainFunctionMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    public  List<D_DayRequest> fromD_DayEntityList(List<D_Day> dDayList) {
+    public  List<D_DayDTO> fromD_DayEntityList(List<D_Day> dDayList) {
         return dDayList.stream()
-                .map(dDay -> D_DayRequest.builder()
+                .map(dDay -> D_DayDTO.builder()
                         .id(dDay.getId())
                         .userId(dDay.getUserId())
                         .category(dDay.getCategory())
@@ -211,9 +211,9 @@ public class MainFunctionMapper {
     }
 
 
-    public  List<ScheduleRequest> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
+    public  List<ScheduleDTO> fromScheduleDocument(List<es.board.repository.document.Schedule> schedule) {
         return schedule.stream()
-                .map(schedule1 -> ScheduleRequest.builder()
+                .map(schedule1 -> ScheduleDTO.builder()
                         .scheduleId(schedule1.getScheduleId())
                         .userId(schedule1.getUserId())
                         .title(schedule1.getTitle())
@@ -234,7 +234,7 @@ public class MainFunctionMapper {
 //                .createdAt(LocalDateTime.now())
 //                .build();
 //    }
-    private Schedule createSchedule(String userId, ScheduleRequest scheduleDTO, LocalDate currentDate) {
+    private Schedule createSchedule(String userId, ScheduleDTO scheduleDTO, LocalDate currentDate) {
         return Schedule.builder()
                 .userId(userId)
                 .title(scheduleDTO.getTitle())
@@ -253,7 +253,7 @@ public class MainFunctionMapper {
     }
 
 
-    public List<Schedule> generateRepeatSchedules(String userId, ScheduleRequest scheduleDTO) {
+    public List<Schedule> generateRepeatSchedules(String userId, ScheduleDTO scheduleDTO) {
         if (scheduleDTO.getRepeatFrequency()!=null){
 
             return generateRepeatFrequencySchedules(userId,scheduleDTO);
@@ -331,7 +331,7 @@ public class MainFunctionMapper {
         return daysSet;
     }
 
-    public List<Schedule> generateRepeatFrequencySchedules(String userId, ScheduleRequest scheduleDTO) {
+    public List<Schedule> generateRepeatFrequencySchedules(String userId, ScheduleDTO scheduleDTO) {
         List<Schedule> repeatSchedules = new ArrayList<>();
 
         LocalDate start = scheduleDTO.getRepeatStartDate().toLocalDate();

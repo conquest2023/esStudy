@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.req.ScheduleRequest;
+import es.board.controller.model.dto.todo.ScheduleDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,20 +8,20 @@ import java.util.List;
 public interface CalenderService {
 
 
-    void saveRepeatSchedule(String token, ScheduleRequest scheduleDTO);
+    void saveRepeatSchedule(String token, ScheduleDTO scheduleDTO);
 
 
-    void saveSchedule(String token, ScheduleRequest scheduleDTO);
+    void saveSchedule(String token, ScheduleDTO scheduleDTO);
 
-    List<ScheduleRequest> getRepeatSchedule(String token);
+    List<ScheduleDTO> getRepeatSchedule(String token);
 
 
-    List<ScheduleRequest> searchSchedule(String token, String title, String  description, String  category);
+    List<ScheduleDTO> searchSchedule(String token, String title, String  description, String  category);
 
     void  deleteSchedule(Long id ,String token);
 
 
     void  deleteRepeatSchedule(String token, LocalDateTime createdAt,LocalDateTime start, LocalDateTime end);
 
-    List<ScheduleRequest> getSchedule(String token);
+    List<ScheduleDTO> getSchedule(String token);
 }

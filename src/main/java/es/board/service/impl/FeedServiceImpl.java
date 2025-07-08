@@ -5,9 +5,8 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.TopWriter;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
@@ -296,7 +295,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public FeedUpdate updateFeed(String id, FeedUpdate update) {
+    public FeedDTO.Update updateFeed(String id, FeedDTO.Update update) {
         feedDAO.modifyFeed(id, update);
         return update;
     }

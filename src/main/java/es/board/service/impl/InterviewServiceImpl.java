@@ -2,24 +2,21 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.InterviewLogFactory;
 import es.board.controller.model.mapper.MainFunctionMapper;
 
-import es.board.controller.model.req.InterviewQuestionRequest;
+import es.board.controller.model.dto.interview.InterviewQuestionDTO;
 
-import es.board.controller.model.res.InterviewAnswerDTO;
-import es.board.controller.model.res.InterviewLogDTO;
+import es.board.controller.model.dto.interview.InterviewAnswerDTO;
+import es.board.controller.model.dto.interview.InterviewLogDTO;
 import es.board.repository.InterviewQuestionDAO;
 import es.board.repository.LogDAO;
-import es.board.repository.document.InterviewLog;
 import es.board.repository.entity.InterviewQuestion;
 import es.board.repository.entity.PointHistory;
 import es.board.repository.entity.repository.InterviewQuestionAnswerRepository;
 import es.board.repository.entity.repository.InterviewQuestionRepository;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.InterviewService;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,7 +30,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -119,13 +115,13 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public List<InterviewQuestionRequest> getRandomQuestions() {
+    public List<InterviewQuestionDTO> getRandomQuestions() {
         String cachedData = redisTemplate.opsForValue().get(INTERVIEW_CACHE_KEY);
 
         if (cachedData != null) {
             return deserializeJson(cachedData);
         }
-        List<InterviewQuestionRequest> questions = getCollect();
+        List<InterviewQuestionDTO> questions = getCollect();
         cacheData(INTERVIEW_CACHE_KEY,questions);
 
         return questions;
@@ -166,9 +162,9 @@ public class InterviewServiceImpl implements InterviewService {
             throw new RuntimeException(e);
         }
     }
-    private  List<InterviewQuestionRequest> getCollect() {
+    private  List<InterviewQuestionDTO> getCollect() {
         return questionRepository.findRandomITAndGeneralQuestions().stream()
-                .map(question -> InterviewQuestionRequest.builder()
+                .map(question -> InterviewQuestionDTO.builder()
                         .id(question.getId())
                         .question(question.getQuestion())
                         .category(question.getCategory())

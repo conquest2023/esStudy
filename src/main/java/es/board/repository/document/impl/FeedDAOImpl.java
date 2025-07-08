@@ -7,11 +7,10 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.NoticeRequest;
-import es.board.controller.model.req.TopWriter;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.NoticeDTO;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.ex.IndexException;
-import es.board.controller.model.req.FeedUpdate;
 import es.board.repository.FeedDAO;
 import es.board.repository.document.Board;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +90,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public void saveNoticeFeed(NoticeRequest dto, Long id) {
+    public void saveNoticeFeed(NoticeDTO.Request dto, Long id) {
         log.info(dto.toString());
         try {
             IndexResponse response = client.index(i -> i
@@ -848,7 +847,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Board modifyFeed(String id, FeedUpdate eq) {
+    public Board modifyFeed(String id, FeedDTO.Update eq) {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                     .index("board")

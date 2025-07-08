@@ -1,15 +1,15 @@
 package es.board.service;
 
-import es.board.controller.model.req.NoticeRequest;
+import es.board.controller.model.dto.feed.NoticeDTO;
 
 import java.util.List;
 
 public interface NoticeService {
 
-    List<NoticeRequest> getAllNotices();
+    List<NoticeDTO.Request> getAllNotices();
 
-    NoticeRequest getOneNotice(Long id);
+    NoticeDTO.Request getOneNotice(Long id);
 
 
-    void createNotice(String token, NoticeRequest noticeDTO);
+    void createNotice(String token, NoticeDTO.Request noticeDTO);
 }

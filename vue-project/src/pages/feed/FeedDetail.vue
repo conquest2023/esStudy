@@ -339,7 +339,7 @@ async function submitReply(commentUID) {
   replySendingMap.value[commentUID] = true
   try {
     await api.post('/search/view/reply/save', {
-      commentUID,
+      commentUID:commentUID,
       feedUID: id,
       content: text,
     })

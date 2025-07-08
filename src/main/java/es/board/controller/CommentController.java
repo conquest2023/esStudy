@@ -1,8 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +80,7 @@ public class CommentController {
     @PostMapping("/comment/update/save")
     @ResponseBody
     public ResponseEntity<?> editSaveComment(
-            @RequestBody CommentUpdate commentUpdate) {
+            @RequestBody CommentDTO.Update commentUpdate) {
         Map<String, Object> response = Map.of(
                 "commentUID", commentUpdate.getCommentUID(),
 //

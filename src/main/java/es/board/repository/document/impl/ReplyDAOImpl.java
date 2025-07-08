@@ -3,12 +3,10 @@ package es.board.repository.document.impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.ex.IndexException;
-import es.board.controller.model.res.ReplyCreate;
+import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.ReplyDAO;
-import es.board.repository.document.Comment;
 import es.board.repository.document.Reply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,9 +54,9 @@ public class ReplyDAOImpl implements ReplyDAO {
     }
 
     @Override
-    public void saveReply(ReplyCreate dto) {
+    public void saveReply(ReplyDTO.Response dto) {
         try{
-            IndexResponse response=client.index(i->i
+           client.index(i->i
                     .index("reply")
                     .document(dto));
         }catch (IOException e){

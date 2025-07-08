@@ -2,18 +2,18 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.DailyCheckRequest;
-import es.board.controller.model.res.DailyBookMark;
+import es.board.controller.model.dto.feed.DailyCheckDTO;
+import es.board.controller.model.dto.interview.DailyBookMark;
 import es.board.ex.TokenValidator;
 import es.board.repository.entity.DailyQuestion;
 import es.board.service.DailyQuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +57,7 @@ public class DailyQuestionController {
     public  ResponseEntity<?> saveDailyBookmark(@RequestHeader(value = "Authorization", required = false) String token
             , @RequestBody DailyBookMark daily){
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
          dailyQuestionService.saveDailyBookMark(jwtTokenProvider.getUserId(token.substring(7)),daily);
@@ -66,7 +66,7 @@ public class DailyQuestionController {
     @GetMapping("/get/daily/bookmark")
     public  ResponseEntity<?> getDailyBookmark(@RequestHeader(value = "Authorization", required = false) String token){
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         List<DailyQuestion> questions=dailyQuestionService.getDailyQuestion(jwtTokenProvider.getUserId(token.substring(7)));
@@ -75,9 +75,9 @@ public class DailyQuestionController {
 
     @PostMapping("/check/daily")
     public  ResponseEntity<?> checkDailyBookmark(@RequestHeader(value = "Authorization", required = false)
-                                                     String token, @RequestBody DailyCheckRequest req) {
+                                                     String token, @RequestBody DailyCheckDTO req) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         Boolean questions=dailyQuestionService.checkDailyAnswer(jwtTokenProvider.getUserId(token.substring(7)),req);

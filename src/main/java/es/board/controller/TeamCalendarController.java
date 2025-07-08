@@ -1,7 +1,7 @@
 //package es.board.controller;
 //
 //import es.board.config.jwt.JwtTokenProvider;
-//import es.board.controller.model.req.ScheduleRequest;
+//import es.board.controller.model.dto.todo.ScheduleDTO;
 //import es.board.service.TeamCalenderService;
 //import es.board.service.TeamService;
 //import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@
 //    public ResponseEntity<?> saveSchedule(
 //            @RequestHeader(value = "Authorization") String token,
 //            @RequestParam Long teamId,
-//            @RequestBody ScheduleRequest scheduleDTO) {
+//            @RequestBody ScheduleDTO scheduleDTO) {
 //
 //        if (token == null || !token.startsWith("Bearer ")) {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "토큰이 필요합니다."));
@@ -78,7 +78,7 @@
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "해당 팀의 멤버가 아닙니다."));
 //        }
 //
-//        List<ScheduleRequest> schedules = teamCalenderService.getSchedulesByTeam(teamId);
+//        List<ScheduleDTO> schedules = teamCalenderService.getSchedulesByTeam(teamId);
 //        return ResponseEntity.ok(Map.of("schedules", schedules));
 //    }
 //
@@ -138,7 +138,7 @@
 //            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "해당 팀의 멤버가 아닙니다."));
 //        }
 //
-//        List<ScheduleRequest> schedules = teamCalenderService.searchSchedule(teamId, query, searchType, sortType);
+//        List<ScheduleDTO> schedules = teamCalenderService.searchSchedule(teamId, query, searchType, sortType);
 //        return ResponseEntity.ok(Map.of("schedules", schedules));
 //    }
 //}

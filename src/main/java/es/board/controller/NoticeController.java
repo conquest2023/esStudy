@@ -2,7 +2,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.req.NoticeRequest;
+import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -29,22 +28,22 @@ public class NoticeController {
 
 
     @GetMapping("/list/notice")
-    public ResponseEntity<List<NoticeRequest>> getNotices() {
+    public ResponseEntity<List<NoticeDTO.Request>> getNotices() {
 
         return ResponseEntity.ok(noticeService.getAllNotices());
     }
 
 
     @GetMapping("/list/one/notice/{id}")
-    public ResponseEntity<NoticeRequest> getNoticeOne(@PathVariable Long id) {
+    public ResponseEntity<NoticeDTO.Request> getNoticeOne(@PathVariable Long id) {
         return ResponseEntity.ok(noticeService.getOneNotice(id));
     }
 
 
     @PostMapping("/add/notice")
     public void createNotice(@RequestHeader(value = "Authorization") String token,
-                             @ModelAttribute NoticeRequest noticeDTO,
-                             @RequestParam(required = false, value = "imageFile") MultipartFile file) throws IOException {
+                             @ModelAttribute NoticeDTO.Request noticeDTO,
+                             @RequestParam(required = false, value = "imageFile") MultipartFile file){
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -55,7 +54,7 @@ public class NoticeController {
         }
     }
 
-//    private void processFileUpload(MultipartFile file, NoticeRequest noticeDTO, String  userId) throws IOException {
+//    private void processFileUpload(MultipartFile file, NoticeDTO noticeDTO, String  userId) throws IOException {
 //        if (file != null && !file.isEmpty()) {
 //            log.info("File upload started");
 //            noticeDTO.setImageURL(s3Uploader.upload(file,userId));

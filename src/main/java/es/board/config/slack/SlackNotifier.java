@@ -1,6 +1,6 @@
 package es.board.config.slack;
 
-import es.board.controller.model.res.SlackMessage;
+import es.board.controller.model.dto.SlackMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,6 +1,6 @@
 package es.board.controller;
 
-import es.board.controller.model.req.FeedDTO;
+import es.board.controller.model.dto.feed.FeedDTO;
 import es.board.service.FeedService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

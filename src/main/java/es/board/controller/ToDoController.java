@@ -1,14 +1,12 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.req.D_DayRequest;
-import es.board.controller.model.req.TodoRequest;
-import es.board.controller.model.res.TodoResponse;
+import es.board.controller.model.dto.todo.D_DayDTO;
+import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.ex.TokenValidator;
 import es.board.service.ToDoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,7 +56,7 @@ public class ToDoController {
     @ResponseBody
     public ResponseEntity<?> getTodoById(@RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -72,7 +70,7 @@ public class ToDoController {
         @ResponseBody
         public ResponseEntity<?> getTodoByToday(@RequestHeader(value = "Authorization", required = false) String token) {
             ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-            if (tokenCheckResponse != null) {
+            if (tokenCheckResponse == null) {
                 return tokenCheckResponse;
             }
             token=token.substring(7);
@@ -85,7 +83,7 @@ public class ToDoController {
     @ResponseBody
     public ResponseEntity<?> getTodoAll(@RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -97,7 +95,7 @@ public class ToDoController {
     @ResponseBody
     public ResponseEntity<?> getRemainingTodos(@RequestHeader("Authorization") String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
@@ -107,8 +105,8 @@ public class ToDoController {
 
 
     @PostMapping("/save/todo")
-    public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody TodoResponse todoResponse) {
-        log.info(token);
+    public void saveTodo(@RequestHeader(value = "Authorization") String token, @RequestBody TodoDTO.Response todoResponse) {
+
         log.info(todoResponse.toString());
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -134,7 +132,7 @@ public class ToDoController {
             @RequestHeader(value = "Authorization") String token) {
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse != null) {
+        if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         toDoService.completeTodo(token.substring(7), id);
@@ -142,7 +140,7 @@ public class ToDoController {
     }
 
     @PostMapping("/save/project/todo")
-    public void saveProjectToDo(@RequestHeader(value = "Authorization") String token, @RequestBody TodoResponse todoResponse) {
+    public void saveProjectToDo(@RequestHeader(value = "Authorization") String token, @RequestBody TodoDTO.Response todoResponse) {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
@@ -158,7 +156,7 @@ public class ToDoController {
         }
         token=token.substring(7);
 
-        List<TodoRequest> projectTodo = toDoService.getProjectTodo(jwtTokenProvider.getUserId(token));
+        List<TodoDTO.Request> projectTodo = toDoService.getProjectTodo(jwtTokenProvider.getUserId(token));
         Map<String, Object> response = new HashMap<>();
         response.put("todos", projectTodo);
         return ResponseEntity.ok(response);
@@ -172,7 +170,7 @@ public class ToDoController {
             return tokenCheckResponse;
         }
         token=token.substring(7);
-        List<D_DayRequest> dDayList = toDoService.getD_Day(token);
+        List<D_DayDTO> dDayList = toDoService.getD_Day(token);
 
         Map<String, Object> response = new HashMap<>();
         response.put("D_Day", dDayList);
@@ -181,7 +179,7 @@ public class ToDoController {
     }
 
     @PostMapping("/day/save")
-    public ResponseEntity<?> saveD_Day(@RequestBody D_DayRequest dDayDTO, @RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<?> saveD_Day(@RequestBody D_DayDTO dDayDTO, @RequestHeader(value = "Authorization") String token) {
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
         if (tokenCheckResponse != null) {

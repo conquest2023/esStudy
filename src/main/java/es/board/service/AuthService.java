@@ -1,13 +1,12 @@
 package es.board.service;
 
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.res.CommentDTO;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AuthService {
 
@@ -18,14 +17,14 @@ public interface AuthService {
 
     void updateVisitCount(String userId);
 
-    void createUser(SignUpResponse sign);
-    boolean login(LoginResponse login);
+    void createUser(SignUpDTO sign);
+    boolean login(LoginDTO login);
 
-    Boolean checkId(SignUpResponse sign);
+    Boolean checkId(SignUpDTO sign);
     List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String  feedUID, String userId);
     Long findVisitCount(String  userId);
 
-    Authentication authenticate(LoginResponse login);
+    Authentication authenticate(LoginDTO login);
 
 
 }

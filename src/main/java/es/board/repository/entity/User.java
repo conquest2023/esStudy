@@ -6,15 +6,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 //import jakarta.persistence.Column;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Set;
 
 
@@ -76,7 +73,7 @@ public class User {
 
         this.lastLogin = lastLogin;
     }
-    public User DtoToUser(SignUpResponse sign, String password){
+    public User DtoToUser(SignUpDTO sign, String password){
 
         return  User.builder()
                 .id(id)

@@ -3,9 +3,9 @@ package es.board.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.req.OAuthInfo;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.OAuthSignUp;
+import es.board.controller.model.dto.feed.OAuthInfo;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.OAuthSignUp;
 import es.board.repository.entity.OAuthUser;
 import es.board.repository.entity.repository.OAuthRepository;
 import es.board.service.OAuthService;
@@ -332,7 +332,7 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public Authentication authenticate(LoginResponse login) {
+    public Authentication authenticate(LoginDTO login) {
         log.info(login.toString());
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(login.getUserId(),login.getUserId());

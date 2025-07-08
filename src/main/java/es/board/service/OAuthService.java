@@ -1,9 +1,9 @@
 package es.board.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import es.board.controller.model.req.OAuthInfo;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.OAuthSignUp;
+import es.board.controller.model.dto.feed.OAuthInfo;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.OAuthSignUp;
 import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public interface OAuthService {
 
     OAuthInfo getKakaoInfo(String accessToken) throws JsonProcessingException;
 
-    Authentication authenticate(LoginResponse login);
+    Authentication authenticate(LoginDTO login);
     void saveUserName(OAuthSignUp sign);
     String getGoogleAccessToken(String code) throws IOException;
 

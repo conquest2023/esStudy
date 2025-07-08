@@ -3,8 +3,8 @@ package es.board.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.req.DailyCheckRequest;
-import es.board.controller.model.res.DailyBookMark;
+import es.board.controller.model.dto.feed.DailyCheckDTO;
+import es.board.controller.model.dto.interview.DailyBookMark;
 import es.board.repository.entity.Bookmark;
 import es.board.repository.entity.DailyQuestion;
 import es.board.repository.entity.User;
@@ -54,7 +54,7 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
     private final DailyQuestionRepository dailyQuestionRepository;
 
     @Override
-    public boolean checkDailyAnswer(String userId, DailyCheckRequest req) {
+    public boolean checkDailyAnswer(String userId, DailyCheckDTO req) {
         String problemCacheKey = CACHE_KEYS.getOrDefault(req.getCategory(), POLICE_CACHE_KEY);
         String userCheckKey = problemCacheKey+req.getMatter() + ":" + userId;
         String submitted = redisTemplate.opsForValue().get(userCheckKey);
@@ -153,7 +153,7 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
         }
     }
 
-    private boolean checkAnswer(String cacheKey, List<DailyQuestion> questions, DailyCheckRequest req) {
+    private boolean checkAnswer(String cacheKey, List<DailyQuestion> questions, DailyCheckDTO req) {
        if (cacheKey.equals("random_toeic_questions")){
            return  toeicCheckAnswer(questions,req);
        }
@@ -169,7 +169,7 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
         return false;
     }
 
-    private boolean toeicCheckAnswer(List<DailyQuestion> questions, DailyCheckRequest req) {
+    private boolean toeicCheckAnswer(List<DailyQuestion> questions, DailyCheckDTO req) {
         log.info(req.toString());
         for (DailyQuestion q : questions) {
             if (q.getQuestion().equals(req.getMatter())) {
@@ -200,7 +200,7 @@ public class DailyQuestionServiceImpl implements DailyQuestionService {
                 return symbol;
         }
     }
-//    private boolean checkAnswer(List<DailyQuestion> dailyQuestions,String cacheKey,String userId,DailyCheckRequest req){
+//    private boolean checkAnswer(List<DailyQuestion> dailyQuestions,String cacheKey,String userId,DailyCheckDTO req){
 //        for (DailyQuestion dailyQuestion : dailyQuestions) {
 //            if (dailyQuestion.getQuestion().equals(req.getMatter())){
 //                if (dailyQuestion.getAnswer().equals(req.getAnswer())){

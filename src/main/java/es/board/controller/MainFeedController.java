@@ -2,9 +2,8 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.TopWriter;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.entity.FeedImage;
 import es.board.service.AuthService;
 import es.board.service.FeedService;
@@ -91,8 +90,8 @@ public class MainFeedController {
 
 
     @PostMapping("/search/view/feed/update")
-    public ResponseEntity<?> editSaveFeed(@RequestBody FeedUpdate feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
-        log.info(feedUpdate.toString());
+    public ResponseEntity<?> editSaveFeed(@RequestBody FeedDTO.Update feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
+
         feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
         return ResponseEntity.ok("수정이 완료되었습니다");
     }

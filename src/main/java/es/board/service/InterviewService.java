@@ -1,9 +1,8 @@
 package es.board.service;
 
-import es.board.controller.model.req.InterviewQuestionRequest;
-import es.board.controller.model.res.InterviewAnswerDTO;
-import es.board.controller.model.res.InterviewLogDTO;
-import es.board.repository.document.InterviewLog;
+import es.board.controller.model.dto.interview.InterviewQuestionDTO;
+import es.board.controller.model.dto.interview.InterviewAnswerDTO;
+import es.board.controller.model.dto.interview.InterviewLogDTO;
 import es.board.repository.entity.InterviewQuestion;
 import org.springframework.data.domain.Page;
 
@@ -23,7 +22,7 @@ public interface InterviewService {
 
     Page<InterviewQuestion> getCategoryQuestion(String category, String subCategory, int start, int end);
 
-    List<InterviewQuestionRequest> getRandomQuestions();
+    List<InterviewQuestionDTO> getRandomQuestions();
 
 
     List<InterviewAnswerDTO> getBestAnswer(List<String> ids);

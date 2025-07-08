@@ -2,10 +2,10 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.res.CommentDTO;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.ex.TokenInvalidException;
 import es.board.repository.UserDAO;
 import es.board.repository.document.Comment;
@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void createUser(SignUpResponse sign) {
+    public void createUser(SignUpDTO sign) {
         User user = new User();
         String password = passwordEncoder.encode(sign.getPassword());
         asyncService.saveUserAsync(sign, password);
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public boolean login(LoginResponse login) {
+    public boolean login(LoginDTO login) {
         userRepository.updateLastLogin(login.getUserId(), LocalDateTime.now());
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
         authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean checkId(SignUpResponse sign) {
+    public Boolean checkId(SignUpDTO sign) {
         if (userRepository.findByUserid(sign.getUserId()) == null) {
             return true;
         }
@@ -133,7 +133,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Authentication authenticate(LoginResponse login) {
+    public Authentication authenticate(LoginDTO login) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }

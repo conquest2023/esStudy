@@ -3,8 +3,8 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.jwt.JwtToken;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.OAuthSignUp;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.OAuthSignUp;
 
 import es.board.service.AuthService;
 import es.board.service.OAuthService;
@@ -130,7 +130,7 @@ public class OAuthLoginController {
         }
     @PostMapping("/api/oauth/login")
     @ResponseBody
-    public ResponseEntity<?> loginPass(@RequestBody LoginResponse response) {
+    public ResponseEntity<?> loginPass(@RequestBody LoginDTO response) {
         Authentication authentication = authService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
         userService.updateVisitCount(response.getUserId());

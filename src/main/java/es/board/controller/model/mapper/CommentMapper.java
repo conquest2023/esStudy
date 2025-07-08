@@ -1,8 +1,7 @@
 package es.board.controller.model.mapper;
 
 
-import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.res.CommentDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.Notification;
 import es.board.service.event.FeedEvent;
@@ -72,7 +71,7 @@ public class CommentMapper {
     }
 
 
-    public Comment convertDtoToEntity(CommentUpdate eq) {
+    public Comment convertDtoToEntity(CommentDTO.Update eq) {
         return  Comment.builder()
                 .commentUID(eq.getCommentUID())
                 .username(eq.getUsername())

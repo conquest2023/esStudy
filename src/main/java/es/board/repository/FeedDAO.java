@@ -1,10 +1,9 @@
 package es.board.repository;
 
 
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.NoticeRequest;
-import es.board.controller.model.req.TopWriter;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.NoticeDTO;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.document.Board;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +28,7 @@ public interface FeedDAO {
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
     List<Board> findRecommendFeed();
     List<TopWriter> findTopWriters();
-    void saveNoticeFeed(NoticeRequest dto, Long id);
+    void saveNoticeFeed(NoticeDTO.Request dto, Long id);
     List<Board> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, FeedDTO.Response dto) ;
 
@@ -49,7 +48,7 @@ public interface FeedDAO {
     List<Board> findRecentFeed();
 
     List<Board> findCategoryAndContent(String category);
-    Board modifyFeed(String id, FeedUpdate eq);
+    Board modifyFeed(String id, FeedDTO.Update eq);
     Board findFeedDetail(String id);
     List<Board> findSearchBoard(String text);
 

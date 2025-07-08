@@ -1,6 +1,5 @@
 package es.board.service;
 
-import es.board.controller.model.req.CertificateDTO;
 import es.board.repository.document.Certificate;
 import es.board.repository.entity.CertificationSchedule;
 //import org.bouncycastle.cert.cmp.CertificateStatus;

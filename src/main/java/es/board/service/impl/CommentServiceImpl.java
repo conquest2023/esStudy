@@ -3,9 +3,8 @@ package es.board.service.impl;
 import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.res.CommentDTO;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.CommentDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.ReplyDAO;
@@ -83,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public Comment editComment(String id, CommentUpdate eq) {
+    public Comment editComment(String id, CommentDTO.Update eq) {
         return commentDAO.modifyComment(id, commentMapper.convertDtoToEntity(eq));
     }
 

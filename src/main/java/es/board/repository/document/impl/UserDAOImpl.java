@@ -5,10 +5,9 @@ import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
 import es.board.ex.IndexException;
-import es.board.controller.model.res.LoginResponse;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.LoginDTO;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.UserDAO;
-import es.board.repository.document.Board;
 import es.board.repository.document.EsUser;
 import es.board.repository.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +60,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
     @Override
-    public User login(LoginResponse login) {
+    public User login(LoginDTO login) {
         try {
             SearchResponse<User> response = client.search(s -> s
                             .index("user")
@@ -116,7 +115,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Boolean checkUserId(SignUpResponse sign) {
+    public Boolean checkUserId(SignUpDTO sign) {
         try {
             SearchResponse<User> response = client.search(s -> s
                             .index("user")

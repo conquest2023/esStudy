@@ -1,8 +1,7 @@
 package es.board.service;
 
-import es.board.controller.model.req.CommentUpdate;
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.res.CommentDTO;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public interface CommentService {
     List<Comment> getSearchComment(String text) ;
 
 //    double getUserCommentCount(String userId);
-    Comment editComment(String id, CommentUpdate eq) ;
+    Comment editComment(String id, CommentDTO.Update eq) ;
 
     List<CommentDTO.Request> getRecentComment() ;
 

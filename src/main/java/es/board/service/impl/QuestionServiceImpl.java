@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 
 import es.board.controller.model.mapper.CertificateMapper;
-import es.board.controller.model.req.QuestionPracticalDto;
+import es.board.controller.model.dto.certificate.QuestionPracticalDTO;
 import es.board.repository.entity.repository.QuestionPracticalRepository;
 import es.board.service.QuestionService;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +23,17 @@ public class QuestionServiceImpl implements QuestionService {
 
 
     @Override
-    public List<QuestionPracticalDto> getQuestionPracticalList(String category, String type) {
+    public List<QuestionPracticalDTO> getQuestionPracticalList(String category, String type) {
         return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findByPracticalCategory(category,type));
     }
 
     @Override
-    public List<QuestionPracticalDto> getRandomPracticalList() {
+    public List<QuestionPracticalDTO> getRandomPracticalList() {
         return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findRandomPracticalCategory());
     }
 
     @Override
-    public List<QuestionPracticalDto> getTagPractical(Long tagId) {
+    public List<QuestionPracticalDTO> getTagPractical(Long tagId) {
         return  certificateMapper.fromPracticalDTO(questionPracticalRepository.findByTagId(tagId));
     }
 }

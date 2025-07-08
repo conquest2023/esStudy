@@ -1,9 +1,9 @@
 package es.board.service.impl;
 
 
-import es.board.controller.model.req.NoticeRequest;
-import es.board.controller.model.req.VoteRequest;
-import es.board.controller.model.res.SignUpResponse;
+import es.board.controller.model.dto.feed.NoticeDTO;
+import es.board.controller.model.dto.feed.VoteDTO;
+import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.*;
 import es.board.repository.document.Board;
 import es.board.repository.document.Schedule;
@@ -138,7 +138,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveVoteAsync(VoteRequest vote, Long id) {
+    public CompletableFuture<Void> saveVoteAsync(VoteDTO.Request vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
@@ -151,7 +151,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveVoteTicketAsync(VoteRequest vote) {
+    public CompletableFuture<Void> saveVoteTicketAsync(VoteDTO.Request vote) {
         log.info("비동기 Vote Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
         try {
             voteDAO.saveVoteTicket(vote);
@@ -163,7 +163,7 @@ public class AsyncService {
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveAggregationVoteAsync(VoteRequest vote, Long id) {
+    public CompletableFuture<Void> saveAggregationVoteAsync(VoteDTO.Request vote, Long id) {
         log.info("비동기 Vote Elasticsearch 저장 집계 시작 - 스레드: {}", Thread.currentThread().getName());
 
         try {
@@ -242,7 +242,7 @@ public class AsyncService {
 
     @Async("taskExecutor")
     @Transactional
-    public void saveUserAsync(SignUpResponse sign,String password) {
+    public void saveUserAsync(SignUpDTO sign, String password) {
         User user=new User();
         log.info("비동기 아이디 생성 작업 시작 - 스레드: {}", Thread.currentThread().getName());
         userDAO.createUser(user.DtoToUser(sign,password));
@@ -251,7 +251,7 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> saveNoticeAsync(NoticeRequest notice, Long id) {
+    public CompletableFuture<Void> saveNoticeAsync(NoticeDTO.Request notice, Long id) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
             feedDAO.saveNoticeFeed(notice,id);
         try {

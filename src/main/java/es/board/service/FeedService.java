@@ -1,8 +1,7 @@
 package es.board.service;
 
-import es.board.controller.model.req.FeedDTO;
-import es.board.controller.model.req.FeedUpdate;
-import es.board.controller.model.req.TopWriter;
+import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.document.Board;
 import es.board.repository.entity.FeedImage;
 import org.springframework.stereotype.Service;
@@ -84,7 +83,7 @@ public interface FeedService {
 
     Map<String, Object> getFetchTotalFeedStats();
 
-    FeedUpdate updateFeed(String id, FeedUpdate update);
+    FeedDTO.Update updateFeed(String id, FeedDTO.Update update);
 
     FeedDTO.Request getFeedDetail(String id);
 }

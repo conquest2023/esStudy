@@ -2,9 +2,9 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.req.JobListing;
-import es.board.controller.model.req.StudyTipRequest;
-import es.board.controller.model.req.WantedJobData;
+import es.board.controller.model.dto.job.JobListing;
+import es.board.controller.model.dto.job.StudyTipRequest;
+import es.board.controller.model.dto.job.WantedJobData;
 import es.board.repository.CertificateDAO;
 import es.board.repository.entity.repository.TistoryPostRepository;
 import es.board.service.ItCrawlingService;
