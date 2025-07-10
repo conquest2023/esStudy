@@ -15,6 +15,8 @@ public interface AuthService {
     Boolean extractUserIdFromToken(String token, FeedDTO.Response response);
 
 
+    void  autoLogin(String userId, String token);
+
     void updateVisitCount(String userId);
 
     void createUser(SignUpDTO sign);

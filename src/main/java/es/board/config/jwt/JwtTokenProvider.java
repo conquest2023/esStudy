@@ -63,6 +63,8 @@ public class JwtTokenProvider {
 
         String refreshToken= Jwts.builder()
                 .setSubject(userId)
+                .claim("type", "refresh")
+                .claim("username", authentication.getName())
                 .setExpiration(refreshTokenExpiresIn)
                 .signWith(key,SignatureAlgorithm.HS256)
                 .compact();

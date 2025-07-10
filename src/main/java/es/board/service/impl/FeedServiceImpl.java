@@ -77,9 +77,9 @@ public class FeedServiceImpl implements FeedService {
 
     private  final ObjectMapper objectMapper;
 
-    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
+    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEY";
 
-    private  static  final String RECOMMEND_KEY= "Recommend_Feed_keys";
+    private  static  final String RECOMMEND_KEY= "Recommend_Feed_key";
 
     private  final StringRedisTemplate stringRedisTemplate;
 

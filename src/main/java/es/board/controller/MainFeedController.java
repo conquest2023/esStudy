@@ -58,18 +58,18 @@ public class MainFeedController {
         return "basic/feed/feedList";
     }
 
-    @GetMapping("/")
-    public String mainPage(Model model, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            return "basic/feed/feedList";
-        } else {
-            return "basic/feed/feedList";
-        }
-    }
+//    @GetMapping("/")
+//    public String mainPage(Model model, HttpServletRequest request) {
+//        String token = request.getHeader("Authorization");
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//        }
+//        if (token != null && jwtTokenProvider.validateToken(token)) {
+//            return "basic/feed/feedList";
+//        } else {
+//            return "basic/feed/feedList";
+//        }
+//    }ㅌ
 
 
 

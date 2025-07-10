@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -39,6 +40,8 @@ public class MainFeedAjaxController {
 
 
     private  final AuthService userService;
+
+    private  final StringRedisTemplate redis;
 
     private  final RedisTemplate<String, Object> redisTemplate;
 
@@ -71,6 +74,20 @@ public class MainFeedAjaxController {
                 "activeUsers", activeUsers.size(),
                 "data", visitService.getStats()));
     }
+    @GetMapping("/auto")
+    public ResponseEntity<?> main(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        if (refreshToken != null) {
+            String userId = jwtTokenProvider.getUserId(refreshToken);
+            String storedRefresh = redis.opsForValue().get("RT:" + userId);
+
+            if (storedRefresh != null && storedRefresh.equals(refreshToken)) {
+                String newAccessToken = jwtTokenProvider.generateAccessToken("user", jwtTokenProvider.getUsername(refreshToken), userId);
+                return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).body("자동 로그인 성공!");
+            }
+        }
+        return ResponseEntity.status(401).body("다시 로그인 필요");
+    }
+
 
     @PostMapping("/increaseViewCount")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,

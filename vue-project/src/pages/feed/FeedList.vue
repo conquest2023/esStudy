@@ -308,6 +308,22 @@ function changeCategory(cat) {
   selectedCategory.value = cat
   fetchFeeds(0)
 }
+onMounted(async () => {
+  try {
+    const res = await api.get('/auto', { withCredentials: true })
+
+    const accessToken = res.headers['authorization']?.replace('Bearer ', '')
+    if (accessToken) {
+      localStorage.setItem('token', accessToken)
+      console.log('✅ 자동 로그인 성공:', res.data)
+    }
+  } catch (err) {
+    console.log('❌ 자동 로그인 실패')
+  }
+
+  const p = parseInt(route.query.page) || 0
+})
+
 
 async function fetchNotice() {
   try {

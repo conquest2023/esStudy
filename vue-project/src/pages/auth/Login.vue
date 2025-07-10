@@ -14,6 +14,17 @@
         <div class="mb-3">
           <input v-model="password" type="password" class="form-control" placeholder="비밀번호 입력" required />
         </div>
+        <div class="form-check text-start mb-3">
+          <input
+              v-model="autoLogin"
+              class="form-check-input"
+              type="checkbox"
+              id="autoLoginCheck"
+          />
+          <label class="form-check-label" for="autoLoginCheck">
+            자동 로그인
+          </label>
+        </div>
 
         <button type="submit" class="btn btn-primary w-100">로그인</button>
 
@@ -48,7 +59,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-
+const autoLogin = ref(false)
 const router = useRouter()
 const userId = ref('')
 const password = ref('')
@@ -63,7 +74,8 @@ function handleLogin() {
   axios
       .post('/api/authlogin', {
         userId: userId.value,
-        password: password.value
+        password: password.value,
+        autoLogin: autoLogin.value
       })
       .then((res) => {
         console.log(res)

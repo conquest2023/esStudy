@@ -46,13 +46,15 @@ public class AuthServiceImpl implements AuthService {
 
     private final CommentMapper commentMapper;
 
+    private final AsyncService asyncService;
+
     private final PointHistoryRepository pointHistoryRepository;
 
     private final UserDAO userDAO;
 
     private final StringRedisTemplate redisTemplate;
 
-    private final AsyncService asyncService;
+
 
     private final PasswordEncoder passwordEncoder;
 
@@ -125,6 +127,14 @@ public class AuthServiceImpl implements AuthService {
         }
         response.setUserId(jwtTokenProvider.getUserId(token));
         return true;
+    }
+
+    @Override
+    public void autoLogin(String userId,String token) {
+
+        redisTemplate.opsForValue().set("RT:" + userId,
+                token, Duration.ofDays(7) // 만료시간 설정
+        );
     }
 
     @Override
