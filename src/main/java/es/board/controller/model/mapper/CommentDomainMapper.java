@@ -1,19 +1,20 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.repository.document.Comment;
+import es.board.service.domain.Comment;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommentDomainMapper {
 
-    public static es.board.service.domain.Comment toDomain(CommentDTO.Response dto, Long postId) {
+    public static es.board.service.domain.Comment toDomain(String userId, CommentDTO.Response dto, int postId) {
         if (dto == null) return null;
 
         Long id = dto.getId(); // commentUID가 UUID라면 null일 수 있음
-        String userId =dto.getUserId();
 
-        Long resolvedPostId =postId;
+        int resolvedPostId = postId;
 
         LocalDateTime createdAt = dto.getCreatedAt();
         if (createdAt == null) createdAt = LocalDateTime.now();
@@ -34,11 +35,11 @@ public class CommentDomainMapper {
 
     // Request DTO -> Domain (작성 시 사용)
 
-    public static es.board.service.domain.Comment toDomain(CommentDTO.Request dto, Long postId) {
+    public static es.board.service.domain.Comment toDomain(CommentDTO.Request dto, int postId) {
         if (dto == null) return null;
 
         Long id = dto.getId();
-        Long resolvedPostId =postId;
+        int resolvedPostId = postId;
 
         return new es.board.service.domain.Comment(
                 id,
@@ -53,19 +54,22 @@ public class CommentDomainMapper {
                 null
         );
     }
-
-    // Domain -> Response DTO (예시)
-//    public static CommentDTO.Response toResponse(Comment d) {
-//        if (d == null) return null;
-//        CommentDto.Response resp = new CommentDto.Response();
-//        resp.setCommentUID(d.getId() == null ? null : d.getId().toString());
-//        resp.setUserId(d.getUserId() == null ? null : d.getUserId().toString());
-//        resp.setFeedUID(d.getPostId() == null ? null : d.getPostId().toString());
-//        resp.setUsername(d.getUsername());
-//        resp.setContent(d.getContent());
-//        resp.setLikeCount(d.getLikeCount());
-//        resp.setAnonymous(d.isAnonymous());
-//        resp.setCreatedAt(d.getCreatedAt());
-//        return resp;
-//    }
+    public static CommentDTO.Request toRequestDto(Comment domain) {
+        if (domain == null) return null;
+        return CommentDTO.Request.builder()
+                .id(domain.getId())
+                .userId(domain.getUserId())
+                .username(domain.getUsername())
+                .content(domain.getContent())
+                .anonymous(domain.isAnonymous())
+                .likeCount(domain.getLikeCount())
+                .createdAt(domain.getCreatedAt())
+                .build();
+    }
+    public static List<CommentDTO.Request> toRequestDtoList(List<Comment> domains) {
+        if (domains == null || domains.isEmpty()) return List.of();
+        return domains.stream()
+                .map(CommentDomainMapper::toRequestDto)
+                .collect(Collectors.toList());
+    }
 }

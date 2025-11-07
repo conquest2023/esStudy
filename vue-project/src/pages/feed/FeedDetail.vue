@@ -37,7 +37,7 @@
           </RouterLink>
           · <span>{{ dateText }}</span>
         </p>
-        <div class="feed-content" v-html="feedHtml" />
+        <div class="feed-content" v-html="feed.description" />
 
         <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
           <span class="text-muted">
@@ -53,7 +53,7 @@
 
     <h5 class="mt-5"><i class="bi bi-chat"></i> 댓글</h5>
     <div v-if="comments.length === 0" class="text-muted">댓글이 없습니다.</div>
-    <div v-for="c in comments" :key="c.commentUID + '-' + reloadTrigger" class="comment-item">
+    <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item">
       <div class="comment-body flex-grow-1">
         <div class="d-flex justify-content-between">
           <div class="meta">
@@ -68,10 +68,10 @@
         </div>
         <div class="mt-1" v-html="linkify(c.content)"></div>
 
-        <div class="mt-2" v-if="replies && replies[c.commentUID]">
+        <div class="mt-2" v-if="replies && replies[c.id]">
           <div
-              v-for="rp in replies[c.commentUID]"
-              :key="rp.replyUID"
+              v-for="rp in replies[c.id]"
+              :key="rp.id || rp.replyUID"
               class="border-start ps-3 mb-2"
               style="font-size:0.9rem;">
             <strong>{{ rankBadge(rp.username) }}{{ rp.username }}</strong>
@@ -80,13 +80,13 @@
           </div>
         </div>
 
-        <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.commentUID)">답글 달기</button>
-        <div v-show="activeReply === c.commentUID" class="mt-2">
-          <textarea v-model="replyTexts[c.commentUID]" rows="2" class="form-control mb-2" placeholder="답글 입력" />
+        <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.id)">답글 달기</button>
+        <div v-show="activeReply === c.id" class="mt-2">
+          <textarea v-model="replyTexts[c.id]" rows="2" class="form-control mb-2" placeholder="답글 입력" />
           <button
               class="btn btn-sm btn-primary"
-              @click="submitReply(c.commentUID)"
-              :disabled="replySendingMap[c.commentUID]"
+              @click="submitReply(c.id)"
+              :disabled="replySendingMap[c.id]"
           >
             답글 작성
           </button>
@@ -118,7 +118,6 @@ import PrevNextButtons from '@/components/PrevNextButtons.vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import { RouterLink } from 'vue-router'
-
   const route   = useRoute()
   const router  = useRouter()
   const store   = useUserStore()
@@ -126,7 +125,7 @@ import { RouterLink } from 'vue-router'
   const id         = route.params.id
   const feed       = ref({})
   const feedHtml   = ref('')
-  const comments   = ref([])
+  const comments = ref([])
   const likeCount  = ref(0)
   const liked      = ref(false)
   const loaded     = ref(false)
@@ -193,6 +192,15 @@ function rankBadge(name){
   const r = topWriters[name]||0
   return r===1?'👑':r===2?'🥇':r===3?'🥈':r>0&&r<=5?'🥉':''
 }
+async function loadComments(postId) {
+
+  const { data } = await api.get('/comments', { params: { postId } })
+  comments.value =
+      (Array.isArray(data?.ok) && data.ok) ||
+      (Array.isArray(data?.comments) && data.comments) ||
+      (Array.isArray(data?.data?.comments) && data.data.comments) ||
+      []
+}
 
   function linkify(text = '') {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -206,11 +214,25 @@ function rankBadge(name){
   }
 
 
-async function loadFeedDetail(feedUID) {
+async function loadFeedDetail(postId) {
   try {
     loaded.value = false
-    const { data } = await api.get('/detail', { params: { id: feedUID } })
-    feed.value = { ...data.data, Owner: data.Owner }
+
+    const { data } = await api.get(`/post/${postId}`)
+    const raw = data?.ok ?? {}
+    feed.value = {
+      id:          raw.id,
+      feedUID:     raw.feedUID ?? null,                 // 지금은 null일 수 있음
+      username:    raw.username ?? '',
+      imageURL:    raw.imageURL ?? raw.imageUrl ?? null,
+      title:       raw.title ?? '',
+      description: raw.description ?? '',
+      category:    raw.category ?? null,
+      likeCount:   raw.likeCount ?? 0,
+      viewCount:   raw.viewCount ?? 0,
+      createdAt:   raw.createdAt ?? null,
+      author:      raw.author === true,                 // 소유자 여부
+    }
     function normalize(html = '') {
       return html
           .replace(/></g, '>\u200B<')
@@ -218,38 +240,38 @@ async function loadFeedDetail(feedUID) {
           .replace(/<div>/g, '');
     }
     /* UID 목록 그대로 가져오던 로직 유지 */
-    const uidList = await fetchFeedUIDs(pageParam.value, PAGE_SIZE)
-    posts.value   = uidList.map(uid => ({ feedUID: uid }))
-
+    // const uidList = await fetchFeedUIDs(pageParam.value, PAGE_SIZE)
+    // posts.value   = uidList.map(uid => ({ feedUID: uid }))
+    await loadComments(feed.value.id)
     /* 나머지 상태 세팅도 그대로 */
-    feedHtml.value = convertLinks(normalize(decodeHtmlEntities(data.data.description || '')))
-    comments.value = data.comment || []
+    // feedHtml.value = convertLinks(normalize(decodeHtmlEntities(data.data.description || '')))
+    // comments.value = data.comment || []
     replies.value  = data.replies || {}
-    likeCount.value= data.data.likeCount || 0
+    // likeCount.value= data.data.likeCount || 0
     liked.value    = data.isLiked
     loaded.value   = true
-    fetch('/api/increaseViewCount', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ id })
-    }).catch(e => console.error('조회수 증가 실패', e))
+    // fetch('/api/increaseViewCount', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   credentials: 'include',
+    //   body: JSON.stringify({ id })
+    // }).catch(e => console.error('조회수 증가 실패', e))
   } catch (e) {
     console.error(e)
     router.replace('/')
   }
 }
 onMounted(() => loadFeedDetail(route.params.id))
-async function fetchFeedUIDs(p = 0, size = 10) {
-  try {
-    const res = await fetch(`/api/feeds/ids?page=${p}&size=${size}`)
-    const json = await res.json()
-    return json.ids || []
-  } catch (e) {
-    console.error('feedUID 목록 로딩 실패', e)
-    return []
-  }
-}
+// async function fetchFeedUIDs(p = 0, size = 10) {
+//   try {
+//     const res = await fetch(`/api/feeds/ids?page=${p}&size=${size}`)
+//     const json = await res.json()
+//     return json.ids || []
+//   } catch (e) {
+//     console.error('feedUID 목록 로딩 실패', e)
+//     return []
+//   }
+// }
 watch(
     () => route.params.id,
     (newId, oldId) => {
@@ -268,6 +290,7 @@ watch(
     } catch(e){ liked.value=prev; likeCount.value+=prev?1:-1 }
   }
 
+
 async function submitComment() {
   if (sending.value) return
   if (!commentText.value.trim()) {
@@ -281,15 +304,20 @@ async function submitComment() {
     return
   }
   sending.value = true
+
   try {
-    await api.post(`/search/view/comment/id?feedUID=${id}`, {
-      content: commentText.value
+    await api.post(`/comment`, {
+      content: commentText.value,
+      username: store.username,
+      postId: feed.value.id
     }, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     })
     await new Promise(resolve => setTimeout(resolve, 1000))
-    const { data } = await api.get('/detail', { params: { id } })
-    comments.value = data.comment || []
+    await loadComments(feed.value.id)
+    // comments.value = data.comment || []
     commentText.value = ''
   } catch (e) {
     console.error(e)
@@ -301,14 +329,14 @@ async function submitComment() {
 
 function goEdit(){
   router.push({
-    path:'/search/view/feed/update',
+    path:'/post',
     query:{ id:feed.value.feedUID}
       }
   )}
   async function onDelete(){
     if(!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
     try{
-    await api.post('/search/view/feed/delete',{ id:feed.value.id })
+    await api.post('/post',{ id:feed.value.id })
       await new Promise(resolve => setTimeout(resolve, 1000))
       router.push(`/`)
     } catch(e){
@@ -317,46 +345,46 @@ function goEdit(){
   }
   async function delComment(c){
       if(!confirm('삭제할까요?')) return
-      await api.post('/search/view/comment/delete', null, { params:{ id:c.commentUID, feedUID:id }})
+      await api.post('/comment', null, { params:{ id:c.commentUID, feedUID:id }})
       comments.value = comments.value.filter(v=>v.commentUID!==c.commentUID)
     }
   function toggleReplyForm(commentUID) {
     activeReply.value = activeReply.value === commentUID ? null : commentUID
     replyText.value = ''
   }
-async function submitReply(commentUID) {
-  const text = replyTexts.value[commentUID] || ''
-  if (!login.value) {
-    push('로그인이 필요합니다')
-    router.push('/login')
-    return
-  }
-  if (!text.trim()) {
-    alert('답글 내용을 입력하세요.')
-    return
-  }
-  if (replySendingMap.value[commentUID]) return
-  replySendingMap.value[commentUID] = true
+async function submitReply(commentId) {
+  const text = replyTexts.value[commentId] || ''
+  if (!login.value) { router.push('/login'); return }
+  if (!text.trim()) { alert('답글 내용을 입력하세요.'); return }
+  if (replySendingMap.value[commentId]) return
+  replySendingMap.value[commentId] = true
+
+  const token = localStorage.getItem('token')
   try {
-    await api.post('/search/view/reply/save', {
-      commentUID:commentUID,
-      feedUID: id,
+    await api.post('/reply', {
+      commentId,
+      postId: feed.value.id,
+      username: store.username, // 서버가 토큰에서 유저 꺼내면 이 필드는 빼도 됨
       content: text,
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     })
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const { data } = await api.get('/detail', { params: { id } })
-    comments.value = data.comment || []
-    replies.value = JSON.parse(JSON.stringify(data.replies))
+
+    // ✅ 저장 후 댓글/답글 다시 로드
+    await loadComments(feed.value.id)
+
+    // 폼 초기화
     activeReply.value = null
-    replyTexts.value[commentUID] = ''
+    replyTexts.value[commentId] = ''
     reloadTrigger.value++
   } catch (e) {
     console.error(e)
-    push('답글 저장 실패')
+    alert('답글 저장 실패')
   } finally {
-    replySendingMap.value[commentUID] = false
+    replySendingMap.value[commentId] = false
   }
 }
+
 
 </script>
 

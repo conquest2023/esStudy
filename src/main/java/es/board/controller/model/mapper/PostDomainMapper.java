@@ -2,12 +2,13 @@ package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.service.domain.Post;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
+@Slf4j
 public class PostDomainMapper {
 
     public static Post toDomain(PostDTO.Request dto) {

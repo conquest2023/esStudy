@@ -1,21 +1,23 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
+import es.board.repository.entity.CommentEntity;
 import es.board.repository.entity.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
-public interface PostRepository {
+public interface CommentRepository {
 
 
-    void savePost(PostEntity post);
+    void saveComment(CommentEntity post);
 
 
-    List<PostEntity> findByPosts(Pageable pageable);
+    List<CommentEntity> findByComments(int id);
 
-    Page<PostEntity> findByPagePosts(Pageable pageable);
+    Page<CommentEntity> findByPageComments(Pageable pageable);
 
-    PostEntity findPostDetail(int id);
+    CommentEntity findCommentDetail(long id);
 }

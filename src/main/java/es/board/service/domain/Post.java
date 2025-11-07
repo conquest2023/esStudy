@@ -74,4 +74,22 @@ public class Post {
                 e.getModifiedAt()
         );
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", userId='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", viewCount=" + viewCount +
+                ", likeCount=" + likeCount +
+                ", anonymous=" + anonymous +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", createdAt=" + createdAt +
+                ", modifiedAt=" + modifiedAt +
+                '}';
+    }
 }

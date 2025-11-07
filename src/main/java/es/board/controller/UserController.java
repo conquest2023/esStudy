@@ -5,7 +5,7 @@ import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.document.Comment;
-import es.board.service.CommentService;
+import es.board.service.CommentIndexService;
 import es.board.service.FeedService;
 import es.board.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class UserController {
 
     private final FeedService feedService;
 
-    private final CommentService commentService;
+    private final CommentIndexService commentService;
 
     private final AuthService userService;
 
@@ -301,7 +301,7 @@ public class UserController {
         }
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
-        userService.updateVisitCount(response.getUserId());
+//        userService.updateVisitCount(response.getUserId());
         if(response.isAutoLogin()){
             userService.autoLogin(response.getUserId(),token.getRefreshToken());
         }

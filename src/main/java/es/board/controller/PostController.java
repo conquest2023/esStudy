@@ -1,6 +1,7 @@
 package es.board.controller;
 
 
+import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.repository.entity.PostEntity;
 import es.board.service.feed.PostService;
@@ -19,21 +20,25 @@ import java.util.Map;
 @Slf4j
 public class PostController {
 
+    private final JwtTokenProvider provider;
 
     private final PostService postService;
 
     @PostMapping("/post")
-    public ResponseEntity<?> savePost(
-                                      @RequestBody
+    public ResponseEntity<?> savePost(@RequestHeader(value = "Authorization", required = false) String token,
+                                      @RequestPart("feed")
                                       PostDTO.Response response){
         postService.savePost(response);
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "message", "게시글이 정상적으로 저장되었습니다."
+        ));
     }
 
 
-    @GetMapping("/post")
-    public ResponseEntity<?> getPost(
-            Long id){
+    @GetMapping("/post/{id}")
+    public ResponseEntity<?> getPost(@PathVariable int id){
+        log.info(String.valueOf(id));
         PostDTO.Request postDetail = postService.getPostDetail(id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }

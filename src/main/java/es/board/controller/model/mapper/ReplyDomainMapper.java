@@ -4,28 +4,25 @@ import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.service.domain.Reply;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ReplyDomainMapper {
-    public static Reply toDomain(ReplyDTO.Response dto, Long postId, Long commentId) {
+    public static Reply toDomain(String userId, ReplyDTO.Response dto) {
         if (dto == null) return null;
 
         Long id        =dto.getReplyId();
-        String userId    =dto.getUserId();
-        Long resolvedCommentId = commentId ;
-
-        Long resolvedPostId    = postId;
-
         LocalDateTime createdAt = dto.getCreatedAt();
         if (createdAt == null) createdAt = LocalDateTime.now();
 
         return new Reply(
                 id,
-                resolvedCommentId,
-                resolvedPostId,
+                dto.getCommentId(),
+                dto.getPostId(),
                 userId,
                 dto.getUsername(),
                 dto.getContent(),
-                false,                    // anonymous 정보가 DTO에 없으면 기본 false
                 dto.getLikeCount(),
                 createdAt,
                 createdAt,
@@ -35,24 +32,24 @@ public class ReplyDomainMapper {
 
     // Request DTO -> Domain
 
-    public static Reply toDomain(ReplyDTO.Request dto, Long postId, Long commentId) {
-        if (dto == null) return null;
-
-        Long id        = dto.getReplyId();
-        Long resolvedCommentId = commentId;
-        Long resolvedPostId    = postId;
-        return new Reply(
-                id,
-                resolvedCommentId,
-                resolvedPostId,
-                dto.getUserId(),
-                dto.getUsername(),
-                dto.getContent(),
-                false,
-                dto.getLikeCount(),
-                dto.getCreatedAt() == null ? LocalDateTime.now() : dto.getCreatedAt(),
-                dto.getCreatedAt() == null ? LocalDateTime.now() : dto.getCreatedAt(),
-                null
+    public static ReplyDTO.Request toRequestDto(Reply d) {
+        if (d == null) return null;
+        return new ReplyDTO.Request(
+                d.getId(),
+                d.getCommentId(),
+                d.getPostId(),
+                d.getUserId(),
+                d.getUsername(),
+                d.getContent(),
+                d.getLikeCount(),
+                d.getCreatedAt()
         );
+    }
+    public static List<ReplyDTO.Request> toRequestDtoList(List<Reply> domains) {
+        if (domains == null) return List.of();
+        return domains.stream()
+                .filter(Objects::nonNull)
+                .map(ReplyDomainMapper::toRequestDto)
+                .collect(Collectors.toList());
     }
 }

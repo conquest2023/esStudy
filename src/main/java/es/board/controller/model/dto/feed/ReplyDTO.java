@@ -26,6 +26,10 @@ public class ReplyDTO {
 
         private long replyId;
 
+        private long commentId;
+
+        private int postId;
+
     private String id;
 
     private String commentUID;
@@ -72,22 +76,26 @@ public class ReplyDTO {
     @Builder
     public static  class Request {
 
-        private long replyId;
+        private long id;
 
-        private String id;
+//        private String id;
+
+        private long commentId;
+
+        private int postId;
 
         private String userId;
 
-        private String commentUID;
+//        private String commentUID;
 
-        private String feedUID;
+//        private String feedUID;
 
         private String username;
 
         @JsonSerialize(using = XssSafeSerializer.class)
         private String content;
 
-        private String category;
+//        private String category;
 
         private int likeCount;
 

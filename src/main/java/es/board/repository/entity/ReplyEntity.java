@@ -24,7 +24,7 @@ public class ReplyEntity {
 
 
     @Column(name = "post_id", nullable = false)
-    private Long postId;
+    private int postId;
 
 
     @Column(name = "user_id", nullable = false)

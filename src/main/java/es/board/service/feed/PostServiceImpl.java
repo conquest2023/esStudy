@@ -35,7 +35,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostDTO.Request getPostDetail(long id) {
+    public PostDTO.Request getPostDetail(int id) {
 
         PostEntity postDetail = postRepository.findPostDetail(id);
         Post post = Post.toDomain(postDetail);

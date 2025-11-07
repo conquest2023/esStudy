@@ -17,7 +17,7 @@ public class CommentEntity {
 
 
     @Column(name = "post_id", nullable = false)
-    private Long postId;
+    private int postId;
 
     /**
      * 작성자 User PK

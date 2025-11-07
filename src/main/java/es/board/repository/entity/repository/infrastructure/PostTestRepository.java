@@ -30,7 +30,7 @@ public class PostTestRepository implements PostRepository {
 
 
     @Override
-    public PostEntity findPostDetail(long id) {
+    public PostEntity findPostDetail(int id) {
         return null;
     }
 }

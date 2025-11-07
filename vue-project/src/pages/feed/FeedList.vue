@@ -122,15 +122,15 @@ const router = useRouter()
 const recommendPosts = ref([])
 const showSidebar = ref(false)
 
-onMounted(async () => {
-  // showSidebar.value = window.innerWidth >= 992
-  try {
-    const { data } = await api.get('/search/view/feed/recommend')
-    recommendPosts.value = data.recommend ?? []
-  } catch (err) {
-    console.error('추천 글 로딩 실패:', err)
-  }
-})
+// onMounted(async () => {
+//   // showSidebar.value = window.innerWidth >= 992
+//   try {
+//     const { data } = await api.get('/search/view/feed/recommend')
+//     recommendPosts.value = data.recommend ?? []
+//   } catch (err) {
+//     console.error('추천 글 로딩 실패:', err)
+//   }
+// })
 
 /* ▣ 면접 질문 */
 const itQs = ref([])

@@ -16,5 +16,5 @@ public interface PostService {
     Page<PostEntity> getPosts(int page, int size);
 
 
-    PostDTO.Request getPostDetail(long id);
+    PostDTO.Request getPostDetail(int id);
 }

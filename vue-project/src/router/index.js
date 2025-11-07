@@ -47,7 +47,7 @@ const routes = [
     { path: '/search/view/feed/update', name: 'feed-update', component: FeedUpdate },
     { path: '/search/view/vote/detail', name: 'vote-detail', component: voteDetail, meta: { hideLayout: true } },
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },
-    { path: '/search/view/feed/id/:id', name: 'feed-detail', component: () => import('@/pages/feed/FeedDetail.vue'), meta: { hideLayout: true } },
+    { path: '/post/:id', name: 'PostDetail', component: () => import('@/pages/feed/FeedDetail.vue'), meta: { hideLayout: true } },
     { path: '/search/view/feed/vote', name: 'vote-form', component: VoteForm },
     { path: '/search/view/content', name: 'search-result', component: () => import('@/pages/SearchResult.vue') },
     { path: '/search/view/feed/list/page', component: () => import('@/pages/feed/MyPage.vue') },

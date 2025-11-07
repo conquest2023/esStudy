@@ -53,9 +53,9 @@ public class MainFeedAjaxController {
 
     private  final FeedService feedService;
 
-    private  final ReplyService replyService;
+    private  final ReplyIndexService replyService;
 
-    private  final CommentService commentService;
+    private  final CommentIndexService commentService;
 
     private  final CommentMapper commentMapper;
 

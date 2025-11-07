@@ -1,11 +1,14 @@
 package es.board.service.domain;
 
+import es.board.controller.model.mapper.CommentDomainMapper;
 import es.board.repository.entity.CommentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -13,7 +16,7 @@ import java.time.LocalDateTime;
 public class Comment {
 
     private Long id;
-    private Long postId;
+    private int postId;
     private String  userId;
     private String username;
     private String content;
@@ -53,5 +56,11 @@ public class Comment {
                 e.getUpdatedAt(),
                 e.getDeletedAt()
         );
+    }
+    public static List<Comment> toDomainList(List<CommentEntity> entities) {
+        if (entities == null || entities.isEmpty()) return List.of();
+        return entities.stream()
+                .map(Comment::toDomain)
+                .collect(Collectors.toList());
     }
 }

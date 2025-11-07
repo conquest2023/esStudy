@@ -2,164 +2,59 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.CommentDTO;
+import es.board.ex.TokenValidator;
 import es.board.service.CommentService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.h2.command.Token;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-
-@Controller
+@RestController
 @Slf4j
-@RequiredArgsConstructor
 @RequestMapping("/api")
-
+@RequiredArgsConstructor
 public class CommentController {
+
 
     private final CommentService commentService;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider provider;
 
-
-    @PostMapping("/search/view/comment/id")
-    @ResponseBody
-    public ResponseEntity<?> saveCommentId(
-            @RequestParam("feedUID") String id,
-            @Valid @RequestBody CommentDTO.Response response,
-            @RequestHeader(value = "Authorization") String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
-            }
+    private final TokenValidator tokenValidator;
+    @PostMapping("/comment")
+    public ResponseEntity<?> saveComment(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestBody CommentDTO.Response response){
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse == null) {
+            return tokenCheckResponse;
         }
-        commentService.saveComment(response);
-        return ResponseEntity.ok(Map.of("redirectUrl", "/search/view/feed/id/" + id));
-    }
-
-    @PostMapping("/search/view/vote/comment/id")
-    @ResponseBody
-    public ResponseEntity<?> saveVoteCommentId(
-            @RequestParam("feedUID") String id,
-            @RequestBody CommentDTO.Response response,
-            @RequestHeader(value = "Authorization", required = false) String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                response.commentBasicSetting(id, jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
-            }
-        }
-        commentService.saveComment(response);
-        return ResponseEntity.ok(Map.of("redirectUrl", "/search/view/vote/detail?id=" + id));
-    }
-
-    @GetMapping("/commentEx")
-    public void Test() {
-        log.info(commentService.getMostCommentCount().toString());
+        String userId = provider.getUserId(token.substring(7));
+        commentService.saveComment(userId,response);
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "message", "댓글이 정상적으로 저장되었습니다."
+        ));
     }
 
 
-    @GetMapping("comment/update/get")
-    @ResponseBody
-    public ResponseEntity<?> updateComment(@RequestParam String commentUID) {
+    @GetMapping("/comment/{id}")
+    public ResponseEntity<?> getComment(@PathVariable long id){
 
-        Map<String, Object> response = Map.of(
-                "id", commentService.getCommentOne(commentUID),
-                "commentUID", commentUID,
-                "redirectUrl", "basic/comment/EditComment");
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/comment/update/save")
-    @ResponseBody
-    public ResponseEntity<?> editSaveComment(
-            @RequestBody CommentDTO.Update commentUpdate) {
-        Map<String, Object> response = Map.of(
-                "commentUID", commentUpdate.getCommentUID(),
-//
-                "CommentUpdate", commentService.editComment(commentUpdate.getCommentUID(), commentUpdate),
-                "redirectUrl", "/search/view/feed/id?id=" + commentUpdate.getFeedUID()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/view/comment/like")
-    public String getLikeCount(Model model) {
-        model.addAttribute("data", commentService.getLikeCount());
-        return "basic/commentLike";
-    }
-
-    @GetMapping("/feeds/popular-by-comment")
-    public ResponseEntity<?> getManyComment() {
-        return ResponseEntity.ok(commentService.getMantComment());
+        return null;
     }
 
 
-    @PostMapping("/search/view/comment/delete")
-    @ResponseBody
-    public ResponseEntity<?> CommentRemove(@RequestParam("id") String commentId,
-                                           @RequestParam("feedUID") String feedId) {
-        try {
-            commentService.deleteComment(commentId);
-            // 성공 응답 반환
-            Map<String, String> response = new HashMap<>();
-            response.put("redirectUrl", "/search/view/feed/id?id=" + feedId);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("댓글 삭제 중 오류가 발생했습니다.");
-        }
-    }
+    @GetMapping("/comments")
+    public ResponseEntity<?> getComments(
+            @RequestParam int postId){
+        List<CommentDTO.Request> comments = commentService.getComments(postId);
 
-    @PostMapping("/search/view/comment/increase-like/{commentUID}")
-    public ResponseEntity<Map<String, Integer>> increaseLikeCount(@PathVariable String commentUID) {
-        commentService.plusCommentLike(commentUID);
-        Map<String, Integer> response = new HashMap<>();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("ok",comments));
     }
 
 }
-//    @GetMapping("/search/view/comment/time")
-//    public String getRecentCommentList(Model model) {
-//        model.addAttribute("data",commentService.getRecentComment());
-//
-//        return "basic/commentTime";
-//    }
-//
-//    @GetMapping("/search/view/comment")
-//    public String getCommentMainPage(@RequestParam String index, Model model) {
-//        model.addAttribute("CommentDTO", new CommentDTO());
-//
-//        model.addAttribute("data",commentService.getComment());
-//        return "basic/commentList";
-//    }
-//
-//    @GetMapping("/search/view/comment/text")
-//    public String getSearchCommentList(Model model, @RequestParam String text){
-//        log.info(commentService.getSearchComment(text).toString());
-//        model.addAttribute("data",commentService.getSearchComment(text));
-//
-//        return  "/basic/commentSearch";
-//    }
-
-//    @GetMapping("/search/view/comment/paging")
-//    public String getPagingCommentList(Model model, @RequestParam(defaultValue = "1") int num)  {
-//
-////        model.addAttribute("currentPage",num);
-////        model.addAttribute("totalPages", num+6
-////        );
-//////        model.addAttribute("data",commentService.getPagingComment(num,));
-////
-////        return  "basic/commentPaging";
-//        return  null;
-//    }
-
-
-

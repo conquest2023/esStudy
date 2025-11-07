@@ -1,62 +1,57 @@
 package es.board.controller;
 
-
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.ex.TokenValidator;
 import es.board.service.ReplyService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequiredArgsConstructor
+import java.util.List;
+import java.util.Map;
+
+@RestController
 @Slf4j
 @RequestMapping("/api")
-
+@RequiredArgsConstructor
 public class ReplyController {
 
     private final ReplyService replyService;
 
-    private  final TokenValidator tokenValidator;
-
-    private  final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider provider;
 
 
-//    @GetMapping("/search/view/reply")
-//    public List<ReplyRequest> getReplyAll(@RequestParam String id) {
-//        return feedMapper.ReplyListToDTO((List<ReplyEntity>) replyService.getPartialReply(id).get("replyList"));
-//    }
-
-    @PostMapping("/search/view/reply/save")
-    public ResponseEntity<?> postReply(@RequestHeader(value = "Authorization", required = false) String token,
-                                            @Valid @RequestBody ReplyDTO.Response response) {
+    private final TokenValidator tokenValidator;
+    @PostMapping("/reply")
+    public ResponseEntity<?> saveReply(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestBody ReplyDTO.Response response
+            ){
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
         if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
-        token=token.substring(7);
-        response.replyBasicSetting(jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
-        replyService.saveReply(response);
-        return ResponseEntity.ok("/search/view/feed/id?id=" + response.getFeedUID());
+        String userId = provider.getUserId(token.substring(7));
+
+        replyService.saveReply(userId,response);
+
+
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "message", "답글이 정상적으로 저장되었습니다."
+        ));
     }
 
-
-
-    @PostMapping("/search/view/vote/reply/save")
-    public ResponseEntity<?> postVoteReply(@RequestHeader(value = "Authorization", required = false)
-                                               String token,@RequestBody ReplyDTO.Response response) {
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        token=token.substring(7);
-        response.replyBasicSetting(jwtTokenProvider.getUsername(token), jwtTokenProvider.getUserId(token));
-        replyService.saveReply(response);
-        return ResponseEntity.ok("/search/view/vote/detail?id=" + response.getFeedUID());
+    @GetMapping("/replys")
+    public ResponseEntity<?> getReplys(
+            @RequestParam int postId
+    ){
+        List<ReplyDTO.Request> repiles = replyService.getReplys(postId);
+        log.info(repiles.toString());
+        return ResponseEntity.ok(Map.of("ok",repiles));
     }
+
 }
