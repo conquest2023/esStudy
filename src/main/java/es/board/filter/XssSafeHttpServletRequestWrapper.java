@@ -20,6 +20,7 @@ public class XssSafeHttpServletRequestWrapper extends HttpServletRequestWrapper 
         return (values != null && values.length > 0) ? values[0] : null;
     }
 
+
     @Override
     public Map<String, String[]> getParameterMap() {
         return sanitizedParams;

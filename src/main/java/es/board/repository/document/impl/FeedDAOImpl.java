@@ -7,7 +7,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.ex.IndexException;
@@ -31,7 +31,7 @@ public class FeedDAOImpl implements FeedDAO {
     private final int increment = 1;
 
     @Override
-    public String saveFeed(String index, FeedDTO.Response dto) {
+    public String saveFeed(String index, PostDTO.Response dto) {
         dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i
@@ -55,7 +55,8 @@ public class FeedDAOImpl implements FeedDAO {
                     .index("board")
                     .query(q -> q
                             .bool(b -> b
-                                    .must(m -> m.term(t -> t.field("userId").value(userId)))
+                                    .filter(m -> m.term(t -> t.field("userId").value(userId)
+                                    ))
                                     .must(m -> m.range(r ->
                                             r.date(v ->
                                                     v.gte(start).lte(end).field("createdAt"))))
@@ -134,7 +135,8 @@ public class FeedDAOImpl implements FeedDAO {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
                             .query(q -> q.matchAll(t -> t))
-                            .sort(sort -> sort.field(f -> f
+                            .sort(sort ->
+                                    sort.field(f -> f
                                     .field("likeCount")
                                     .order(SortOrder.Desc)
                             )),
@@ -156,9 +158,14 @@ public class FeedDAOImpl implements FeedDAO {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
                             .query(q -> q
-                                    .term(t -> t
-                                            .field("userId")
-                                            .value(userId)))
+                                    .bool(
+                                            b->b.filter(
+                                                    f->f.term(
+                                                            t->t.field("userId")
+                                                            .value(userId)
+                                                    )
+                                            )
+                                    ))
                             .size(0)
                             .aggregations("like_count", a -> a
                                     .sum(d -> d
@@ -332,7 +339,8 @@ public class FeedDAOImpl implements FeedDAO {
                             .index("board")
                             .query(q -> q
                                     .bool(b -> b
-                                            .must(m -> m.term(t -> t.field("category").value(category)))
+                                            .must(m -> m.term(t ->
+                                                    t.field("category").value(category)))
                                             .should(t -> t.match(m -> m.field("description").query(category))))),
                     Board.class);
 
@@ -355,7 +363,8 @@ public class FeedDAOImpl implements FeedDAO {
                                     .order(SortOrder.Desc)))
                             .query(q -> q
                                     .bool(b -> b
-                                            .filter(m -> m.term(t -> t.field("category").value("추천")))))
+                                            .filter(m ->
+                                                    m.term(t -> t.field("category").value("추천")))))
                             .size(3),
                     Board.class);
 
@@ -475,8 +484,11 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public List<Board> findWeekBestFeed(int page, int size) {
-        String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
-        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String start = LocalDateTime.now()
+                .minusDays(7)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+        String end = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             SearchResponse<Board> response = client.search(s -> s
                             .index("board")
@@ -847,7 +859,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Board modifyFeed(String id, FeedDTO.Update eq) {
+    public Board modifyFeed(String id, PostDTO.Update eq) {
         try {
             SearchResponse<Board> searchResponse = client.search(s -> s
                     .index("board")

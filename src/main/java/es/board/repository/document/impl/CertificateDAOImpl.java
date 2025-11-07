@@ -40,7 +40,6 @@ public class CertificateDAOImpl  implements CertificateDAO {
                                                     .field("jmfldnm")
                                                     .query(text))))),
                     Certificate.class);
-            log.info(response.toString());
             return response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
@@ -119,7 +118,7 @@ public class CertificateDAOImpl  implements CertificateDAO {
                             .size(600),
                     Certificate.class);
 
-            log.info("🔍 Elasticsearch에서 자격증 600개 조회 완료!");
+
 
             // 데이터를 변환하여 리스트로 반환
             return response.hits().hits().stream()

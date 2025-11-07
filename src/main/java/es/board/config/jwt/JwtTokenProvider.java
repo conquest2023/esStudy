@@ -34,6 +34,7 @@ public class JwtTokenProvider {
 
     // 블랙리스트에 토큰 추가
     public void addToBlacklist(String token) {
+
         blacklistedTokens.add(token);
     }
 

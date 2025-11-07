@@ -25,6 +25,9 @@ public class CommentDTO {
     @AllArgsConstructor
     public static  class Response {
 
+
+        private Long id;
+
         private String commentUID;
 
         private String userId;
@@ -64,13 +67,6 @@ public class CommentDTO {
             this.commentUID = UUID.randomUUID().toString();
         }
 
-        public void commentAnonymousBasicSetting(String id) {
-            this.feedUID = id;
-            this.userId = "";
-            this.username = "익명";
-            this.createdAt = LocalDateTime.now();
-            this.commentUID = UUID.randomUUID().toString();
-        }
     }
 
 
@@ -79,6 +75,9 @@ public class CommentDTO {
     @AllArgsConstructor
     @Builder
     public static class  Request{
+
+        private long id;
+
         private String commentUID;
 
         private String feedUID;

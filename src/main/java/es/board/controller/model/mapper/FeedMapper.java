@@ -1,6 +1,6 @@
 package es.board.controller.model.mapper;
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.controller.model.dto.feed.ReplyDTO;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class FeedMapper {
-    public Post toPostEntity(FeedDTO.Response feedSaveDTO) {
-        return Post.builder()
+    public PostEntity toPostEntity(PostDTO.Response feedSaveDTO) {
+        return PostEntity.builder()
                 .userId(feedSaveDTO.getUserId())
                 .feedUID(UUID.randomUUID().toString())
                 .username(feedSaveDTO.getUsername())
@@ -43,7 +43,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public Board toBoardDocument(FeedDTO.Response response, int id , String feedUID) {
+    public Board toBoardDocument(PostDTO.Response response, int id , String feedUID) {
         return Board.builder()
                 .feedUID(feedUID)
                 .id(id)
@@ -59,9 +59,9 @@ public class FeedMapper {
                 .build();
     }
 
-    public List<FeedDTO.Request> fromBoardDtoList(List<Board> boards) {
+    public List<PostDTO.Request> fromBoardDtoList(List<Board> boards) {
         return boards.stream()
-                .map(board -> FeedDTO.Request.builder()
+                .map(board -> PostDTO.Request.builder()
                         .feedUID(board.getFeedUID())
                         .id(board.getId())
                         .username(board.getUsername())
@@ -76,8 +76,8 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public FeedDTO.Request fromBoardDto(Board board) {
-        return FeedDTO.Request.builder()
+    public PostDTO.Request fromBoardDto(Board board) {
+        return PostDTO.Request.builder()
                 .feedUID(board.getFeedUID())
                 .id(board.getId())
                 .userId(board.getUserId())

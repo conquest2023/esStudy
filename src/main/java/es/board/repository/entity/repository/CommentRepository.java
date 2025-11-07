@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository  extends ElasticsearchRepository<Comment,String> {
 
-//    Comment findByCommentUID(String commentUID);
+//    CommentEntity findByCommentUID(String commentUID);
 
     @Query("{ \"match_all\": {} }")
     List<Comment> findAllCommentBy();

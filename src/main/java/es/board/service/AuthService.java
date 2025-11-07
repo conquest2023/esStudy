@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
@@ -12,7 +12,7 @@ public interface AuthService {
 
 
     String findById(String  username);
-    Boolean extractUserIdFromToken(String token, FeedDTO.Response response);
+    Boolean extractUserIdFromToken(String token, PostDTO.Response response);
 
 
     void  autoLogin(String userId, String token);

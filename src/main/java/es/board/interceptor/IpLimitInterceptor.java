@@ -75,19 +75,17 @@ public class IpLimitInterceptor implements HandlerInterceptor {
         String userId = (token != null && token.startsWith("Bearer "))
                 ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
 //        String uniqueKey = userId.equals("guest") ? ipAddress : userId;
-        String uniqueKey = ipAddress;
-
         String today = LocalDate.now().toString();
-        String visitKey = VISIT_KEY_PREFIX + today + ":" + uniqueKey;
+        String visitKey = VISIT_KEY_PREFIX + today + ":" + ipAddress;
         Boolean hasVisited = redisTemplate.hasKey(visitKey);
         if (!"127.0.0.1".equals(ipAddress) && (hasVisited == null || !hasVisited)) {
             redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));
             CompletableFuture.runAsync(() -> visitorService.saveIP(userId, ipAddress, userAgent));
-            log.info("새로운 방문자 기록 - {} , {}", uniqueKey ,visitKey);
+            log.info("새로운 방문자 기록 - {} , {}", ipAddress ,visitKey);
         } else {
-            log.info("중복 방문 방지 - {}", uniqueKey);
+            log.info("중복 방문 방지 - {}", ipAddress);
         }
-        String onlineKey = "online_users:" + uniqueKey;
+        String onlineKey = "online_users:" + ipAddress;
         redisTemplate.opsForValue().set(onlineKey, "active", Duration.ofMinutes(10));
 
         return true;

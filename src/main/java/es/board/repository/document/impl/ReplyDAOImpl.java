@@ -48,8 +48,8 @@ public class ReplyDAOImpl implements ReplyDAO {
 
             return result;
         } catch (Exception e) {
-            log.error("Error find Reply with id: {}", id, e);
-            throw new RuntimeException("Failed to find Reply", e);
+            log.error("Error find ReplyEntity with id: {}", id, e);
+            throw new RuntimeException("Failed to find ReplyEntity", e);
         }
     }
 

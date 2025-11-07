@@ -16,7 +16,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "Reply")
+@Document(indexName = "ReplyEntity")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

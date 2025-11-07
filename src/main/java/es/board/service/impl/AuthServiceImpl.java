@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.CommentMapper;
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean extractUserIdFromToken(String token, FeedDTO.Response response) {
+    public Boolean extractUserIdFromToken(String token, PostDTO.Response response) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new TokenInvalidException("토큰이 비어있습니다.");
         }

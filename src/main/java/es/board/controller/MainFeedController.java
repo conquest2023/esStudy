@@ -2,12 +2,11 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.entity.FeedImage;
 import es.board.service.AuthService;
 import es.board.service.FeedService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -90,7 +89,7 @@ public class MainFeedController {
 
 
     @PostMapping("/search/view/feed/update")
-    public ResponseEntity<?> editSaveFeed(@RequestBody FeedDTO.Update feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<?> editSaveFeed(@RequestBody PostDTO.Update feedUpdate, @RequestHeader(value = "Authorization", required = false) String token) {
 
         feedService.updateFeed(feedUpdate.getFeedUID(), feedUpdate);
         return ResponseEntity.ok("수정이 완료되었습니다");
@@ -303,7 +302,7 @@ public class MainFeedController {
     @PostMapping("/search/view/feed/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveFeed(
-            @Validated @RequestPart("feed") FeedDTO.Response res,
+            @Validated @RequestPart("feed") PostDTO.Response res,
             @RequestHeader(value = "Authorization", required = false) String token) {
             authService.extractUserIdFromToken(token, res);
             return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
@@ -377,7 +376,7 @@ public class MainFeedController {
     public ResponseEntity<?> getReplyDesc(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedDTO.Request> data= feedService.findReplyDESC(page, size);
+        List<PostDTO.Request> data= feedService.findReplyDESC(page, size);
         return ResponseEntity.ok(Map.of(
                 "data", data,
                 "totalPage",500
@@ -388,7 +387,7 @@ public class MainFeedController {
     public ResponseEntity<?> getCommentDesc(@RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedDTO.Request> data= feedService.findCommentDESC(page, size);
+        List<PostDTO.Request> data= feedService.findCommentDESC(page, size);
         return ResponseEntity.ok(Map.of(
                 "data", data,
                 "totalPage",500
@@ -400,7 +399,7 @@ public class MainFeedController {
     public ResponseEntity<?> getViewDesc(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
 
-        List<FeedDTO.Request> data = feedService.findViewDESC(page, size);
+        List<PostDTO.Request> data = feedService.findViewDESC(page, size);
 
         return ResponseEntity.ok(Map.of(
                 "data", data,

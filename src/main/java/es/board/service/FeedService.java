@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.document.Board;
 import es.board.repository.entity.FeedImage;
@@ -14,13 +14,13 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public interface FeedService {
 
-    List<FeedDTO.Request> findCommentDESC(int page, int size);
+    List<PostDTO.Request> findCommentDESC(int page, int size);
 
 
     List<String> findPagingFeedIds(int page, int size);
 
-    List<FeedDTO.Request> findReplyDESC(int page, int size);
-    List<FeedDTO.Request> findViewDESC(int page, int size);
+    List<PostDTO.Request> findReplyDESC(int page, int size);
+    List<PostDTO.Request> findViewDESC(int page, int size);
 
     FeedImage saveFeedImages(String imageUrl);
     Map<String, Object>  getNoticeFeed(int page, int size);
@@ -30,23 +30,23 @@ public interface FeedService {
     Map<String, Object> getDataFeed(int page, int size,String category);;
     double getUserFeedCount(String userId);
 
-    List<FeedDTO.Request>  findWeekBestFeed(int page, int size);
+    List<PostDTO.Request>  findWeekBestFeed(int page, int size);
 
     Map<String, Object> getUserMapageLikeAndFeedCount(String userId);
-    List<FeedDTO.Request> getRecommendFeed();
+    List<PostDTO.Request> getRecommendFeed();
     List<TopWriter>  getTopWriters();
-//    List<FeedDTO> getUserRangeTimeFeed(String userId);
+//    List<PostDTO> getUserRangeTimeFeed(String userId);
     Map<String, Object> getFeedUserList(String userId,int page,int size);
 //    Integer getUserLikeCount(String userId);
-    CompletableFuture<FeedDTO.Response> saveFeed(FeedDTO.Response feedSaveDTO);
+    CompletableFuture<PostDTO.Response> saveFeed(PostDTO.Response feedSaveDTO);
 
-    List<FeedDTO.Request> getCategoryFeed(String category);
+    List<PostDTO.Request> getCategoryFeed(String category);
 
-    List<FeedDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime);
+    List<PostDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime);
 
-    List<FeedDTO.Request> getMonthPopularFeed();
+    List<PostDTO.Request> getMonthPopularFeed();
 
-    List<FeedDTO.Request>  getPopularFeedDESC(int page, int size);
+    List<PostDTO.Request>  getPopularFeedDESC(int page, int size);
 //    double getSumLikeByPageOne(int page, int size);
 
 //    int getViewCountAll();
@@ -57,33 +57,33 @@ public interface FeedService {
 
     void saveViewCountFeed(String id);
 
-    FeedDTO.Request getPopularFeedOne();
+    PostDTO.Request getPopularFeedOne();
 
      boolean isAlreadyLiked(String userId,String id);
 
-    List<FeedDTO.Request> getRecentFeed();
+    List<PostDTO.Request> getRecentFeed();
 
-    List<FeedDTO.Response> createBulkFeed(List<FeedDTO.Response> comments);
+    List<PostDTO.Response> createBulkFeed(List<PostDTO.Response> comments);
 
 //    String createFeed(String indexName, FeedCreateResponse dto);
 
-//    List<FeedDTO> getFeed();
+//    List<PostDTO> getFeed();
 
-    List<FeedDTO.Request> getLikeCount();
+    List<PostDTO.Request> getLikeCount();
 
     List<Board> getSearchBoard(String text);
 
-    List<FeedDTO.Request> getPagingFeed(int page, int size);
+    List<PostDTO.Request> getPagingFeed(int page, int size);
 
     void deleteFeed(String id,String userId);
 
-    List<FeedDTO.Request> getMostViewFeed(int page, int size);
+    List<PostDTO.Request> getMostViewFeed(int page, int size);
 
-    List<String> getfeedUIDList(List<FeedDTO.Request> requests);
+    List<String> getfeedUIDList(List<PostDTO.Request> requests);
 
     Map<String, Object> getFetchTotalFeedStats();
 
-    FeedDTO.Update updateFeed(String id, FeedDTO.Update update);
+    PostDTO.Update updateFeed(String id, PostDTO.Update update);
 
-    FeedDTO.Request getFeedDetail(String id);
+    PostDTO.Request getFeedDetail(String id);
 }

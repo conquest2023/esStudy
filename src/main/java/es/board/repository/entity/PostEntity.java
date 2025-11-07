@@ -8,7 +8,6 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "post")
@@ -17,36 +16,45 @@ import java.util.UUID;
 @Slf4j
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Post {
+public class PostEntity {
+
+//    /    @Column(name = "feed_id")
+//    private  String feedUID;
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "feed_id")
+    private String feedUID;
+
     @Column(name = "user_id")
     private String userId;
-
-    @Column(name = "feed_id")
-    private  String feedUID;
 
     private  String username;
 
     private  String title;
 
+    private String  description;
+
+    private String category;
+
+    @Column(name = "like_count")
+    private int likeCount;
+
+    @Column(name = "view_count")
+    private int viewCount;
+
     private  boolean anonymous;
 
+    @Column(name = "image_url")
+    private  String imageUrl;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
-    private LocalDateTime modify_at;
-
-    @Column(name = "image_url")
-    private  String imageUrl;
-
-
-
+    private LocalDateTime modifiedAt;
 
 }

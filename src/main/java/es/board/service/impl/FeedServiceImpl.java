@@ -4,15 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.s3.S3Uploader;
 import es.board.config.slack.SlackNotifier;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.FeedMapper;
-import es.board.controller.model.dto.feed.FeedDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
 import es.board.repository.entity.FeedImage;
 import es.board.repository.entity.PointHistory;
-import es.board.repository.entity.Post;
+import es.board.repository.entity.PostEntity;
 import es.board.repository.entity.repository.*;
 import es.board.service.FeedService;
 import es.board.service.NotificationService;
@@ -90,13 +90,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<FeedDTO.Request> findWeekBestFeed(int page, int size) {
+    public   List<PostDTO.Request> findWeekBestFeed(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findWeekBestFeed(page,size));
     }
 
 
     @Override
-    public   List<FeedDTO.Request> findCommentDESC(int page, int size) {
+    public   List<PostDTO.Request> findCommentDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findCountComment(page,size));
     }
 
@@ -106,13 +106,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<FeedDTO.Request> findReplyDESC(int page, int size) {
+    public   List<PostDTO.Request> findReplyDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
     }
 
 
     @Override
-    public   List<FeedDTO.Request> findViewDESC(int page, int size) {
+    public   List<PostDTO.Request> findViewDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findViewDESC(page,size));
     }
 
@@ -136,7 +136,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public CompletableFuture<FeedDTO.Response> saveFeed(FeedDTO.Response res) {
+    public CompletableFuture<PostDTO.Response> saveFeed(PostDTO.Response res) {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(res);
             Map<String,Object> Ids = savePost(res);
@@ -159,61 +159,61 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedDTO.Request> getRecommendFeed() {
+    public List<PostDTO.Request> getRecommendFeed() {
 
-        ValueOperations<String, List<FeedDTO.Request>> valueOps = redisTemplate.opsForValue();
+        ValueOperations<String, List<PostDTO.Request>> valueOps = redisTemplate.opsForValue();
 
-        List<FeedDTO.Request> cachedData = valueOps.get(RECOMMEND_KEY);
+        List<PostDTO.Request> cachedData = valueOps.get(RECOMMEND_KEY);
 
         if (cachedData != null) {
             return cachedData;
         }
-        List<FeedDTO.Request> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
+        List<PostDTO.Request> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
 
         valueOps.set(RECOMMEND_KEY, feedRequests, 6, TimeUnit.HOURS);
         return feedRequests;
     }
 
     @Override
-    public List<String> getfeedUIDList(List<FeedDTO.Request> requests) {
+    public List<String> getfeedUIDList(List<PostDTO.Request> requests) {
 
         return extractFeedUID(requests);
     }
 
     @Override
-    public List<FeedDTO.Request> getCategoryFeed(String category) {
+    public List<PostDTO.Request> getCategoryFeed(String category) {
         return feedMapper.fromBoardDtoList(feedDAO.findCategoryAndContent(category));
     }
 
     @Override
-    public List<FeedDTO.Request> getMonthPopularFeed() {
+    public List<PostDTO.Request> getMonthPopularFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMonthPopularFeed());
     }
 
     @Override
-    public List<FeedDTO.Request> getPopularFeedDESC(int page, int size) {
+    public List<PostDTO.Request> getPopularFeedDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findPopularFeedDESC(page, size));
     }
 
     @Override
-    public List<FeedDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
+    public List<PostDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
         return feedMapper.fromBoardDtoList(feedDAO.findRangeTimeFeed(startDate, endTime));
     }
     @Override
-    public FeedDTO.Request getPopularFeedOne() {
+    public PostDTO.Request getPopularFeedOne() {
 
         return feedMapper.fromBoardDto(feedDAO.findPopularFeedOne());
     }
 
     @Override
-    public List<FeedDTO.Request> getRecentFeed() {
+    public List<PostDTO.Request> getRecentFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findRecentFeed());
     }
 
     @Override
-    public List<FeedDTO.Response> createBulkFeed(List<FeedDTO.Response> feeds) {
+    public List<PostDTO.Response> createBulkFeed(List<PostDTO.Response> feeds) {
         feedDAO.saveBulkFeed(bulkToEntity(feeds));
         return feeds;
     }
@@ -254,19 +254,19 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<FeedDTO.Request> getLikeCount() {
+    public List<PostDTO.Request> getLikeCount() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<FeedDTO.Request> getPagingFeed(int page, int size) {
+    public List<PostDTO.Request> getPagingFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findPagingMainFeed(page, size));
     }
 
     @Override
-    public List<FeedDTO.Request> getMostViewFeed(int page, int size) {
+    public List<PostDTO.Request> getMostViewFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMostViewFeed(page, size));
     }
@@ -295,7 +295,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public FeedDTO.Update updateFeed(String id, FeedDTO.Update update) {
+    public PostDTO.Update updateFeed(String id, PostDTO.Update update) {
         feedDAO.modifyFeed(id, update);
         return update;
     }
@@ -323,7 +323,7 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
-    public FeedDTO.Request getFeedDetail(String id) {
+    public PostDTO.Request getFeedDetail(String id) {
 
         return feedMapper.fromBoardDto(feedDAO.findFeedDetail(id));
     }
@@ -348,9 +348,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-    public List<Board> bulkToEntity(List<FeedDTO.Response> res) {
+    public List<Board> bulkToEntity(List<PostDTO.Response> res) {
         List<Board> boards = new ArrayList<>();
-        for (FeedDTO.Response dto : res) {
+        for (PostDTO.Response dto : res) {
             Board feed = Board.builder()
                     .feedUID(dto.getFeedUID())
                     .title(dto.getTitle())
@@ -371,22 +371,22 @@ public class FeedServiceImpl implements FeedService {
         return urls;
     }
 
-    private Map<String,Object>  savePost(FeedDTO.Response feedSaveDTO) {
+    private Map<String,Object>  savePost(PostDTO.Response feedSaveDTO) {
         Map<String,Object> Ids=new HashMap<>();
-        Post savedPost = postRepository.save(feedMapper.toPostEntity(feedSaveDTO));
+        PostEntity savedPost = postRepository.save(feedMapper.toPostEntity(feedSaveDTO));
         Ids.put("postId",savedPost.getId());
         Ids.put("feedUID",savedPost.getFeedUID());
         return Ids;
     }
 
 
-    private List<String> extractFeedUID(List<FeedDTO.Request> requests) {
+    private List<String> extractFeedUID(List<PostDTO.Request> requests) {
         List<String> feedUIDs = requests.stream()
-                .map(FeedDTO.Request::getFeedUID)
+                .map(PostDTO.Request::getFeedUID)
                 .collect(Collectors.toList());
         return feedUIDs;
     }
-    private static void checkValueFeed(FeedDTO.Response feedSaveDTO) {
+    private static void checkValueFeed(PostDTO.Response feedSaveDTO) {
         if (isEmpty(feedSaveDTO.getTitle()) || isEmpty(feedSaveDTO.getDescription()) || isEmpty(feedSaveDTO.getCategory())) {
             throw new IllegalArgumentException("제목, 본문, 카테고리는 필수 입력값입니다.");
         }

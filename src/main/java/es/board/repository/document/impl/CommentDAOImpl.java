@@ -248,17 +248,17 @@ public class CommentDAOImpl implements CommentDAO {
     @Override
     public List<Comment> findSearchComment(String text)  {
 //        log.info(text);
-//        SearchResponse<Comment> response = client.search(s -> s
+//        SearchResponse<CommentEntity> response = client.search(s -> s
 //                        .index("comment")  // 'comments' 인덱스에서 검색
 //                        .query(q -> q        // 쿼리 정의
 //                                .match(t -> t    // 'content' 필드에서  검색
 //                                        .field("content")
 //                                        .query(text))),
-//                Comment.class  // 결과를 Comment 클래스 객체로 매핑
+//                CommentEntity.class  // 결과를 CommentEntity 클래스 객체로 매핑
 //        );
 //
-//        List<Comment> comments = response.hits().hits().stream()
-//                .map(hit -> hit.source()) // Elasticsearch 문서를 Comment 객체로 변환
+//        List<CommentEntity> comments = response.hits().hits().stream()
+//                .map(hit -> hit.source()) // Elasticsearch 문서를 CommentEntity 객체로 변환
 //                .collect(Collectors.toList());
 //        return comments;
         return null;
@@ -327,7 +327,7 @@ public class CommentDAOImpl implements CommentDAO {
             log.info(id);
 
             if (searchResponse.hits().hits().isEmpty()) {
-                throw new Exception("Comment not found with id: " + id);
+                throw new Exception("CommentEntity not found with id: " + id);
             }
             String documentId = searchResponse.hits().hits().get(0).id();
 

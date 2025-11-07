@@ -158,7 +158,7 @@ public class UserController {
 //            token = token.substring(7);
 //            if (jwtTokenProvider.validateToken(token)) {
 //                String userId = userService.findById(username);
-//                List<Comment> commentList=commentService.getMyPageComment(userId,page,size);
+//                List<CommentEntity> commentList=commentService.getMyPageComment(userId,page,size);
 //                Map<String, Object> response = Map.of(
 //                        "commentList",commentList
 //                );
@@ -174,7 +174,6 @@ public class UserController {
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) {
 
-    log.info("asd");
     String token = request.getHeader("Authorization");
     if (token != null && token.startsWith("Bearer ")) {
         token = token.substring(7);

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-public class FeedDTO {
+public class PostDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -93,6 +93,7 @@ public class FeedDTO {
 
         private  boolean anonymous;
 
+
         private int  viewCount;
 
 
@@ -106,12 +107,14 @@ public class FeedDTO {
         @JsonIgnore
         @JsonSerialize(using = XssSafeSerializer.class)
         private MultipartFile attachFile;
+
         @JsonIgnore
         @JsonSerialize(using = XssSafeSerializer.class)
         private List<MultipartFile> imageFiles;
 
 
         public void TimePush(){
+
             this.createdAt=LocalDateTime.now();
         }
     }

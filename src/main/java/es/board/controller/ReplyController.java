@@ -28,7 +28,7 @@ public class ReplyController {
 
 //    @GetMapping("/search/view/reply")
 //    public List<ReplyRequest> getReplyAll(@RequestParam String id) {
-//        return feedMapper.ReplyListToDTO((List<Reply>) replyService.getPartialReply(id).get("replyList"));
+//        return feedMapper.ReplyListToDTO((List<ReplyEntity>) replyService.getPartialReply(id).get("replyList"));
 //    }
 
     @PostMapping("/search/view/reply/save")

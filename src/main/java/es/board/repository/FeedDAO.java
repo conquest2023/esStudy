@@ -1,7 +1,7 @@
 package es.board.repository;
 
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.document.Board;
@@ -30,7 +30,7 @@ public interface FeedDAO {
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO.Request dto, Long id);
     List<Board> findUserRangeTimeFeed(String userId);
-    String saveFeed(String index, FeedDTO.Response dto) ;
+    String saveFeed(String index, PostDTO.Response dto) ;
 
     List<Board> saveBulkFeed(List<Board> pages) ;
 
@@ -48,7 +48,7 @@ public interface FeedDAO {
     List<Board> findRecentFeed();
 
     List<Board> findCategoryAndContent(String category);
-    Board modifyFeed(String id, FeedDTO.Update eq);
+    Board modifyFeed(String id, PostDTO.Update eq);
     Board findFeedDetail(String id);
     List<Board> findSearchBoard(String text);
 

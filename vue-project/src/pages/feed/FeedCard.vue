@@ -32,11 +32,12 @@ const props = defineProps({
   isVote:{type:Boolean,default:false},
   commentCount:{type:Number,default:0}
 })
+
 const router=useRouter()
 
 const time=computed(()=>{
   const d=new Date(props.post.createdAt)
-  return `${d.getMonth()+1}. ${d.getDate()}. ${d.getHours()>=12?'오후':'오전'} ${(d.getHours()%12)||12}:${d.getMinutes().toString().padStart(2,'0')}`
+  return `${d.getMonth()+1}.${d.getDate()}. ${d.getHours()>=12?'오후':'오전'} ${(d.getHours()%12)||12}:${d.getMinutes().toString().padStart(2,'0')}`
 })
 const isVote=computed(()=>!props.notice&&!props.post.id)
 // function goToDetail(){

@@ -1,6 +1,6 @@
 package es.board.controller;
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.service.FeedService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class OGController {
     public String serveOGPage(@RequestParam("id") String id, Model model) {
 
         log.info("sadads");
-        FeedDTO.Request feed = feedService.getFeedDetail(id);
+        PostDTO.Request feed = feedService.getFeedDetail(id);
         model.addAttribute("title", feed.getTitle());
         model.addAttribute("description", feed.getDescription());
         model.addAttribute("image", feed.getImageURL());

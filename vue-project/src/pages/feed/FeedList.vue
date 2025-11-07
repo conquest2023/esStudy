@@ -55,57 +55,8 @@
           </div>
         </transition>
         <div class="board-wrap">
-          <!-- ▣ 검색바 -->
           <SearchBar class="mb-3" />
 
-<!--          &lt;!&ndash; ▣ 면접 질문 섹션 &ndash;&gt;-->
-<!--          <section class="my-4">-->
-<!--            <h2 class="interview-title border-bottom py-3 d-flex justify-content-between align-items-center">-->
-<!--              <div class="d-flex align-items-center gap-2">-->
-<!--                <i class="fas fa-comments fa-lg text-primary"></i>-->
-<!--                <span class="fs-4 fw-bold">면접 질문</span>-->
-<!--              </div>-->
-<!--              <button class="btn btn-sm btn-outline-secondary" @click="isInterviewOpen = !isInterviewOpen">-->
-<!--                {{ isInterviewOpen ? '닫기 ▲' : '열기 ▼' }}-->
-<!--              </button>-->
-<!--            </h2>-->
-
-<!--            <transition name="fade">-->
-<!--              <div v-show="isInterviewOpen" class="p-3 bg-light rounded-3 shadow-sm mt-3">-->
-<!--                &lt;!&ndash; 카테고리 버튼 &ndash;&gt;-->
-<!--                <div class="d-flex justify-content-between align-items-center mb-3">-->
-<!--                  <div class="btn-group rounded-pill shadow-sm">-->
-<!--                    <button v-for="cat in ['IT', '일반']" :key="cat" class="btn btn-outline-primary" :class="{ active: curCat === cat }" @click="changeCat(cat)">-->
-<!--                      <i :class="cat === 'IT' ? 'fas fa-laptop-code' : 'fas fa-building'" />-->
-<!--                      {{ cat }} 기업-->
-<!--                    </button>-->
-<!--                  </div>-->
-<!--                  <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1" @click="showBestAnswers">-->
-<!--                    <i class="fas fa-trophy text-warning" /> 베스트 답변-->
-<!--                  </button>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; 질문 카드 &ndash;&gt;-->
-<!--                <div v-if="curQuestion" class="card border-0 shadow-sm">-->
-<!--                  <div class="card-header bg-white border-bottom"><strong>{{ curQuestion.question }}</strong></div>-->
-<!--                  <div class="card-body">-->
-<!--                    <textarea v-model="answerInput" class="form-control" rows="4" placeholder="최소 35자 이상 입력해주세요" maxlength="1000" />-->
-<!--                    <div class="text-end text-muted small mt-1">{{ answerInput.length }} / 1000자</div>-->
-<!--                    <button class="btn btn-primary w-100 mt-3" @click="submitAnswer">-->
-<!--                      <i class="fas fa-paper-plane me-1" /> 제출하기-->
-<!--                    </button>-->
-<!--                  </div>-->
-<!--                </div>-->
-
-<!--                <div class="d-flex justify-content-between mt-3">-->
-<!--                  <button class="btn btn-outline-secondary" @click="prevQ"><i class="fas fa-arrow-left me-1" /> 이전</button>-->
-<!--                  <button class="btn btn-outline-secondary" @click="nextQ">다음 <i class="fas fa-arrow-right ms-1" /></button>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </transition>-->
-<!--          </section>-->
-
-          <!-- ▣ 정렬 드롭다운 (오른쪽 정렬) -->
           <div class="d-flex justify-content-end mb-3">
             <div class="dropdown">
               <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
@@ -130,8 +81,6 @@
               </li>
             </ul>
           </div>
-
-          <!-- ▣ 공지 / 피드 카드 -->
           <FeedCard v-for="n in notices" :key="n.feedUID" :post="n" notice class="mb-2" />
           <FeedCard v-for="p in posts"
                     :key="p.feedUID"
@@ -334,66 +283,43 @@ async function fetchNotice() {
   }
 }
 
-/************************************************
- * 5. 메인 피드 로딩 (✔ 핵심 수정 – URL 분기만 단순하게)
- ************************************************/
-// async function fetchFeeds(newPage = page.value) {
-//   const tab = TABS.find(t => t.id === activeTab.value)
-//   if (!tab) return
-//
-//   loading.value = true
-//   page.value = newPage
-//   router.replace({ query: { ...route.query, page: newPage } })
-//
-//   const params = { page: newPage, size: 10 }
-//   if (tab.category) params.category = tab.category
-//   if (tab.id === 'DATA') params.category = selectedCategory.value
-//
-//   let url = tab.url
-//   if (tab.id === 'ALL') {
-//     if (curSort.value === 'COMMENT')      url = '/comment/count'
-//     else if (curSort.value === 'REPLY')   url = '/reply/count'
-//     else if (curSort.value === 'VIEW')    url = '/view/count'
-//     else url = '/feeds'
-//   }
-//
-//   try {
-//     const { data } = await api.get(url, { params })
-//
-//     // 반환 형식이 리스트든 기존 구조든 동일하게 posts 로만 세팅 (최소 변경)
-//     posts.value      = data.data ?? data ?? []
-//     counts.value     = data.count ?? {}
-//     totalPage.value  = data.totalPage ?? Math.ceil(posts.value.length / 10)
-//
-//     if (activeTab.value === 'ALL') await fetchNotice()
-//     else notices.value = []
-//   } catch (err) {
-//     console.error(`${tab.label} 로딩 실패`, err)
-//   } finally {
-//     loading.value = false
-//   }
-// }
 async function fetchFeedsAll(newPage = page.value) {
-  loading.value = true
-  page.value = newPage
-  router.replace({ query: { ...route.query, page: newPage } })
-
-  const params = { page: newPage, size: 10 }  // ✅ page/size 그대로 사용
-  let url = '/feeds'
-  if (curSort.value === 'COMMENT')      url = '/comment/count'
-  else if (curSort.value === 'REPLY')   url = '/reply/count'
-  else if (curSort.value === 'VIEW')    url = '/view/count'
-
   try {
+    loading.value = true
+
+    // 1-based UI → 0-based 서버 보정 (page 쿼리 보존)
+    const uiPage = Number(newPage ?? 1)
+    page.value = uiPage
+    router.replace({ query: { ...route.query, page: uiPage } })
+
+    const zeroBasedPage = Math.max(0, uiPage - 1)
+    const params = { page: zeroBasedPage, size: 10 }
+
+    // 정렬 조건에 따른 엔드포인트
+    let url = '/posts' // 기본
+    if (curSort.value === 'COMMENT')      url = '/comment/count'
+    else if (curSort.value === 'REPLY')   url = '/reply/count'
+    else if (curSort.value === 'VIEW')    url = '/view/count'
+
     const { data } = await api.get(url, { params })
 
-    posts.value = data.data ?? []
-    counts.value = data.count ?? {}           // 있으면 사용, 없어도 무관
-    totalPage.value = data.totalPage ?? 0
+    // 2) 백엔드 스펙 대응: { ok: Page } 또는 기존 { data, totalPage, ... }
+    const payload = data?.ok ?? data ?? {}
+
+    // 스프링 Page 호환 파싱
+    const content     = payload.content   ?? payload.data   ?? []
+    const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
+    const countBlock  = payload.count ?? {}
+
+    posts.value      = Array.isArray(content) ? content : []
+    counts.value     = countBlock
+    totalPage.value  = Number.isFinite(totalPages) ? totalPages : 0
 
     await fetchNotice()
   } catch (err) {
-    console.error(`전체 글 로딩 실패`, err)
+    console.error('전체 글 로딩 실패', err)
+    posts.value = []
+    totalPage.value = 0
   } finally {
     loading.value = false
   }
@@ -427,52 +353,6 @@ async function fetchFeeds(newPage = page.value) {
     loading.value = false
   }
 }
-
-
-// async function fetchFeeds(newPage = page.value) {
-//   const tab = TABS.find(t => t.id === activeTab.value)
-//   if (!tab) return
-//
-//   loading.value = true
-//   page.value = newPage
-//   router.replace({ query: { ...route.query, page: newPage } })
-//
-//   // const params = { page: 0, size: 100 }
-//   const params = { page: 0, size: 1000 }
-//   if (tab.category) params.category = tab.category
-//   if (tab.id === 'DATA') params.category = selectedCategory.value
-//   let url = tab.url
-//
-//   if (tab.id === 'ALL') {
-//     if (curSort.value === 'COMMENT')      url = '/comment/count'
-//     else if (curSort.value === 'REPLY')   url = '/reply/count'
-//     else if (curSort.value === 'VIEW')    url = '/view/count'
-//     else url = '/feeds'
-//   }
-//
-//   try {
-//     const { data } = await api.get(url, { params })
-//
-//     const merged = [...(data.data ?? []), ...(data.vote ?? [])]
-//
-//     merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-//
-//     const pageSize = 10
-//     const start = newPage * pageSize
-//     const end   = start + pageSize
-//     posts.value = merged.slice(start, end)
-//
-//     counts.value    = data.count ?? {}
-//     totalPage.value = Math.ceil(merged.length / pageSize)
-//
-//     if (activeTab.value === 'ALL') await fetchNotice()
-//     else notices.value = []
-//   } catch (err) {
-//     console.error(`${tab.label} 로딩 실패`, err)
-//   } finally {
-//     loading.value = false
-//   }
-// }
 
 onMounted(() => {
   const p = parseInt(route.query.page) || 0

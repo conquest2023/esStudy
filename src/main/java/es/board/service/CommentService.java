@@ -1,6 +1,6 @@
 package es.board.service;
 
-import es.board.controller.model.dto.feed.FeedDTO;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
@@ -17,7 +17,7 @@ public interface CommentService {
     Map<String,Long> getTodayCommentAggregation();
     Map<String, Object> getUserComments(String userId);
     List<CommentDTO.Request> getUserRangeTimeActive(String userId);
-    List<FeedDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size);
+    List<PostDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size);
 //    String saveDocument(String indexName, CommentDTO dto) ;
 
     List<Comment> getSearchComment(String text) ;
@@ -45,7 +45,7 @@ public interface CommentService {
 //    List<CommentRequest> getComment() ;
 
 
-//    List<Comment> getCommentId(String id) ;
+//    List<CommentEntity> getCommentId(String id) ;
 
 
    // List<CommentSearchRequest> SearchComment(String keyword);

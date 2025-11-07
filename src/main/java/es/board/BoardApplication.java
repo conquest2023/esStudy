@@ -9,7 +9,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "es.board.repository.entity.repository") // JPA Repository로만 설정
+@EnableJpaRepositories(basePackages = "es.board.repository.entity.repository")
 @EnableRedisRepositories(basePackages = "es.board.config.redis")
 @EnableScheduling
 public class BoardApplication {

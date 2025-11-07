@@ -26,7 +26,8 @@ public class XssAndEmptyValueFilter  implements Filter {
                         entry -> sanitizeArray(entry.getValue())
                 ));
 
-        XssSafeHttpServletRequestWrapper wrappedRequest = new XssSafeHttpServletRequestWrapper(httpRequest, sanitizedParams);
+        XssSafeHttpServletRequestWrapper wrappedRequest =
+                new XssSafeHttpServletRequestWrapper(httpRequest, sanitizedParams);
         chain.doFilter(wrappedRequest, response);
     }
 

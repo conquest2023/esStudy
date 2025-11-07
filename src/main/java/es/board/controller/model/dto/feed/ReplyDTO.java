@@ -24,6 +24,8 @@ public class ReplyDTO {
     @Builder
     public static  class Response {
 
+        private long replyId;
+
     private String id;
 
     private String commentUID;
@@ -70,7 +72,11 @@ public class ReplyDTO {
     @Builder
     public static  class Request {
 
+        private long replyId;
+
         private String id;
+
+        private String userId;
 
         private String commentUID;
 
