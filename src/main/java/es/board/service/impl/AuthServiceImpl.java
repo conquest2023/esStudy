@@ -104,16 +104,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
-        if (!(comments instanceof List<?>)) {
-            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
-        }
-        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-        return commentList.stream()
-                .peek(comment -> {
-                    comment.setAuthor(comment.getUserId().equals(userId));
-                    comment.setCommentOwner(comment.getUserId().equals(commentOwner));
-                })
-                .collect(Collectors.toList());
+
+        return  null;
+//        if (!(comments instanceof List<?>)) {
+//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+//        }
+//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+//        return commentList.stream()
+//                .peek(comment -> {
+//                    comment.setAuthor(comment.getUserId().equals(userId));
+//                    comment.setCommentOwner(comment.getUserId().equals(commentOwner));
+//                })
+//                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package es.board.controller;
+package es.board.controller.feed;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.CommentDTO;
@@ -51,10 +51,23 @@ public class CommentController {
 
     @GetMapping("/comments")
     public ResponseEntity<?> getComments(
+            @RequestHeader(value = "Authorization",required = false) String token,
             @RequestParam int postId){
-        List<CommentDTO.Request> comments = commentService.getComments(postId);
 
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse == null) {
+            return tokenCheckResponse;
+        }
+        String userId = provider.getUserId(token.substring(7));
+        List<CommentDTO.Request> comments = commentService.getComments(userId,postId);
         return ResponseEntity.ok(Map.of("ok",comments));
     }
-
+    @DeleteMapping("/comment/{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable int id){
+        log.info("삭제완료={}",id);
+        commentService.deleteComment(id);
+        return ResponseEntity.ok(Map.of("ok",true,
+                "message","게시글이 삭제 되었습니다"
+        ));
+    }
 }

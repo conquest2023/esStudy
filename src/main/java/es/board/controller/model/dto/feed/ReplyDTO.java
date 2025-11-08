@@ -30,80 +30,68 @@ public class ReplyDTO {
 
         private int postId;
 
-    private String id;
 
-    private String commentUID;
+        private String id;
 
-    private  String  userId;
-
-    private String feedUID;
-    @JsonSerialize(using = XssSafeSerializer.class)
-    @JsonDeserialize(using = XssSafeDeserializer.class)
-    private String username;
-
-    @JsonSerialize(using = XssSafeSerializer.class)
-    @JsonDeserialize(using = XssSafeDeserializer.class)
-    @NotBlank(message = "내용은 필수입니다.")
-    private String content;
-
-
-    private int likeCount;
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime  createdAt;
-
-    public void TimePush(){
-        this.createdAt=LocalDateTime.now();
-    }
-
-
-    public void replyBasicSetting(String username, String userId) {
-        this.username=username;
-        this.userId=userId;
-        this.createdAt=LocalDateTime.now();
-    }
-
-    public void replyAnonymousBasicSetting() {
-        this.userId="";
-        this.username="익명";
-        this.createdAt=LocalDateTime.now();
-        }
-    }
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static  class Request {
-
-        private long id;
-
-//        private String id;
-
-        private long commentId;
-
-        private int postId;
+        private String commentUID;
 
         private String userId;
 
-//        private String commentUID;
-
-//        private String feedUID;
-
+        private String feedUID;
+        @JsonSerialize(using = XssSafeSerializer.class)
+        @JsonDeserialize(using = XssSafeDeserializer.class)
         private String username;
 
         @JsonSerialize(using = XssSafeSerializer.class)
+        @JsonDeserialize(using = XssSafeDeserializer.class)
+        @NotBlank(message = "내용은 필수입니다.")
         private String content;
 
-//        private String category;
 
         private int likeCount;
-
-
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
         private LocalDateTime createdAt;
 
     }
+        @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Builder
+        public static class Request {
+
+            private long id;
+
+//        private String id;
+
+            private long commentId;
+
+            private int postId;
+
+            private boolean owner;
+
+
+//      private String commentUID;
+
+//       private String feedUID;
+
+
+            private String username;
+
+            @JsonSerialize(using = XssSafeSerializer.class)
+            private String content;
+
+//        private String category;
+
+            private int likeCount;
+
+
+            @JsonSerialize(using = LocalDateTimeSerializer.class)
+            @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+            private LocalDateTime createdAt;
+
+        }
+
 }

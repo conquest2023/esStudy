@@ -10,7 +10,10 @@ public interface CommentService {
     void saveComment(String userId, CommentDTO.Response res);
 
 
-    List<CommentDTO.Request> getComments(int id);
+    List<CommentDTO.Request> getComments(String userId, int id);
 
     void getComment(int id);
+
+
+    void deleteComment(long id);
 }

@@ -20,4 +20,6 @@ public interface ReplyRepository {
     Page<ReplyEntity> findByPageReplys(Pageable pageable);
 
     ReplyEntity findReplyDetail(long id);
+
+    void deleteReply(long id);
 }

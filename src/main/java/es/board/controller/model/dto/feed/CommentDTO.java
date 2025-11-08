@@ -87,8 +87,8 @@ public class CommentDTO {
         @JsonSerialize(using = XssSafeSerializer.class)
         private String username;
 
-        @JsonIgnore
-        private  String userId;
+
+        private  boolean  owner;
 
         @JsonSerialize(using = XssSafeSerializer.class)
         private String content;
@@ -97,7 +97,6 @@ public class CommentDTO {
 
         private  boolean isAuthor;
 
-        private  boolean  isCommentOwner;
 
         private  boolean anonymous;
 

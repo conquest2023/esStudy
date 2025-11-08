@@ -26,14 +26,19 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDTO.Request> getComments(int id) {
+    public List<CommentDTO.Request> getComments(String userId, int id) {
 
         List<CommentEntity> byComments = repository.findByComments(id);
         List<Comment> comment = Comment.toDomainList(byComments);
-        return CommentDomainMapper.toRequestDtoList(comment);
+        return CommentDomainMapper.toRequestDtoList(userId,comment);
     }
 
     @Override
     public void getComment(int id) {
+    }
+
+    @Override
+    public void deleteComment(long id) {
+        repository.deleteComment(id);
     }
 }

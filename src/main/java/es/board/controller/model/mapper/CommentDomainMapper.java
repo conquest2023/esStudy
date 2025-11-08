@@ -35,30 +35,11 @@ public class CommentDomainMapper {
 
     // Request DTO -> Domain (작성 시 사용)
 
-    public static es.board.service.domain.Comment toDomain(CommentDTO.Request dto, int postId) {
-        if (dto == null) return null;
-
-        Long id = dto.getId();
-        int resolvedPostId = postId;
-
-        return new es.board.service.domain.Comment(
-                id,
-                resolvedPostId,
-                dto.getUserId(),
-                dto.getUsername(),
-                dto.getContent(),
-                dto.isAnonymous(),
-                dto.getLikeCount(),
-                dto.getCreatedAt() == null ? LocalDateTime.now() : dto.getCreatedAt(),
-                dto.getCreatedAt() == null ? LocalDateTime.now() : dto.getCreatedAt(),
-                null
-        );
-    }
-    public static CommentDTO.Request toRequestDto(Comment domain) {
+    public static CommentDTO.Request toRequestDto(String userId, Comment domain) {
         if (domain == null) return null;
         return CommentDTO.Request.builder()
                 .id(domain.getId())
-                .userId(domain.getUserId())
+                .owner(userId.equals(domain.getUserId()))
                 .username(domain.getUsername())
                 .content(domain.getContent())
                 .anonymous(domain.isAnonymous())
@@ -66,10 +47,10 @@ public class CommentDomainMapper {
                 .createdAt(domain.getCreatedAt())
                 .build();
     }
-    public static List<CommentDTO.Request> toRequestDtoList(List<Comment> domains) {
+    public static List<CommentDTO.Request> toRequestDtoList(String userId,List<Comment> domains) {
         if (domains == null || domains.isEmpty()) return List.of();
         return domains.stream()
-                .map(CommentDomainMapper::toRequestDto)
+                .map(d -> toRequestDto(userId, d))
                 .collect(Collectors.toList());
     }
 }

@@ -20,10 +20,9 @@ public class PostServiceImpl implements PostService{
 
 
     @Override
-    public void savePost(PostDTO.Response feedSaveDTO) {
+    public void savePost(String userId, PostDTO.Response feedSaveDTO) {
 
-        Post post = PostDomainMapper.toDomain(feedSaveDTO);
-
+        Post post = PostDomainMapper.toDomain(userId,feedSaveDTO);
         postRepository.savePost(Post.toEntity(post));
     }
 
@@ -35,10 +34,15 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostDTO.Request getPostDetail(int id) {
+    public PostDTO.Request getPostDetail(String userId,int id) {
 
         PostEntity postDetail = postRepository.findPostDetail(id);
         Post post = Post.toDomain(postDetail);
-        return  PostDomainMapper.toRequest(post);
+        return  PostDomainMapper.toRequest(userId,post);
+    }
+
+    @Override
+    public void deletePost(int id) {
+        postRepository.deletePost(id);
     }
 }

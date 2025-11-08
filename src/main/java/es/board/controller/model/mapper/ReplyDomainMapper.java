@@ -32,24 +32,25 @@ public class ReplyDomainMapper {
 
     // Request DTO -> Domain
 
-    public static ReplyDTO.Request toRequestDto(Reply d) {
+    public static ReplyDTO.Request toRequestDto(String userId, Reply d) {
         if (d == null) return null;
         return new ReplyDTO.Request(
                 d.getId(),
                 d.getCommentId(),
                 d.getPostId(),
-                d.getUserId(),
+                userId.equals(d.getUserId()),
                 d.getUsername(),
                 d.getContent(),
                 d.getLikeCount(),
                 d.getCreatedAt()
         );
     }
-    public static List<ReplyDTO.Request> toRequestDtoList(List<Reply> domains) {
-        if (domains == null) return List.of();
+    public static List<ReplyDTO.Request> toRequestDtoList(String userId, List<Reply> domains) {
+        if (domains == null || domains.isEmpty()) return List.of();
         return domains.stream()
                 .filter(Objects::nonNull)
-                .map(ReplyDomainMapper::toRequestDto)
+                .map(d -> toRequestDto(userId, d))
                 .collect(Collectors.toList());
+        // 또는 .toList() (JDK 16+)
     }
 }

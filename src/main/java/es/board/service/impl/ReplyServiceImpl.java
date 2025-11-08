@@ -24,10 +24,15 @@ public class ReplyServiceImpl implements ReplyService {
         repository.saveReply(entity);
     }
     @Override
-    public List<ReplyDTO.Request> getReplys(int id) {
+    public List<ReplyDTO.Request> getReplys(String userId,int id) {
 
         List<ReplyEntity> byReplys = repository.findByReplys(id);
         List<Reply> repiles = Reply.toDomainList(byReplys);
-        return  ReplyDomainMapper.toRequestDtoList(repiles);
+        return  ReplyDomainMapper.toRequestDtoList(userId,repiles);
+    }
+
+    @Override
+    public void deleteReply(long id) {
+        repository.deleteReply(id);
     }
 }

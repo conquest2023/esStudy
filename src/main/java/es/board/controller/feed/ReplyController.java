@@ -1,4 +1,4 @@
-package es.board.controller;
+package es.board.controller.feed;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.ReplyDTO;
@@ -47,11 +47,23 @@ public class ReplyController {
 
     @GetMapping("/replys")
     public ResponseEntity<?> getReplys(
+            @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam int postId
     ){
-        List<ReplyDTO.Request> repiles = replyService.getReplys(postId);
-        log.info(repiles.toString());
-        return ResponseEntity.ok(Map.of("ok",repiles));
-    }
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse == null) {
+            return tokenCheckResponse;
+        }
+        String userId = provider.getUserId(token.substring(7));
 
+        List<ReplyDTO.Request> replies = replyService.getReplys(userId,postId);
+        return ResponseEntity.ok(Map.of("ok",replies));
+    }
+    @DeleteMapping("/reply/{id}")
+    public ResponseEntity<?> deleteReply(@PathVariable int id){
+        replyService.deleteReply(id);
+        return ResponseEntity.ok(Map.of("ok",true,
+                "message","게시글이 삭제 되었습니다"
+        ));
+    }
 }

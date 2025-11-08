@@ -56,7 +56,6 @@ public class Post {
                 .build();
     }
 
-    // Entity -> Domain
     public static Post toDomain(PostEntity e) {
         if (e == null) return null;
         return new Post(

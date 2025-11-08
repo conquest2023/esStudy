@@ -20,4 +20,7 @@ public interface CommentRepository {
     Page<CommentEntity> findByPageComments(Pageable pageable);
 
     CommentEntity findCommentDetail(long id);
+
+    void deleteComment(long id);
+
 }

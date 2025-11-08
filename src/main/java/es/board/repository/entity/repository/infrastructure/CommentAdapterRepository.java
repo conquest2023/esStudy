@@ -38,4 +38,9 @@ public class CommentAdapterRepository implements CommentRepository {
     public CommentEntity findCommentDetail(long id) {
         return null;
     }
+
+    @Override
+    public void deleteComment(long id) {
+        repository.deleteById(id);
+    }
 }

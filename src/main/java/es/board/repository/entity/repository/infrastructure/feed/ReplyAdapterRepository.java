@@ -37,4 +37,9 @@ public class ReplyAdapterRepository implements ReplyRepository {
     public ReplyEntity findReplyDetail(long id) {
         return null;
     }
+
+    @Override
+    public void deleteReply(long id) {
+        repository.deleteById(id);
+    }
 }

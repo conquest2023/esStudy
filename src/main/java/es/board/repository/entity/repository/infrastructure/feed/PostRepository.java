@@ -18,4 +18,6 @@ public interface PostRepository {
     Page<PostEntity> findByPagePosts(Pageable pageable);
 
     PostEntity findPostDetail(int id);
+
+    void    deletePost(int id);
 }

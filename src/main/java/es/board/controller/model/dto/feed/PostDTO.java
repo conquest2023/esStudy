@@ -32,6 +32,8 @@ public class PostDTO {
 
         private String feedUID;
 
+        private boolean owner;
+
         @JsonSerialize(using = XssSafeSerializer.class)
         private String username;
 
@@ -53,7 +55,6 @@ public class PostDTO {
 
         private int viewCount;
 
-        private boolean isAuthor;
 
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)

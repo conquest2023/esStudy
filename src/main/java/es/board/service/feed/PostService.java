@@ -10,11 +10,12 @@ public interface PostService {
 
 
 
-    void savePost(PostDTO.Response feedSaveDTO);
+    void savePost(String userId, PostDTO.Response feedSaveDTO);
 
+    void deletePost(int id);
 
     Page<PostEntity> getPosts(int page, int size);
 
 
-    PostDTO.Request getPostDetail(int id);
+    PostDTO.Request getPostDetail(String userId, int id);
 }

@@ -33,4 +33,9 @@ public class PostTestRepository implements PostRepository {
     public PostEntity findPostDetail(int id) {
         return null;
     }
+
+    @Override
+    public void deletePost(int id) {
+        stores.remove(id);
+    }
 }

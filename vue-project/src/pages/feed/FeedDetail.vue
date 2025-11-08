@@ -8,8 +8,8 @@
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</a></li>
-          <li><a class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</a></li>
+          <li><button type="button" class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</button></li>
+          <li><button type="button" class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</button></li>
         </ul>
       </div>
       <div class="dropup d-md-none position-fixed" style="bottom:80px;right:24px;z-index:1051">
@@ -62,7 +62,7 @@
             </RouterLink>
             <small class="ms-2 text-muted">{{ fmtDate(c.createdAt) }}</small>
           </div>
-          <div v-if="c.commentOwner">
+          <div v-if="c.owner">
             <button class="btn btn-sm btn-link text-danger" @click="delComment(c)">삭제</button>
           </div>
         </div>
@@ -71,7 +71,7 @@
         <div class="mt-2" v-if="replies && replies[c.id]">
           <div
               v-for="rp in replies[c.id]"
-              :key="rp.id || rp.replyUID"
+              :key="rp.id"
               class="border-start ps-3 mb-2"
               style="font-size:0.9rem;">
             <strong>{{ rankBadge(rp.username) }}{{ rp.username }}</strong>
@@ -86,8 +86,7 @@
           <button
               class="btn btn-sm btn-primary"
               @click="submitReply(c.id)"
-              :disabled="replySendingMap[c.id]"
-          >
+              :disabled="replySendingMap[c.id]">
             답글 작성
           </button>
         </div>
@@ -113,6 +112,7 @@
 import { ref, onMounted, computed ,watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
 
 import { useUserStore } from '@/stores/user'
@@ -138,13 +138,14 @@ import { RouterLink } from 'vue-router'
   const sending    = ref(false)
   const reloadTrigger = ref(0)
   const login = computed(() => store.isLoggedIn)
-  const isOwner = computed(() => feed.value?.Owner === true)
+  const isOwner = computed(() => feed.value.owner === true)
 
 const PAGE_SIZE = 10
 const pageParam = computed(() => {
   const q = parseInt(route.query.page ?? '0', 10)
   return Number.isNaN(q) ? 0 : q        // 잘못된 값이면 0
 })
+
 function convertLinks(txt = '') {
   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
     const prev = str.slice(Math.max(0, offset - 5), offset)
@@ -201,18 +202,39 @@ async function loadComments(postId) {
       (Array.isArray(data?.data?.comments) && data.data.comments) ||
       []
 }
-
   function linkify(text = '') {
     const urlRegex = /(https?:\/\/[^\s]+)/g
     return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
-  }
-
+}
   function decodeHtmlEntities (encoded = '') {
     const el = document.createElement('textarea')
     el.innerHTML = encoded
     return el.value
   }
 
+async function loadReplies(postId) {
+  const { data } = await api.get('/replys', { params: { postId } })
+  const list =
+      (Array.isArray(data?.ok) && data.ok) ||
+      (Array.isArray(data?.replies) && data.replies) ||
+      (Array.isArray(data?.data) && data.data) ||
+      []
+
+  const grouped = list.reduce((acc, r) => {
+    // 필드명 방어적으로 대응 (commentId/ commentUID 등)
+    const key = r.commentId ?? r.commentUID ?? r.comment_id
+    if (!key) return acc
+
+        ;(acc[key] ||= []).push({
+      id:        r.id,
+      username:  r.username,
+      content:   r.content,
+      createdAt: r.createdAt
+    })
+    return acc
+  }, {})
+  replies.value = grouped
+}
 
 async function loadFeedDetail(postId) {
   try {
@@ -231,7 +253,7 @@ async function loadFeedDetail(postId) {
       likeCount:   raw.likeCount ?? 0,
       viewCount:   raw.viewCount ?? 0,
       createdAt:   raw.createdAt ?? null,
-      author:      raw.author === true,                 // 소유자 여부
+      owner:      raw.owner,                 // 소유자 여부
     }
     function normalize(html = '') {
       return html
@@ -239,14 +261,14 @@ async function loadFeedDetail(postId) {
           .replace(/<\/div>/g, '<br>')
           .replace(/<div>/g, '');
     }
-    /* UID 목록 그대로 가져오던 로직 유지 */
     // const uidList = await fetchFeedUIDs(pageParam.value, PAGE_SIZE)
     // posts.value   = uidList.map(uid => ({ feedUID: uid }))
-    await loadComments(feed.value.id)
-    /* 나머지 상태 세팅도 그대로 */
+    await Promise.all([
+      loadComments(feed.value.id),
+      loadReplies(feed.value.id),
+    ])
     // feedHtml.value = convertLinks(normalize(decodeHtmlEntities(data.data.description || '')))
     // comments.value = data.comment || []
-    replies.value  = data.replies || {}
     // likeCount.value= data.data.likeCount || 0
     liked.value    = data.isLiked
     loaded.value   = true
@@ -330,24 +352,52 @@ async function submitComment() {
 function goEdit(){
   router.push({
     path:'/post',
-    query:{ id:feed.value.feedUID}
+    query:{ id:feed.value.id}
       }
   )}
-  async function onDelete(){
-    if(!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
-    try{
-    await api.post('/post',{ id:feed.value.id })
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      router.push(`/`)
-    } catch(e){
-      push('삭제 중 오류 발생')
-    }
+async function onDelete() {
+  if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
+
+  try {
+    // (인증 필요하면 토큰 헤더 포함)
+    const token = localStorage.getItem('token')
+
+    await api.delete(`/post/${feed.value.id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    })
+    // 성공 처리
+    // 필요하면 토스트도: push('게시글이 삭제되었습니다.')
+    router.push('/')
+  } catch (e) {
+    console.error(e)
+    alert('삭제 중 오류 발생')
   }
-  async function delComment(c){
-      if(!confirm('삭제할까요?')) return
-      await api.post('/comment', null, { params:{ id:c.commentUID, feedUID:id }})
-      comments.value = comments.value.filter(v=>v.commentUID!==c.commentUID)
-    }
+}
+async function delComment(c) {
+  if (!confirm('삭제할까요?')) return
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+  try {
+    await api.delete(`/comment/${c.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    comments.value = comments.value.filter(v => v.id !== c.id)
+    alert('댓글이 삭제되었습니다.')
+  } catch (e) {
+    console.error(e)
+    alert('삭제 중 오류 발생')
+  }
+}
+
+
   function toggleReplyForm(commentUID) {
     activeReply.value = activeReply.value === commentUID ? null : commentUID
     replyText.value = ''
@@ -370,8 +420,11 @@ async function submitReply(commentId) {
       headers: { Authorization: `Bearer ${token}` }
     })
 
-    // ✅ 저장 후 댓글/답글 다시 로드
-    await loadComments(feed.value.id)
+
+    await Promise.all([
+      loadComments(feed.value.id),
+      loadReplies(feed.value.id),
+    ])
 
     // 폼 초기화
     activeReply.value = null
@@ -389,6 +442,7 @@ async function submitReply(commentId) {
 </script>
 
 <style scoped>
+.dropdown-menu { z-index: 2000; }
   .pt-navbar {
     padding-top: 60px;
   }

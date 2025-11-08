@@ -9,7 +9,8 @@ public interface ReplyService {
 
     void saveReply(String userId, ReplyDTO.Response response);
 
+    List<ReplyDTO.Request> getReplys(String userId, int id);
 
 
-    List<ReplyDTO.Request> getReplys(int id);
+    void deleteReply(long id);
 }

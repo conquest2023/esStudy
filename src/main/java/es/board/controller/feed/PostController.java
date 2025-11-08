@@ -1,8 +1,9 @@
-package es.board.controller;
+package es.board.controller.feed;
 
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.ex.TokenValidator;
 import es.board.repository.entity.PostEntity;
 import es.board.service.feed.PostService;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,18 @@ public class PostController {
 
     private final PostService postService;
 
+    private final TokenValidator tokenValidator;
+
     @PostMapping("/post")
     public ResponseEntity<?> savePost(@RequestHeader(value = "Authorization", required = false) String token,
                                       @RequestPart("feed")
                                       PostDTO.Response response){
-        postService.savePost(response);
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse == null) {
+            return tokenCheckResponse;
+        }
+        String userId = provider.getUserId(token.substring(7));
+        postService.savePost(userId,response);
         return ResponseEntity.ok(Map.of(
                 "ok", true,
                 "message", "게시글이 정상적으로 저장되었습니다."
@@ -37,9 +45,15 @@ public class PostController {
 
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<?> getPost(@PathVariable int id){
-        log.info(String.valueOf(id));
-        PostDTO.Request postDetail = postService.getPostDetail(id);
+    public ResponseEntity<?> getPost(@RequestHeader(value = "Authorization", required = false) String token,
+            @PathVariable int id){
+        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+        if (tokenCheckResponse == null) {
+            return tokenCheckResponse;
+        }
+        String userId = provider.getUserId(token.substring(7));
+
+        PostDTO.Request postDetail = postService.getPostDetail(userId,id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }
 
@@ -55,5 +69,11 @@ public class PostController {
                 "last", p.isLast()
         ));
     }
-
+    @DeleteMapping("/post/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable int id){
+        postService.deletePost(id);
+        return ResponseEntity.ok(Map.of("ok",true,
+                                        "message","게시글이 삭제 되었습니다"
+        ));
+    }
 }
