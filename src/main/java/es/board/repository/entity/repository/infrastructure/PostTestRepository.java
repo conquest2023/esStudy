@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PostTestRepository implements PostRepository {
 
@@ -35,7 +36,17 @@ public class PostTestRepository implements PostRepository {
     }
 
     @Override
+    public  Page<Integer>  findIds(Pageable pageable) {
+        return null;
+    }
+
+    @Override
     public void deletePost(int id) {
         stores.remove(id);
+    }
+
+    @Override
+    public Map<Integer, Long> countByReplyAndComment(List<Integer> ids) {
+        return null;
     }
 }

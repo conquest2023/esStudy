@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -42,6 +43,7 @@ public class Comment {
                 .build();
     }
 
+
     public static Comment toDomain(CommentEntity e) {
         if (e == null) return null;
         return new Comment(
@@ -57,10 +59,26 @@ public class Comment {
                 e.getDeletedAt()
         );
     }
+    public  boolean isOwnedBy(String currentUserId) {
+        return currentUserId != null && Objects.equals(userId, currentUserId);
+    }
     public static List<Comment> toDomainList(List<CommentEntity> entities) {
-        if (entities == null || entities.isEmpty()) return List.of();
+        if (entities == null || entities.isEmpty())
+            return List.of();
         return entities.stream()
                 .map(Comment::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Comment comment)) return false;
+        return postId == comment.postId && anonymous == comment.anonymous && likeCount == comment.likeCount && Objects.equals(id, comment.id) && Objects.equals(userId, comment.userId) && Objects.equals(username, comment.username) && Objects.equals(content, comment.content) && Objects.equals(createdAt, comment.createdAt) && Objects.equals(updatedAt, comment.updatedAt) && Objects.equals(deletedAt, comment.deletedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, postId, userId, username, content, anonymous, likeCount, createdAt, updatedAt, deletedAt);
     }
 }

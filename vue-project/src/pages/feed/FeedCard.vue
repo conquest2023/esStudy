@@ -39,7 +39,7 @@ const router = useRouter()
 // 목록에서 투표카드 판별: id 없으면 투표 카드로 간주 (기존 로직 유지)
 const isVoteCard = computed(() => !props.notice && !props.post?.id)
 
-// createdAt 안전 포맷
+
 const time = computed(() => {
   const raw = props.post?.createdAt
   if (!raw) return ''

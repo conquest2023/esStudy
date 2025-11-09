@@ -1,4 +1,8 @@
-//package es.board.controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import java.util.Map;//package es.board.controller;
 //
 //import es.board.config.jwt.JwtTokenProvider;
 //import es.board.controller.model.mapper.CommentMapper;
@@ -63,31 +67,6 @@
 //
 //    private  final FeedMapper feedMapper;
 //
-//    @GetMapping("/get-ip")
-//    public ResponseEntity<?> getClientIp() {
-//        Set<String> activeUsers = redisTemplate.keys("online_users:*");
-////        List<String> rawKeys = new ArrayList<>(redisTemplate.keys("visit*"));
-////        List<String> todayKeys = new ArrayList<>();
-////        todayAggregation(rawKeys, todayKeys);
-////        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
-//        return ResponseEntity.ok(Map.of(
-//                "activeUsers", activeUsers.size(),
-//                "data", visitService.getStats()));
-//    }
-//    @GetMapping("/auto")
-//    public ResponseEntity<?> main(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
-//        if (refreshToken != null) {
-//            String userId = jwtTokenProvider.getUserId(refreshToken);
-//            String storedRefresh = redis.opsForValue().get("RT:" + userId);
-//
-//            if (storedRefresh != null && storedRefresh.equals(refreshToken)) {
-//                String newAccessToken = jwtTokenProvider.generateAccessToken("user", jwtTokenProvider.getUsername(refreshToken), userId);
-//                return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).body("자동 로그인 성공!");
-//            }
-//        }
-//        return ResponseEntity.status(401).body("다시 로그인 필요");
-//    }
-//
 //
 //    @PostMapping("/increaseViewCount")
 //    public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request, HttpServletResponse response,
@@ -106,45 +85,19 @@
 //        }
 //        return ResponseEntity.ok("조회수 증가 성공");
 //    }
-//    @PostMapping("/authlogout")
-//    @ResponseBody
-//    public ResponseEntity<?> logout(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//            jwtTokenProvider.addToBlacklist(token);
-//            log.info("[DEBUG] 블랙리스트에 추가된 토큰: " + token);
-//        }
-//        return ResponseEntity.ok(Map.of(
-//                "message", "로그아웃되었습니다.",
-//                "isLoggedIn", false));
-//    }
 //
-//    @GetMapping("/user/id")
-//    public ResponseEntity<?> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
-//        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-//        if (tokenCheckResponse == null) {
-//            return tokenCheckResponse;
-//        }
-//        String userId = jwtTokenProvider.getUserId(token.substring(7));
-//        return ResponseEntity.ok(Map.of("userId", userId));
+//
+//@GetMapping("/user/id")
+//public ResponseEntity<?> getUserId(@RequestHeader(value = "Authorization", required = false) String token) {
+//    ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
+//    if (tokenCheckResponse == null) {
+//        return tokenCheckResponse;
 //    }
-//    @GetMapping("/info")
-//    @ResponseBody
-//    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//            if (jwtTokenProvider.validateToken(token)) {
-//                return ResponseEntity.ok(Map.of(
-////                        "userId",jwtTokenProvider.getUserId(token),
-//                        "username",jwtTokenProvider.getUsername(token),
-//                        "isLoggedIn", true));
-//            }
-//        }
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-//                "error", "세션이 만료되었습니다."
-//        ));}
+//    String userId = jwtTokenProvider.getUserId(token.substring(7));
+//    return ResponseEntity.ok(Map.of("userId", userId));
+//}
+//
+//
 //    @GetMapping("/today/arrgegation")
 //    @ResponseBody
 //    public ResponseEntity<?> getTodayAggregation() {
@@ -265,41 +218,41 @@
 //        String newAccessToken = jwtTokenProvider.generateAccessToken("ROLE_USER",userId,username);
 //        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
 //    }
-//    @GetMapping("/detail")
-//    public Object getDetailInfo(HttpServletRequest request, @ModelAttribute Model model,
-//                                           @RequestParam(value = "id") String feedUID) {
+////    @GetMapping("/detail")
+////    public Object getDetailInfo(HttpServletRequest request, @ModelAttribute Model model,
+////                                           @RequestParam(value = "id") String feedUID) {
+////
+////        Map<String, Object> response = new HashMap<>();
+////        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
+////        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
+////        response.put("count",commentRes.get("commentCount"));
+////        PostDTO.Request feedRequest=feedService.getFeedDetail(feedUID);
+////        String token = request.getHeader("Authorization");
+////        if (token != null && token.startsWith("Bearer ")) {
+////            token = token.substring(7);
+////            if (jwtTokenProvider.validateToken(token)) {
+////                return handleAuthenticatedRequest(feedRequest, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
+////            }
+////        }
+////        return handleUnauthenticatedRequest( commentRes.get("comments"),feedRequest, response);
+////    }
 //
-//        Map<String, Object> response = new HashMap<>();
-//        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
-//        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
-//        response.put("count",commentRes.get("commentCount"));
-//        PostDTO.Request feedRequest=feedService.getFeedDetail(feedUID);
-//        String token = request.getHeader("Authorization");
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//            if (jwtTokenProvider.validateToken(token)) {
-//                return handleAuthenticatedRequest(feedRequest, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
-//            }
-//        }
-//        return handleUnauthenticatedRequest( commentRes.get("comments"),feedRequest, response);
-//    }
-//
-//    @GetMapping("/vote/detail")
-//    public ResponseEntity<?> getVoteDetailInfo( @RequestHeader(value = "Authorization",required = false) String token,
-//                                           @RequestParam(value = "id") String feedUID) {
-//        Map<String, Object> response = new HashMap<>();
-//        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
-//        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
-//        response.put("count",commentRes.get("commentCount"));
-//        VoteDTO.Request req=voteService.getVoteDetail(feedUID);
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token =token.substring(7);
-//            if (jwtTokenProvider.validateToken(token)) {
-//                return handleAuthenticatedVoteRequest(req, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
-//            }
-//        }
-//        return handleUnauthenticatedVoteRequest(commentRes.get("comments"),req, response);
-//    }
+////    @GetMapping("/vote/detail")
+////    public ResponseEntity<?> getVoteDetailInfo( @RequestHeader(value = "Authorization",required = false) String token,
+////                                           @RequestParam(value = "id") String feedUID) {
+////        Map<String, Object> response = new HashMap<>();
+////        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
+////        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
+////        response.put("count",commentRes.get("commentCount"));
+////        VoteDTO.Request req=voteService.getVoteDetail(feedUID);
+////        if (token != null && token.startsWith("Bearer ")) {
+////            token =token.substring(7);
+////            if (jwtTokenProvider.validateToken(token)) {
+////                return handleAuthenticatedVoteRequest(req, jwtTokenProvider.getUserId(token), response, token, commentRes.get("comments"));
+////            }
+////        }
+////        return handleUnauthenticatedVoteRequest(commentRes.get("comments"),req, response);
+////    }
 //    @PostMapping("/search/view/feed/delete")
 //    @ResponseBody
 //    public ResponseEntity<?> deleteFeed(
@@ -323,54 +276,54 @@
 //        response.put("data", feedRequest);
 //        return ResponseEntity.ok(response);
 //    }
-//    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, PostDTO.Request req, Map<String, Object> response) {
-//
-//        if (!(comments instanceof List<?>)) {
-//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
-//        }
-//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-//        List<CommentDTO.Request> requests=  commentList
-//                .stream()
-//                .peek(comment -> {
-//                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
-//                })
-//                .collect(Collectors.toList());
-//        response.put("isLiked",false);
-//        response.put("comment",requests);
-//        response.put("Owner", req.getUserId());
-//        response.put("isLoggedIn", false);
-//        response.put("data", req);
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO.Request req, String commentOwner, Map<String, Object> response, String token, Object comments) {
-////        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
-//        response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
-//        response.put("username", jwtTokenProvider.getUsername(token));
-//        response.put("comment", userService.getCommentOwnerList(comments, commentOwner,req.getFeedUID(),jwtTokenProvider.getUserId(token)));
-//        response.put("isLoggedIn", true);
-//        response.put("data", req);
-//        return ResponseEntity.ok(response);
-//    }
-//    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO.Request req, Map<String, Object> response) {
-//
-//        if (!(comments instanceof List<?>)) {
-//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
-//        }
-//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-//        List<CommentDTO.Request> requests=  commentList
-//                .stream()
-//                .peek(comment -> {
-//                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
-//                })
-//                .collect(Collectors.toList());
-//                response.put("isLiked",false);
-//                response.put("comment",requests);
-//                response.put("Owner", req.getUserId());
-//                response.put("isLoggedIn", false);
-//                response.put("data", req);
-//                return ResponseEntity.ok(response);
-//    }
+////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, PostDTO.Request req, Map<String, Object> response) {
+////
+////        if (!(comments instanceof List<?>)) {
+////            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+////        }
+////        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+////        List<CommentDTO.Request> requests=  commentList
+////                .stream()
+////                .peek(comment -> {
+////                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
+////                })
+////                .collect(Collectors.toList());
+////        response.put("isLiked",false);
+////        response.put("comment",requests);
+////        response.put("Owner", req.getUserId());
+////        response.put("isLoggedIn", false);
+////        response.put("data", req);
+////        return ResponseEntity.ok(response);
+////    }
+////
+////    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO.Request req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+//////        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
+////        response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
+////        response.put("username", jwtTokenProvider.getUsername(token));
+////        response.put("comment", userService.getCommentOwnerList(comments, commentOwner,req.getFeedUID(),jwtTokenProvider.getUserId(token)));
+////        response.put("isLoggedIn", true);
+////        response.put("data", req);
+////        return ResponseEntity.ok(response);
+////    }
+////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO.Request req, Map<String, Object> response) {
+////
+////        if (!(comments instanceof List<?>)) {
+////            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+////        }
+////        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+////        List<CommentDTO.Request> requests=  commentList
+////                .stream()
+////                .peek(comment -> {
+////                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
+////                })
+////                .collect(Collectors.toList());
+////                response.put("isLiked",false);
+////                response.put("comment",requests);
+////                response.put("Owner", req.getUserId());
+////                response.put("isLoggedIn", false);
+////                response.put("data", req);
+////                return ResponseEntity.ok(response);
+////    }
 //
 //    private void todayAggregation(List<String> rawKeys, List<String> todayKeys) {
 //        if (rawKeys != null) {

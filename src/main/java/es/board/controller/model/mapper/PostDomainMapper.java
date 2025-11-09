@@ -82,7 +82,7 @@ public class PostDomainMapper {
         return PostDTO.Request.builder()
                 .id(d.getId())
                 .userId(d.getUserId())
-                .owner(userId.equals(d.getUserId()))
+                .owner(d.isOwnedBy(userId))
                 .username(d.getUsername())
                 .imageURL(d.getImageUrl())
                 .title(d.getTitle())

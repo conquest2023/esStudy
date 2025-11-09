@@ -29,6 +29,9 @@ public class Reply {
     private LocalDateTime deletedAt;
 
 
+    public  boolean isOwnedBy(String currentUserId) {
+        return currentUserId != null && Objects.equals(userId, currentUserId);
+    }
     public static ReplyEntity toEntity(Reply d) {
         if (d == null) return null;
         return ReplyEntity.builder()
@@ -52,6 +55,8 @@ public class Reply {
                 .map(Reply::toDomain)
                 .collect(Collectors.toList());
     }
+
+
 
     public static Reply toDomain(ReplyEntity e) {
         if (e == null) return null;

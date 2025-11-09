@@ -6,6 +6,7 @@ import es.board.ex.TokenValidator;
 import es.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,13 +51,9 @@ public class ReplyController {
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam int postId
     ){
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        String userId = provider.getUserId(token.substring(7));
+        String currentUserId = checkToken(token);
 
-        List<ReplyDTO.Request> replies = replyService.getReplys(userId,postId);
+        List<ReplyDTO.Request> replies = replyService.getReplys(currentUserId,postId);
         return ResponseEntity.ok(Map.of("ok",replies));
     }
     @DeleteMapping("/reply/{id}")
@@ -65,5 +62,13 @@ public class ReplyController {
         return ResponseEntity.ok(Map.of("ok",true,
                 "message","게시글이 삭제 되었습니다"
         ));
+    }
+
+    @Nullable
+    private String checkToken(String token) {
+        String currentUserId = (token != null && token.startsWith("Bearer "))
+                ? provider.getUserId(token.substring(7))
+                : null;
+        return currentUserId;
     }
 }

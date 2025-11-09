@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 @Getter
@@ -56,7 +57,11 @@ public class Post {
                 .build();
     }
 
+    public  boolean isOwnedBy(String currentUserId) {
+        return currentUserId != null && Objects.equals(userId, currentUserId);
+    }
     public static Post toDomain(PostEntity e) {
+
         if (e == null) return null;
         return new Post(
                 e.getId(),

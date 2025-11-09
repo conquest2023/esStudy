@@ -83,10 +83,10 @@
           </div>
           <FeedCard v-for="n in notices" :key="n.feedUID" :post="n" notice class="mb-2" />
           <FeedCard v-for="p in posts"
-                    :key="p.feedUID"
+                    :key="p.id"
                     :post="p"
                     :is-vote="!p.id"
-                    :comment-count="counts[p.feedUID]" class="mb-2"
+                    :comment-count="counts[p.id]" class="mb-2"
                     :page="page"
                     :posts="posts" />
 
@@ -259,15 +259,14 @@ function changeCategory(cat) {
 }
 onMounted(async () => {
   try {
-    const res = await api.get('/auto', { withCredentials: true })
+    const res = await api.get('/auto/login', { withCredentials: true })
 
     const accessToken = res.headers['authorization']?.replace('Bearer ', '')
     if (accessToken) {
       localStorage.setItem('token', accessToken)
-      console.log('✅ 자동 로그인 성공:', res.data)
     }
   } catch (err) {
-    console.log('❌ 자동 로그인 실패')
+    console.log('자동 로그인 실패')
   }
 
   const p = parseInt(route.query.page) || 0
@@ -292,33 +291,34 @@ async function fetchFeedsAll(newPage = page.value) {
     page.value = uiPage
     router.replace({ query: { ...route.query, page: uiPage } })
 
-    const zeroBasedPage = Math.max(0, uiPage - 1)
+    const zeroBasedPage = Math.max(0, uiPage)
     const params = { page: zeroBasedPage, size: 10 }
+    const { data } = await api.get('/posts', { params })
+    const payload    = data?.ok ?? data ?? {}
+    const content    = payload.content    ?? payload.data   ?? []
+    const totalPages = payload.totalPages ?? payload.totalPage ?? 0
+    posts.value     = Array.isArray(content) ? content : []
+    totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
+    // if (curSort.value === 'COMMENT')      url = '/comment/count'
+    // else if (curSort.value === 'REPLY')   url = '/reply/count'
+    // else if (curSort.value === 'VIEW')    url = '/view/count'
 
-    // 정렬 조건에 따른 엔드포인트
-    let url = '/posts' // 기본
-    if (curSort.value === 'COMMENT')      url = '/comment/count'
-    else if (curSort.value === 'REPLY')   url = '/reply/count'
-    else if (curSort.value === 'VIEW')    url = '/view/count'
+    const { data: aggRes } = await api.get('/count', { params })
 
-    const { data } = await api.get(url, { params })
 
-    // 2) 백엔드 스펙 대응: { ok: Page } 또는 기존 { data, totalPage, ... }
-    const payload = data?.ok ?? data ?? {}
-
-    // 스프링 Page 호환 파싱
-    const content     = payload.content   ?? payload.data   ?? []
-    const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
-    const countBlock  = payload.count ?? {}
-
-    posts.value      = Array.isArray(content) ? content : []
-    counts.value     = countBlock
-    totalPage.value  = Number.isFinite(totalPages) ? totalPages : 0
-
+    const aggsObj = aggRes?.aggs ?? {}
+    const nextCounts = {}
+    for (const p of posts.value) {
+      const pid = p.id
+      const key = String(pid)            // 응답 키가 문자열일 수도 있으니
+      nextCounts[pid] = aggsObj[key] ?? aggsObj[pid] ?? 0
+    }
+    counts.value = nextCounts
     await fetchNotice()
   } catch (err) {
     console.error('전체 글 로딩 실패', err)
     posts.value = []
+    counts.value = {}
     totalPage.value = 0
   } finally {
     loading.value = false
@@ -332,7 +332,7 @@ async function fetchFeeds(newPage = page.value) {
   if (tab.id === 'ALL') return fetchFeedsAll(newPage)
 
   loading.value = true
-  page.value = newPage
+  page.value = newPage-1
   router.replace({ query: { ...route.query, page: newPage } })
 
   const params = { page: newPage, size: 10 }

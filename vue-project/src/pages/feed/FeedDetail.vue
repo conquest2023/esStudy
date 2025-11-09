@@ -112,7 +112,7 @@
 import { ref, onMounted, computed ,watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+// import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
 
 import { useUserStore } from '@/stores/user'

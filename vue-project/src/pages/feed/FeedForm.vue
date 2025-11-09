@@ -89,12 +89,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import {useUserStore} from "@/stores/user.js";
 
 const router           = useRouter()
 const anonymous        = ref(false)
 const username         = ref('')
 const category         = ref('')
 const title            = ref('')
+const store   = useUserStore()
+
 const categories       = ['자유', '자격증', '문제', '기술', '취업', 'Q/A', '자료']
 const showPlaceholder  = ref(true)
 const editor           = ref(null)
@@ -263,7 +266,7 @@ async function submitForm() {
         title: title.value,
         category: category.value,
         description: descriptionHtml,
-        username: anonymous.value ? username.value.trim() : username.value
+        username: store.username
       })
     ], {type: 'application/json'})
 

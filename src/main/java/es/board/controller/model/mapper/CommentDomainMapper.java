@@ -39,7 +39,7 @@ public class CommentDomainMapper {
         if (domain == null) return null;
         return CommentDTO.Request.builder()
                 .id(domain.getId())
-                .owner(userId.equals(domain.getUserId()))
+                .owner(domain.isOwnedBy(userId))
                 .username(domain.getUsername())
                 .content(domain.getContent())
                 .anonymous(domain.isAnonymous())

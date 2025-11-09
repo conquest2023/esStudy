@@ -38,7 +38,7 @@ public class ReplyDomainMapper {
                 d.getId(),
                 d.getCommentId(),
                 d.getPostId(),
-                userId.equals(d.getUserId()),
+                d.isOwnedBy(userId),
                 d.getUsername(),
                 d.getContent(),
                 d.getLikeCount(),

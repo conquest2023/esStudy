@@ -8,6 +8,7 @@ import es.board.repository.entity.PostEntity;
 import es.board.service.feed.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,18 +48,25 @@ public class PostController {
     @GetMapping("/post/{id}")
     public ResponseEntity<?> getPost(@RequestHeader(value = "Authorization", required = false) String token,
             @PathVariable int id){
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        String userId = provider.getUserId(token.substring(7));
 
-        PostDTO.Request postDetail = postService.getPostDetail(userId,id);
+        String currentUserId = checkToken(token);
+        PostDTO.Request postDetail = postService.getPostDetail(currentUserId,id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }
 
+
+    @GetMapping("/posts/ids")
+    public ResponseEntity<?> getPostIds(@RequestParam int page, @RequestParam int size) {
+        log.info(String.valueOf(page));
+        Page<Integer> ids = postService.findIds(page, size);
+        return ResponseEntity.ok(Map.of(
+                "ids", ids));
+    }
+
+
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
+        log.info(String.valueOf(page));
         Page<PostEntity> p = postService.getPosts(page, size);
         return ResponseEntity.ok(Map.of(
                 "content", p.getContent(),
@@ -75,5 +83,20 @@ public class PostController {
         return ResponseEntity.ok(Map.of("ok",true,
                                         "message","게시글이 삭제 되었습니다"
         ));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<?> getCountCommentAndReply(@RequestParam int page, @RequestParam int size) {
+        Map<Integer, Long> countByCommentAndReply = postService.getCountByCommentAndReply(page, size);
+        return ResponseEntity.ok(Map.of(
+                "aggs", countByCommentAndReply));
+    }
+
+    @Nullable
+    private String checkToken(String token) {
+        String currentUserId = (token != null && token.startsWith("Bearer "))
+                ? provider.getUserId(token.substring(7))
+                : null;
+        return currentUserId;
     }
 }

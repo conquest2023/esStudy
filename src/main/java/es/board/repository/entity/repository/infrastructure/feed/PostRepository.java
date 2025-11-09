@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 @Repository
 public interface PostRepository {
 
@@ -19,5 +22,11 @@ public interface PostRepository {
 
     PostEntity findPostDetail(int id);
 
-    void    deletePost(int id);
+    Page<Integer>  findIds(Pageable pageable);
+
+    void deletePost(int id);
+
+
+    Map<Integer, Long> countByReplyAndComment(List<Integer> ids);
+
 }

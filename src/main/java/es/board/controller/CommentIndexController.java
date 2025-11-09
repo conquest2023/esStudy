@@ -21,7 +21,7 @@
 //@RequiredArgsConstructor
 //@RequestMapping("/api")
 //
-//public class CommentController {
+//public class CommentIndexController {
 //
 //    private final CommentIndexService commentService;
 //
