@@ -29,7 +29,7 @@ ext {
 }
 
 dependencies {
-	implementation 'com.h2database:h2'
+//	implementation 'com.h2database:h2'
 	implementation 'com.slack.api:slack-api-client:1.38.0'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'net.coobird:thumbnailator:0.4.19'
