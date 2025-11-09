@@ -212,4 +212,5 @@ jobs:
           git config user.email "[email protected]"
           git add cd/*.yaml || echo "No yaml files found"
           git commit -m "chore: bump image tag to latest build"
-          git push
+          git remote set-url origin "https://x-access-token:${{ secrets.CD_REPO_TOKEN }}@github.com/conquest2023/worklyCD.git"
+          git push origin HEAD:main
