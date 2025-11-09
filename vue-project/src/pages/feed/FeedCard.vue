@@ -1,4 +1,6 @@
 <template>
+
+
   <div class="card feed-card" v-lift :class="notice ? 'notice' : ''" @click="goToDetail">
     <div class="card-body d-flex justify-content-between align-items-center">
       <div class="me-2 flex-grow-1">

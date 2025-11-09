@@ -16,6 +16,7 @@ public interface PostService {
 
     Page<Integer> findIds(int page ,int size);
 
+
     void deletePost(int id);
 
     Page<PostEntity> getPosts(int page, int size);
