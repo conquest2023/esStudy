@@ -14,6 +14,7 @@
         </small>
       </div>
 
+
       <div v-if="!notice && !isVoteCard" class="d-flex align-items-center meta-stats small gap-3 flex-shrink-0">
         <span><i class="bi bi-eye me-1"></i>{{ viewCount }}</span>
         <span><i class="bi bi-heart-fill text-danger me-1"></i>{{ likeCount }}</span>
