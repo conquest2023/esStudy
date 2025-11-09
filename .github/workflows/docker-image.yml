@@ -206,9 +206,10 @@ jobs:
           fi
 
       - name: Commit & Push
+        working-directory: worklyCD   
         run: |
           git config user.name "gha-bot"
           git config user.email "[email protected]"
-          git add cd/*.yaml
+          git add cd/*.yaml || echo "No yaml files found"
           git commit -m "chore: bump image tag to latest build"
           git push
