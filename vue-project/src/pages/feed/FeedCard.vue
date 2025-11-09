@@ -8,6 +8,7 @@
           {{ post.title }}
           <span v-if="!notice && !isVoteCard && commentCount" class="text-danger fw-bold ms-1">[{{ commentCount }}]</span>
         </h6>
+
         <small class="text-muted">
           {{ post.username }} · {{ time }}
         </small>

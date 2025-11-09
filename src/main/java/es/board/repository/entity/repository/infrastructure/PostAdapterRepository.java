@@ -53,6 +53,7 @@ public class PostAdapterRepository implements PostRepository {
 
 
 
+
     @Override
     public void deletePost(int id) {
         repository.deleteById(id);
