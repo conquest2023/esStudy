@@ -190,20 +190,21 @@ jobs:
           BACK_FULL_IMAGE_PATH="${{ needs.backend.outputs.image_tag }}"
           # 프론트엔드 업데이트 로직
           if [ "${{ needs.frontend.result }}" = "success" ]; then
-            yq -i -y '
-            (select(.kind == "Deployment" and .metadata.name == "vue-frontend")
-             .spec.template.spec.containers[]
-              | select(.name == "vue-frontend")
-                ).image = "'"${FRONT_FULL_IMAGE_PATH}"'"' front-pod.yaml
-          fi
+             yq -i '
+              (. | select(.kind=="Deployment" and .metadata.name=="vue-frontend")
+                 | .spec.template.spec.containers[]
+                 | select(.name=="vue").image
+              ) = env(FRONT_FULL_IMAGE_PATH)
+            ' cd/front-deploy.yaml
           
           # 백엔드 업데이트 로직
           if [ "${{ needs.backend.result }}" = "success" ]; then
-            yq -i -y '
-            (select(.kind == "Deployment" and .metadata.name == "pod-https")
-            .spec.template.spec.containers[] | select(.name == "pod-https")
-            ).image = "'"${BACK_FULL_IMAGE_PATH}"'"' backend-pod.yaml
-          fi
+              yq -i '
+                (. | select(.kind=="Pod" and .metadata.name=="pod-https")
+                   | .spec.containers[]
+                   | select(.name=="container").image
+                ) = env(BACK_FULL_IMAGE_PATH)
+              ' cd/backend-pod.yaml   
 
       - name: Commit & Push
         working-directory: worklyCD   
