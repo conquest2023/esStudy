@@ -8,6 +8,7 @@
           <span v-if="notice">📢&nbsp;</span>
           <span v-else-if="isVoteCard">🗳️&nbsp;</span>
           {{ post.title }}
+
           <span v-if="!notice && !isVoteCard && commentCount" class="text-danger fw-bold ms-1">[{{ commentCount }}]</span>
         </h6>
 

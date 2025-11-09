@@ -49,6 +49,8 @@ public class PostAdapterRepository implements PostRepository {
     public PostEntity findPostDetail(int id) {
         Optional<PostEntity> post = repository.findById(id);
         return post.get();
+
+
     }
     @Override
     public void deletePost(int id) {
