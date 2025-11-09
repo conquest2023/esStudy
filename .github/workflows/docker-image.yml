@@ -182,19 +182,19 @@ jobs:
         run: pip install yq -q
 
       - name: Update Deployment Image 🛠️
+        working-directory: worklyCD/cd
         run: |
          
           # needs.outputs.image_tag 변수에는 이미 전체 경로가 포함되어 있어야 합니다.
           FRONT_FULL_IMAGE_PATH="${{ needs.frontend.outputs.image_tag }}"
           BACK_FULL_IMAGE_PATH="${{ needs.backend.outputs.image_tag }}"
-          cd worklyCD/cd
           # 프론트엔드 업데이트 로직
           if [ "${{ needs.frontend.result }}" = "success" ]; then
             yq -i -y '
             (select(.kind == "Deployment" and .metadata.name == "vue-frontend")
              .spec.template.spec.containers[]
               | select(.name == "vue-frontend")
-                ).image = "'"${FRONT_FULL_IMAGE_PATH}"'"' cd/front-pod.yaml
+                ).image = "'"${FRONT_FULL_IMAGE_PATH}"'"' front-pod.yaml
           fi
           
           # 백엔드 업데이트 로직
@@ -202,7 +202,7 @@ jobs:
             yq -i -y '
             (select(.kind == "Deployment" and .metadata.name == "pod-https")
             .spec.template.spec.containers[] | select(.name == "pod-https")
-            ).image = "'"${BACK_FULL_IMAGE_PATH}"'"' cd/backend-pod.yaml
+            ).image = "'"${BACK_FULL_IMAGE_PATH}"'"' backend-pod.yaml
           fi
 
       - name: Commit & Push
