@@ -4,9 +4,11 @@ on:
   pull_request:
   push:
     branches: [ main ]
+
 permissions:
   contents: write
   pull-requests: write
+
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -76,14 +78,13 @@ jobs:
         with:
           images: ${{ env.IMAGE_REPO }}
           tags: |
-            type=raw,value=${{ env.IMAGE_REPO }}:main-${{ github.sha }} # 💡 이미지 레포지토리 이름도 태그 값에 포함
+            type=raw,value=${{ env.IMAGE_REPO }}:main-${{ github.sha }}
             type=raw,value=${{ env.IMAGE_REPO }}:${{ github.ref_name }}-${{ github.sha }}
-            type=semver,pattern={{version}},enable=true
 
-      - name: Pick primary tag
+      # 안전하게 우리가 쓸 단일 태그를 지정
+      - name: Pick primary tag (safe)
         id: pick
-        run: |
-          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | grep -m 1 '^wngud1')" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${IMAGE_REPO}:main-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -100,8 +101,8 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ steps.pick.outputs.tag }}
           cache-from: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache,mode=max
 
@@ -133,14 +134,13 @@ jobs:
         with:
           images: ${{ env.IMAGE_REPO }}
           tags: |
-            type=raw,value=${{ env.IMAGE_REPO }}:main-${{ github.sha }} # 💡 이미지 레포지토리 이름도 태그 값에 포함
+            type=raw,value=${{ env.IMAGE_REPO }}:main-${{ github.sha }}
             type=raw,value=${{ env.IMAGE_REPO }}:${{ github.ref_name }}-${{ github.sha }}
-            type=semver,pattern={{version}},enable=true
 
-      - name: Pick primary tag
+      # 안전하게 우리가 쓸 단일 태그를 지정
+      - name: Pick primary tag (safe)
         id: pick
-        run: |
-          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | grep -m 1 '^wngud1')" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${IMAGE_REPO}:main-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -157,61 +157,92 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ steps.pick.outputs.tag }}
           cache-from: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache,mode=max
 
-  # 4) 매니페스트 태그 업데이트 (핵심 수정)
+  # 4) 매니페스트 태그 업데이트 (CD 레포에 커밋/푸시)
   bump-manifest:
     needs: [frontend, backend]
     if: ${{ always() && (needs.frontend.result == 'success' || needs.backend.result == 'success') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # CD 레포 체크아웃 (외부 레포)
       - name: Checkout CD repo
         uses: actions/checkout@v4
         with:
-          repository: conquest2023/worklyCD    
-          path: worklyCD                       # 작업 디렉토리
-          ref: main                           
-          token: ${{ secrets.CD_REPO_TOKEN }}   
-      - name: Install yq
-        run: pip install yq -q
+          repository: conquest2023/worklyCD
+          path: worklyCD
+          ref: main
+          token: ${{ secrets.CD_REPO_TOKEN }}
 
-      - name: Update Deployment Image 🛠️
-        working-directory: worklyCD/cd
+      # mikefarah yq v4 설치 (jq 래퍼 yq 아님)
+      - name: Install yq v4
         run: |
-         
-          # needs.outputs.image_tag 변수에는 이미 전체 경로가 포함되어 있어야 합니다.
-          FRONT_FULL_IMAGE_PATH="${{ needs.frontend.outputs.image_tag }}"
-          BACK_FULL_IMAGE_PATH="${{ needs.backend.outputs.image_tag }}"
-          # 프론트엔드 업데이트 로직
-          if [ "${{ needs.frontend.result }}" = "success" ]; then
-             yq -i '
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          yq --version
+
+      - name: Update images in manifests
+        working-directory: worklyCD
+        env:
+          FRONT_BUILD_RESULT:    ${{ needs.frontend.result }}
+          BACK_BUILD_RESULT:     ${{ needs.backend.result }}
+          FRONT_FULL_IMAGE_PATH: ${{ needs.frontend.outputs.image_tag }}
+          BACK_FULL_IMAGE_PATH:  ${{ needs.backend.outputs.image_tag }}
+        run: |
+          set -e
+
+          echo "[CI] FRONT_BUILD_RESULT=$FRONT_BUILD_RESULT"
+          echo "[CI] BACK_BUILD_RESULT=$BACK_BUILD_RESULT"
+          echo "[CI] FRONT_IMAGE=$FRONT_FULL_IMAGE_PATH"
+          echo "[CI] BACK_IMAGE=$BACK_FULL_IMAGE_PATH"
+
+          # 프론트 (Deployment: vue-frontend / container: vue)
+          if [ "$FRONT_BUILD_RESULT" = "success" ] && [ -n "$FRONT_FULL_IMAGE_PATH" ]; then
+            yq -i '
               (. | select(.kind=="Deployment" and .metadata.name=="vue-frontend")
                  | .spec.template.spec.containers[]
                  | select(.name=="vue").image
               ) = env(FRONT_FULL_IMAGE_PATH)
             ' cd/front-deploy.yaml
-          
-          # 백엔드 업데이트 로직
-          if [ "${{ needs.backend.result }}" = "success" ]; then
-              yq -i '
-                (. | select(.kind=="Pod" and .metadata.name=="pod-https")
-                   | .spec.containers[]
-                   | select(.name=="container").image
-                ) = env(BACK_FULL_IMAGE_PATH)
-              ' cd/backend-pod.yaml   
+          fi
 
-      - name: Commit & Push
-        working-directory: worklyCD   
+          # 백엔드 (Pod: pod-https / container: container)
+          if [ "$BACK_BUILD_RESULT" = "success" ] && [ -n "$BACK_FULL_IMAGE_PATH" ]; then
+            yq -i '
+              (. | select(.kind=="Pod" and .metadata.name=="pod-https")
+                 | .spec.containers[]
+                 | select(.name=="container").image
+              ) = env(BACK_FULL_IMAGE_PATH)
+            ' cd/backend-pod.yaml
+          fi
+
+          echo "[Validate]"
+          yq '.kind' cd/front-deploy.yaml | head -n 1 || true
+          yq '.spec.template.spec.containers[] | select(.name=="vue").image' cd/front-deploy.yaml || true
+          yq '.kind' cd/backend-pod.yaml | head -n 1 || true
+          yq '.spec.containers[] | select(.name=="container").image' cd/backend-pod.yaml || true
+
+      - name: Commit & Push to CD repo
+        working-directory: worklyCD
         run: |
-          git config user.name "gha-bot"
-          git config user.email "[email protected]"
-          git add cd/*.yaml || echo "No yaml files found"
+          git config user.name  "gha-bot"
+          git config user.email "gha-bot@users.noreply.github.com"
+
+          git add cd/*.yaml || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
           git commit -m "chore: bump image tag to latest build"
+
+          # 푸시 전에 origin을 PAT 포함 URL로 강제 (403 방지)
           git remote set-url origin "https://x-access-token:${{ secrets.CD_REPO_TOKEN }}@github.com/conquest2023/worklyCD.git"
+          git remote -v
+
           git push origin HEAD:main
