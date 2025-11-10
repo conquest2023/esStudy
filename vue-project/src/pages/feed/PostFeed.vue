@@ -65,7 +65,7 @@ async function submitNotice() {
         'Content-Type': 'multipart/form-data',
       },
     })
-    alert('📅 공지사항이 등록되었습니다!')
+    alert('공지사항이 등록되었습니다!')
     router.push('/')
   } catch (error) {
     alert('공지사항 등록 실패!')

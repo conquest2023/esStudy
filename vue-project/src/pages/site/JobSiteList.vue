@@ -134,6 +134,8 @@ function logClick(site) {
       .then(data => console.log('클릭 로그 저장됨:', data))
       .catch(err => console.error('로그 저장 에러:', err))
 }
+
+
 </script>
 
 <style scoped>
