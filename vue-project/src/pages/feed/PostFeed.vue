@@ -70,6 +70,8 @@ async function submitNotice() {
   } catch (error) {
     alert('공지사항 등록 실패!')
   }
+
+
 }
 </script>
 
