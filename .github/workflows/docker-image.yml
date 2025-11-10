@@ -209,7 +209,7 @@ jobs:
                  | .spec.template.spec.containers[]
                  | select(.name=="vue").image
               ) = env(FRONT_FULL_IMAGE_PATH)
-            ' cd/front-deploy.yaml
+            ' cd/front-pod.yaml
           fi
 
           # 백엔드 (Pod: pod-https / container: container)
