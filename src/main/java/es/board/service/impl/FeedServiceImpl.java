@@ -73,7 +73,7 @@ public class FeedServiceImpl implements FeedService {
 
     private final LikeRepository likeRepository;
 
-    private  final SlackNotifier slackNotifier;
+//    private  final SlackNotifier slackNotifier;
 
     private  final ObjectMapper objectMapper;
 
@@ -141,9 +141,9 @@ public class FeedServiceImpl implements FeedService {
             checkValueFeed(res);
             Map<String,Object> Ids = savePost(res);
             asyncService.savePostAsync(feedMapper.toBoardDocument(res, (int) Ids.get("postId"), (String)Ids.get("feedUID")), (int) Ids.get("postId"));
-            slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
-                    res.getUsername(),
-                    res.getDescription().replace("\"", "'")));
+//            slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
+//                    res.getUsername(),
+//                    res.getDescription().replace("\"", "'")));
             List<String> imageUrls = extractImageUrls(res.getDescription());
             if (!imageUrls.isEmpty() || res.getImageURL()!=null){
                 Long postId = ((Number) Ids.get("postId")).longValue();

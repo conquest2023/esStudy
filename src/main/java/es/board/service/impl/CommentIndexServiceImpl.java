@@ -31,7 +31,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
 
     private  final FeedMapper feedMapper;
 
-    private  final SlackNotifier slackNotifier;
+//    private  final SlackNotifier slackNotifier;
 
     private  final CommentMapper commentMapper;
 
