@@ -1,7 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.config.s3.S3Uploader;
+//import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
-    private final S3Uploader s3Uploader;
+//    private final S3Uploader s3Uploader;
 
 
 

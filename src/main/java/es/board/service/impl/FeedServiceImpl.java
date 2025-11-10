@@ -2,7 +2,7 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.config.s3.S3Uploader;
+//import es.board.config.s3.S3Uploader;
 import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.FeedMapper;
@@ -59,7 +59,7 @@ public class FeedServiceImpl implements FeedService {
 
     private  final RedisTemplate redisTemplate;
 
-    private final S3Uploader s3Uploader;
+//    private final S3Uploader s3Uploader;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -457,7 +457,7 @@ public class FeedServiceImpl implements FeedService {
 
             if (!inUse) {
                 file.delete();
-                s3Uploader.deleteFile(url);
+//                s3Uploader.deleteFile(url);
                 log.info("삭제됨: {}", file.getName());
             }
         }

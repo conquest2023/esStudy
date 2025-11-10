@@ -1,7 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.config.s3.S3Uploader;
+//import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.entity.FeedImage;
@@ -40,7 +40,7 @@ public class MainFeedController {
     private final FeedService feedService;
 
 
-    private final S3Uploader s3Uploader;
+//    private final S3Uploader s3Uploader;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -308,23 +308,23 @@ public class MainFeedController {
             return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
     }
 
-    @PostMapping("/upload-images")
-    @ResponseBody
-    public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file,
-                                          @RequestParam("width") int width,
-                                          @RequestParam(value = "height", required = false) Integer height) {
-        try {
-            String imageUrl = s3Uploader.upload(file, "feed", width);
-            FeedImage saved = feedService.saveFeedImages(imageUrl);
-            return ResponseEntity.ok(Map.of(
-                    "url", imageUrl,
-                    "imageId", saved.getId()
-            ));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "이미지 업로드 실패"));
-        }
-    }
+//    @PostMapping("/upload-images")
+//    @ResponseBody
+//    public ResponseEntity<?> uploadImages(@RequestParam("file") MultipartFile file,
+//                                          @RequestParam("width") int width,
+//                                          @RequestParam(value = "height", required = false) Integer height) {
+//        try {
+////            String imageUrl = s3Uploader.upload(file, "feed", width);
+////            FeedImage saved = feedService.saveFeedImages(imageUrl);
+//            return ResponseEntity.ok(Map.of(
+//                    "url", null,
+//                    "imageId", null
+//            ));
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", "이미지 업로드 실패"));
+//        }
+//    }
 
     @GetMapping("/search/view/feed/list/job")
     public String getProgrammersList() {
