@@ -11,6 +11,9 @@
         <div class="progress-bar-inner" :style="{ width: progress + '%' }">
           {{ progress }}%
         </div>
+
+
+
       </div>
     </div>
 
