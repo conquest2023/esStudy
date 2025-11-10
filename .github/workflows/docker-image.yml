@@ -223,8 +223,8 @@ jobs:
           fi
 
           echo "[Validate]"
-          yq '.kind' cd/front-deploy.yaml | head -n 1 || true
-          yq '.spec.template.spec.containers[] | select(.name=="vue").image' cd/front-deploy.yaml || true
+          yq '.kind' cd/front-pod.yaml | head -n 1 || true
+          yq '.spec.template.spec.containers[] | select(.name=="vue").image' cd/front-pod.yaml || true
           yq '.kind' cd/backend-pod.yaml | head -n 1 || true
           yq '.spec.containers[] | select(.name=="container").image' cd/backend-pod.yaml || true
 
