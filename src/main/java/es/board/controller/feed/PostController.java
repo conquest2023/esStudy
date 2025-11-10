@@ -6,6 +6,8 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.ex.TokenValidator;
 import es.board.repository.entity.PostEntity;
 import es.board.service.feed.PostService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -84,7 +88,24 @@ public class PostController {
                                         "message","게시글이 삭제 되었습니다"
         ));
     }
-
+    @PostMapping("/view/count")
+    public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request,
+                                               HttpServletResponse response,
+                                               @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
+        String id = (request.get("id"));
+        if (!viewedFeeds.contains(id)) {
+            postService.incrementViewCount(Integer.parseInt(id));
+            String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
+            String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
+            Cookie cookie = new Cookie("viewedFeeds", encodedValue);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 40);
+            response.addCookie(cookie);
+        }
+        return ResponseEntity.ok("조회수 증가 성공");
+    }
     @GetMapping("/count")
     public ResponseEntity<?> getCountCommentAndReply(@RequestParam int page, @RequestParam int size) {
         Map<Integer, Long> countByCommentAndReply = postService.getCountByCommentAndReply(page, size);
@@ -99,4 +120,6 @@ public class PostController {
                 : null;
         return currentUserId;
     }
+
+
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 public interface PostService {
 
 
+    void incrementViewCount(int postId);
+
 
     void savePost(String userId, PostDTO.Response feedSaveDTO);
 

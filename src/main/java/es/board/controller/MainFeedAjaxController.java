@@ -1,8 +1,8 @@
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-
-import java.util.Map;//package es.board.controller;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.RequestHeader;
+//
+//import java.util.Map;//package es.board.controller;
 //
 //import es.board.config.jwt.JwtTokenProvider;
 //import es.board.controller.model.mapper.CommentMapper;

@@ -31,6 +31,12 @@ public class PostAdapterRepository implements PostRepository {
     }
 
     @Override
+    public void increaseViewCount(int postId) {
+
+        repository.incrementViewCount(postId);
+    }
+
+    @Override
     public List<PostEntity> findByPosts(Pageable pageable) {
         return null;
     }

@@ -272,12 +272,12 @@ async function loadFeedDetail(postId) {
     // likeCount.value= data.data.likeCount || 0
     liked.value    = data.isLiked
     loaded.value   = true
-    // fetch('/api/increaseViewCount', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   credentials: 'include',
-    //   body: JSON.stringify({ id })
-    // }).catch(e => console.error('조회수 증가 실패', e))
+    fetch('/api/view/count', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id })
+    }).catch(e => console.error('조회수 증가 실패', e))
   } catch (e) {
     console.error(e)
     router.replace('/')

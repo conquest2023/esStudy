@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,12 @@ public class PostServiceImpl implements PostService{
 
     private final PostRepository postRepository;
 
+
+    @Override
+    @Transactional
+    public void incrementViewCount(int postId) {
+         postRepository.increaseViewCount(postId);
+    }
 
     @Override
     public void savePost(String userId, PostDTO.Response feedSaveDTO) {

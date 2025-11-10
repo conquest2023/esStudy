@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Repository
 public interface PostRepository {
@@ -15,6 +14,7 @@ public interface PostRepository {
 
     void savePost(PostEntity post);
 
+    void increaseViewCount(int postId);
 
     List<PostEntity> findByPosts(Pageable pageable);
 
