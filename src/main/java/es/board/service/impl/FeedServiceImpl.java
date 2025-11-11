@@ -3,7 +3,6 @@ package es.board.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 //import es.board.config.s3.S3Uploader;
-import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.dto.feed.TopWriter;
@@ -11,7 +10,7 @@ import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
 import es.board.repository.entity.FeedImage;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.PostEntity;
 import es.board.repository.entity.repository.*;
 import es.board.service.FeedService;
@@ -330,7 +329,7 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public Integer getPointAll(String userId) {
-        return pointHistoryRepository.findByUserId(userId);
+        return null;
     }
 
     @Override
@@ -417,7 +416,7 @@ public class FeedServiceImpl implements FeedService {
         log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
         }
         public void createPointHistory(String userId,String username) {
-           PointHistory history = PointHistory.builder()
+           PointHistoryEntity history = PointHistoryEntity.builder()
                     .userId(userId)
                     .pointChange(3)
                     .username(username)
@@ -429,10 +428,10 @@ public class FeedServiceImpl implements FeedService {
 
     private List<TopWriter> getWriters() {
         List<TopWriter> topWriters = feedDAO.findTopWriters();
-        List<PointHistory> pointHistories = pointHistoryRepository.findByUserAllId();
+        List<PointHistoryEntity> pointHistories = pointHistoryRepository.findByUserAllId();
         Map<String, Integer> pointMap = pointHistories.stream()
-                .collect(Collectors.toMap(PointHistory::getUsername,
-                                        PointHistory::getPointChange));
+                .collect(Collectors.toMap(PointHistoryEntity::getUsername,
+                                        PointHistoryEntity::getPointChange));
         for (TopWriter writer : topWriters) {
             Integer points = pointMap.get(writer.getUsername());
             if (points != null) {

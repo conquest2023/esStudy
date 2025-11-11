@@ -12,7 +12,7 @@ import es.board.controller.model.dto.interview.InterviewLogDTO;
 import es.board.repository.InterviewQuestionDAO;
 import es.board.repository.LogDAO;
 import es.board.repository.entity.InterviewQuestion;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.InterviewQuestionAnswerRepository;
 import es.board.repository.entity.repository.InterviewQuestionRepository;
 import es.board.repository.entity.repository.PointHistoryRepository;
@@ -197,7 +197,7 @@ public class InterviewServiceImpl implements InterviewService {
         log.info("인터뷰 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
     public void createPointHistory(String userId,String username) {
-        PointHistory history = PointHistory.builder()
+        PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
                 .username(username)
                 .pointChange(15)

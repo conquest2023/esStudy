@@ -63,14 +63,14 @@ export const useSidebarStore = defineStore('sidebar', {
                 try {
                     const [ipRes, writerRes] = await Promise.all([
                         api.get('/get-ip'),
-                        api.get('/top-writers')
+                        api.get('/points/summary')
                     ])
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
                         today: ipRes.data.data.todayVisitors,
                         total: ipRes.data.data.totalVisitors
                     }
-                    this.topWriters = writerRes.data ?? []
+                    this.topWriters = writerRes.data.sumPoint ?? []
 
                 } catch (e) {
                     console.error('[sidebar] live 로딩 실패', e)

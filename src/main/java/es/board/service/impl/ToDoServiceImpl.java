@@ -6,7 +6,7 @@ import es.board.controller.model.dto.todo.D_DayDTO;
 import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.repository.ToDoDAO;
 import es.board.repository.document.Todo;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.TodoStatus;
 import es.board.repository.entity.repository.D_DayRepository;
 import es.board.repository.entity.repository.PointHistoryRepository;
@@ -191,7 +191,7 @@ public class ToDoServiceImpl implements ToDoService {
         }
 
         public void createPointHistory(String userId,String username) {
-            PointHistory history = PointHistory.builder()
+            PointHistoryEntity history = PointHistoryEntity.builder()
                     .userId(userId)
                     .username(username)
                     .pointChange(5)

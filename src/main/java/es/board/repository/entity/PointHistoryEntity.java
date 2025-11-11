@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PointHistory {
+public class PointHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class PointHistory {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public PointHistory(String username, Long pointSum) {
+    public PointHistoryEntity(String username, Long pointSum) {
         this.username=username;
         this.pointChange = pointSum.intValue();
     }

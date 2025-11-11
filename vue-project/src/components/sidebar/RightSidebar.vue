@@ -54,7 +54,7 @@
                 class="d-flex justify-content-between align-items-center small py-1"
             >
               <span>{{ rankIcon(idx) }} {{ w.username }}</span>
-              <span class="text-muted">{{ w.viewCount }}점</span>
+              <span class="text-muted">{{ w.totalCount }}점</span>
             </div>
           </div>
         </div>
@@ -126,7 +126,6 @@ import { useRoute }        from 'vue-router'
 import { storeToRefs }     from 'pinia'
 import { useSidebarStore } from '@/stores/sidebar'
 
-/* ───────── UI 상태 ───────── */
 const collapsed      = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 const currentSection = ref('dashboard')
 const sections = [
@@ -139,7 +138,6 @@ watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v))
 
 const sb = useSidebarStore()
 const { dDayList, todoList, todoProgress, visitorStats, topWriters } = storeToRefs(sb)
-
 const activeUsers = computed(() => visitorStats.value.active)
 const todayUsers  = computed(() => visitorStats.value.today)
 const totalUsers  = computed(() => visitorStats.value.total)

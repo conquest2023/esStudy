@@ -4,7 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.mapper.MainFunctionMapper;
 import es.board.controller.model.dto.todo.ScheduleDTO;
 import es.board.repository.ScheduleDAO;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.Schedule;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.ScheduleRepository;
@@ -124,7 +124,7 @@ public class CalenderServiceImpl implements CalenderService {
     }
 
     public void createPointHistory(String userId,String username) {
-        PointHistory history = PointHistory.builder()
+        PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
                 .pointChange(5)
                 .username(username)

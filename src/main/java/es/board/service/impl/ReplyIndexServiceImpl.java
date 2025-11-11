@@ -5,7 +5,7 @@ import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.NotificationService;
@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -96,7 +95,7 @@ public class ReplyIndexServiceImpl implements ReplyIndexService {
         log.info("답글 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
     public void createPointHistory(String userId) {
-        PointHistory history = PointHistory.builder()
+        PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
                 .pointChange(3)
                 .reason("답글")

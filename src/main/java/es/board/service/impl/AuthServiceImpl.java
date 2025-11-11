@@ -1,18 +1,17 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.ex.TokenInvalidException;
-import es.board.repository.UserDAO;
-import es.board.repository.document.Comment;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.UserRepository;
 import es.board.repository.entity.User;
+import es.board.repository.entity.repository.infrastructure.projection.UserPointProjection;
+import es.board.repository.entity.repository.infrastructure.projection.UserPointSummary;
 import es.board.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,16 +42,13 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
 
-    private final CommentMapper commentMapper;
 
     private final AsyncService asyncService;
 
     private final PointHistoryRepository pointHistoryRepository;
 
-    private final UserDAO userDAO;
 
     private final StringRedisTemplate redisTemplate;
-
 
 
     private final PasswordEncoder passwordEncoder;
@@ -68,10 +63,7 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    @Override
-    public void updateVisitCount(String userId) {
-        userDAO.updateVisitCount(userId);
-    }
+
 
     @Override
     @Transactional
@@ -102,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    @Override
+//    @Override
     public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
 
         return  null;
@@ -132,6 +124,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<UserPointProjection> getSumPointUser() {
+
+        return pointHistoryRepository.sumPointUserTop5();
+    }
+
+    @Override
     public void autoLogin(String userId,String token) {
 
         redisTemplate.opsForValue().set("RT:" + userId,
@@ -139,10 +137,7 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    @Override
-    public Long findVisitCount(String userId) {
-        return userDAO.findVisitCount(userId);
-    }
+
 
     @Override
     public Authentication authenticate(LoginDTO login) {
@@ -163,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void createPointHistory(String userId) {
-        PointHistory history = PointHistory.builder()
+        PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
                 .pointChange(2)
                 .reason("로그인")

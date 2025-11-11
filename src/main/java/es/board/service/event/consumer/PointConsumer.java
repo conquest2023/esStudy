@@ -1,7 +1,7 @@
 package es.board.service.event.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
-import es.board.repository.entity.PointHistory;
+import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.service.event.FeedEvent;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class PointConsumer {
     }
 
     public void createPointHistory(String userId,String username) {
-        PointHistory history = PointHistory.builder()
+        PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
                 .username(username)
                 .pointChange(3)
