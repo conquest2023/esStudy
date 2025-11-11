@@ -151,7 +151,7 @@ public class FeedServiceImpl implements FeedService {
             return res;
         }).thenApplyAsync(response -> {
             grantFeedPoint(response.getUserId(),response.getUsername());
-            notificationService.sendPointNotification(response.getUserId(),response.getFeedUID(),"피드 작성 포인트를 발급 받으셨습니디");
+            notificationService.sendPointNotification(response.getUserId(),response.getId(),"피드 작성 포인트를 발급 받으셨습니디");
             return  null;
         });
 

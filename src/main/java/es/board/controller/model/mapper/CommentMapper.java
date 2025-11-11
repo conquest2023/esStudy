@@ -29,25 +29,13 @@ public class CommentMapper {
                 .collect(Collectors.toList());
     }
 
-    public Notification toCommentNotification(String userId, CommentDTO.Request comment) {
-        return Notification.builder()
-                .userId(userId)
-                .username(comment.getUsername())
-//                .sender(comment.getUserId())
-                .feedUID(comment.getFeedUID())
-                .message(comment.getContent())
-                .type("댓글")
-                .username(comment.getUsername())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
+
 
     public Notification toCommentEvent(String userId, FeedEvent event) {
         return Notification.builder()
                 .userId(userId)
                 .username(event.getUsername())
                 .sender(event.getUsername())
-                .feedUID(event.getFeedUID())
                 .message(event.getContent())
                 .isCheck(false)
                 .type("댓글")

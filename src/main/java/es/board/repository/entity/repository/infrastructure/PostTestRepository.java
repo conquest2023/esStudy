@@ -13,6 +13,12 @@ import java.util.Set;
 public class PostTestRepository implements PostRepository {
 
     private Map<Integer,PostEntity> stores =new HashMap<>();
+
+    @Override
+    public String findByUserId(int id) {
+        return null;
+    }
+
     @Override
     public void savePost(PostEntity post) {
         stores.put(post.getId(),post);

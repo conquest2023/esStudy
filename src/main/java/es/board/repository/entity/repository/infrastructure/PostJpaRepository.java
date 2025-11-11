@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
@@ -23,6 +22,8 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     @Query("select p.id from PostEntity p")
     Page<Integer> findIds(Pageable pageable);
 
+    @Query("select p.userId from PostEntity p where p.id=:postId")
+    String findByUserId(@Param("postId") int postId);
 
     @Modifying
     @Query("update PostEntity p set p.viewCount = p.viewCount + 1 where p.id = :postId")

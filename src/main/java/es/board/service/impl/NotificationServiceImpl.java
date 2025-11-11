@@ -39,6 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(60 * 1000L);
         emitters.put(userId, emitter);
+
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
@@ -48,7 +49,6 @@ public class NotificationServiceImpl implements NotificationService {
         sendPendingNotifications(userId,NOTICE_NOTIFICATION_KEY, "notice-notification", emitter);
 
         sendPendingNotifications(userId,POINT_NOTIFICATION_KEY, "point-notification", emitter);
-
 
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
@@ -61,19 +61,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendCommentNotification(String userId, String feedUID, String message) {
-        sendFeedNotification(userId,feedUID, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
+    public void sendCommentNotification(String userId, int postId, String message) {
+        log.info("sendComment={}",postId);
+        sendFeedNotification(userId,postId, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
     }
 
     @Override
-    public void sendPointNotification(String userId, String feedUID, String message) {
-        sendFeedNotification(userId,feedUID, POINT_NOTIFICATION_KEY, "point-notification", message);
+    public void sendPointNotification(String userId, int postId, String message) {
+        sendFeedNotification(userId,postId, POINT_NOTIFICATION_KEY, "point-notification", message);
     }
 
     @Override
-    public void sendNoticeNotification(List<String> userIds, String feedUID, String message) {
+    public void sendNoticeNotification(List<String> userIds, int postId, String message) {
         for (String userId : userIds) {
-            sendFeedNotification(userId, feedUID, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
+            sendFeedNotification(userId, postId, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
         }
     }
     @Override
@@ -81,8 +82,8 @@ public class NotificationServiceImpl implements NotificationService {
         sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
     }
     @Override
-    public void sendReplyNotification(String userId,String feedUID, String message) {
-        sendFeedNotification(userId,feedUID, REPLY_NOTIFICATION_KEY, "reply-notification", message);
+    public void sendReplyNotification(String userId,int postId, String message) {
+        sendFeedNotification(userId,postId, REPLY_NOTIFICATION_KEY, "reply-notification", message);
     }
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
@@ -98,11 +99,13 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
     }
-    private void sendFeedNotification(String userId, String feedUID, String redisKeyPrefix, String eventType, String message) {
+    private void sendFeedNotification(String userId, int postId, String redisKeyPrefix, String eventType, String message) {
+        log.info("알림전송={}",userId);
+        log.info("postId={}",postId);
         String redisKey = redisKeyPrefix + userId;
         try {
             Map<String, String> payload = new HashMap<>();
-            payload.put("feedUID", feedUID);
+            payload.put("postId", String.valueOf(postId));
             payload.put("message", message);
             String jsonPayload = objectMapper.writeValueAsString(payload);
             if (!emitters.containsKey(userId)) {

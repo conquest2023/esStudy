@@ -93,6 +93,7 @@ async function markAsRead(ids) {
     notifications.value = notifications.value.map(n =>
         ids.includes(n.notificationId) ? { ...n, read: true, isCheck: true } : n
     )
+    console.log(notifications.value)
   } catch (e) {
     console.error('읽음 처리 실패', e)
   }
@@ -250,7 +251,7 @@ const menus = [
                   class="py-2 border-bottom d-flex justify-content-between align-items-start">
                 <div>
                   <router-link
-                      :to="'/search/view/feed/id/' + n.feedUID"
+                      :to="'/post/id' + n.postId"
                       class="text-decoration-none fw-bold"
                       @click="markAsRead([n.notificationId])"
                   >
@@ -397,41 +398,7 @@ const menus = [
 
 </style>
 <script>
-import api from '@/utils/api'
 
-// function formatDate(dateStr) {
-//   const date = new Date(dateStr)
-//   return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-// }
-//
-// async function markAsRead(ids) {
-//   const token = localStorage.getItem('token')
-//   if (!token) return
-//   try {
-//     await api.post('/notification/check', ids, {
-//       headers: { Authorization: `Bearer ${token}` }
-//     })
-//     // 읽은 항목 업데이트
-//     user.notifications = user.notifications.map(n =>
-//         ids.includes(n.id) ? { ...n, read: true } : n
-//     )
-//   } catch (e) {
-//     console.error('읽음 처리 실패', e)
-//   }
-// }
-//
-// async function deleteNotification(ids) {
-//   const token = localStorage.getItem('token')
-//   if (!token) return
-//   try {
-//     await api.post('/notification/delete', ids, {
-//       headers: { Authorization: `Bearer ${token}` }
-//     })
-//     user.notifications = user.notifications.filter(n => !ids.includes(n.id))
-//   } catch (e) {
-//     console.error('삭제 실패', e)
-//   }
-// }
 
 
 </script>

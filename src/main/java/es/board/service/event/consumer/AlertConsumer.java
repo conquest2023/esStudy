@@ -30,10 +30,10 @@ public class AlertConsumer {
         if (!event.getPostOwnerId().equals(event.getCommenterId())) {
             log.info("댓글 이벤트 발행됨: {}", event);
             notificationService.sendCommentNotification(
-                    event.getPostOwnerId(), event.getFeedUID(),
+                    event.getPostOwnerId(), event.getPostId(),
                     event.getUsername() + "님이 댓글을 작성하였습니다: " + event.getContent()
             );
-            notificationService.sendPointNotification(event.getCommenterId(),event.getFeedUID(),"댓글 작성 포인트를 발급 받으셨습니디");
+            notificationService.sendPointNotification(event.getCommenterId(),event.getPostId(),"댓글 작성 포인트를 발급 받으셨습니디");
             notificationRepository.save(commentMapper.toCommentEvent(event.getPostOwnerId(), event));
         }
     }

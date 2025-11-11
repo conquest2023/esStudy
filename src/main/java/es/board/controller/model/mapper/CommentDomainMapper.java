@@ -1,6 +1,7 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.CommentDTO;
+import es.board.repository.entity.Notification;
 import es.board.service.domain.Comment;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,19 @@ public class CommentDomainMapper {
                 null
         );
     }
-
+    public static Notification toEntityNotification(String userId, CommentDTO.Response comment) {
+        return Notification.builder()
+                .userId(userId)
+                .postId(comment.getPostId())
+                .isCheck(false)
+                .username(comment.getUsername())
+                .sender(comment.getUserId())
+                .message(comment.getContent())
+                .type("댓글")
+                .username(comment.getUsername())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
     // Request DTO -> Domain (작성 시 사용)
 
     public static CommentDTO.Request toRequestDto(String userId, Comment domain) {

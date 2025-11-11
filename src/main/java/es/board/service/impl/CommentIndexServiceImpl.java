@@ -99,11 +99,11 @@ public class CommentIndexServiceImpl implements CommentIndexService {
     public void saveComment(CommentDTO.Response dto) {
         checkValueComment(dto);
         commentDAO.saveCommentIndex(dto);
-        String userId = postRepository.findByFeedUID(dto.getFeedUID());
+
 
         FeedEvent event = FeedEvent.builder()
-                .feedUID(dto.getFeedUID())
-                .postOwnerId(userId)
+//                .feedUID(dto.getFeedUID())
+//                .postOwnerId(userId)
                 .commentUID(dto.getCommentUID())
                 .commenterId(dto.getUserId())
                 .username(dto.getUsername())

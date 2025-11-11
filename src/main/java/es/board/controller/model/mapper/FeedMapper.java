@@ -5,7 +5,6 @@ import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.document.Board;
-import es.board.repository.document.Reply;
 import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +99,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public  List<NoticeDTO.Request> fromNoticeList(List<Notice> notice) {
+    public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
         return notice.stream()
                 .map(notice1 -> NoticeDTO.Request.builder()
                         .id(notice1.getId())
@@ -113,22 +112,21 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public NoticeDTO.Request fromNotice(Notice notice) {
+    public NoticeDTO.Request fromNotice(NoticeEntity notice) {
         return NoticeDTO.Request.builder()
                 .id(notice.getId())
-                .userId(notice.getUserId())
-                .feedUID(notice.getFeedUID())
+                .category(notice.getCategory())
                 .title(notice.getTitle())
                 .imageURL(notice.getImageURL())
                 .description(notice.getDescription().replace("\\n", "\n"))
                 .username(notice.getUsername())
                 .createdAt(notice.getCreatedAt())
-                .updatedAt(notice.getUpdatedAt())
+//                .updatedAt(notice.getUpdatedAt())
                 .build();
     }
 
-    public  Notice toNotice(NoticeDTO.Request notice, String userId, String feedUID) {
-        return Notice.builder()
+    public NoticeEntity toNotice(NoticeDTO.Request notice, String userId, String feedUID) {
+        return NoticeEntity.builder()
                 .id(notice.getId())
                 .feedUID(feedUID)
                 .category("공지사항")
@@ -141,7 +139,7 @@ public class FeedMapper {
                 .build();
     }
 
-    public NoticeDTO.Request fromNoticeDocument(Notice notice, String userId, String feedUID) {
+    public NoticeDTO.Request fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
         return NoticeDTO.Request.builder()
                 .id(notice.getId())
                 .username("관리자")

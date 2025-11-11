@@ -12,6 +12,8 @@ import java.util.Map;
 public interface PostRepository {
 
 
+    String findByUserId(int id);
+
     void savePost(PostEntity post);
 
     void increaseViewCount(int postId);

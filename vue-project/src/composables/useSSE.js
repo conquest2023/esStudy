@@ -17,7 +17,7 @@ export function useSSE(token) {
 
         store.addNotification({
             id: Date.now(),
-            feedUID:  parsed.feedUID,
+            postId:  parsed.postId,
             message:  parsed.message,
             read:     false
         })

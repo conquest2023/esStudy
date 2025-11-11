@@ -47,7 +47,7 @@ public class NotificationController {
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token) {
         if (token == null || token.isBlank()) {
-            throw  new RuntimeException("토근이 필요합니다");
+            throw  new RuntimeException("토큰이 필요합니다");
         }
         SseEmitter emitter = notificationService.subscribe(jwtTokenProvider.getUserId(token));
         return new ResponseEntity<>(emitter, HttpStatus.OK);

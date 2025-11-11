@@ -26,6 +26,11 @@ public class PostAdapterRepository implements PostRepository {
     }
 
     @Override
+    public String findByUserId(int id) {
+        return repository.findByUserId(id);
+    }
+
+    @Override
     public void savePost(PostEntity post) {
         repository.save(post);
     }
@@ -55,8 +60,6 @@ public class PostAdapterRepository implements PostRepository {
     public PostEntity findPostDetail(int id) {
         Optional<PostEntity> post = repository.findById(id);
         return post.get();
-
-
     }
     @Override
     public void deletePost(int id) {

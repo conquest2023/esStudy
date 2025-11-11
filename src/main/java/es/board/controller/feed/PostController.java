@@ -61,7 +61,6 @@ public class PostController {
 
     @GetMapping("/posts/ids")
     public ResponseEntity<?> getPostIds(@RequestParam int page, @RequestParam int size) {
-        log.info(String.valueOf(page));
         Page<Integer> ids = postService.findIds(page, size);
         return ResponseEntity.ok(Map.of(
                 "ids", ids));
@@ -70,7 +69,6 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
-        log.info(String.valueOf(page));
         Page<PostEntity> p = postService.getPosts(page, size);
         return ResponseEntity.ok(Map.of(
                 "content", p.getContent(),

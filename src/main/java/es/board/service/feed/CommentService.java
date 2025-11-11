@@ -1,4 +1,4 @@
-package es.board.service;
+package es.board.service.feed;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 

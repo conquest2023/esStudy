@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class FeedEvent implements Serializable {
 
     private String commentUID;
-    private String feedUID;
+
+    private int postId;
     private String postOwnerId;
+
     private String commenterId;
     private String username;
     private String content;

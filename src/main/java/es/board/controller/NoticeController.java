@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -27,16 +27,18 @@ public class NoticeController {
 
 
 
-    @GetMapping("/list/notice")
-    public ResponseEntity<List<NoticeDTO.Request>> getNotices() {
-
-        return ResponseEntity.ok(noticeService.getAllNotices());
+    @GetMapping("/notice")
+    public ResponseEntity<?> getNotices() {
+        NoticeDTO.Request latestNotice = noticeService.getLatestNotice();
+        return ResponseEntity.ok(Map.of("notice",latestNotice));
     }
 
 
-    @GetMapping("/list/one/notice/{id}")
-    public ResponseEntity<NoticeDTO.Request> getNoticeOne(@PathVariable Long id) {
-        return ResponseEntity.ok(noticeService.getOneNotice(id));
+    @GetMapping("/notice/detail/{id}")
+    public ResponseEntity<?> getNoticeOne(@PathVariable Long id) {
+        NoticeDTO.Request detailNotice = noticeService.getDetailNotice(id);
+        log.info(detailNotice.toString());
+        return ResponseEntity.ok(Map.of("detail",detailNotice));
     }
 
 

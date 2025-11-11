@@ -53,14 +53,14 @@ public class ReplyIndexServiceImpl implements ReplyIndexService {
         replyDAO.saveReply(response);
         grantReplyPoint(response.getUserId());
         if (!userId.equals(response.getUserId())) {
-                notificationService.sendReplyNotification(userId, response.getFeedUID(), response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
+                notificationService.sendReplyNotification(userId, response.getPostId(), response.getUsername() + "님이 답글을 작성하였습니다: " + response.getContent());
         }
         notificationRepository.save(feedMapper.toReplyNotification(userId,response));
 
 //        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
 //                response.getUsername(),
 //                response.getContent().replace("\"", "'")));
-        notificationService.sendPointNotification(response.getUserId(),response.getFeedUID(),"답글 작성 포인트를 발급 받으셨습니디");
+        notificationService.sendPointNotification(response.getUserId(),response.getPostId(),"답글 작성 포인트를 발급 받으셨습니디");
 
     }
     public Map<String, List<ReplyDTO.Request>> getRepliesGroupedByComment(String feedId) {

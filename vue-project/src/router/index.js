@@ -25,6 +25,12 @@ const routes = [
             { path: 'todo', name: 'todo', component: Todo },
             { path: 'todo/new', name: 'NewTodo', component: NewTodo },
             { path: 'calendar', name: 'calendar', component: calendar },
+            {
+                path: '/notice/detail/:id',         // 공지 상세도 같은 컴포넌트로!
+                name: 'NoticeDetail',
+                component: () => import('@/pages/feed/FeedDetail.vue'),
+                meta: { kind: 'notice' }            // 분기 힌트
+            },
             { path: '/notice', component: () => import('@/pages/feed/PostFeed.vue') },
             { path: '/mypage', component: () => import('@/pages/feed/MyPage.vue') },
             { path: 'certificate/data', component: () => import('@/pages/certificate/CertificateData.vue') },

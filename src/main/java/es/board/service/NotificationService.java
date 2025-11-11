@@ -8,10 +8,10 @@ import java.util.List;
 public interface NotificationService {
 
 
-    void sendPointNotification(String userId, String feedUID, String message);
-    void sendNoticeNotification(List<String> userIds, String feedUID, String message);
-    void  sendReplyNotification(String userId,String feedUID,String message);
-    void sendCommentNotification(String userId, String feedUID, String message);
+    void sendPointNotification(String userId, int postId, String message);
+    void sendNoticeNotification(List<String> userIds, int postId, String message);
+    void  sendReplyNotification(String userId,int postId,String message);
+    void sendCommentNotification(String userId, int postId, String message);
     void sendTodoNotification(String userId, String message);
     List<String> getUserNotifications(String userId);
 

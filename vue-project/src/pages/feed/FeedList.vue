@@ -34,8 +34,7 @@
           <div
               v-if="showSidebar"
               class="mobile-sidebar bg-white shadow position-fixed top-0 start-0 h-100 p-3"
-              style="z-index: 1050; width: 80%; max-width: 300px;"
-          >
+              style="z-index: 1050; width: 80%; max-width: 300px;">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h6 class="fw-bold">🌟 추천 글</h6>
               <button class="btn-close" @click="showSidebar = false"></button>
@@ -81,7 +80,14 @@
               </li>
             </ul>
           </div>
-          <FeedCard v-for="n in notices" :key="n.feedUID" :post="n" notice class="mb-2" />
+          <router-link
+              v-for="n in notices"
+              :key="n.id"
+              :to="`/notice/detail/${n.id}`"
+              class="text-decoration-none text-dark d-block"
+          >
+            <FeedCard :post="n" notice class="mb-2" />
+          </router-link>
           <FeedCard v-for="p in posts"
                     :key="p.id"
                     :post="p"
@@ -242,7 +248,11 @@ const TABS = [
 const dataCategories  = ['자료', '기술', '취업', '자격증']
 const activeTab       = ref('ALL')
 const selectedCategory= ref('자료')
-
+const targetPath = computed(() =>
+    props.notice
+        ? `/notice/detail/${props.post.id}`
+        : `/search/view/feed/id/${props.post.feedUID ?? props.post.id}`
+)
 /************************************************
  * 4. 피드 / 페이지네이션 상태
  ************************************************/
@@ -275,7 +285,7 @@ onMounted(async () => {
 
 async function fetchNotice() {
   try {
-    const { data } = await api.get('/list/notice')
+    const { data } = await api.get('/notice')
     notices.value = data ?? []
   } catch (err) {
     console.error('공지사항 로딩 실패:', err)

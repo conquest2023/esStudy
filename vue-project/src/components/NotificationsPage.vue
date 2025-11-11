@@ -10,10 +10,6 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
-
-
-
-
 onMounted(async () => {
   try {
     const {data} = await api.get('/notifications/all', {

@@ -24,9 +24,11 @@ public class Notification {
     @Column(name = "user_id",nullable = false, length = 100)
     private String userId;
 
+    @Column(name = "post_id")
+    private Integer postId;
 
     @Column(name = "is_check",nullable = false)
-    private Boolean isCheck;
+    private Boolean isCheck =false;
 
     private  String sender;
 
@@ -42,13 +44,14 @@ public class Notification {
     private String feedUID;
 
 
-    @Column(nullable = false)
-    private boolean isRead;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-
+    @PrePersist
+    public void prePersist() {
+        if (isCheck == null) isCheck = false;
+    }
 }

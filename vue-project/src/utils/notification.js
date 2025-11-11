@@ -1,11 +1,10 @@
 export function addFeedNotification(parsed, store, showToast) {
-    const { feedUID, message } = parsed
-
+    const { postId, message } = parsed
 
     store.notifications = [
         {
             id: Date.now(),
-            feedUID,
+            postId,
             message,
             read: false
         },
@@ -13,5 +12,5 @@ export function addFeedNotification(parsed, store, showToast) {
     ]
 
     console.log('👉 알림 파싱 결과:', parsed)
-    showToast(message, feedUID)
+    showToast(message,postId)
 }
