@@ -28,6 +28,7 @@ public class PostController {
 
     private final JwtTokenProvider provider;
 
+
     private final PostService postService;
 
     private final TokenValidator tokenValidator;

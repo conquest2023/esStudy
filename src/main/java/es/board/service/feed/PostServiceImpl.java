@@ -5,6 +5,7 @@ import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.PostEntity;
 import es.board.service.domain.Post;
+import es.board.service.point.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService{
 
+
+    private final PointService pointService;
+
     private final PostRepository postRepository;
 
 
@@ -37,6 +41,7 @@ public class PostServiceImpl implements PostService{
 
         Post post = PostDomainMapper.toDomain(userId,feedSaveDTO);
         postRepository.savePost(Post.toEntity(post));
+        pointService.grantActivityPoint(userId,"피드",3,5);
     }
 
     @Override

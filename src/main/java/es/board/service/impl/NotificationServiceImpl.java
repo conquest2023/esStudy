@@ -101,7 +101,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
     private void sendFeedNotification(String userId, int postId, String redisKeyPrefix, String eventType, String message) {
         log.info("알림전송={}",userId);
-        log.info("postId={}",postId);
         String redisKey = redisKeyPrefix + userId;
         try {
             Map<String, String> payload = new HashMap<>();
@@ -128,6 +127,7 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
         }
+
     }
 
     private void sendNotification(String userId, String redisKeyPrefix, String eventType, String message) {

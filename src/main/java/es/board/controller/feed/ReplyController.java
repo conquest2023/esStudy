@@ -3,7 +3,7 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.ex.TokenValidator;
-import es.board.service.ReplyService;
+import es.board.service.feed.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;

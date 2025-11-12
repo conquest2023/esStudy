@@ -35,7 +35,6 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
 
-    private final JwtTokenProvider jwtTokenProvider;
 
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -44,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     private final AsyncService asyncService;
+
 
     private final PointHistoryRepository pointHistoryRepository;
 
@@ -55,15 +55,13 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void createUser(SignUpDTO sign) {
+    public void registerUser(SignUpDTO sign) {
         User user = new User();
         String password = passwordEncoder.encode(sign.getPassword());
         asyncService.saveUserAsync(sign, password);
         userRepository.save(user.DtoToUser(sign, password));
 
     }
-
-
 
     @Override
     @Transactional
@@ -92,37 +90,6 @@ public class AuthServiceImpl implements AuthService {
         }
         return false;
     }
-
-
-//    @Override
-    public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
-
-        return  null;
-//        if (!(comments instanceof List<?>)) {
-//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
-//        }
-//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-//        return commentList.stream()
-//                .peek(comment -> {
-//                    comment.setAuthor(comment.getUserId().equals(userId));
-//                    comment.setCommentOwner(comment.getUserId().equals(commentOwner));
-//                })
-//                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Boolean extractUserIdFromToken(String token, PostDTO.Response response) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new TokenInvalidException("토큰이 비어있습니다.");
-        }
-        token = token.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw  new TokenInvalidException("권한이 없습니다");
-        }
-        response.setUserId(jwtTokenProvider.getUserId(token));
-        return true;
-    }
-
     @Override
     public List<UserPointProjection> getSumPointUser() {
 
@@ -136,7 +103,6 @@ public class AuthServiceImpl implements AuthService {
                 token, Duration.ofDays(7) // 만료시간 설정
         );
     }
-
 
 
     @Override
@@ -165,5 +131,20 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(LocalDateTime.now())
                 .build();
         pointHistoryRepository.save(history);
+    }
+
+    public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
+
+        return  null;
+//        if (!(comments instanceof List<?>)) {
+//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
+//        }
+//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+//        return commentList.stream()
+//                .peek(comment -> {
+//                    comment.setAuthor(comment.getUserId().equals(userId));
+//                    comment.setCommentOwner(comment.getUserId().equals(commentOwner));
+//                })
+//                .collect(Collectors.toList());
     }
 }
