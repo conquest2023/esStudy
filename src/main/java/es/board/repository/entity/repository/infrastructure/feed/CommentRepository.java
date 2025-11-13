@@ -4,6 +4,7 @@ import es.board.repository.entity.CommentEntity;
 import es.board.repository.entity.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface CommentRepository {
 
     List<CommentEntity> findByComments(int id);
 
-    Page<CommentEntity> findByPageComments(Pageable pageable);
+    Page<CommentEntity> findUserMyPageComments(Pageable pageable,String userId);
 
     CommentEntity findCommentDetail(long id);
 

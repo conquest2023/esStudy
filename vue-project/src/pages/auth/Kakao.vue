@@ -75,7 +75,7 @@ onMounted(async () => {
   const code = urlParams.get('code')
   if (code) {
     try {
-      const res = await fetch(`/api/kakao/callback/json?code=${code}`)
+      const res = await fetch(`/kakao/callback/json?code=${code}`)
       const text = await res.text()
       let data
       try {

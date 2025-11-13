@@ -52,8 +52,8 @@ public class PostAdapterRepository implements PostRepository {
     }
 
     @Override
-    public List<PostEntity> findByPosts(Pageable pageable) {
-        return null;
+    public Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId) {
+        return repository.findByMyPageUserPosts(pageable,userId);
     }
 
     @Override

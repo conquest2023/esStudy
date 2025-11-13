@@ -239,29 +239,6 @@ public class UserController {
 //                "accessToken", newToken.getAccessToken()
 //        ));
 //    }
-    @GetMapping("/user/profile")
-    public ResponseEntity<?> getSomeoneInfo(HttpServletRequest request,String username) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-//                String userId = userService.findById(username);
-//                Map<String, Object> boardStats = feedService.getUserMapageLikeAndFeedCount(userId);
-//                Map<String,Object> commentStats= commentService.getUserComments(userId);
-//                int point = Optional.ofNullable(feedService.getPointAll(userId)).orElse(0);
-//                Map<String, Object> response = Map.of(
-//                        "like", boardStats.get("totalLikes"),
-//                        "commentCount", commentStats.get("totalComments"),
-//                        "feedCount",  boardStats.get("totalBoards"),
-//                        "point",point,
-//                        "username",username,
-//                        "visitCount", userService.findVisitCount(userId));
-                return ResponseEntity.ok("ok");
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-    }
-
 
 //    @GetMapping("/mypage")
 //    public ResponseEntity<?> getMyPageInfo(HttpServletRequest request) {

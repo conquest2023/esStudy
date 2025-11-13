@@ -30,7 +30,7 @@ public class CommentAdapterRepository implements CommentRepository {
     }
 
     @Override
-    public Page<CommentEntity> findByPageComments(Pageable pageable) {
+    public Page<CommentEntity> findUserMyPageComments(Pageable pageable,String userId) {
         return null;
     }
 

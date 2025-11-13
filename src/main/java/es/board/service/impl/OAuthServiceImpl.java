@@ -36,7 +36,6 @@ public class OAuthServiceImpl implements OAuthService {
 
     private  final ObjectMapper objectMapper;
 
-//    private  final RestTemplate restTemplate;
 
     private  final OAuthRepository oAuthRepository;
 

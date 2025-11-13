@@ -38,7 +38,7 @@ public class PostTestRepository implements PostRepository {
     }
 
     @Override
-    public List<PostEntity> findByPosts(Pageable pageable) {
+    public Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId) {
         return null;
     }
 

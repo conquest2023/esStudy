@@ -17,8 +17,13 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity,Long> 
     Page<CommentEntity> findAll(Pageable pageable);
 
 
+    @Query("select p from CommentEntity p where p.userId=:userId")
+    Page<CommentEntity> findByMyPageUserComments(Pageable pageable,String userId);
     @Query("select c from CommentEntity c where c.postId=:id")
     List<CommentEntity> findById(int id);
+
+
+
 
 //    @Query("")
 }

@@ -19,6 +19,9 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
 
 
 
+    @Query("select sum(p.pointChange) from PointHistoryEntity p where p.userId=:userId")
+    int sumPointUser(@Param("userId") String userId);
+
     @Query("SELECT sum(u.pointChange) as totalCount, " +
             "u.username as username " +
             "FROM PointHistoryEntity u " +

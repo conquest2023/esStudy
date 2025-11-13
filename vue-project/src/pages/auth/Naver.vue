@@ -79,7 +79,7 @@ onMounted(async () => {
 
   if (code && state) {
     try {
-      const res = await fetch(`/api/naver/callback/json?code=${code}&state=${state}`)
+      const res = await fetch(`/naver/callback/json?code=${code}&state=${state}`)
       const text = await res.text()
       let data
 

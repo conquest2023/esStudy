@@ -1,7 +1,6 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
 import es.board.repository.entity.PostEntity;
-import es.board.service.domain.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -23,7 +22,7 @@ public interface PostRepository {
 
     void increaseViewCount(int postId);
 
-    List<PostEntity> findByPosts(Pageable pageable);
+    Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId);
 
     Page<PostEntity> findByPagePosts(Pageable pageable);
 

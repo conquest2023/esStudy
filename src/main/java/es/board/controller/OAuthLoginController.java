@@ -32,7 +32,6 @@ public class OAuthLoginController {
 
     private  final OAuthService authService;
 
-    private  final AuthService userService;
 
     private  final JwtTokenProvider jwtTokenProvider;
 
@@ -132,7 +131,6 @@ public class OAuthLoginController {
     public ResponseEntity<?> loginPass(@RequestBody LoginDTO response) {
         Authentication authentication = authService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
-//        userService.updateVisitCount(response.getUserId());
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)

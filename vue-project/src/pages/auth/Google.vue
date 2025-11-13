@@ -84,7 +84,7 @@ onMounted(async () => {
 
   if (code) {
     try {
-      const res = await fetch(`/api/google/callback/json?code=${code}`)
+      const res = await fetch(`/google/callback/json?code=${code}`)
       const text = await res.text()
       let data
 
