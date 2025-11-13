@@ -1,10 +1,12 @@
 package es.board.service.domain;
 
+import es.board.repository.document.Board;
 import es.board.repository.entity.PostEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,8 +17,6 @@ import java.util.Objects;
 public class Post {
 
     private int id;
-
-//    private Long feedId;
 
     private String userId;
 
@@ -40,6 +40,28 @@ public class Post {
 
     private LocalDateTime modifiedAt;
 
+    public Post(int id, String userId, String title, String description, LocalDateTime updateAt) {
+        this.id=id;
+        this.userId=userId;
+        this.title=title;
+        this.description=description;
+        this.modifiedAt=updateAt;
+    }
+
+    public Post(int id, String userId, String username, String title, String description, String category, int viewCount, int likeCount, boolean anonymous, String imageUrl, LocalDateTime createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.username = username;
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.viewCount = viewCount;
+        this.likeCount = likeCount;
+        this.anonymous = anonymous;
+        this.imageUrl = imageUrl;
+        this.createdAt = createdAt;
+    }
+
     public static PostEntity toEntity(Post d) {
         if (d == null) return null;
         return PostEntity.builder()
@@ -57,6 +79,14 @@ public class Post {
                 .build();
     }
 
+    public PostEntity update(Post post){
+        return PostEntity.builder()
+                .userId(post.getUserId())
+                .title(post.getTitle())
+                .description(post.getDescription())
+                .modifiedAt(LocalDateTime.now())
+                .build();
+    }
     public  boolean isOwnedBy(String currentUserId) {
         return currentUserId != null && Objects.equals(userId, currentUserId);
     }

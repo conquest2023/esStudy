@@ -5,10 +5,7 @@ import es.board.repository.entity.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PostTestRepository implements PostRepository {
 
@@ -23,6 +20,16 @@ public class PostTestRepository implements PostRepository {
     public void savePost(PostEntity post) {
         stores.put(post.getId(),post);
 
+    }
+
+    @Override
+    public Optional<PostEntity> findById(int id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public PostEntity save(PostEntity post) {
+        return null;
     }
 
     @Override

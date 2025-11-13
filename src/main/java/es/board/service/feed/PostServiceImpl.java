@@ -6,6 +6,7 @@ import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.PostEntity;
 import es.board.service.domain.Post;
 import es.board.service.point.PointService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,16 @@ public class PostServiceImpl implements PostService{
     @Transactional
     public void incrementViewCount(int postId) {
          postRepository.increaseViewCount(postId);
+    }
+
+    @Override
+    @Transactional
+    public PostDTO.Request updatePost(int id,String userId, PostDTO.Update update) {
+
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        postEntity.applyFrom(update.getTitle(),update.getDescription());
+        Post domain = Post.toDomain(postEntity);
+        return PostDomainMapper.toRequest(postEntity.getUserId(),domain);
     }
 
     @Override

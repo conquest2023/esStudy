@@ -4,6 +4,7 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.repository.entity.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ public interface PostService {
 
     void incrementViewCount(int postId);
 
+    PostDTO.Request updatePost(int id,String userId,PostDTO.Update update);
 
     void savePost(String userId, PostDTO.Response feedSaveDTO);
 

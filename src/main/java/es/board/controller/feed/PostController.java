@@ -67,6 +67,15 @@ public class PostController {
                 "ids", ids));
     }
 
+    @PutMapping("/post/{id}")
+    public ResponseEntity<?> updatePost(@RequestHeader(value = "Authorization", required = false) String token,
+                                        @PathVariable int id,
+                                        @RequestBody PostDTO.Update update){
+        String userId = checkToken(token);
+        PostDTO.Request updatePost= postService.updatePost(id,userId, update);
+
+        return ResponseEntity.ok(Map.of("updatePost",updatePost));
+    }
 
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {

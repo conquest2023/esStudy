@@ -35,7 +35,12 @@
           <RouterLink :to="`/user/profile/${feed.username}`" class="text-primary fw-semibold">
             {{ rankBadge(feed.username) }} {{ feed.username }}
           </RouterLink>
-          · <span>{{ dateText }}</span>
+          <span v-if="!feed.modifiedAt" class="ms-1">
+          · {{ dateText }}
+          </span>
+          <span v-if="feed.modifiedAt" class="text-muted ms-2">
+          (수정됨 · {{ fmtDate(feed.modifiedAt) }})
+        </span>
         </p>
         <div class="feed-content" v-html="feed.description" />
 
@@ -253,6 +258,7 @@ async function loadFeedDetail(postId) {
       likeCount:   raw.likeCount ?? 0,
       viewCount:   raw.viewCount ?? 0,
       createdAt:   raw.createdAt ?? null,
+      modifiedAt:   raw.modifiedAt ?? null,
       owner:      raw.owner,                 // 소유자 여부
     }
     function normalize(html = '') {
@@ -351,10 +357,11 @@ async function submitComment() {
 
 function goEdit(){
   router.push({
-    path:'/post',
+    path:'/post/update',
     query:{ id:feed.value.id}
-      }
-  )}
+    }
+  )
+}
 async function onDelete() {
   if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
 

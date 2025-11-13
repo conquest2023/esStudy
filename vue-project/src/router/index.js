@@ -30,6 +30,11 @@ const routes = [
                 name: 'NoticeDetail',
                 component: () => import('@/pages/feed/NoticeDetail.vue')
             },
+            {
+                path: '/post/update',
+                name: 'PostUpdate',
+                component: FeedUpdate,
+            },
             { path: '/notice', component: () => import('@/pages/feed/PostFeed.vue') },
             { path: '/mypage', component: () => import('@/pages/feed/MyPage.vue') },
             { path: 'certificate/data', component: () => import('@/pages/certificate/CertificateData.vue') },

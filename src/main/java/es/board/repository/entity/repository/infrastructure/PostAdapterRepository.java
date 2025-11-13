@@ -36,6 +36,16 @@ public class PostAdapterRepository implements PostRepository {
     }
 
     @Override
+    public Optional<PostEntity> findById(int id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public PostEntity save(PostEntity post) {
+        return repository.save(post);
+    }
+
+    @Override
     public void increaseViewCount(int postId) {
 
         repository.incrementViewCount(postId);

@@ -4,6 +4,7 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.service.domain.Post;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class PostDomainMapper {
                 createdAt                     // modifiedAt 초기값
         );
     }
-        public static Post toDomain(String userId, PostDTO.Response dto) {
+    public static Post toDomain(String userId, PostDTO.Response dto) {
             if (dto == null) return null;
 
             int  id      = dto.getId();
@@ -53,28 +54,19 @@ public class PostDomainMapper {
                     0,
                     dto.isAnonymous(),
                     dto.getImageURL(),
-                    createdAt,
                     createdAt
             );
         }
-
-    public static PostDTO.Response toResponse(Post d) {
-        return PostDTO.Response.builder()
-                .id(d.getId())
-                .userId((d.getUserId()))
-                .username(d.getUsername())
-                .imageURL(d.getImageUrl())
-                .title(d.getTitle())
-                .category(d.getCategory())
-                .description(d.getDescription())
-                .anonymous(d.isAnonymous())
-                .viewCount(d.getViewCount())
-                .likeCount(d.getLikeCount())
-                .createdAt(d.getCreatedAt())
-                .attachFile(null)
-                .imageFiles(null)
-                .build();
+    public static Post toUpdateDomain(int id,String userId, PostDTO.Update dto) {
+        LocalDateTime updateAt = LocalDateTime.now();
+        return new Post(
+                id,
+                userId,
+                dto.getTitle(),
+                dto.getDescription(),
+                updateAt);
     }
+
 
     /** Domain → Request DTO (주로 수정/재전송 용도로 필요 시) */
     public static PostDTO.Request toRequest(String userId, Post d) {
@@ -91,6 +83,7 @@ public class PostDomainMapper {
                 .likeCount(d.getLikeCount())
                 .viewCount(d.getViewCount())
                 .createdAt(d.getCreatedAt())
+                .modifiedAt(d.getModifiedAt())
                 .build();
     }
 //    public static List<PostDTO.Request> toRequestList(List<Post> posts) {

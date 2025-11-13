@@ -61,6 +61,12 @@ public class PostDTO {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
         private LocalDateTime createdAt;
 
+
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+        private LocalDateTime modifiedAt;
+
     }
     @Data
     @AllArgsConstructor
@@ -126,15 +132,14 @@ public class PostDTO {
     @Builder
     public static  class Update {
 
-        private String feedUID;
+        private int id;
 
-        private String username;
+        private String userId;
 
         private String title;
 
         private String description;
 
-        private  int likeCount;
 
         private LocalDate updatedAt;
 

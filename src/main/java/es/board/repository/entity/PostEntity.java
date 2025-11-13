@@ -2,6 +2,7 @@ package es.board.repository.entity;
 
 
 
+import es.board.service.domain.Post;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
@@ -57,4 +58,11 @@ public class PostEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
+
+
+    public void applyFrom(String title,String description){
+        this.title = title;
+        this.description = description;
+        this.modifiedAt = LocalDateTime.now();
+    }
 }
