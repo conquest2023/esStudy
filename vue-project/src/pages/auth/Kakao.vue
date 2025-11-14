@@ -72,10 +72,12 @@ const submitUsername = async () => {
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search)
+  console.log(urlParams)
   const code = urlParams.get('code')
   if (code) {
     try {
-      const res = await fetch(`/kakao/callback/json?code=${code}`)
+      const res = await fetch(`/api/kakao/callback/json?code=${code}`)
+      console.log(res)
       const text = await res.text()
       let data
       try {
