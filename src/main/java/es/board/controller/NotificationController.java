@@ -5,8 +5,6 @@ import es.board.ex.TokenValidator;
 import es.board.repository.entity.Notification;
 import es.board.service.NotificationService;
 import es.board.service.UserNotificationService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,7 +52,7 @@ public class NotificationController {
     }
 
     @GetMapping("/notifications/all")
-    public ResponseEntity<?> getAllNotifications(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUsNotifications(@RequestHeader("Authorization") String token) {
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
@@ -63,13 +61,13 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
-    @GetMapping("/notifications/check")
-    public ResponseEntity<?> getCheckNotifications(@RequestHeader("Authorization") String token) {
+    @GetMapping("/notifications/recent")
+    public ResponseEntity<?> getUserRecentNotifications(@RequestHeader("Authorization") String token) {
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
-        List<Notification> notifications = userNotificationService.getCheckNotifications(jwtTokenProvider.getUserId(token.substring(7)));
+        List<Notification> notifications = userNotificationService.getRecentNotifications(jwtTokenProvider.getUserId(token.substring(7)));
         return ResponseEntity.ok(notifications);
     }
 
@@ -79,7 +77,7 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "토큰이 필요합니다."));
         }
-        return ResponseEntity.ok(userNotificationService.getCheckNotifications(jwtTokenProvider.getUserId(token)));
+        return ResponseEntity.ok(userNotificationService.getRecentNotifications(jwtTokenProvider.getUserId(token)));
     }
 
     @PostMapping("/notification/delete")

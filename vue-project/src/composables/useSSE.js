@@ -14,7 +14,6 @@ export function useSSE(token) {
         let parsed
         try { parsed = JSON.parse(e.data) }
         catch { return console.error('알림 JSON 파싱 실패', e.data) }
-
         store.addNotification({
             id: Date.now(),
             postId:  parsed.postId,
@@ -30,7 +29,6 @@ export function useSSE(token) {
     es.onopen = () => {
         console.log('[SSE] 연결 성공')
     }
-
     es.onerror = () => {
         console.warn('[SSE] 오류 발생 – 20초 뒤 재연결 시도')
         es.close()

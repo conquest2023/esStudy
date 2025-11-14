@@ -15,6 +15,6 @@ public interface UserNotificationService {
 
     int getCountCheckNotification(String userId);
 
-    List<Notification> getCheckNotifications(String  userId);
+    List<Notification> getRecentNotifications(String  userId);
 
 }

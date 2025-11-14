@@ -1,6 +1,5 @@
 package es.board.service.impl;
 
-import es.board.ex.DBIoException;
 import es.board.ex.IndexException;
 import es.board.repository.entity.Notification;
 import es.board.repository.entity.repository.NotificationRepository;
@@ -9,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -30,7 +30,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     @Override
     public void checkedNotification(String userId, List<Long> id) {
         try {
-            notificationRepository.checkId(userId,id);
+            notificationRepository.checkNotification(userId,id, LocalDateTime.now());
         }catch (IndexException e){
             throw new IndexException("알림 읽음 처리 중 오류 발생", e);
         }
@@ -46,9 +46,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public List<Notification> getCheckNotifications(String userId) {
+    public List<Notification> getRecentNotifications(String userId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysAgo = now.minusDays(7);
         try {
-            return notificationRepository.findByCheckNotification(userId);
+            return notificationRepository.findByRecentNotification(userId,sevenDaysAgo);
         }catch (IndexException e){
             throw new IndexException("알림 읽음 처리 중 오류 발생", e);
         }

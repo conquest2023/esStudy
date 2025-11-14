@@ -19,7 +19,6 @@ export const useUserStore = defineStore('user', {
         async fetchMe () {
             const token = localStorage.getItem('token')
             if (!token) return this.$reset()
-
             try {
                 this.loading = true
                 const { data } = await api.get('/info')   // axios interceptor가 토큰 붙임
@@ -39,20 +38,19 @@ export const useUserStore = defineStore('user', {
             this.username   = name
         },
 
-        /** ▣ 로그아웃 */
         logout () {
             localStorage.removeItem('token')
             localStorage.removeItem('username')
             this.$reset()
         },
 
-        /** ▣ 알림 추가 */
-        addNotification (n) {
-            // Vue가 반응형으로 감지할 수 있도록 새 배열로 할당
-            this.notifications = [n, ...this.notifications]
-            localStorage.setItem('notifications', JSON.stringify(this.notifications))
-        },
-
+        // /** ▣ 알림 추가 */
+        // addNotification (n) {
+        //     // Vue가 반응형으로 감지할 수 있도록 새 배열로 할당
+        //     this.notifications = [n, ...this.notifications]
+        //     localStorage.setItem('notifications', JSON.stringify(this.notifications))
+        // },
+        //
 
         /** ▣ 알림 일괄 읽음 */
         markAllRead () {
