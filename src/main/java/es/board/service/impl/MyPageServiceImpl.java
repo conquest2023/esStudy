@@ -1,11 +1,11 @@
 package es.board.service.impl;
-
-import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.repository.entity.PostEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
+import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
+import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +42,16 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public Page<CommentDTO.Request> getMyPageCommentList(String userId) {
-        return null;
+    public Page<MyCommentProjection> getMyPageCommentList(int page, int size, String userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<MyCommentProjection> userMyPageComments = commentRepository.findUserMyPageComments(pageable, userId);
+        return userMyPageComments;
     }
 
     @Override
-    public Page<PostDTO.Request> getPostsCommentedByUser(String userId) {
-        return null;
+    public Page<PostsAndCommentsProjection> getPostsCommentedByUser(int page, int size, String userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+         return commentRepository.findMyPagePostsAndComments(pageable,userId);
     }
 }

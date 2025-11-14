@@ -3,6 +3,8 @@ package es.board.service;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
+import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,9 +18,9 @@ public interface MyPageService {
 
     Page<PostEntity> getMyPageFeedList(int page, int size, String userId);
 
-    Page<CommentDTO.Request> getMyPageCommentList(String userId);
+    Page<MyCommentProjection> getMyPageCommentList(int page, int size,String userId);
 
 
-    Page<PostDTO.Request> getPostsCommentedByUser(String userId);
+    Page<PostsAndCommentsProjection> getPostsCommentedByUser(int page, int size, String userId);
 
 }

@@ -2,6 +2,8 @@ package es.board.repository.entity.repository.infrastructure.feed;
 
 import es.board.repository.entity.CommentEntity;
 import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
+import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +20,9 @@ public interface CommentRepository {
 
     List<CommentEntity> findByComments(int id);
 
-    Page<CommentEntity> findUserMyPageComments(Pageable pageable,String userId);
+    Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId);
+
+    Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable,String userId);
 
     CommentEntity findCommentDetail(long id);
 

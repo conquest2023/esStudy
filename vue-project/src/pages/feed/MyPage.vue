@@ -141,23 +141,22 @@ async function loadPage() {
 async function loadPosts() {
   const { data } = await api.get(`/mypage/post/paging?page=${page.value}&size=${size.value}`, auth())
   feedList.value = data.posts ?? []
-  console.log(feedList.value)
   totalPages.value = data.totalPage ?? 1
 
   stats.value[0].value = data.totalCountPost ?? 0
 }
 
-/* 2. 작성한 댓글 */
 async function loadComments() {
   const { data } = await api.get(`/mypage/comment/paging?page=${page.value}&size=${size.value}`, auth())
-  comments.value = data.commentList
+  comments.value = data.comments
   totalPages.value = data.totalPages ?? 1
+  stats.value[1].value = data.totalCountComment ?? 0
 }
 
 /* 3. 댓글 단 게시물 */
 async function loadCommentedPosts() {
-  const { data } = await api.get(`/mypage/feed/comment/paging?page=${page.value}&size=${size.value}`, auth())
-  commentedPosts.value = data.commentAndFeed
+  const { data } = await api.get(`/mypage/post/comment/paging?page=${page.value}&size=${size.value}`, auth())
+  commentedPosts.value = data.all
   totalPages.value = data.totalPages ?? 1
 }
 

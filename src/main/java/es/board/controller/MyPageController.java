@@ -2,6 +2,8 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
+import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.AuthService;
 import es.board.service.MyPageService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,7 +65,7 @@ public class MyPageController {
     }
 
     @GetMapping("/mypage/post/paging")
-    public ResponseEntity<?> getMyPagePoints(HttpServletRequest request,
+    public ResponseEntity<?> getMyPagePosts(HttpServletRequest request,
                                              @RequestParam int page,
                                              @RequestParam int size) {
         String token = request.getHeader("Authorization");
@@ -75,6 +77,44 @@ public class MyPageController {
                         "totalCountPost",myPageFeedList.getTotalElements()
                         ,"totalPage",myPageFeedList.getTotalPages(),
                         "posts",myPageFeedList.get().collect(Collectors.toList()))
+                );
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    @GetMapping("/mypage/comment/paging")
+    public ResponseEntity<?> getMyPageComments(HttpServletRequest request,
+                                             @RequestParam int page,
+                                             @RequestParam int size) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                Page<MyCommentProjection> myPageCommentsList = myPageService.getMyPageCommentList(page, size, jwtTokenProvider.getUserId(token));
+                return ResponseEntity.ok(Map.of(
+                        "totalCountComment",myPageCommentsList.getTotalElements()
+                        ,"totalPage",myPageCommentsList.getTotalPages(),
+                        "comments",myPageCommentsList.get().toList())
+                );
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+    }
+
+    @GetMapping("/mypage/post/comment/paging")
+    public ResponseEntity<?> getMyPagePostsAndComments(HttpServletRequest request,
+                                               @RequestParam int page,
+                                               @RequestParam int size) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            if (jwtTokenProvider.validateToken(token)) {
+                Page<PostsAndCommentsProjection> postsCommentedByUser = myPageService.getPostsCommentedByUser(page, size, jwtTokenProvider.getUserId(token));
+                return ResponseEntity.ok(Map.of(
+                        "totalCountComment",postsCommentedByUser.getTotalElements()
+                        ,"totalPage",postsCommentedByUser.getTotalPages(),
+                        "all",postsCommentedByUser.get().toList())
                 );
             }
         }

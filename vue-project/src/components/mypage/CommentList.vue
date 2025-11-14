@@ -3,7 +3,7 @@
     <li v-if="!items.length" class="list-group-item text-center text-muted">
       작성된 댓글이 없습니다.
     </li>
-    <li v-for="comment in items" :key="comment.commentUID" class="list-group-item">
+    <li v-for="comment in items" :key="comment.postId" class="list-group-item">
       <div class="comment-item">
         <div><strong>댓글 내용:</strong> {{ comment.content || '내용 없음' }}</div>
         <div><strong>작성일자:</strong> {{ formatDate(comment.createdAt) }}</div>
@@ -11,7 +11,7 @@
         <div class="mt-2">
           <RouterLink
               class="btn btn-sm btn-primary"
-              :to="`/search/view/feed/id/${comment.feedUID}`">
+              :to="`/post/${comment.postId}`">
             게시물 보러 가기
           </RouterLink>
         </div>
