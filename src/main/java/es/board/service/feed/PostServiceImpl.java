@@ -2,6 +2,7 @@ package es.board.service.feed;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.PostEntity;
 import es.board.service.domain.Post;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -30,11 +32,22 @@ public class PostServiceImpl implements PostService{
 
     private final PostRepository postRepository;
 
+    private final PostQueryRepository queryRepository;
+
 
     @Override
     @Transactional
     public void incrementViewCount(int postId) {
          postRepository.increaseViewCount(postId);
+    }
+
+    @Override
+    public Page<PostEntity> findPopularPostsInLast7Weeks(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastSevenDay = now.minusDays(7);
+        Page<PostEntity> byMyPageUserPosts = queryRepository.findPopularPostsInLast7Week(pageable, lastSevenDay);
+        return byMyPageUserPosts;
     }
 
     @Override
@@ -58,20 +71,20 @@ public class PostServiceImpl implements PostService{
     @Override
     public Page<Integer> findIds(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return postRepository.findIds(pageable);
+        return queryRepository.findIds(pageable);
     }
 
     @Override
-    public Page<PostEntity> getPosts(int page, int size) {
+    public Page<PostEntity> findAllPosts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostEntity> byPagePosts = postRepository.findByPagePosts(pageable);
+        Page<PostEntity> byPagePosts = queryRepository.findByPagePosts(pageable);
         return byPagePosts;
     }
 
     @Override
-    public PostDTO.Request getPostDetail(String userId,int id) {
+    public PostDTO.Request findPostDetail(String userId, int id) {
 
-        PostEntity postDetail = postRepository.findPostDetail(id);
+        PostEntity postDetail = queryRepository.findPostDetail(id);
         Post post = Post.toDomain(postDetail);
         return  PostDomainMapper.toRequest(userId,post);
     }
@@ -79,9 +92,9 @@ public class PostServiceImpl implements PostService{
     @Override
     public Map<Integer, Long> getCountByCommentAndReply(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Integer> ids = postRepository.findIds(pageable);
+        Page<Integer> ids = queryRepository.findIds(pageable);
         List<Integer> list = ids.getContent();
-        Map<Integer, Long> map = postRepository.countByReplyAndComment(list);
+        Map<Integer, Long> map = queryRepository.countByReplyAndComment(list);
         return map;
     }
 

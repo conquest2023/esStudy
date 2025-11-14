@@ -48,7 +48,7 @@ public class CommentEntity {
     private LocalDateTime createdAt;
 
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
 
@@ -59,11 +59,11 @@ public class CommentEntity {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void applyFrom(String content){
+        this.content=content;
+        this.updatedAt=LocalDateTime.now();
     }
+
 }

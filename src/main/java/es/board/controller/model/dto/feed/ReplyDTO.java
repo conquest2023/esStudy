@@ -30,14 +30,10 @@ public class ReplyDTO {
 
         private int postId;
 
-
         private String id;
-
-        private String commentUID;
 
         private String userId;
 
-        private String feedUID;
         @JsonSerialize(using = XssSafeSerializer.class)
         @JsonDeserialize(using = XssSafeDeserializer.class)
         private String username;
@@ -63,8 +59,6 @@ public class ReplyDTO {
 
             private long id;
 
-//        private String id;
-
             private long commentId;
 
             private int postId;
@@ -72,26 +66,43 @@ public class ReplyDTO {
             private boolean owner;
 
 
-//      private String commentUID;
-
-//       private String feedUID;
-
-
             private String username;
 
             @JsonSerialize(using = XssSafeSerializer.class)
             private String content;
 
-//        private String category;
-
             private int likeCount;
-
 
             @JsonSerialize(using = LocalDateTimeSerializer.class)
             @JsonDeserialize(using = LocalDateTimeDeserializer.class)
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
             private LocalDateTime createdAt;
 
+
+            @JsonSerialize(using = LocalDateTimeSerializer.class)
+            @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+            private LocalDateTime updatedAt;
         }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class Update {
+
+        private long id;
+
+
+        @JsonSerialize(using = XssSafeSerializer.class)
+        private String content;
+
+
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+        private LocalDateTime updatedAt;
+
+    }
 
 }

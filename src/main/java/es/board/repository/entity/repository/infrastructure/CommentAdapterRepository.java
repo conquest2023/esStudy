@@ -32,6 +32,12 @@ public class CommentAdapterRepository implements CommentRepository {
     }
 
     @Override
+    public Optional<CommentEntity> isExist(long id) {
+
+        return repository.findById(id);
+    }
+
+    @Override
     public Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId) {
         return repository.findByMyPageUserComments(pageable,userId);
     }

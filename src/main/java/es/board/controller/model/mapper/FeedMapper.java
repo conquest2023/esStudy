@@ -33,7 +33,6 @@ public class FeedMapper {
                 .sender(reply.getUserId())
                 .userId(userId)
                 .username(reply.getUsername())
-                .feedUID(reply.getFeedUID())
                 .message(reply.getContent())
                 .isCheck(false)
                 .type("답글")

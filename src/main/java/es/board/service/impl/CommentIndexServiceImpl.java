@@ -104,7 +104,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
         FeedEvent event = FeedEvent.builder()
 //                .feedUID(dto.getFeedUID())
 //                .postOwnerId(userId)
-                .commentUID(dto.getCommentUID())
+//                .commentUID(dto.getCommentUID())
                 .commenterId(dto.getUserId())
                 .username(dto.getUsername())
                 .content(dto.getContent())
@@ -183,7 +183,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
         List<Comment> comments = new ArrayList<>();
         for (CommentDTO.Response dto : res) {
             Comment comment = Comment.builder()
-                    .commentUID(dto.getCommentUID())
+//                    .commentUID(dto.getCommentUID())
                     .username(dto.getUsername())
                     .content(dto.getContent())
                     .createdAt(dto.getCreatedAt())

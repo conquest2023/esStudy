@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useSSE } from '@/composables/useSSE'
@@ -9,6 +9,7 @@ import { useToast } from '@/composables/useToast'
 const user = useUserStore()
 const router = useRouter()
 const { push } = useToast()
+
 const notifications = ref([])
 const unreadCount = computed(() =>
     notifications.value.filter(n => !n.isCheck).length
@@ -21,13 +22,25 @@ const openDropdownIdx = ref(null)
 const showNoti = ref(false)
 const showUserMenu = ref(false)
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
+
+// 알림 패널 ref
+const notiPanel = ref(null)
+
 onMounted(() => {
   const token = localStorage.getItem('token')
   if (token) useSSE(token)
   applySavedTheme()
   user.fetchMe()
   fetchNotifications()
+
+  // 전역 클릭 리스너 (알림/유저메뉴 닫기)
+  window.addEventListener('click', handleGlobalClick)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleGlobalClick)
+})
+
 async function fetchNotifications() {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -38,36 +51,14 @@ async function fetchNotifications() {
     })
 
     notifications.value = data || []
-    const unreadCount = notifications.value.filter(n => !n.isCheck).length
-    if (unreadCount > 0 && typeof push === 'function') {
+    const unread = notifications.value.filter(n => !n.isCheck).length
+    if (unread > 0 && typeof push === 'function') {
       push('🔔 새로운 알림이 있습니다!')
     }
   } catch (e) {
     console.error('알림 불러오기 실패', e)
   }
 }
-
-// async function fetchNotifications() {
-//   const token = localStorage.getItem('token')
-//   if (!token) return
-//   try {
-//     const beforeUnread = notifications.value.filter(n => !n.isCheck).length
-//
-//     const { data } = await api.get('/notifications/recent', {
-//       headers: { Authorization: `Bearer ${token}` }
-//     })
-//     notifications.value = data || []
-//
-//     const afterUnread = notifications.value.filter(n => !n.isCheck).length
-//
-//     // 미읽음 개수가 늘어나면 토스트 노출
-//     if (afterUnread > 0 && afterUnread > beforeUnread) {
-//       push('🔔 새로운 알림이 있습니다!')
-//     }
-//   } catch (e) {
-//     console.error('알림 불러오기 실패', e)
-//   }
-// }
 
 window.addEventListener('storage', e => {
   if (e.key === 'token') user.fetchMe()
@@ -92,11 +83,6 @@ function toggleNoti() {
 function logout() {
   user.logout()
   router.push('/login')
-}
-
-function updateTodoAlert(message) {
-  const todoAlert = document.getElementById('todo-alert')
-  if (todoAlert) todoAlert.innerText = message
 }
 
 function applySavedTheme() {
@@ -158,6 +144,39 @@ async function deleteNotification(ids) {
     )
   } catch (e) {
     console.error('삭제 실패', e)
+  }
+}
+
+/**
+ * 🔥 전역 클릭 핸들러
+ * - 알림 영역 밖 클릭 시 알림창 닫기
+ * - 유저 메뉴도 바깥 클릭 시 닫고 싶으면 여기서 같이 처리 가능
+ */
+function handleGlobalClick(e) {
+  // 알림창 닫기
+  if (showNoti.value) {
+    const bell = e.target.closest('.bell-trigger')
+    const panel = notiPanel.value
+    if (!bell && (!panel || !panel.contains(e.target))) {
+      showNoti.value = false
+    }
+  }
+
+  // 유저 메뉴 닫기 (원하면)
+  if (showUserMenu.value) {
+    const userMenuBtn = e.target.closest('.user-menu-trigger')
+    const userMenuDropdown = e.target.closest('.user-menu-dropdown')
+    if (!userMenuBtn && !userMenuDropdown) {
+      showUserMenu.value = false
+    }
+  }
+
+  // 상단 대분류 드롭다운 닫기 (원하면)
+  if (openDropdownIdx.value !== null) {
+    const navArea = e.target.closest('.top-nav-menu-area')
+    if (!navArea) {
+      openDropdownIdx.value = null
+    }
   }
 }
 
@@ -263,7 +282,7 @@ const menus = [
       </span>
 
       <!-- 상단 메뉴 -->
-      <ul class="nav d-none d-md-flex gap-3">
+      <ul class="nav d-none d-md-flex gap-3 top-nav-menu-area">
         <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
           <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
             {{ m.label }}
@@ -287,10 +306,10 @@ const menus = [
         <!-- 알림 -->
         <div class="position-relative me-2">
           <i
-              class="fas fa-bell fa-lg"
+              class="fas fa-bell fa-lg bell-trigger"
               :class="hasUnread ? 'text-primary bell-has-unread' : 'text-secondary'"
               style="cursor:pointer"
-              @click="toggleNoti"
+              @click.stop="toggleNoti"
           />
           <span
               v-if="unreadCount > 0"
@@ -300,7 +319,11 @@ const menus = [
             {{ unreadCount }}
           </span>
 
-          <div class="notification-dropdown shadow rounded-4 p-0" :class="{ show: showNoti }">
+          <div
+              ref="notiPanel"
+              class="notification-dropdown shadow rounded-4 p-0"
+              :class="{ show: showNoti }"
+          >
             <!-- 헤더 -->
             <div class="noti-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
               <div class="d-flex flex-column">
@@ -340,7 +363,7 @@ const menus = [
                     <div class="d-flex align-items-center mb-1">
                       <span class="noti-dot me-2" v-if="!n.isCheck"></span>
                       <span class="fw-semibold text-dark text-truncate">
-                          {{ n.username }}님이 "{{ n.message }}" 작성하셨습니다
+                        {{ n.username }}님이 "{{ n.message }}" 작성하셨습니다
                       </span>
                     </div>
                     <div class="small text-muted">{{ formatDate(n.createdAt) }}</div>
@@ -401,11 +424,11 @@ const menus = [
 
         <!-- 로그인 / 유저 메뉴 -->
         <template v-if="user.isLoggedIn">
-          <div class="position-relative" @click.stop="showUserMenu = !showUserMenu">
+          <div class="position-relative user-menu-trigger" @click.stop="showUserMenu = !showUserMenu">
             <button class="btn btn-outline-secondary btn-sm">
               <i class="fas fa-user-circle" />
             </button>
-            <div class="dropdown-menu dropdown-menu-end mt-2" :class="{ show: showUserMenu }">
+            <div class="dropdown-menu dropdown-menu-end mt-2 user-menu-dropdown" :class="{ show: showUserMenu }">
               <span class="dropdown-item-text text-secondary">
                 <b>{{ user.username }}</b>님
               </span>
@@ -430,59 +453,90 @@ const menus = [
 
 <style scoped>
 .okky-navbar {
-  font-size: 0.95rem;
-  z-index: 1040;
-  border-bottom: 1px solid #eee;
-  transition: box-shadow 0.2s ease-in-out;
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  align-items: center;
+  z-index: 2000;
 }
 
-.tagline {
-  white-space: nowrap;
+/* 브랜드 */
+.okky-navbar .navbar-brand {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #2563eb !important;
 }
 
+/* 태그라인 */
+.okky-navbar .tagline {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* 상단 메뉴 */
+.okky-navbar .nav-link {
+  font-weight: 600;
+  color: #444;
+  padding: 0.6rem 0.2rem;
+  position: relative;
+}
+
+.okky-navbar .nav-link:hover {
+  color: #2563eb;
+}
+.user-menu-dropdown {
+  right: 0;          /* 버튼 오른쪽에 붙고 */
+  left: auto;        /* 왼쪽 고정 해제 */
+  transform: translateX(-5%);  /* 전체를 왼쪽으로 40% 정도 이동 */
+}
+/* 드롭다운 (카드형 메뉴) */
 .dropdown-menu {
-  min-width: 200px;
-  transition: all 0.2s;
-  border-radius: 12px;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  min-width: 260px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+  border: 1px solid #f1f3f5;
+}
+
+.dropdown-item {
+  padding: 10px 12px !important;
+  border-radius: 10px;
 }
 
 .dropdown-item:hover {
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background: #f1f4ff;
 }
 
-.btn-sm {
-  font-size: 0.85rem;
-  border-radius: 8px;
+/* 알림 종 아이콘 */
+.fa-bell {
+  transition: color .25s, transform .25s;
 }
 
-/* 공통 드롭다운 위치 보정 */
-.dropdown-menu {
-  top: 100% !important;
-  bottom: auto !important;
-  transform: translateY(4px);
-  z-index: 1050;
+.fa-bell:hover {
+  color: #2563eb !important;
+  transform: scale(1.05);
 }
 
-.dropdown-menu.show {
-  top: 100% !important;
-  transform: translateY(4px);
-  right: 0;
-  left: auto;
-  z-index: 1050;
+/* 빨간 알림 동그라미 */
+.badge {
+  font-weight: 600;
+  padding: 4px 6px;
 }
 
-/* 알림 드롭다운 */
+/* 알림 드롭다운 패널 */
 .notification-dropdown {
-  min-width: 320px;
-  max-width: 360px;
-  max-height: 380px;
+  width: 360px;
+  background: white;
+  border-radius: 18px;
   overflow: hidden;
-  right: 0;
-  left: auto;
   position: absolute;
-  background: #fff;
-  transform: translateY(8px);
+  right: 0;
+  top: 48px;
+  border: 1px solid #e5e8eb;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  animation: fadeSlide .25s ease-out;
   display: none;
 }
 
@@ -490,53 +544,83 @@ const menus = [
   display: block;
 }
 
+/* 애니메이션 */
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 알림 헤더 */
+.noti-header {
+  background: #f9fafb;
+}
+
+/* 알림 리스트 */
 .noti-list {
   max-height: 260px;
   overflow-y: auto;
 }
 
+/* 개별 알림 */
 .noti-item {
-  background: #ffffff;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  border-bottom: 1px solid #f1f3f5;
+  padding: 12px 14px;
+  transition: background .15s ease;
 }
 
 .noti-item:hover {
-  background: #f8f9fb;
-  transform: translateY(-1px);
+  background: #f5f7ff;
 }
 
+/* 미확인 알림 시 강조 */
 .noti-unread {
-  background: #eef4ff;
+  background: #edf3ff;
 }
 
+/* 작은 빨간 점 */
 .noti-dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
-  background: #ff4b4b;
+  background: #ff3b30;
+  border-radius: 50%;
 }
 
-/* 벨 아이콘 흔들리는 느낌 */
-.bell-has-unread {
-  animation: bell-bounce 1.2s ease-in-out infinite;
+/* 유저 메뉴 */
+.dropdown-menu.show {
+  display: block;
 }
 
-@keyframes bell-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-1px);
-  }
-  60% {
-    transform: translateY(1px);
-  }
+.btn-outline-secondary {
+  border-radius: 10px !important;
 }
 
+/* 테마 버튼 */
+.btn-outline-dark {
+  border-radius: 10px !important;
+  padding: 6px 10px;
+}
+
+/* 글쓰기 버튼(강조) */
+.btn-danger {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #ff4b4b, #ff2626);
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #ff3b3b, #ff1111);
+}
+
+/* 모바일 대응 */
 @media (max-width: 768px) {
   .tagline {
-    display: none !important;
+    display: none;
+  }
+
+  .okky-navbar {
+    height: 58px;
   }
 }
 </style>

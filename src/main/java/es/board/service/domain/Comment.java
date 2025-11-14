@@ -27,6 +27,17 @@ public class Comment {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    public Comment(Long id, int postId, String userId, String username, String content, boolean anonymous, int likeCount, LocalDateTime createdAt) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+        this.username = username;
+        this.content = content;
+        this.anonymous = anonymous;
+        this.likeCount = likeCount;
+        this.createdAt = createdAt;
+    }
+
     public static CommentEntity toEntity(Comment d) {
         if (d == null) return null;
         return CommentEntity.builder()

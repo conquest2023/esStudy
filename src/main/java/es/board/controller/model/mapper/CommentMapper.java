@@ -18,8 +18,8 @@ public class CommentMapper {
 
         return comment.stream()
                 .map(comment1 -> CommentDTO.Request.builder()
-                        .feedUID(comment1.getFeedUID())
-                        .commentUID(comment1.getCommentUID())
+//                        .feedUID(comment1.getFeedUID())
+//                        .commentUID(comment1.getCommentUID())
 //                        .userId(comment1.getUserId())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
@@ -46,8 +46,8 @@ public class CommentMapper {
     public List<CommentDTO.Request> isAuthorCommentList(List<Comment> comment,boolean isAuthor){
         return comment.stream()
                 .map(comment1 -> CommentDTO.Request.builder()
-                        .feedUID(comment1.getFeedUID())
-                        .commentUID(comment1.getCommentUID())
+//                        .feedUID(comment1.getFeedUID())
+//                        .commentUID(comment1.getCommentUID())
 //                        .userId(comment1.getUserId())
                         .username(comment1.getUsername())
                         .content(comment1.getContent())
@@ -61,7 +61,7 @@ public class CommentMapper {
 
     public Comment convertDtoToEntity(CommentDTO.Update eq) {
         return  Comment.builder()
-                .commentUID(eq.getCommentUID())
+//                .commentUID(eq.getCommentUID())
                 .username(eq.getUsername())
                 .content(eq.getContent())
                 .build();

@@ -14,6 +14,7 @@ public interface CommentService {
 
     void getComment(int id);
 
+    CommentDTO.Request updateComment(long id,CommentDTO.Update update);
 
     void deleteComment(long id);
 }

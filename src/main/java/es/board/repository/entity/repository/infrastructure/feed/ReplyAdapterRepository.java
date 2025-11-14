@@ -1,8 +1,6 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
-import es.board.repository.entity.CommentEntity;
 import es.board.repository.entity.ReplyEntity;
-import es.board.repository.entity.repository.infrastructure.CommentJpaRepository;
 import es.board.repository.entity.repository.infrastructure.ReplyJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,6 +24,11 @@ public class ReplyAdapterRepository implements ReplyRepository {
 
     @Override
     public List<ReplyEntity> findByReplys(int id) {
+        return repository.findReplys(id);
+    }
+
+    @Override
+    public Optional<ReplyEntity> isExist(long id) {
         return repository.findById(id);
     }
 

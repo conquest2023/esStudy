@@ -53,29 +53,22 @@ public class ReplyEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * 수정 시각
-     */
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * 소프트 삭제 시각
-     */
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    /**
-     * 엔티티 저장 전 자동 시간 설정
-     */
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+
+    public void applyFrom(String content){
+        this.content=content;
+        this.updatedAt=LocalDateTime.now();
     }
+
 }

@@ -1,62 +1,109 @@
-<!-- src/components/BoardTabs.vue -->
 <template>
-  <div class="tabs-wrapper">
-    <div class="modern-tabs">
+  <div class="tabs-container">
+    <div class="tabs-inner">
       <button
           v-for="tab in tabs"
           :key="tab.id"
-          class="tab-button"
+          ref="tabRefs"
+          class="tab-btn"
           :class="{ active: modelValue === tab.id }"
-          @click="$emit('update:modelValue', tab.id)"
+          @click="selectTab(tab.id)"
       >
         {{ tab.label }}
       </button>
+
+      <!-- 하이라이트 바 -->
+      <div class="highlight-bar" :style="highlightStyle"></div>
     </div>
   </div>
 </template>
 
-
-
 <script setup>
-defineProps({
+import { ref, watch, onMounted, nextTick } from 'vue'
+
+const props = defineProps({
   modelValue: String,
   tabs: Array
 })
+const emit = defineEmits(['update:modelValue'])
+
+const tabRefs = ref([])         // 각 탭 버튼 DOM
+const highlightStyle = ref({})  // underline 위치/너비
+
+function selectTab(id) {
+  emit('update:modelValue', id)
+}
+
+function updateHighlight() {
+  nextTick(() => {
+    const idx = props.tabs.findIndex(t => t.id === props.modelValue)
+    const el = tabRefs.value[idx]
+    if (!el) return
+
+    const rect = el.getBoundingClientRect()
+    const parentRect = el.parentNode.getBoundingClientRect()
+
+    highlightStyle.value = {
+      width: rect.width + 'px',
+      transform: `translateX(${rect.left - parentRect.left}px)`
+    }
+  })
+}
+
+onMounted(() => updateHighlight())
+watch(() => props.modelValue, () => updateHighlight())
 </script>
 
 <style scoped>
-.tabs-wrapper {
+/* 전체 컨테이너 */
+.tabs-container {
+  width: 100%;
   overflow-x: auto;
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
 }
 
-.modern-tabs {
+/* 내부 래퍼 */
+.tabs-inner {
+  position: relative;
   display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-  white-space: nowrap;
-  overflow-x: auto;
-  padding: 0 10px;
+  gap: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.tab-button {
-  padding: 8px 16px;
-  border-radius: 999px;
+/* 탭 버튼 */
+.tab-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  font-size: 0.95rem;
   font-weight: 500;
-  background-color: #f1f3f5;
-  border: 1px solid transparent;
-  transition: all 0.2s ease-in-out;
-  color: #333;
+  color: #555;
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
-.tab-button:hover {
-  background-color: #e2e6ea;
+.tab-btn:hover {
+  background: #f4f5f6;
+  color: #111;
 }
 
-.tab-button.active {
-  background-color: #007bff;
-  color: white;
+.tab-btn.active {
+  color: #007bff;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* 하이라이트 바 (슬라이딩 underline) */
+.highlight-bar {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background-color: #007bff;
+  border-radius: 3px;
+  transition: transform .25s ease, width .25s ease;
+  will-change: transform, width;
 }
 </style>

@@ -28,9 +28,7 @@ public class CommentDomainMapper {
                 dto.getContent(),
                 dto.isAnonymous(),
                 dto.getLikeCount(),
-                createdAt,
-                createdAt,
-                null
+                createdAt
         );
     }
     public static Notification toEntityNotification(String userId, CommentDTO.Response comment) {
@@ -55,9 +53,9 @@ public class CommentDomainMapper {
                 .owner(domain.isOwnedBy(userId))
                 .username(domain.getUsername())
                 .content(domain.getContent())
-                .anonymous(domain.isAnonymous())
                 .likeCount(domain.getLikeCount())
                 .createdAt(domain.getCreatedAt())
+                .updatedAt(domain.getUpdatedAt())
                 .build();
     }
     public static List<CommentDTO.Request> toRequestDtoList(String userId,List<Comment> domains) {

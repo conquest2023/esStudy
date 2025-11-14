@@ -3,6 +3,7 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.ex.TokenValidator;
+import es.board.service.domain.Comment;
 import es.board.service.feed.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +43,13 @@ public class CommentController {
     }
 
 
-    @GetMapping("/comment/{id}")
-    public ResponseEntity<?> getComment(@PathVariable long id){
-
-        return null;
+    @PutMapping("/comment/{id}")
+    public ResponseEntity<?> updateComment(@PathVariable long id,
+                                           @RequestHeader(value = "Authorization") String token,
+                                           @RequestBody CommentDTO.Update update){
+        checkToken(token);
+        CommentDTO.Request request = commentService.updateComment(id, update);
+        return ResponseEntity.ok(Map.of("comment",request));
     }
 
 
@@ -55,7 +59,6 @@ public class CommentController {
             @RequestParam int postId){
 
         String currentUserId = checkToken(token);
-
         List<CommentDTO.Request> comments = commentService.getComments(currentUserId,postId);
         return ResponseEntity.ok(Map.of("ok",comments));
     }

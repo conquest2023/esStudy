@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.UUID;
 
 
@@ -30,11 +31,7 @@ public class CommentDTO {
 
         private int postId;
 
-        private String commentUID;
-
         private String userId;
-
-        private String feedUID;
 
         @JsonSerialize(using = XssSafeSerializer.class)
         @JsonDeserialize(using = XssSafeDeserializer.class)
@@ -44,7 +41,6 @@ public class CommentDTO {
         @JsonDeserialize(using = XssSafeDeserializer.class)
         @NotBlank(message = "내용은 필수입니다.")
         private String content;
-
 
         private int likeCount;
 
@@ -61,14 +57,6 @@ public class CommentDTO {
             this.createdAt = LocalDateTime.now();
         }
 
-        public void commentBasicSetting(String id, String username, String userId) {
-            this.feedUID = id;
-            this.username = username;
-            this.userId = userId;
-            this.createdAt = LocalDateTime.now();
-            this.commentUID = UUID.randomUUID().toString();
-        }
-
     }
 
 
@@ -79,10 +67,6 @@ public class CommentDTO {
     public static class  Request{
 
         private long id;
-
-        private String commentUID;
-
-        private String feedUID;
 
         @JsonSerialize(using = XssSafeSerializer.class)
         private String username;
@@ -97,11 +81,9 @@ public class CommentDTO {
 
         private  boolean isAuthor;
 
-
-        private  boolean anonymous;
-
-
         private LocalDateTime createdAt;
+
+        private LocalDateTime updatedAt;
 
     }
 
@@ -111,15 +93,12 @@ public class CommentDTO {
     @Builder
     public static class  Update{
 
-        private String CommentUID;
 
-        private  String feedUID;
+        private long id;
 
         private String username;
 
         private String content;
-
-        private  int LikeCount;
 
         private LocalDateTime updatedAt;
     }

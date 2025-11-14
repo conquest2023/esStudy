@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository {
@@ -20,6 +21,7 @@ public interface CommentRepository {
 
     List<CommentEntity> findByComments(int id);
 
+    Optional<CommentEntity> isExist(long id);
     Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId);
 
     Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable,String userId);

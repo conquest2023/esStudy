@@ -1,5 +1,6 @@
 package es.board.repository.entity.repository.infrastructure;
 
+import es.board.repository.entity.Notification;
 import es.board.repository.entity.PostEntity;
 import es.board.repository.entity.repository.infrastructure.feed.CommentAggView;
 import es.board.repository.entity.repository.infrastructure.feed.ReplyAggView;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -29,6 +31,9 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
 
     @Query("select p.userId from PostEntity p where p.id=:postId")
     String findByUserId(@Param("postId") int postId);
+
+    @Query("select  p from PostEntity  p where p.createdAt>=:sevenDaysAgo order by p.viewCount DESC ")
+    Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable, @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
     @Modifying
     @Query("update PostEntity p set p.viewCount = p.viewCount + 1 where p.id = :postId")

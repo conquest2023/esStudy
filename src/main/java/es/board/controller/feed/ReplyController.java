@@ -28,8 +28,7 @@ public class ReplyController {
     @PostMapping("/reply")
     public ResponseEntity<?> saveReply(
             @RequestHeader(value = "Authorization", required = false) String token,
-            @RequestBody ReplyDTO.Response response
-            ){
+            @RequestBody ReplyDTO.Response response){
 
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
         if (tokenCheckResponse == null) {
@@ -56,8 +55,20 @@ public class ReplyController {
         List<ReplyDTO.Request> replies = replyService.getReplys(currentUserId,postId);
         return ResponseEntity.ok(Map.of("ok",replies));
     }
+
+    @PutMapping("reply/{id}")
+    public ResponseEntity<?> updateReply(@PathVariable long id,
+                                         @RequestHeader(value = "Authorization") String token,
+                                         @RequestBody ReplyDTO.Update update){
+        checkToken(token);
+        ReplyDTO.Request reply = replyService.updateReply(id, update);
+        return ResponseEntity.ok(Map.of("reply",reply));
+    }
+
     @DeleteMapping("/reply/{id}")
-    public ResponseEntity<?> deleteReply(@PathVariable int id){
+    public ResponseEntity<?> deleteReply(@PathVariable int id,
+                                          @RequestHeader(value = "Authorization", required = false) String token){
+        checkToken(token);
         replyService.deleteReply(id);
         return ResponseEntity.ok(Map.of("ok",true,
                 "message","게시글이 삭제 되었습니다"

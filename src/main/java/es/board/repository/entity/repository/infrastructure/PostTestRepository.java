@@ -23,6 +23,11 @@ public class PostTestRepository implements PostRepository {
     }
 
     @Override
+    public void deletePost(int id) {
+
+    }
+
+    @Override
     public Optional<PostEntity> findById(int id) {
         return Optional.empty();
     }
@@ -37,34 +42,5 @@ public class PostTestRepository implements PostRepository {
 
     }
 
-    @Override
-    public Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId) {
-        return null;
-    }
 
-    @Override
-    public Page<PostEntity> findByPagePosts(Pageable pageable) {
-        return null;
-    }
-
-
-    @Override
-    public PostEntity findPostDetail(int id) {
-        return null;
-    }
-
-    @Override
-    public  Page<Integer>  findIds(Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public void deletePost(int id) {
-        stores.remove(id);
-    }
-
-    @Override
-    public Map<Integer, Long> countByReplyAndComment(List<Integer> ids) {
-        return null;
-    }
 }

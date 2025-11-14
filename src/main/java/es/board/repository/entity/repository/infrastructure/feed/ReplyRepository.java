@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReplyRepository {
@@ -17,6 +18,7 @@ public interface ReplyRepository {
 
     List<ReplyEntity> findByReplys(int id);
 
+    Optional<ReplyEntity> isExist(long id);
     Page<ReplyEntity> findByPageReplys(Pageable pageable);
 
     ReplyEntity findReplyDetail(long id);

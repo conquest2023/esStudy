@@ -11,6 +11,7 @@ public interface ReplyService {
 
     List<ReplyDTO.Request> getReplys(String userId, int id);
 
+    ReplyDTO.Request updateReply(long id, ReplyDTO.Update update);
 
     void deleteReply(long id);
 }

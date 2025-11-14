@@ -1,118 +1,295 @@
 <template>
-  <PrevNextButtons  v-if="loaded" :posts="posts" />
+  <!-- 이전글 / 다음글 버튼 -->
+  <PrevNextButtons v-if="loaded" :posts="posts" class="mb-3" />
 
-  <section v-if="loaded" class="container my-4 pt-navbar">
+  <!-- 로딩 전 -->
+  <div v-if="!loaded" class="post-detail-loading text-center pt-5">
+    <i class="bi bi-arrow-repeat fs-2 spin"></i>
+  </div>
+
+  <!-- 디테일 페이지 -->
+  <section v-else class="post-detail-page container pt-navbar my-4">
+    <!-- 상단 액션 (수정/삭제) -->
     <div v-if="isOwner" class="text-end mb-2">
-      <div class="dropdown d-none d-md-inline">
-        <button class="btn btn-outline-secondary" data-bs-toggle="dropdown">
+      <!-- PC용 -->
+      <div class="dropdown d-none d-md-inline-block">
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-toggle="dropdown">
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><button type="button" class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</button></li>
-          <li><button type="button" class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</button></li>
+          <li>
+            <button type="button" class="dropdown-item" @click="goEdit">
+              <i class="fas fa-edit me-2"></i> 수정
+            </button>
+          </li>
+          <li>
+            <button type="button" class="dropdown-item text-danger" @click="onDelete">
+              <i class="fas fa-trash me-2"></i> 삭제
+            </button>
+          </li>
         </ul>
       </div>
-      <div class="dropup d-md-none position-fixed" style="bottom:80px;right:24px;z-index:1051">
+
+      <!-- 모바일 플로팅 -->
+      <div class="dropup d-md-none position-fixed action-fab">
         <button
             class="btn btn-primary rounded-circle shadow dropdown-toggle"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="width:56px;height:56px;">
+        >
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" @click="goEdit"><i class="fas fa-edit me-2"></i>수정</a></li>
-          <li><a class="dropdown-item text-danger" @click="onDelete"><i class="fas fa-trash me-2"></i>삭제</a></li>
+          <li>
+            <button class="dropdown-item" @click="goEdit">
+              <i class="fas fa-edit me-2"></i> 수정
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item text-danger" @click="onDelete">
+              <i class="fas fa-trash me-2"></i> 삭제
+            </button>
+          </li>
         </ul>
       </div>
     </div>
 
-    <div class="card shadow-sm feed-card">
+    <!-- 본문 카드 -->
+    <article class="card shadow-sm post-card">
       <div class="card-body">
-        <h2 class="feed-title">{{ feed.title }}</h2>
-        <p class="feed-meta">
-          <strong>작성자:</strong>
-          <RouterLink :to="`/user/profile/${feed.username}`" class="text-primary fw-semibold">
-            {{ rankBadge(feed.username) }} {{ feed.username }}
-          </RouterLink>
-          <span v-if="!feed.modifiedAt" class="ms-1">
-          · {{ dateText }}
-          </span>
-          <span v-if="feed.modifiedAt" class="text-muted ms-2">
-          (수정됨 · {{ fmtDate(feed.modifiedAt) }})
-        </span>
-        </p>
-        <div class="feed-content" v-html="feed.description" />
+        <header class="post-header mb-3">
+          <h1 class="post-title">
+            {{ feed.title }}
+          </h1>
 
-        <div class="feed-actions d-flex justify-content-between align-items-center mt-3 position-relative">
-          <span class="text-muted">
-            <i class="bi bi-chat-dots"></i> {{ comments.length }}
-          </span>
-          <button class="btn btn-sm btn-outline-danger like-btn position-relative" @click="toggleLike">
-            <i :class="['bi', liked ? 'bi-heart-fill' : 'bi-heart']" />
-            <span class="ms-1">{{ likeCount }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <h5 class="mt-5"><i class="bi bi-chat"></i> 댓글</h5>
-    <div v-if="comments.length === 0" class="text-muted">댓글이 없습니다.</div>
-    <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item">
-      <div class="comment-body flex-grow-1">
-        <div class="d-flex justify-content-between">
-          <div class="meta">
-            <RouterLink :to="`/user/profile/${c.username}`" class="text-primary fw-semibold">
-              {{ rankBadge(c.username) }} {{ c.username }}
+          <!-- 🔥 한 줄 메타 라인 -->
+          <div class="post-meta-row small">
+            <RouterLink :to="`/user/profile/${feed.username}`" class="post-author-link text-decoration-none d-inline-flex align-items-center">
+              <span class="badge-rank me-1">{{ rankBadge(feed.username) }}</span>
+              <span class="fw-semibold">{{ feed.username }}</span>
             </RouterLink>
-            <small class="ms-2 text-muted">{{ fmtDate(c.createdAt) }}</small>
-          </div>
-          <div v-if="c.owner">
-            <button class="btn btn-sm btn-link text-danger" @click="delComment(c)">삭제</button>
-          </div>
-        </div>
-        <div class="mt-1" v-html="linkify(c.content)"></div>
+            <span class="dot">·</span>
+            <span v-if="!feed.modifiedAt" class="ms-1">· {{ dateText }}</span>
+            <span class="dot">·</span>
+            <span>조회 {{ feed.viewCount ?? 0 }}</span>
 
-        <div class="mt-2" v-if="replies && replies[c.id]">
-          <div
-              v-for="rp in replies[c.id]"
-              :key="rp.id"
-              class="border-start ps-3 mb-2"
-              style="font-size:0.9rem;">
-            <strong>{{ rankBadge(rp.username) }}{{ rp.username }}</strong>
-            <small class="text-muted ms-2">{{ fmtDate(rp.createdAt) }}</small>
-            <div>{{ rp.content }}</div>
-          </div>
-        </div>
+            <span class="dot">·</span>
+            <span>좋아요 {{ likeCount }}</span>
 
-        <button class="btn btn-sm btn-outline-primary mt-2" @click="toggleReplyForm(c.id)">답글 달기</button>
-        <div v-show="activeReply === c.id" class="mt-2">
-          <textarea v-model="replyTexts[c.id]" rows="2" class="form-control mb-2" placeholder="답글 입력" />
+            <span v-if="feed.modifiedAt" class="dot">·</span>
+            <span v-if="feed.modifiedAt" class="text-muted"> 수정 {{ fmtDate(feed.modifiedAt) }}
+         </span>
+          </div>
+        </header>
+
+
+        <!-- 본문 -->
+        <section class="post-content" v-html="feed.description" />
+
+        <!-- 하단 액션 (댓글 수 / 좋아요) -->
+        <footer class="post-actions d-flex justify-content-between align-items-center mt-4">
+          <div class="text-muted small">
+            <i class="bi bi-chat-dots me-1"></i> 댓글 {{ comments.length }}
+          </div>
           <button
-              class="btn btn-sm btn-primary"
-              @click="submitReply(c.id)"
-              :disabled="replySendingMap[c.id]">
-            답글 작성
+              class="btn btn-sm btn-outline-danger like-btn d-inline-flex align-items-center"
+              @click="toggleLike"
+          >
+            <i :class="['bi', liked ? 'bi-heart-fill' : 'bi-heart']" class="me-1"></i>
+            <span>{{ likeCount }}</span>
           </button>
+        </footer>
+      </div>
+    </article>
+
+    <!-- 댓글 영역 -->
+    <section class="comments-section mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">
+          <i class="bi bi-chat"></i>
+          댓글 <span class="text-muted small">({{ comments.length }})</span>
+        </h5>
+      </div>
+
+      <!-- 댓글 리스트 -->
+      <div v-if="comments.length === 0" class="text-muted py-3 small">
+        아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요.
+      </div>
+
+      <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item d-flex">
+        <!-- 아바타 -->
+        <div class="comment-avatar d-none d-sm-flex">
+          <span>{{ (c.username || '?').charAt(0).toUpperCase() }}</span>
+        </div>
+
+        <!-- 본문 -->
+        <div class="comment-body flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="comment-meta">
+              <RouterLink
+                  :to="`/user/profile/${c.username}`"
+                  class="comment-author text-decoration-none"
+              >
+                <span class="badge-rank me-1">{{ rankBadge(c.username) }}</span>
+                <span class="fw-semibold">{{ c.username }}</span>
+
+                <span v-if="c.owner" class="badge-author ms-1">작성자</span>
+              </RouterLink>
+
+              <small class="ms-2 text-muted">
+                <template v-if="c.updatedAt">
+                  (수정됨 · {{ fmtDate(c.updatedAt) }})
+                </template>
+                <template v-else>
+                  {{ fmtDate(c.createdAt) }}
+                </template>
+              </small>
+            </div>
+
+
+            <div v-if="c.owner" class="ms-2 d-flex align-items-center gap-2">
+              <button class="btn btn-sm btn-link text-secondary p-0" @click="startEditComment(c)">수정
+              </button>
+              <button class="btn btn-sm btn-link text-danger p-0" @click="delComment(c)">삭제
+              </button>
+            </div>
+          </div>
+
+          <!-- 내용 -->
+          <div class="mt-1 comment-content" v-html="linkify(c.content)"></div>
+          <div v-if="editingCommentId === c.id" class="mt-2">
+      <textarea
+          v-model="editTexts[c.id]" rows="2"
+          class="form-control mb-2" placeholder="수정할 내용을 입력하세요."/>
+            <div class="d-flex gap-2">
+              <button
+                  class="btn btn-sm btn-primary"
+                  :disabled="editSending" @click="submitCommentEdit(c.id)">수정 완료
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" @click="cancelEdit">
+                취소
+              </button>
+            </div>
+          </div>
+
+          <!-- 대댓글 -->
+          <div class="mt-2 reply-list" v-if="replies && replies[c.id]">
+            <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item">
+              <!-- 상단 메타 + 액션 -->
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="reply-meta">
+                  <RouterLink
+                      :to="`/user/profile/${rp.username}`"
+                      class="comment-author text-decoration-none"
+                  >
+                    <span class="badge-rank me-1">{{ rankBadge(rp.username) }}</span>
+                    <span class="fw-semibold">{{ rp.username }}</span>
+                    <!-- 🔥 답글 작성자가 글 작성자라면 -->
+                    <span v-if="rp.owner" class="badge-author ms-1">작성자</span>
+                  </RouterLink>
+
+                  <small class="text-muted ms-2">
+                    <template v-if="rp.updatedAt">
+                      (수정됨 · {{ fmtDate(rp.updatedAt) }})
+                    </template>
+                    <template v-else>
+                      {{ fmtDate(rp.createdAt) }}
+                    </template>
+                  </small>
+                </div>
+
+                <div v-if="rp.owner" class="ms-2 small">
+                  <button
+                      class="btn btn-link btn-sm text-secondary p-0 me-2"
+                      @click="startReplyEdit(rp)"
+                  >
+                    수정
+                  </button>
+                  <button
+                      class="btn btn-link btn-sm text-danger p-0"
+                      @click="delReply(rp)"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+
+              <!-- 내용 or 수정 폼 -->
+              <div v-if="replyEditMode[rp.id]" class="mt-2">
+      <textarea
+          v-model="replyEditTexts[rp.id]"
+          rows="2"
+          class="form-control mb-2"
+      />
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-primary" @click="submitReplyEdit(rp)">
+                    저장
+                  </button>
+                  <button
+                      class="btn btn-sm btn-outline-secondary"
+                      @click="cancelReplyEdit(rp.id)"
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+              <div v-else class="reply-content">
+                {{ rp.content }}
+              </div>
+            </div>
+          </div>
+
+
+          <button
+              class="btn btn-sm btn-outline-primary mt-2"
+              @click="toggleReplyForm(c.id)">
+            답글 달기
+          </button>
+          <div v-show="activeReply === c.id" class="mt-2">
+            <textarea
+                v-model="replyTexts[c.id]"
+                rows="2"
+                class="form-control mb-2"
+                placeholder="답글 입력"
+            />
+            <button
+                class="btn btn-sm btn-primary"
+                @click="submitReply(c.id)"
+                :disabled="replySendingMap[c.id]"
+            >
+              답글 작성
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card shadow-sm p-3 mt-4">
-      <h6 class="mb-3 d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-pencil-square"></i> 댓글 쓰기</span>
-        <button v-if="!login" class="btn btn-sm btn-outline-secondary" @click="router.push('/login')">로그인</button>
-      </h6>
-      <textarea v-model="commentText" rows="3" class="form-control mb-2" :placeholder="login ? '내용 입력' : '로그인 후 이용'" />
-      <button class="btn btn-success" :disabled="!login || sending || !commentText.trim()" @click="submitComment">
-        작성하기
-      </button>
-    </div>
+    <!-- 댓글 작성 -->
+    <section class="card shadow-sm p-3 mt-4 comment-write-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">
+          <i class="bi bi-pencil-square me-1"></i> 댓글 쓰기
+        </h6>
+        <button v-if="!login" class="btn btn-sm btn-outline-secondary" @click="router.push('/login')">로그인
+        </button>
+      </div>
+      <textarea
+          v-model="commentText"
+          rows="3"
+          class="form-control mb-2"
+          :placeholder="login ? '내용을 입력하세요.' : '로그인 후 이용 가능합니다.'"
+      />
+      <div class="text-end">
+        <button
+            class="btn btn-success px-4"
+            :disabled="!login || sending || !commentText.trim()" @click="submitComment">
+          작성하기
+        </button>
+      </div>
+    </section>
   </section>
-  <div v-else class="text-center pt-5"><i class="bi bi-arrow-repeat fs-2 spin"></i></div>
 </template>
 
-<!-- 보통 public/index.html 에 포함되어야 함 -->
 <script setup>
 import { ref, onMounted, computed ,watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -121,29 +298,33 @@ import api from '@/utils/api'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
 
 import { useUserStore } from '@/stores/user'
-import { useToast } from '@/composables/useToast'
 import { RouterLink } from 'vue-router'
-  const route   = useRoute()
-  const router  = useRouter()
-  const store   = useUserStore()
-  const posts = ref([])
-  const id         = route.params.id
-  const feed       = ref({})
-  const feedHtml   = ref('')
-  const comments = ref([])
-  const likeCount  = ref(0)
-  const liked      = ref(false)
-  const loaded     = ref(false)
-  const replies = ref({})
-  const replyText = ref('')
-  const replyTexts = ref({})
-  const replySendingMap = ref({})
-  const activeReply = ref(null)
-  const commentText= ref('')
-  const sending    = ref(false)
-  const reloadTrigger = ref(0)
-  const login = computed(() => store.isLoggedIn)
-  const isOwner = computed(() => feed.value.owner === true)
+const route   = useRoute()
+const router  = useRouter()
+const store   = useUserStore()
+const posts = ref([])
+const id         = route.params.id
+const feed       = ref({})
+const replyEditTexts = ref({})
+const replyEditMode  = ref({})
+const feedHtml   = ref('')
+const comments = ref([])
+const likeCount  = ref(0)
+const liked      = ref(false)
+const loaded     = ref(false)
+const replies = ref({})
+const replyText = ref('')
+const replyTexts = ref({})
+const replySendingMap = ref({})
+const activeReply = ref(null)
+const commentText= ref('')
+const sending    = ref(false)
+const reloadTrigger = ref(0)
+const login = computed(() => store.isLoggedIn)
+const isOwner = computed(() => feed.value.owner === true)
+const editingCommentId = ref(null)   // 어떤 댓글을 수정 중인지
+const editTexts = ref({})            // 댓글 id -> 수정 텍스트
+const editSending = ref(false)
 
 const PAGE_SIZE = 10
 const pageParam = computed(() => {
@@ -173,7 +354,148 @@ function convertLinks(txt = '') {
     return `<a href="${m}" target="_blank">${m}</a>`
   })
 }
+function startReplyEdit(rp) {
+  replyEditTexts.value[rp.id] = rp.content
+  replyEditMode.value[rp.id] = true
+}
 
+function cancelReplyEdit(id) {
+  replyEditMode.value[id] = false
+}
+
+async function submitReplyEdit(rp) {
+  const text = (replyEditTexts.value[rp.id] || '').trim()
+  if (!text) {
+    alert('답글 내용을 입력하세요.')
+    return
+  }
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  try {
+    const { data } = await api.put(
+        `/reply/${rp.id}`,
+        { content: text },                    // ReplyDTO.Update에 맞게 필드 조정
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+
+    const updated = data?.reply ?? {}
+
+    // 어느 댓글 밑의 답글인지 찾기
+    const commentId = Object.keys(replies.value).find(cid =>
+        replies.value[cid].some(x => x.id === rp.id)
+    )
+
+    if (commentId) {
+      replies.value[commentId] = replies.value[commentId].map(x =>
+          x.id === rp.id
+              ? {
+                ...x,
+                content:   updated.content ?? text,
+                updatedAt: updated.updatedAt ?? new Date().toISOString()
+              }
+              : x
+      )
+    }
+
+    replyEditMode.value[rp.id] = false
+  } catch (e) {
+    console.error(e)
+    alert('답글 수정 실패')
+  }
+}
+
+async function delReply(rp) {
+  if (!confirm('답글을 삭제하시겠습니까?')) return
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  try {
+    await api.delete(`/reply/${rp.id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    const commentId = Object.keys(replies.value).find(cid =>
+        replies.value[cid].some(x => x.id === rp.id)
+    )
+
+    if (commentId) {
+      replies.value[commentId] = replies.value[commentId].filter(x => x.id !== rp.id)
+    }
+  } catch (e) {
+    console.error(e)
+    alert('답글 삭제 실패')
+  }
+}
+
+function startEditComment(c) {
+  editingCommentId.value = c.id
+  // 기존 내용으로 초기화
+  editTexts.value[c.id] = c.content
+}
+
+function cancelEdit() {
+  if (editingCommentId.value != null) {
+    editTexts.value[editingCommentId.value] = ''
+  }
+  editingCommentId.value = null
+}
+
+async function submitCommentEdit(commentId) {
+  const text = editTexts.value[commentId] || ''
+
+  if (!text.trim()) {
+    alert('수정할 내용을 입력하세요.')
+    return
+  }
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  if (editSending.value) return
+  editSending.value = true
+  try {
+    const { data } = await api.put(
+        `/comment/${commentId}`,
+        { content: text },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+    )
+    const updated = data?.comment ?? data ?? {}
+
+    comments.value = comments.value.map(c =>
+        c.id === commentId
+            ? {
+              ...c,
+              content: updated.content ?? text,
+              modifiedAt: updated.modifiedAt ?? updated.updatedAt ?? c.modifiedAt
+    } : c)
+
+    editingCommentId.value = null
+  } catch (e) {
+    console.error(e)
+    alert('댓글 수정 중 오류 발생')
+  } finally {
+    editSending.value = false
+  }
+}
 function formatDate(dateTimeString) {
   if (!dateTimeString) return '';
 
@@ -207,15 +529,15 @@ async function loadComments(postId) {
       (Array.isArray(data?.data?.comments) && data.data.comments) ||
       []
 }
-  function linkify(text = '') {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
+function linkify(text = '') {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`)
 }
-  function decodeHtmlEntities (encoded = '') {
-    const el = document.createElement('textarea')
-    el.innerHTML = encoded
-    return el.value
-  }
+function decodeHtmlEntities (encoded = '') {
+  const el = document.createElement('textarea')
+  el.innerHTML = encoded
+  return el.value
+}
 
 async function loadReplies(postId) {
   const { data } = await api.get('/replys', { params: { postId } })
@@ -226,7 +548,6 @@ async function loadReplies(postId) {
       []
 
   const grouped = list.reduce((acc, r) => {
-    // 필드명 방어적으로 대응 (commentId/ commentUID 등)
     const key = r.commentId ?? r.commentUID ?? r.comment_id
     if (!key) return acc
 
@@ -234,7 +555,9 @@ async function loadReplies(postId) {
       id:        r.id,
       username:  r.username,
       content:   r.content,
-      createdAt: r.createdAt
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt ?? null,
+      owner:     r.owner ?? false
     })
     return acc
   }, {})
@@ -307,16 +630,16 @@ watch(
     }
 )
 
-  async function toggleLike(){
-    if(!login.value){
-      push('로그인이 필요합니다'); return }
-    const prev = liked.value
-    liked.value = !prev
-    likeCount.value += prev?-1:1
-    try {
-      await api.post(prev?`/search/view/feed/cancel-like/${id}`:`/search/view/feed/increase-like/${id}`)
-    } catch(e){ liked.value=prev; likeCount.value+=prev?1:-1 }
-  }
+async function toggleLike(){
+  if(!login.value){
+    push('로그인이 필요합니다'); return }
+  const prev = liked.value
+  liked.value = !prev
+  likeCount.value += prev?-1:1
+  try {
+    await api.post(prev?`/search/view/feed/cancel-like/${id}`:`/search/view/feed/increase-like/${id}`)
+  } catch(e){ liked.value=prev; likeCount.value+=prev?1:-1 }
+}
 
 
 async function submitComment() {
@@ -357,9 +680,9 @@ async function submitComment() {
 
 function goEdit(){
   router.push({
-    path:'/post/update',
-    query:{ id:feed.value.id}
-    }
+        path:'/post/update',
+        query:{ id:feed.value.id}
+      }
   )
 }
 async function onDelete() {
@@ -405,10 +728,10 @@ async function delComment(c) {
 }
 
 
-  function toggleReplyForm(commentUID) {
-    activeReply.value = activeReply.value === commentUID ? null : commentUID
-    replyText.value = ''
-  }
+function toggleReplyForm(commentUID) {
+  activeReply.value = activeReply.value === commentUID ? null : commentUID
+  replyText.value = ''
+}
 async function submitReply(commentId) {
   const text = replyTexts.value[commentId] || ''
   if (!login.value) { router.push('/login'); return }
@@ -449,24 +772,219 @@ async function submitReply(commentId) {
 </script>
 
 <style scoped>
-.dropdown-menu { z-index: 2000; }
-  .pt-navbar {
-    padding-top: 60px;
-  }
-  .feed-content {
-    line-height: 1.6;
-    white-space: pre-line;
-  }
-  .mt-4 {
-    margin-top: 1.5rem;
-  }
-  .btn-primary.position-fixed { box-shadow:0 2px 6px rgba(0,0,0,.1); }
-  .feed-card { border-radius:10px }
-  .feed-title{ font-size:1.8rem;font-weight:700 }
-  .comment-item{ gap:12px;padding:12px 0;border-bottom:1px solid #eee }
-  .comment-avatar{ width:36px;height:36px
-  ;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold }
-  .spin{ animation:spin 1s linear infinite }
-@keyframes spin{100%{transform:rotate(360deg)}}
+.pt-navbar {
+  padding-top: 60px;
+}
+.badge-author {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 18px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 600;
+}
 
+/* 전체 페이지 배경 감성 맞추기 */
+.post-detail-page {
+  max-width: 900px;
+}
+
+/* 상단 FAB 버튼 */
+.action-fab {
+  bottom: 80px;
+  right: 24px;
+  z-index: 1051;
+}
+
+.action-fab .btn {
+  width: 56px;
+  height: 56px;
+}
+
+/* 본문 카드 */
+.post-card {
+  border-radius: 14px;
+  border: none;
+}
+
+.post-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.post-header {
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 0.6rem;
+}
+
+.post-header {
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 0.6rem;
+}
+
+.post-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+/* 🔥 한 줄 메타 */
+.post-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;           /* 모바일에서 자연스럽게 줄바꿈 */
+  gap: 0.35rem;
+  color: #6b7280;
+}
+
+.post-author-link {
+  color: #2563eb;
+}
+
+.post-author-link:hover {
+  text-decoration: underline;
+}
+
+.post-meta-row .dot {
+  color: #d1d5db;
+  font-size: 0.8rem;
+}
+
+
+.post-meta-sub .dot {
+  color: #d1d5db;
+}
+
+/* 랭킹 뱃지 간단하게 */
+.badge-rank {
+  font-size: 0.9rem;
+}
+
+/* 본문 내용 */
+.post-content {
+  margin-top: 1rem;
+  line-height: 1.7;
+  font-size: 0.96rem;
+  color: #111827;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 본문 하단 액션 */
+.post-actions {
+  border-top: 1px solid #f1f3f5;
+  padding-top: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.like-btn {
+  min-width: 80px;
+}
+
+/* 댓글 영역 */
+.comments-section {
+  margin-top: 1.5rem;
+}
+
+/* 댓글 아이템 */
+.comment-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 10px;
+}
+
+/* 댓글 아바타 */
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-right: 8px;
+}
+
+/* 댓글 내용 */
+.comment-body {
+  font-size: 0.9rem;
+}
+
+.comment-author {
+  color: #2563eb;
+}
+
+.comment-author:hover {
+  text-decoration: underline;
+}
+
+.comment-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* 대댓글 리스트 */
+.reply-list {
+  border-left: 2px solid #e5e7eb;
+  padding-left: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.reply-item {
+  margin-bottom: 0.35rem;
+  font-size: 0.86rem;
+}
+
+.reply-meta {
+  font-weight: 500;
+}
+
+.reply-content {
+  margin-top: 2px;
+}
+
+/* 댓글 작성 카드 */
+.comment-write-card {
+  border-radius: 12px;
+}
+
+/* 로딩 스피너 */
+.post-detail-loading .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 조정 */
+@media (max-width: 576px) {
+  .post-title {
+    font-size: 1.3rem;
+  }
+
+  .post-content {
+    font-size: 0.94rem;
+  }
+
+  .comment-avatar {
+    display: none;
+  }
+}
 </style>
+
+

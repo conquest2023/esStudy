@@ -1,18 +1,9 @@
 <template>
   <section class="container-fluid px-4 mt-4">
     <div class="row gx-4">
-      <!-- ─── ① 왼쪽 추천 글 (3) ─── -->
       <aside class="col-lg-3 d-none d-lg-block">
         <div class="card shadow-sm p-3">
           <h6 class="fw-bold mb-3">🌟 추천 글</h6>
-          <ul class="list-unstyled mb-0 small">
-            <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-2">
-              <router-link :to="`/search/view/feed/id/${item.feedUID}`" class="text-dark text-decoration-none d-block">
-                <div class="fw-semibold text-truncate">{{ item.title }}</div>
-                <small class="text-muted">{{ item.username }}</small>
-              </router-link>
-            </li>
-          </ul>
         </div>
         <div class="card shadow-sm p-3 mt-3">
           <DailyQuestions />
@@ -20,94 +11,100 @@
       </aside>
 
       <main class="col-lg-6">
-
         <div class="d-block d-lg-none">
-          <div class="d-lg-none mb-3">
+          <div class="mb-3">
             <DailyQuestions />
           </div>
-          <button class="btn btn-link text-primary px-2" @click="showSidebar = true">
-            <i class="fas fa-bars"></i> 추천 글
+          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">
+            <i class="fas fa-list me-1"></i> 추천 글 보기
           </button>
         </div>
 
         <transition name="slide">
           <div
               v-if="showSidebar"
-              class="mobile-sidebar bg-white shadow position-fixed top-0 start-0 h-100 p-3"
-              style="z-index: 1050; width: 80%; max-width: 300px;">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="fw-bold">🌟 추천 글</h6>
-              <button class="btn-close" @click="showSidebar = false"></button>
-            </div>
-            <ul class="list-unstyled small">
-              <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-2">
-                <router-link
-                    :to="`/search/view/feed/id/${item.feedUID}`"
-                    class="text-dark text-decoration-none d-block"
-                    @click="showSidebar = false"
-                >
-                  <div class="fw-semibold text-truncate">{{ item.title }}</div>
-                  <small class="text-muted">{{ item.username }}</small>
-                </router-link>
-              </li>
-            </ul>
-          </div>
-        </transition>
-        <div class="board-wrap">
-          <SearchBar class="mb-3" />
-
-          <div class="d-flex justify-content-end mb-3">
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
-                <i class="fas fa-bars"></i> {{ sortLabel }}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li v-for="s in sorts" :key="s.id">
-                  <a href="#" class="dropdown-item" :class="{ active: curSort === s.id }" @click.prevent="changeSort(s.id)">{{ s.label }}</a>
+              class="mobile-sidebar-backdrop"
+              @click="showSidebar = false"
+          >
+            <div
+                class="mobile-sidebar bg-white shadow position-fixed top-0 start-0 h-100 p-3"
+                @click.stop
+                style="z-index: 1060; width: 80%; max-width: 300px;"
+            >
+              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="fw-bold text-primary">추천 글</h5>
+                <button class="btn-close" @click="showSidebar = false"></button>
+              </div>
+              <ul class="list-unstyled small">
+                <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-3 border-bottom pb-2">
+                  <router-link
+                      :to="`/search/view/feed/id/${item.feedUID}`"
+                      class="text-dark text-decoration-none d-block"
+                      @click="showSidebar = false"
+                  >
+                    <div class="fw-semibold text-truncate text-break">{{ item.title }}</div>
+                    <small class="text-muted">{{ item.username }}</small>
+                  </router-link>
                 </li>
               </ul>
             </div>
           </div>
+        </transition>
 
-          <!-- ▣ 게시판 탭 -->
-          <BoardTabs v-model="activeTab" :tabs="TABS" />
+        <div class="board-wrap">
+          <SearchBar class="mb-4" />
 
-          <!-- ▣ 학습 자료 카테고리 -->
-          <div v-if="activeTab === 'DATA'" class="mb-2">
-            <ul class="nav nav-pills small">
-              <li v-for="cat in dataCategories" :key="cat" class="nav-item">
-                <button class="nav-link" :class="{ active: selectedCategory === cat }" @click="changeCategory(cat)">{{ cat }}</button>
-              </li>
-            </ul>
+          <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-3" />
+          <div v-if="activeTab === 'DATA'" class="category-bar">
+            <button
+                v-for="cat in dataCategories"
+                :key="cat"
+                class="category-chip"
+                :class="{ active: selectedCategory === cat }"
+                @click="changeCategory(cat)"
+            >
+              {{ cat }}
+            </button>
           </div>
-          <router-link
-              v-for="n in notices"
-              :key="n.id"
-              :to="`/notice/detail/${n.id}`"
-              class="text-decoration-none text-dark d-block"
-          >
-            <FeedCard :post="n" notice class="mb-2" />
-          </router-link>
-          <FeedCard v-for="p in posts"
-                    :key="p.id"
-                    :post="p"
-                    :is-vote="!p.id"
-                    :comment-count="counts[p.id]" class="mb-2"
-                    :page="page"
-                    :posts="posts" />
 
-          <!-- ▣ 페이지네이션 & 로딩 -->
-          <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
-          <Spinner v-if="loading" />
+          <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h5 class="fw-bold text-dark">전체 피드</h5>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
+                <i class="fas fa-sort-amount-down-alt"></i> {{ sortLabel }}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <li v-for="s in sorts" :key="s.id">
+                  <a href="#" class="dropdown-item" :class="{ 'active fw-bold': curSort === s.id }" @click.prevent="changeSort(s.id)">{{ s.label }}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="post-list-area">
+            <router-link
+                v-for="n in notices" :key="n.id" :to="`/notice/detail/${n.id}`"
+                class="text-decoration-none text-dark d-block notice-card">
+              <FeedCard :post="n" notice class="mb-3 bg-light-info border-start border-4 border-info" />
+            </router-link>
+            <FeedCard v-for="p in posts"
+                      :key="p.id"
+                      :post="p"
+                      :is-vote="!p.id"
+                      :comment-count="counts[p.id]" class="mb-3 post-card"
+                      :page="page"
+                      :posts="posts" />
+          </div>
+
+          <div class="d-flex justify-content-center mt-5">
+            <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
+            <Spinner v-if="loading" />
+          </div>
         </div>
       </main>
-
-      <!-- ─── ③ 오른쪽 여백 (3) ─── -->
       <div class="col-lg-3 d-none d-lg-block" />
     </div>
   </section>
 </template>
-
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -234,12 +231,9 @@ function changeSort(id) {
   }
 }
 
-/************************************************
- * 3. 탭 / 카테고리 & 상태
- ************************************************/
 const TABS = [
-  { id: 'ALL',    label: '전체 글',        url: '/feeds' },
-  { id: 'BEST',   label: '이번주 인기글',  url: '/search/view/feed/best' },
+  { id: 'ALL',    label: '전체 글',        url: '/posts' },
+  { id: 'BEST',   label: '이번주 인기글',  url: '/posts/popular/week' },
   { id: 'VOTE',   label: '투표',          url: '/search/view/vote/page' },
   { id: 'DATA',   label: '학습 자료',      url: '/data/feed', requiresCategory: true },
   { id: 'NOTICE', label: '공지사항',       url: '/notice/feed' },
@@ -251,11 +245,10 @@ const selectedCategory= ref('자료')
 const targetPath = computed(() =>
     props.notice
         ? `/notice/detail/${props.post.id}`
-        : `/search/view/feed/id/${props.post.feedUID ?? props.post.id}`
+        : `/post/${props.post.id}`
 )
-/************************************************
- * 4. 피드 / 페이지네이션 상태
- ************************************************/
+
+
 const loading    = ref(false)
 const page       = ref(0)
 const totalPage  = ref(0)
@@ -350,6 +343,30 @@ async function fetchFeeds(newPage = page.value) {
   if (tab.id === 'DATA') params.category = selectedCategory.value
 
   try {
+    if (tab.id === 'BEST') {
+      const uiPage = Number(newPage) || 1
+      page.value = uiPage
+
+      router.replace({ query: { ...route.query, page: uiPage } })
+
+      const params = {
+        page: uiPage - 1,
+        size: 10
+      }
+      const { data } = await api.get(tab.url, { params })
+      const payload    = data?.ok ?? data ?? {}
+      const content    = payload.posts    ?? payload.data   ?? []
+      const totalPages = payload.totalPages ?? payload.totalPage ?? 0
+      const countsMap  = payload.count ?? {}
+
+      posts.value     = Array.isArray(content) ? content : []
+      totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
+      counts.value    = countsMap
+      notices.value   = []
+
+      return
+    }
+
     const { data } = await api.get(tab.url, { params })
 
     posts.value     = data.data ?? data ?? []
@@ -376,6 +393,90 @@ watch(activeTab, () =>
 </script>
 
 <style scoped>
+.container-fluid {
+  max-width: 1300px;
+}
+
+
+.post-list-area {
+  min-height: 500px;
+}
+
+.post-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  padding: 1rem;
+}
+.post-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.notice-card .feed-card-body {
+  background-color: #f7f7ff;
+  border-left: 4px solid #0d6efd;
+}
+
+.mobile-sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050; /* 사이드바(1060)보다 낮게 설정 */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.mobile-sidebar {
+  box-shadow: 4px 0 10px rgba(0,0,0,0.15) !important; /* 사이드바 그림자 강조 */
+  z-index: 1060 !important;
+}
+
+.slide-enter-active, .slide-leave-active {
+  transition: transform 0.3s ease-in-out;
+}
+.slide-enter-from, .slide-leave-to {
+  transform: translateX(-100%);
+}
+.slide-enter-to, .slide-leave-from {
+  transform: translateX(0);
+}
+
+
+/* 학습 자료 카테고리 버튼 간격 조정 */
+.nav-pills .nav-item {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.nav-pills .nav-link {
+  border-radius: 20px; /* 둥근 버튼 */
+  font-size: 0.85rem;
+}
+.nav-pills .nav-link.active {
+  font-weight: 600;
+}
+
+.search-bar {
+
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+.search-bar input {
+  border: none;
+  background: transparent;
+}
+
+
+@media (max-width: 992px) {
+  .post-card {
+    padding: 0.75rem;
+  }
+}
 .board-wrap { max-width: 100%; margin: 0; }
 .interview-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; cursor: pointer; }
 .search-bar { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; }

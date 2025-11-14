@@ -42,7 +42,8 @@ public class ReplyDomainMapper {
                 d.getUsername(),
                 d.getContent(),
                 d.getLikeCount(),
-                d.getCreatedAt()
+                d.getCreatedAt(),
+                d.getUpdatedAt()
         );
     }
     public static List<ReplyDTO.Request> toRequestDtoList(String userId, List<Reply> domains) {
@@ -51,6 +52,5 @@ public class ReplyDomainMapper {
                 .filter(Objects::nonNull)
                 .map(d -> toRequestDto(userId, d))
                 .collect(Collectors.toList());
-        // 또는 .toList() (JDK 16+)
     }
 }

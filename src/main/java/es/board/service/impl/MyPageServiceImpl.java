@@ -3,6 +3,7 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.repository.entity.PostEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
+import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
@@ -22,7 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyPageServiceImpl implements MyPageService {
 
-    private final PostRepository postRepository;
+
+    private final PostQueryRepository queryRepository;
 
     private final PointHistoryRepository pointHistoryRepository;
 
@@ -36,7 +38,7 @@ public class MyPageServiceImpl implements MyPageService {
     public  Page<PostEntity> getMyPageFeedList(int page, int size,String userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<PostEntity> byMyPageUserPosts = postRepository.findByMyPageUserPosts(pageable, userId);
+        Page<PostEntity> byMyPageUserPosts = queryRepository.findByMyPageUserPosts(pageable, userId);
 
         return byMyPageUserPosts;
     }

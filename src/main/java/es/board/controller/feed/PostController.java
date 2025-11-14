@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +55,7 @@ public class PostController {
             @PathVariable int id){
 
         String currentUserId = checkToken(token);
-        PostDTO.Request postDetail = postService.getPostDetail(currentUserId,id);
+        PostDTO.Request postDetail = postService.findPostDetail(currentUserId,id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }
 
@@ -65,6 +65,16 @@ public class PostController {
         Page<Integer> ids = postService.findIds(page, size);
         return ResponseEntity.ok(Map.of(
                 "ids", ids));
+    }
+
+    @GetMapping("/posts/popular/week")
+    public ResponseEntity<?> getPopularPostsInLast7Weeks(@RequestParam int page, @RequestParam int size){
+
+        Page<PostEntity> popularPostsInLast7Weeks = postService.findPopularPostsInLast7Weeks(page, size);
+        return ResponseEntity.ok(
+                Map.of("totalPage",popularPostsInLast7Weeks.getTotalElements(),
+                            "posts",popularPostsInLast7Weeks.get().collect(Collectors.toList()))
+        );
     }
 
     @PutMapping("/post/{id}")
@@ -79,7 +89,7 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
-        Page<PostEntity> p = postService.getPosts(page, size);
+        Page<PostEntity> p = postService.findAllPosts(page, size);
         return ResponseEntity.ok(Map.of(
                 "content", p.getContent(),
                 "page", p.getNumber(),
