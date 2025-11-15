@@ -9,8 +9,8 @@ import java.util.Set;
 @Entity
 @Table(name = "tags")
 @Getter @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Tag {
 

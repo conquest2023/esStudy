@@ -90,6 +90,7 @@
                       :key="p.id"
                       :post="p"
                       :is-vote="!p.id"
+                      :like-count="likeCounts[p.id]"
                       :comment-count="counts[p.id]" class="mb-3 post-card"
                       :page="page"
                       :posts="posts" />
@@ -134,7 +135,7 @@ const showSidebar = ref(false)
 //     console.error('추천 글 로딩 실패:', err)
 //   }
 // })
-
+const likeCounts = ref({})
 /* ▣ 면접 질문 */
 const itQs = ref([])
 const genQs = ref([])
@@ -317,6 +318,16 @@ async function fetchFeedsAll(newPage = page.value) {
       nextCounts[pid] = aggsObj[key] ?? aggsObj[pid] ?? 0
     }
     counts.value = nextCounts
+    const { data: likeRes } = await api.get('/likes', { params })
+    const likesObj = likeRes?.likes ?? {}
+    const nextLikeCounts = {}
+    for (const p of posts.value) {
+      const pid = p.id
+      const key = String(pid)
+      nextLikeCounts[pid] = likesObj[key] ?? likesObj[pid] ?? 0
+    }
+    likeCounts.value = nextLikeCounts
+    console.log(likeCounts)
     await fetchNotice()
   } catch (err) {
     console.error('전체 글 로딩 실패', err)

@@ -3,6 +3,7 @@ package es.board.repository.entity;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
+import org.checkerframework.checker.units.qual.A;
 
 import java.time.LocalDate;
 

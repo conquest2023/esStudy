@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reply", schema = "board")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ReplyEntity {
 

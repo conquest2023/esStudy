@@ -8,9 +8,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_points")
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UserPoints {
 

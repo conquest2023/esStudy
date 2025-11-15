@@ -56,6 +56,7 @@ const props = defineProps({
   posts: Array,
   notice: { type: Boolean, default: false },
   isVote: { type: Boolean, default: false },
+  likeCount: { type: Number, default: null },
   commentCount: { type: Number, default: 0 },
   page: { type: Number, default: 1 }
 })
@@ -77,7 +78,9 @@ const time = computed(() => {
 })
 
 // 스펙 호환
-const likeCount = computed(() => props.post?.likeCount ?? 0)
+const likeCount = computed(() =>
+    props.likeCount ?? props.post?.likeCount ?? 0
+)
 const viewCount = computed(() => props.post?.viewCount ?? 0)
 
 function goToDetail () {

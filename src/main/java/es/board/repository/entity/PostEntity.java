@@ -2,7 +2,6 @@ package es.board.repository.entity;
 
 
 
-import es.board.service.domain.Post;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
@@ -14,8 +13,9 @@ import java.time.LocalDateTime;
 @Table(name = "post")
 @Data
 @Builder
-@Slf4j
 @AllArgsConstructor
+
+@Slf4j
 @RequiredArgsConstructor
 public class PostEntity {
 

@@ -6,11 +6,12 @@ import lombok.*;
 
 @Entity
 @Builder
+@AllArgsConstructor
+
 @Table(name = "tistory_posts")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class TistoryPost {
 
     @Id

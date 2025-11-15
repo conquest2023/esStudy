@@ -3,7 +3,6 @@ package es.board.repository.entity;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
-import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +10,8 @@ import java.time.LocalDateTime;
 @Table(name = "schedule")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Schedule {
 

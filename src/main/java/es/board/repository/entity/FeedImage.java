@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "feed_images")
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 @Data
 public class FeedImage {
 

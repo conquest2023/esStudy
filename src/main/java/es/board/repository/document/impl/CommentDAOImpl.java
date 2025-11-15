@@ -12,7 +12,6 @@ import es.board.repository.CommentDAO;
 import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 //import es.board.repository.entity.entityrepository.CommentRepository;
-import es.board.repository.entity.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -30,7 +29,7 @@ public class CommentDAOImpl implements CommentDAO {
 
     private final ElasticsearchClient client;
 
-    private final CommentRepository commentRepository;
+//    private final CommentRepository commentRepository;
 
 
     @Override
@@ -567,7 +566,7 @@ public class CommentDAOImpl implements CommentDAO {
                 return;
             }
             String documentId = response.hits().hits().get(0).id();
-            commentRepository.deleteById(documentId);
+//            commentRepository.deleteById(documentId);
             log.info("Successfully deleted comment with commentUID: " + commentId);
 
         } catch (IOException e) {

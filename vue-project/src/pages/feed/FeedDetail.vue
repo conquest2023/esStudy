@@ -72,10 +72,11 @@
             <span v-if="!feed.modifiedAt" class="ms-1">· {{ dateText }}</span>
             <span class="dot">·</span>
             <span>조회 {{ feed.viewCount ?? 0 }}</span>
-
             <span class="dot">·</span>
-            <span>좋아요 {{ likeCount }}</span>
-
+            <span class="d-inline-flex align-items-center">
+            <i
+            :class="[  'bi', isLiked('POST', feed.id) ? 'bi-heart-fill text-like' : 'bi-heart'  ]"
+            class="me-1"></i><span>{{ likeCountOf('POST', feed.id) }}</span></span>
             <span v-if="feed.modifiedAt" class="dot">·</span>
             <span v-if="feed.modifiedAt" class="text-muted"> 수정 {{ fmtDate(feed.modifiedAt) }}
          </span>
@@ -93,10 +94,12 @@
           </div>
           <button
               class="btn btn-sm btn-outline-danger like-btn d-inline-flex align-items-center"
-              @click="toggleLike"
+              @click="() => toggleLike('POST', feed.id)"
           >
-            <i :class="['bi', liked ? 'bi-heart-fill' : 'bi-heart']" class="me-1"></i>
-            <span>{{ likeCount }}</span>
+            <i :class="['bi', isLiked('POST', feed.id) ? 'bi-heart-fill text-like' : 'bi-heart']"
+                class="me-1"
+            ></i>
+            <span>{{ likeCountOf('POST', feed.id) }}</span>
           </button>
         </footer>
       </div>
@@ -147,15 +150,33 @@
             </div>
 
 
-            <div v-if="c.owner" class="ms-2 d-flex align-items-center gap-2">
-              <button class="btn btn-sm btn-link text-secondary p-0" @click="startEditComment(c)">수정
+            <div class="ms-2 d-flex align-items-center gap-2">
+              <button
+                  v-if="c.owner"
+                  class="btn btn-sm btn-link text-secondary p-0"
+                  @click="startEditComment(c)"
+              >
+                수정
               </button>
-              <button class="btn btn-sm btn-link text-danger p-0" @click="delComment(c)">삭제
+              <button
+                  v-if="c.owner"
+                  class="btn btn-sm btn-link text-danger p-0"
+                  @click="delComment(c)">삭제
               </button>
+
+              <button
+                  class="btn btn-sm btn-link text-danger p-0 d-inline-flex align-items-center"
+                  @click="() => toggleLike('COMMENT', c.id)"><i :class="[ 'bi',  isLiked('COMMENT', c.id) ? 'bi-heart-fill text-like' : 'bi-heart' ]"
+                    class="me-1"
+                ></i>
+                <span class="small">{{ likeCountOf('COMMENT', c.id) }}</span>
+              </button>
+
             </div>
           </div>
 
-          <!-- 내용 -->
+
+            <!-- 내용 -->
           <div class="mt-1 comment-content" v-html="linkify(c.content)"></div>
           <div v-if="editingCommentId === c.id" class="mt-2">
       <textarea
@@ -198,23 +219,38 @@
                   </small>
                 </div>
 
-                <div v-if="rp.owner" class="ms-2 small">
+                <div class="ms-2 d-flex align-items-center gap-2 small">
                   <button
+                      v-if="rp.owner"
                       class="btn btn-link btn-sm text-secondary p-0 me-2"
                       @click="startReplyEdit(rp)"
                   >
                     수정
                   </button>
                   <button
+                      v-if="rp.owner"
                       class="btn btn-link btn-sm text-danger p-0"
                       @click="delReply(rp)"
                   >
                     삭제
                   </button>
+
+                  <!-- 🔥 답글 좋아요 버튼 -->
+                  <button
+                      class="btn btn-link btn-sm text-danger p-0 d-inline-flex align-items-center"
+                      @click="() => toggleLike('REPLY', rp.id)"
+                  >
+                    <i
+                        :class="['bi', isLiked('REPLY', rp.id) ? 'bi-heart-fill  text-like' : 'bi-heart']"
+                        class="me-1"
+                    ></i>
+                    <span class="small">{{ likeCountOf('REPLY', rp.id) }}</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- 내용 or 수정 폼 -->
+
+                <!-- 내용 or 수정 폼 -->
               <div v-if="replyEditMode[rp.id]" class="mt-2">
       <textarea
           v-model="replyEditTexts[rp.id]"
@@ -307,6 +343,7 @@ const id         = route.params.id
 const feed       = ref({})
 const replyEditTexts = ref({})
 const replyEditMode  = ref({})
+const likeStates = ref({})
 const feedHtml   = ref('')
 const comments = ref([])
 const likeCount  = ref(0)
@@ -584,6 +621,18 @@ async function loadFeedDetail(postId) {
       modifiedAt:   raw.modifiedAt ?? null,
       owner:      raw.owner,                 // 소유자 여부
     }
+    ensureLikeState(
+        'POST',
+        feed.value.id,
+        feed.value.likeCount ?? 0,
+        data.isLiked ?? false
+    )
+    await Promise.all([
+      loadComments(feed.value.id),
+      loadReplies(feed.value.id),
+    ])
+    await loadLikeCounts(feed.value.id)
+    await loadLikeDetail(feed.value.id)
     function normalize(html = '') {
       return html
           .replace(/></g, '>\u200B<')
@@ -592,10 +641,7 @@ async function loadFeedDetail(postId) {
     }
     // const uidList = await fetchFeedUIDs(pageParam.value, PAGE_SIZE)
     // posts.value   = uidList.map(uid => ({ feedUID: uid }))
-    await Promise.all([
-      loadComments(feed.value.id),
-      loadReplies(feed.value.id),
-    ])
+
     // feedHtml.value = convertLinks(normalize(decodeHtmlEntities(data.data.description || '')))
     // comments.value = data.comment || []
     // likeCount.value= data.data.likeCount || 0
@@ -613,16 +659,27 @@ async function loadFeedDetail(postId) {
   }
 }
 onMounted(() => loadFeedDetail(route.params.id))
-// async function fetchFeedUIDs(p = 0, size = 10) {
-//   try {
-//     const res = await fetch(`/api/feeds/ids?page=${p}&size=${size}`)
-//     const json = await res.json()
-//     return json.ids || []
-//   } catch (e) {
-//     console.error('feedUID 목록 로딩 실패', e)
-//     return []
-//   }
-// }
+const likeKey = (targetType, targetId) => `${targetType}-${targetId}`
+
+function ensureLikeState(targetType, targetId, initialCount = 0, initialLiked = false) {
+  const key = likeKey(targetType, targetId)
+  if (!likeStates.value[key]) {
+    likeStates.value[key] = {
+      liked: initialLiked,
+      count: initialCount,
+    }
+  }
+}
+
+function isLiked(targetType, targetId) {
+  const key = likeKey(targetType, targetId)
+  return likeStates.value[key]?.liked ?? false
+}
+
+function likeCountOf(targetType, targetId) {
+  const key = likeKey(targetType, targetId)
+  return likeStates.value[key]?.count ?? 0
+}
 watch(
     () => route.params.id,
     (newId, oldId) => {
@@ -630,15 +687,130 @@ watch(
     }
 )
 
-async function toggleLike(){
-  if(!login.value){
-    push('로그인이 필요합니다'); return }
-  const prev = liked.value
-  liked.value = !prev
-  likeCount.value += prev?-1:1
+async function toggleLike(targetType, targetId) {
+  if (!login.value) {
+    // 프로젝트에 push(toast) 있으면 그거 쓰고, 없으면 alert
+    if (typeof push === 'function') {
+      push('로그인이 필요합니다')
+    } else {
+      alert('로그인이 필요합니다')
+    }
+    router.push('/login')
+    return
+  }
+
+  const postId = feed.value.id
+  ensureLikeState(targetType, targetId)
+
+  const key = likeKey(targetType, targetId)
+  const state = likeStates.value[key]
+  const prevLiked = state.liked
+  const prevCount = state.count
+
+  // 낙관적 업데이트
+  state.liked = !prevLiked
+  state.count = prevCount + (prevLiked ? -1 : 1)
+
   try {
-    await api.post(prev?`/search/view/feed/cancel-like/${id}`:`/search/view/feed/increase-like/${id}`)
-  } catch(e){ liked.value=prev; likeCount.value+=prev?1:-1 }
+    await api.post('/like', {
+      postId,
+      targetId,
+      targetType, // 'POST' | 'COMMENT' | 'REPLY'
+    })
+  } catch (e) {
+    console.error(e)
+    // 실패 시 롤백
+    state.liked = prevLiked
+    state.count = prevCount
+  }
+}
+// ↓ script setup 안, 아무 함수 위아래 상관없음 (ensureLikeState, likeCountOf 근처 추천)
+async function loadLikeCounts(postId) {
+  try {
+    const { data } = await api.get(`/like/count/${postId}`)
+    const list = Array.isArray(data?.likes) ? data.likes : []
+
+    const commentArr = Array.isArray(comments.value) ? comments.value : []
+    const repliesObj =
+        replies.value && typeof replies.value === 'object' ? replies.value : {}
+
+
+    const commentIdSet = new Set(commentArr.map(c => Number(c.id)))
+
+    const replyIdSet = new Set()
+    Object.values(repliesObj).forEach(arr => {
+      (arr || []).forEach(rp => {
+        replyIdSet.add(Number(rp.id))
+      })
+    })
+
+
+    list.forEach(item => {
+      const targetId = Number(item.targetId ?? item.id)
+      const count = Number(item.count ?? 0)
+
+      if (!Number.isFinite(targetId)) return
+
+      const postIdNum = Number(feed.value.id)
+
+      let targetType = null
+      if (targetId === postIdNum) {
+        targetType = 'POST'
+      } else if (commentIdSet.has(targetId)) {
+        targetType = 'COMMENT'
+      } else if (replyIdSet.has(targetId)) {
+        targetType = 'REPLY'
+      }
+
+      if (!targetType) {
+        console.log('매칭 안 된 targetId:', targetId)
+        return
+      }
+
+      const key = likeKey(targetType, targetId)
+      const prev = likeStates.value[key] || { liked: false, count: 0 }
+
+      likeStates.value[key] = {
+        liked: prev.liked, // liked는 detail API에서 세팅
+        count
+      }
+    })
+  } catch (e) {
+    console.error('like count 로드 실패', e)
+  }
+}
+
+async function loadLikeDetail(postId) {
+  const token = localStorage.getItem('token')
+  if (!token) return // 비로그인: isOwner 정보 없음, 그냥 개수만 사용
+
+  try {
+    const { data } = await api.get(`/like/detail/${postId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const list = Array.isArray(data?.likes) ? data.likes : []
+
+    list.forEach(item => {
+      const targetType =
+          item.targetType ?? item.target_type ?? item.type
+      const targetId =
+          Number(item.targetId ?? item.target_id ?? item.id)
+      const liked =
+          Boolean(item.isOwner ?? item.owner ?? item.liked)
+
+      if (!targetType || !targetId) return
+
+      const key = likeKey(targetType, targetId)
+      const prev = likeStates.value[key] || { liked: false, count: 0 }
+
+      likeStates.value[key] = {
+        liked,
+        count: prev.count
+      }
+    })
+  } catch (e) {
+    console.error('like detail 로드 실패', e)
+  }
 }
 
 
@@ -959,7 +1131,9 @@ async function submitReply(commentId) {
 .comment-write-card {
   border-radius: 12px;
 }
-
+.text-like {
+  color: #ef4444 !important;
+}
 /* 로딩 스피너 */
 .post-detail-loading .spin {
   animation: spin 1s linear infinite;

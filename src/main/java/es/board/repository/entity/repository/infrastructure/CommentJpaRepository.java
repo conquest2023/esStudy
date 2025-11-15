@@ -1,8 +1,6 @@
 package es.board.repository.entity.repository.infrastructure;
 
 import es.board.repository.entity.CommentEntity;
-import es.board.repository.entity.PostEntity;
-import es.board.repository.entity.repository.CommentRepository;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
@@ -42,6 +40,4 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity,Long> 
 
 
 
-
-//    @Query("")
 }
