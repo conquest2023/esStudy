@@ -147,11 +147,6 @@ async function deleteNotification(ids) {
   }
 }
 
-/**
- * 🔥 전역 클릭 핸들러
- * - 알림 영역 밖 클릭 시 알림창 닫기
- * - 유저 메뉴도 바깥 클릭 시 닫고 싶으면 여기서 같이 처리 가능
- */
 function handleGlobalClick(e) {
   // 알림창 닫기
   if (showNoti.value) {

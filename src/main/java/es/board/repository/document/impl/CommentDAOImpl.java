@@ -715,7 +715,7 @@ public class CommentDAOImpl implements CommentDAO {
                             bucket.aggregations().get("total_comments").sum().value()
                     ))
                     .filter(writer -> writer.getUsername() != null && !writer.getUsername().isEmpty() && !writer.getUsername().equals("asd") && !writer.getUsername().equals("undefined") && !writer.getUsername().equals("익명") && !writer.getUsername().equals("작성자"))
-                    .sorted(Comparator.comparingDouble(TopWriter::getViewCount).reversed())
+                    .sorted(Comparator.comparingDouble(TopWriter::getTotalCount).reversed())
                     .collect(Collectors.toList());
 
 

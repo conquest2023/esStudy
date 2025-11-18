@@ -44,11 +44,11 @@ public class NotificationServiceImpl implements NotificationService {
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
 
-        sendPendingNotifications(userId,REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
+        sendPendingNotifications(userId, REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
 
-        sendPendingNotifications(userId,NOTICE_NOTIFICATION_KEY, "notice-notification", emitter);
+        sendPendingNotifications(userId, NOTICE_NOTIFICATION_KEY, "notice-notification", emitter);
 
-        sendPendingNotifications(userId,POINT_NOTIFICATION_KEY, "point-notification", emitter);
+        sendPendingNotifications(userId, POINT_NOTIFICATION_KEY, "point-notification", emitter);
 
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
@@ -91,7 +91,10 @@ public class NotificationServiceImpl implements NotificationService {
         if (notifications != null && !notifications.isEmpty()) {
             try {
                 for (String message : notifications) {
-                    emitter.send(SseEmitter.event().name(eventType).data(message));
+                    emitter.send(
+                            SseEmitter.event()
+                                    .name(eventType)
+                                    .data(message));
                 }
                 redisTemplate.delete(redisKey);
             } catch (IOException e) {

@@ -1,6 +1,7 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.feed.TopWriter;
 import es.board.controller.model.jwt.JwtToken;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
@@ -10,6 +11,7 @@ import es.board.repository.entity.repository.infrastructure.projection.UserPoint
 import es.board.service.CommentIndexService;
 import es.board.service.FeedService;
 import es.board.service.AuthService;
+import es.board.service.point.PointService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,15 +38,14 @@ public class UserController {
 
     private final AuthService userService;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
+    private final PointService pointService;
 
 
     @GetMapping("/points/summary")
     public ResponseEntity<?> getTop5UserPoint() {
 
-        List<UserPointProjection> sumPoint = userService.getSumPointUser();
-        return ResponseEntity.ok(Map.of("sumPoint",sumPoint));
+        List<TopWriter> sumPoint = pointService.getSumTop5User();
+        return ResponseEntity.ok(Map.of("top5",sumPoint));
     }
 
 

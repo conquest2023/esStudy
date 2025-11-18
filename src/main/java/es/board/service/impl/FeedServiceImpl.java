@@ -435,10 +435,10 @@ public class FeedServiceImpl implements FeedService {
         for (TopWriter writer : topWriters) {
             Integer points = pointMap.get(writer.getUsername());
             if (points != null) {
-                writer.setViewCount(writer.getViewCount() + points);
+                writer.setTotalCount(writer.getTotalCount() + points);
             }
         }
-        topWriters.sort(Comparator.comparingDouble(TopWriter::getViewCount).reversed());
+        topWriters.sort(Comparator.comparingDouble(TopWriter::getTotalCount).reversed());
 
         return topWriters;
     }

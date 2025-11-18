@@ -1,10 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.controller.model.dto.feed.LoginDTO;
-import es.board.controller.model.dto.feed.SignUpDTO;
+import es.board.controller.model.dto.feed.*;
 import es.board.ex.TokenInvalidException;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
@@ -16,7 +13,9 @@ import es.board.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -28,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -36,20 +36,15 @@ public class AuthServiceImpl implements AuthService {
 
 
 
-
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final UserRepository userRepository;
 
-
-    private final AsyncService asyncService;
-
+//    private final AsyncService asyncService;
 
     private final PointHistoryRepository pointHistoryRepository;
 
-
     private final StringRedisTemplate redisTemplate;
-
 
     private final PasswordEncoder passwordEncoder;
 
@@ -58,7 +53,6 @@ public class AuthServiceImpl implements AuthService {
     public void registerUser(SignUpDTO sign) {
         User user = new User();
         String password = passwordEncoder.encode(sign.getPassword());
-        asyncService.saveUserAsync(sign, password);
         userRepository.save(user.DtoToUser(sign, password));
 
     }
@@ -90,11 +84,7 @@ public class AuthServiceImpl implements AuthService {
         }
         return false;
     }
-    @Override
-    public List<UserPointProjection> getSumPointUser() {
 
-        return pointHistoryRepository.sumPointUserTop5();
-    }
 
     @Override
     public void autoLogin(String userId,String token) {
@@ -103,7 +93,6 @@ public class AuthServiceImpl implements AuthService {
                 token, Duration.ofDays(7) // 만료시간 설정
         );
     }
-
 
     @Override
     public Authentication authenticate(LoginDTO login) {

@@ -13,8 +13,10 @@ public interface PostQueryRepository {
 
     Page<PostEntity> findByMyPageUserPosts(Pageable pageable, String userId);
 
+
     Page<PostEntity> findByPagePosts(Pageable pageable);
 
+    List<Integer> findPostIds(Pageable pageable);
     PostEntity findPostDetail(int id);
 
     Page<Integer>  findIds(Pageable pageable);

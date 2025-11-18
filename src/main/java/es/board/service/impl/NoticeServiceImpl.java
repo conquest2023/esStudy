@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 
 
@@ -40,20 +41,20 @@ public class NoticeServiceImpl  implements NoticeService {
     private final ObjectMapper objectMapper;
 
 
-//    private static final String NOTICE_KEY = "notice_Daily";
+    private static final String NOTICE_KEY = "notice_Daily";
 
 
 
     @Override
     public NoticeDTO.Request getLatestNotice() {
-//        String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
+        String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
 
-//        if (cachedNotices != null) {
-//            log.info("캐시 성공!");
-//            return deserializeNotices(cachedNotices);
-//        }
+        if (cachedNotices != null) {
+            log.info("캐시 성공!");
+            return deserializeNotices(cachedNotices);
+        }
         NoticeDTO.Request   notices = feedMapper.fromNotice(noticeRepository.findNoticeByCreatedAtDESC());
-//        redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
+        redisTemplate.opsForValue().set(NOTICE_KEY, serializeNotices(notices), Duration.ofHours(1));
         return notices;
     }
 
@@ -91,7 +92,7 @@ public class NoticeServiceImpl  implements NoticeService {
 //       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
 //    }
     
-    private String serializeNotices(List<NoticeDTO.Request> notices) {
+    private String serializeNotices(NoticeDTO.Request notices) {
         try {
             return objectMapper.writeValueAsString(notices);
         } catch (JsonProcessingException e) {
@@ -99,10 +100,9 @@ public class NoticeServiceImpl  implements NoticeService {
         }
     }
 
-    private List<NoticeDTO.Request> deserializeNotices(String json) {
+    private NoticeDTO.Request deserializeNotices(String json) {
         try {
-            return objectMapper.readValue(json, new TypeReference<List<NoticeDTO.Request>>() {
-            });
+            return objectMapper.readValue(json,NoticeDTO.Request.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("공지사항 역직렬화 실패", e);
         }

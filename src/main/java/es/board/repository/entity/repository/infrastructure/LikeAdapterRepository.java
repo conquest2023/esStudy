@@ -41,8 +41,8 @@ public class LikeAdapterRepository implements LikeRepository {
 
     @Override
     public Map<Integer, Long> findPagingPosts(Pageable pageable) {
-        Page<Integer> ids = postRepository.findIds(pageable);
-        Map<Integer, Long> likes = likeRepository.findPagingPost(ids.get().collect(Collectors.toList()))
+        List<Integer> ids = postRepository.findPostIds(pageable);
+        Map<Integer, Long> likes = likeRepository.findPagingPost(ids)
                 .stream().collect(Collectors.toMap(LikeAggView::getPostId, LikeAggView::getCnt));
         Map<Integer, Long> map = new HashMap<>();
         for (Integer id : ids) {

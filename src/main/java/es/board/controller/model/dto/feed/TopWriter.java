@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class TopWriter {
     private String username;
 
-    private double viewCount;
+    private double totalCount;
 }

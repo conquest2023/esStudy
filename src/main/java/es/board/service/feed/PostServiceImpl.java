@@ -92,9 +92,8 @@ public class PostServiceImpl implements PostService{
     @Override
     public Map<Integer, Long> getCountByCommentAndReply(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Integer> ids = queryRepository.findIds(pageable);
-        List<Integer> list = ids.getContent();
-        Map<Integer, Long> map = queryRepository.countByReplyAndComment(list);
+        List<Integer> ids = queryRepository.findPostIds(pageable);
+        Map<Integer, Long> map = queryRepository.countByReplyAndComment(ids);
         return map;
     }
 

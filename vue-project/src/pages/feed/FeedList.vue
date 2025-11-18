@@ -314,10 +314,11 @@ async function fetchFeedsAll(newPage = page.value) {
     const nextCounts = {}
     for (const p of posts.value) {
       const pid = p.id
-      const key = String(pid)            // 응답 키가 문자열일 수도 있으니
+      const key = String(pid)
       nextCounts[pid] = aggsObj[key] ?? aggsObj[pid] ?? 0
     }
     counts.value = nextCounts
+
     const { data: likeRes } = await api.get('/likes', { params })
     const likesObj = likeRes?.likes ?? {}
     const nextLikeCounts = {}
@@ -327,7 +328,6 @@ async function fetchFeedsAll(newPage = page.value) {
       nextLikeCounts[pid] = likesObj[key] ?? likesObj[pid] ?? 0
     }
     likeCounts.value = nextLikeCounts
-    console.log(likeCounts)
     await fetchNotice()
   } catch (err) {
     console.error('전체 글 로딩 실패', err)
@@ -374,7 +374,6 @@ async function fetchFeeds(newPage = page.value) {
       totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
       counts.value    = countsMap
       notices.value   = []
-
       return
     }
 
@@ -457,13 +456,12 @@ watch(activeTab, () =>
 }
 
 
-/* 학습 자료 카테고리 버튼 간격 조정 */
 .nav-pills .nav-item {
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 }
 .nav-pills .nav-link {
-  border-radius: 20px; /* 둥근 버튼 */
+  border-radius: 20px;
   font-size: 0.85rem;
 }
 .nav-pills .nav-link.active {
@@ -495,8 +493,14 @@ watch(activeTab, () =>
 .btn-group .btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }
 textarea.form-control:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
 @media (max-width: 576px) {
-  .interview-title { font-size: 1.2rem; flex-direction: column; align-items: flex-start; } }
-.mobile-sidebar { position: fixed; top: 0; left: 0; z-index: 1050; height: 100%; width: 80%; max-width: 300px; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 1rem; }
+  .interview-title {
+    font-size: 1.2rem; flex-direction: column; align-items: flex-start;
+  }
+}
+.mobile-sidebar {
+  position: fixed; top: 0; left: 0; z-index: 1050; height: 100%; width: 80%; max-width: 300px; background: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 1rem;
+}
 @media (max-width: 992px) {
   .mobile-sidebar { transition: transform 0.3s ease-in-out; }
   .slide-enter-active, .slide-leave-active { transition: transform 0.3s ease-in-out; }

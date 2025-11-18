@@ -39,9 +39,14 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
+    public List<Integer> findPostIds(Pageable pageable) {
+        return repository.findPostIds(pageable);
+    }
+    @Override
     public Page<PostEntity> findByPagePosts(Pageable pageable) {
         return repository.findAll(pageable);
     }
+
 
     @Override
     public PostEntity findPostDetail(int id) {

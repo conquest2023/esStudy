@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AuthService {
 
-    List<UserPointProjection> getSumPointUser();
+//    List<UserPointProjection> getSumPointUser();
     String findById(String  username);
 
     void  autoLogin(String userId, String token);

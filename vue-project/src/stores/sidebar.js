@@ -70,7 +70,7 @@ export const useSidebarStore = defineStore('sidebar', {
                         today: ipRes.data.data.todayVisitors,
                         total: ipRes.data.data.totalVisitors
                     }
-                    this.topWriters = writerRes.data.sumPoint ?? []
+                    this.topWriters = writerRes.data.top5 ?? []
 
                 } catch (e) {
                     console.error('[sidebar] live 로딩 실패', e)
