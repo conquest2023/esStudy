@@ -16,6 +16,7 @@ public interface ReplyRepository {
     void saveReply(ReplyEntity reply);
 
 
+//    String findByUserId(String )
     List<ReplyEntity> findByReplys(int id);
 
     Optional<ReplyEntity> isExist(long id);

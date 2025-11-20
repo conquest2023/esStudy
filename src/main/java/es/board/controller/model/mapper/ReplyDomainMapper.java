@@ -1,6 +1,8 @@
 package es.board.controller.model.mapper;
 
+import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.ReplyDTO;
+import es.board.repository.entity.Notification;
 import es.board.service.domain.Reply;
 
 import java.time.LocalDateTime;
@@ -52,5 +54,19 @@ public class ReplyDomainMapper {
                 .filter(Objects::nonNull)
                 .map(d -> toRequestDto(userId, d))
                 .collect(Collectors.toList());
+    }
+
+    public static Notification toEntityNotification(String userId, ReplyDTO.Response reply) {
+        return Notification.builder()
+                .userId(userId)
+                .postId(reply.getPostId())
+                .isCheck(false)
+                .username(reply.getUsername())
+                .sender(reply.getUserId())
+                .message(reply.getContent())
+                .type("답글")
+                .username(reply.getUsername())
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

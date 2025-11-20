@@ -3,7 +3,9 @@ export const toasts = ref([])
 
 export function useToast() {
     const push = msg => {
-        toasts.value.unshift({ id: Date.now(), msg })
+        toasts.value.unshift({
+            id: Date.now(), msg }
+        )
         setTimeout(() => toasts.value.pop(), 5000)
     }
     return {

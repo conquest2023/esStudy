@@ -9,7 +9,6 @@ import { useToast } from '@/composables/useToast'
 const user = useUserStore()
 const router = useRouter()
 const { push } = useToast()
-
 const notifications = ref([])
 const unreadCount = computed(() =>
     notifications.value.filter(n => !n.isCheck).length
@@ -28,7 +27,8 @@ const notiPanel = ref(null)
 
 onMounted(() => {
   const token = localStorage.getItem('token')
-  if (token) useSSE(token)
+  if (token)
+    useSSE(token)
   applySavedTheme()
   user.fetchMe()
   fetchNotifications()
@@ -52,7 +52,7 @@ async function fetchNotifications() {
 
     notifications.value = data || []
     const unread = notifications.value.filter(n => !n.isCheck).length
-    if (unread > 0 && typeof push === 'function') {
+    if (unread > 0) {
       push('🔔 새로운 알림이 있습니다!')
     }
   } catch (e) {
@@ -514,25 +514,24 @@ const menus = [
   transform: scale(1.05);
 }
 
-/* 빨간 알림 동그라미 */
 .badge {
   font-weight: 600;
   padding: 4px 6px;
 }
 
-/* 알림 드롭다운 패널 */
 .notification-dropdown {
-  width: 360px;
+  width: 360px; /* PC 환경 기본 너비 유지 */
   background: white;
   border-radius: 18px;
   overflow: hidden;
   position: absolute;
-  right: 0;
+  right: 0; /* PC: 오른쪽 끝에 붙임 */
   top: 48px;
   border: 1px solid #e5e8eb;
   box-shadow: 0 10px 30px rgba(0,0,0,0.12);
   animation: fadeSlide .25s ease-out;
   display: none;
+  z-index: 1050;
 }
 
 .notification-dropdown.show {
@@ -549,12 +548,11 @@ const menus = [
 .noti-header {
   background: #f9fafb;
 }
-
-/* 알림 리스트 */
 .noti-list {
-  max-height: 260px;
+  max-height: 300px;
   overflow-y: auto;
 }
+
 
 /* 개별 알림 */
 .noti-item {
@@ -595,7 +593,6 @@ const menus = [
   padding: 6px 10px;
 }
 
-/* 글쓰기 버튼(강조) */
 .btn-danger {
   padding: 6px 14px;
   background: linear-gradient(135deg, #ff4b4b, #ff2626);
@@ -608,7 +605,6 @@ const menus = [
   background: linear-gradient(135deg, #ff3b3b, #ff1111);
 }
 
-/* 모바일 대응 */
 @media (max-width: 768px) {
   .tagline {
     display: none;
@@ -616,6 +612,42 @@ const menus = [
 
   .okky-navbar {
     height: 58px;
+  }
+
+  .notification-dropdown {
+    width: calc(100vw - 30px); /* 화면 전체 너비에서 좌우 패딩을 뺀 값 */
+
+    right: 5px; /* 오른쪽에서 살짝 띄우기 */
+    left: auto; /* 기본적으로 right 기준으로 동작 */
+
+    border-radius: 10px;
+
+    top: 55px;
+
+    max-width: 360px; /* 너무 커지지 않도록 상한선 설정 (태블릿 고려) */
+  }
+}
+
+@media (max-width: 768px) {
+  .d-flex.align-items-center.ms-auto.gap-3.position-relative {
+  }
+
+  .notification-dropdown {
+    width: 95vw; /* 뷰포트 너비의 95% */
+    max-width: 300px; /* 너무 커지지 않도록 최대 너비는 PC 기준 유지 */
+
+    right: -150px;
+
+    left: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .notification-dropdown {
+    width: calc(100vw - 20px); /* 좌우 10px씩 여백 확보 */
+    right: 10px;
+    left: 10px;
+    max-width: none; /* 최대 너비 제한 해제 */
   }
 }
 </style>

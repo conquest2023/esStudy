@@ -18,7 +18,7 @@ public interface CommentRepository {
 
     void saveComment(CommentEntity post);
 
-
+    String findByUserId(long commentId);
     List<CommentEntity> findByComments(int id);
 
     Optional<CommentEntity> isExist(long id);

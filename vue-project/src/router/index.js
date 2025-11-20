@@ -49,8 +49,6 @@ const routes = [
     }
     ]
     },
-
-
     { path: '/login', name:`Login`, component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
     { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
     { path: '/user/profile/:username', name: 'user-profile', component: () => import('@/pages/feed/user/SomeoneProfile.vue')},

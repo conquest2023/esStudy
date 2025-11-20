@@ -11,21 +11,25 @@ export function useSSE(token) {
     const es = new EventSource(`/api/subscribe?token=${encodeURIComponent(token)}`)
 
     const handleNotification = (e, emoji) => {
+        console.log('핸들러 진입 성공!', e);
         let parsed
-        try { parsed = JSON.parse(e.data) }
-        catch { return console.error('알림 JSON 파싱 실패', e.data) }
+        setTimeout(() => console.log(e), 50000)
+        try {
+            parsed = JSON.parse(e.data)
+        }
+        catch {
+            return console.error('알림 JSON 파싱 실패', e.data)
+        }
         store.addNotification({
             id: Date.now(),
             postId:  parsed.postId,
-            message:  parsed.message,
-            read:     false
+            message: parsed.message,
+            read:    false
         })
-        addFeedNotification(parsed, store, showToast)
-        // addFeedNotification(parsed, store.notifications, (msg, id) => {
-        //     push(`${emoji} ${msg}`)
-        // })
-    }
+        push(e.data);
+        // addFeedNotification(parsed, store, showToast)
 
+    }
     es.onopen = () => {
         console.log('[SSE] 연결 성공')
     }
@@ -34,9 +38,8 @@ export function useSSE(token) {
         es.close()
         setTimeout(() => useSSE(token), 30000)
     }
-
     // 다양한 타입의 알림
-    es.addEventListener('comment-notification', e => handleNotification(e, '💬'))
+    es.addEventListener('comment-notifications', e => handleNotification(e, '💬'))
     es.addEventListener('todo-notification', e => handleNotification(e, '📝'))
     es.addEventListener('reply-notification', e => handleNotification(e, '↩️'))
     es.addEventListener('notice-notification', e => handleNotification(e, '📢'))

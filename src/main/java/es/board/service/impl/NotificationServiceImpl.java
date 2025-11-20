@@ -37,10 +37,10 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String POINT_NOTIFICATION_KEY = "notifications:point:";
     @Override
     public SseEmitter subscribe(String userId) {
-        SseEmitter emitter = new SseEmitter(60 * 1000L);
+        SseEmitter emitter = new SseEmitter(60000L);
         emitters.put(userId, emitter);
 
-        sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
+        sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notifications", emitter);
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
 
@@ -103,16 +103,14 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
     private void sendFeedNotification(String userId, int postId, String redisKeyPrefix, String eventType, String message) {
-        log.info("알림전송={}",userId);
         String redisKey = redisKeyPrefix + userId;
         try {
             Map<String, String> payload = new HashMap<>();
-            payload.put("postId", String.valueOf(postId));
             payload.put("message", message);
             String jsonPayload = objectMapper.writeValueAsString(payload);
             if (!emitters.containsKey(userId)) {
                 redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-                redisTemplate.opsForList().trim(redisKey, 0, 49); // 최대 50개 유지
+                redisTemplate.opsForList().trim(redisKey, 0, 20);
                 log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
                 return;
             }
@@ -125,7 +123,6 @@ public class NotificationServiceImpl implements NotificationService {
                     .name(eventType)
                     .data(jsonPayload));
             log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
-
         } catch (IOException e) {
             log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
@@ -135,7 +132,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private void sendNotification(String userId, String redisKeyPrefix, String eventType, String message) {
         String redisKey = redisKeyPrefix + userId;
-        log.info("redisKey={}",redisKey);
         if (!emitters.containsKey(userId)) {
             redisTemplate.opsForList().leftPush(redisKey, message);
             redisTemplate.opsForList().trim(redisKey, 0, 49);

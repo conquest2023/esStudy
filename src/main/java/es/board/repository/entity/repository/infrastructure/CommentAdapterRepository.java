@@ -27,6 +27,10 @@ public class CommentAdapterRepository implements CommentRepository {
     }
 
     @Override
+    public String findByUserId(long commentId) {
+        return repository.findByUserId(commentId);
+    }
+    @Override
     public List<CommentEntity> findByComments(int id) {
         return repository.findById(id);
     }
