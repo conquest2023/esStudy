@@ -27,7 +27,7 @@ public class ReplyDomainMapper {
                 dto.getContent(),
                 dto.getLikeCount(),
                 createdAt,
-                createdAt,
+                null,
                 null
         );
     }

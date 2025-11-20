@@ -60,12 +60,12 @@ public class PostController {
     }
 
 
-//    @GetMapping("/posts/ids")
-//    public ResponseEntity<?> getPostIds(@RequestParam int page, @RequestParam int size) {
-//        Page<Integer> ids = postService.findIds(page, size);
-//        return ResponseEntity.ok(Map.of(
-//                "ids", ids));
-//    }
+    @GetMapping("/posts/ids")
+    public ResponseEntity<?> getPostIds(@RequestParam int page, @RequestParam int size) {
+        Page<Integer> ids = postService.findIds(page, size);
+        return ResponseEntity.ok(Map.of(
+                "ids", ids));
+    }
 
     @GetMapping("/posts/popular/week")
     public ResponseEntity<?> getPopularPostsInLast7Weeks(@RequestParam int page, @RequestParam int size){

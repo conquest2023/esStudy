@@ -21,7 +21,6 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    private final JwtTokenProvider provider;
     @GetMapping("/likes")
     public ResponseEntity<?> getPostPagingList(
                                                @RequestParam int page,
@@ -33,18 +32,15 @@ public class LikeController {
 
     @PostMapping("/like")
     public ResponseEntity<?> savePostLike(@RequestBody LikeDto.Response response,
-                                          @RequestHeader(value = "Authorization", required = false) String token
+                                          @RequestAttribute("userId") String userId
     ){
-
-        String userId = checkToken(token);
         likeService.toggleLike(userId, response);
 
         return ResponseEntity.ok(Map.of("ok","좋아요를 누르셨습니다"));
     }
     @GetMapping("/like/detail/{id}")
     public ResponseEntity<?> getLikeDetailFeed(@PathVariable int id,
-                                               @RequestHeader(value = "Authorization", required = false) String token){
-        String userId = checkToken(token);
+                                               @RequestAttribute("userId") String userId){
         List<LikeDto.Request> likeFeedDetail = likeService.findLikeFeedDetail(id,userId);
         return ResponseEntity.ok(Map.of("likes",likeFeedDetail));
     }
@@ -52,15 +48,7 @@ public class LikeController {
     @GetMapping("/like/count/{id}")
     public ResponseEntity<?> getLikeDetailFedCount(@PathVariable int id){
         List<LikeCountProjection> likeFeedDetailCount = likeService.findLikeFeedDetailCount(id);
-        log.info(likeFeedDetailCount.toString());
         return ResponseEntity.ok(Map.of("likes",likeFeedDetailCount));
     }
 
-    @Nullable
-    private String checkToken(String token) {
-        String currentUserId = (token != null && token.startsWith("Bearer "))
-                ? provider.getUserId(token.substring(7))
-                : null;
-        return currentUserId;
-    }
 }

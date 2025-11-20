@@ -1,17 +1,12 @@
 <template>
-  <!-- 이전글 / 다음글 버튼 -->
   <PrevNextButtons v-if="loaded" :posts="posts" class="mb-3" />
 
-  <!-- 로딩 전 -->
   <div v-if="!loaded" class="post-detail-loading text-center pt-5">
     <i class="bi bi-arrow-repeat fs-2 spin"></i>
   </div>
 
-  <!-- 디테일 페이지 -->
   <section v-else class="post-detail-page container pt-navbar my-4">
-    <!-- 상단 액션 (수정/삭제) -->
     <div v-if="isOwner" class="text-end mb-2">
-      <!-- PC용 -->
       <div class="dropdown d-none d-md-inline-block">
         <button class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-toggle="dropdown">
           <i class="fas fa-ellipsis-v"></i>
@@ -62,7 +57,6 @@
             {{ feed.title }}
           </h1>
 
-          <!-- 🔥 한 줄 메타 라인 -->
           <div class="post-meta-row small">
             <RouterLink :to="`/user/profile/${feed.username}`" class="post-author-link text-decoration-none d-inline-flex align-items-center">
               <span class="badge-rank me-1">{{ rankBadge(feed.username) }}</span>
@@ -84,10 +78,7 @@
         </header>
 
 
-        <!-- 본문 -->
-        <section class="post-content" v-html="feed.description" />
-
-        <!-- 하단 액션 (댓글 수 / 좋아요) -->
+        <section class="post-content" v-html="processedDescription" />
         <footer class="post-actions d-flex justify-content-between align-items-center mt-4">
           <div class="text-muted small">
             <i class="bi bi-chat-dots me-1"></i> 댓글 {{ comments.length }}
@@ -274,8 +265,6 @@
               </div>
             </div>
           </div>
-
-
           <button
               class="btn btn-sm btn-outline-primary mt-2"
               @click="toggleReplyForm(c.id)">
@@ -939,7 +928,12 @@ async function submitReply(commentId) {
     replySendingMap.value[commentId] = false
   }
 }
-
+const processedDescription = computed(() => {
+  const desc = feed.value.description || '';
+  // 1. decodeHtmlEntities: (옵션) 서버 응답이 HTML 엔티티라면 디코딩
+  // 2. convertLinks: URL을 <a> 태그나 <iframe>으로 변환 (기존 로직 사용)
+  return convertLinks(decodeHtmlEntities(desc));
+});
 
 </script>
 
