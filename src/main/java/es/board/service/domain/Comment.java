@@ -1,6 +1,6 @@
 package es.board.service.domain;
 
-import es.board.repository.entity.CommentEntity;
+import es.board.repository.entity.feed.CommentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

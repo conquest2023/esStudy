@@ -314,10 +314,9 @@
 import { ref, onMounted, computed ,watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/utils/api'
-// import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
-
 import { useUserStore } from '@/stores/user'
+import { usePostDetailStore } from '@/stores/postDetail'
 import { RouterLink } from 'vue-router'
 const route   = useRoute()
 const router  = useRouter()
@@ -330,7 +329,7 @@ const replyEditMode  = ref({})
 const likeStates = ref({})
 const feedHtml   = ref('')
 const comments = ref([])
-const likeCount  = ref(0)
+const hasPoll = ref(false)
 const liked      = ref(false)
 const loaded     = ref(false)
 const replies = ref({})
@@ -343,10 +342,10 @@ const sending    = ref(false)
 const reloadTrigger = ref(0)
 const login = computed(() => store.isLoggedIn)
 const isOwner = computed(() => feed.value.owner === true)
-const editingCommentId = ref(null)   // 어떤 댓글을 수정 중인지
-const editTexts = ref({})            // 댓글 id -> 수정 텍스트
+const editingCommentId = ref(null)
+const editTexts = ref({})
 const editSending = ref(false)
-
+const postDetailStore = usePostDetailStore()
 const PAGE_SIZE = 10
 const pageParam = computed(() => {
   const q = parseInt(route.query.page ?? '0', 10)
@@ -587,9 +586,23 @@ async function loadReplies(postId) {
 async function loadFeedDetail(postId) {
   try {
     loaded.value = false
-
     const { data } = await api.get(`/post/${postId}`)
-    const raw = data?.ok ?? {}
+    hasPoll.value = data?.ok?.hasPoll ?? false
+
+    if (hasPoll.value && data.ok.poll) {
+      postDetailStore.setDetail({
+        post: data.ok.post,
+        poll: data.ok.poll,
+      })
+
+      router.replace({
+        name: 'PollDetail',
+        params: { id: data.ok.post.id || postId },
+      })
+      return
+    }
+
+    const raw = data?.ok.post ?? {}
     feed.value = {
       id:          raw.id,
       username:    raw.username ?? '',
@@ -601,7 +614,7 @@ async function loadFeedDetail(postId) {
       viewCount:   raw.viewCount ?? 0,
       createdAt:   raw.createdAt ?? null,
       modifiedAt:   raw.modifiedAt ?? null,
-      owner:      raw.owner,                 // 소유자 여부
+      owner:      raw.owner,
     }
     ensureLikeState(
         'POST',
@@ -662,6 +675,7 @@ function likeCountOf(targetType, targetId) {
   const key = likeKey(targetType, targetId)
   return likeStates.value[key]?.count ?? 0
 }
+
 watch(
     () => route.params.id,
     (newId, oldId) => {

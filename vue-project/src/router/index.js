@@ -9,7 +9,6 @@ import QuestionBank from '@/pages/certificate/QuestionBank.vue'
 import PracticeQuestion from '@/pages/certificate/PracticeQuestion.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import calendar from '@/pages/calendar/CalendarPage.vue'
-import voteDetail  from "@/pages/feed/VoteDetail.vue";
 import OAuthGoogleLogin from '@/pages/auth/Google.vue'
 import OAuthKakaoLogin from '@/pages/auth/Kakao.vue'
 import OAuthNaverLogin from '@/pages/auth/Naver.vue'
@@ -53,10 +52,14 @@ const routes = [
     { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
     { path: '/user/profile/:username', name: 'user-profile', component: () => import('@/pages/feed/user/SomeoneProfile.vue')},
     { path: '/search/view/feed/update', name: 'feed-update', component: FeedUpdate },
-    { path: '/search/view/vote/detail', name: 'vote-detail', component: voteDetail, meta: { hideLayout: true } },
     { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },
     { path: '/post/:id', name: 'PostDetail', component: () => import('@/pages/feed/FeedDetail.vue'), meta: { hideLayout: true } },
     { path: '/search/view/feed/vote', name: 'vote-form', component: VoteForm },
+    {
+        path: '/poll/:id',
+        name: 'PollDetail',
+        component: () => import('@/pages/feed/PollDetail.vue')
+    },
     { path: '/search/view/content', name: 'search-result', component: () => import('@/pages/SearchResult.vue') },
     { path: '/search/view/feed/list/page', component: () => import('@/pages/feed/MyPage.vue') },
     { path:'/notifications', name:'Notifications', component:() => import('@/components/NotificationsPage.vue') },

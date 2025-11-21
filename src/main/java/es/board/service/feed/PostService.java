@@ -1,7 +1,8 @@
 package es.board.service.feed;
 
+import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import org.springframework.data.domain.Page;
 
 import java.util.Map;
@@ -24,7 +25,7 @@ public interface PostService {
     Page<PostEntity> findAllPosts(int page, int size);
 
 
-    PostDTO.Request findPostDetail(String userId, int id);
+    PostDetailResponse findPostDetail(String userId, int id);
 
 
     Map<Integer, Long> getCountByCommentAndReply(int page , int size);

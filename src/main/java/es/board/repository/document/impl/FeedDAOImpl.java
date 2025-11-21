@@ -32,7 +32,6 @@ public class FeedDAOImpl implements FeedDAO {
 
     @Override
     public String saveFeed(String index, PostDTO.Response dto) {
-        dto.TimePush();
         try {
             IndexResponse response = client.index(i -> i
                     .index(index)

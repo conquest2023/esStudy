@@ -8,7 +8,7 @@ import es.board.repository.*;
 import es.board.repository.document.Board;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
-import es.board.repository.entity.User;
+import es.board.repository.entity.user.User;
 import es.board.repository.entity.repository.PostRepository;
 import es.board.repository.entity.repository.TistoryPostRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;

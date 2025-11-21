@@ -1,14 +1,9 @@
-package es.board.repository.entity.repository.infrastructure;
+package es.board.repository.entity.repository.infrastructure.jpa;
 
-import es.board.repository.entity.CommentEntity;
-import es.board.repository.entity.LikeEntity;
+import es.board.repository.entity.feed.LikeEntity;
 import es.board.repository.entity.repository.infrastructure.feed.LikeAggView;
-import es.board.repository.entity.repository.infrastructure.feed.LikeRepository;
 import es.board.repository.entity.repository.infrastructure.projection.LikeCountProjection;
-import es.board.service.domain.Like;
 import es.board.service.domain.enum_type.TargetType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

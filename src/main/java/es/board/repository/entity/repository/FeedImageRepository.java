@@ -1,6 +1,6 @@
 package es.board.repository.entity.repository;
 
-import es.board.repository.entity.FeedImage;
+import es.board.repository.entity.feed.FeedImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

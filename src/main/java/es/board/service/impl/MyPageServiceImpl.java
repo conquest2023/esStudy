@@ -1,10 +1,8 @@
 package es.board.service.impl;
-import es.board.controller.model.dto.feed.PostDTO;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
-import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.MyPageService;
@@ -15,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service

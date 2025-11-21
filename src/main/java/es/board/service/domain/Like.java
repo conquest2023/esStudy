@@ -1,8 +1,6 @@
 package es.board.service.domain;
 
-import es.board.repository.entity.LikeEntity;
 import es.board.service.domain.enum_type.TargetType;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 

@@ -3,7 +3,7 @@ package es.board.service;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.document.Board;
-import es.board.repository.entity.FeedImage;
+import es.board.repository.entity.feed.FeedImage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

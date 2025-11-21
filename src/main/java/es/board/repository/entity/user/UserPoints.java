@@ -1,4 +1,4 @@
-package es.board.repository.entity;
+package es.board.repository.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;

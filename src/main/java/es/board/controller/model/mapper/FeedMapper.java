@@ -3,10 +3,11 @@ package es.board.controller.model.mapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
-import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.document.Board;
 import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
+import es.board.repository.entity.feed.NoticeEntity;
+import es.board.repository.entity.feed.PostEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -78,13 +79,13 @@ public class FeedMapper {
                 .build();
     }
 
-    public Likes toLikeEntity(String feedUID, String userId) {
-        return Likes.builder()
-                .feedUID(feedUID)
-                .userId(userId)
-                .created_at(LocalDateTime.now())
-                .build();
-    }
+//    public Likes toLikeEntity(String feedUID, String userId) {
+//        return Likes.builder()
+//                .feedUID(feedUID)
+//                .userId(userId)
+//                .created_at(LocalDateTime.now())
+//                .build();
+//    }
 
     public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
         return notice.stream()

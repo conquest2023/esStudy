@@ -1,12 +1,17 @@
 package es.board.service.feed;
 
+import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.repository.entity.poll.PollEntity;
 import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
+import es.board.repository.entity.repository.infrastructure.poll.PollRepository;
 import es.board.service.domain.Post;
 import es.board.service.point.PointService;
+import es.board.service.poll.PollService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Slf4j
@@ -30,7 +36,11 @@ public class PostServiceImpl implements PostService{
 
     private final PointService pointService;
 
+    private final PollService pollService;
+
     private final PostRepository postRepository;
+
+    private final PollRepository pollRepository;
 
     private final PostQueryRepository queryRepository;
 
@@ -82,11 +92,24 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostDTO.Request findPostDetail(String userId, int id) {
-
-        PostEntity postDetail = queryRepository.findPostDetail(id);
-        Post post = Post.toDomain(postDetail);
-        return  PostDomainMapper.toRequest(userId,post);
+    public PostDetailResponse findPostDetail(String userId, int postId) {
+        Optional<PollEntity> pollOpt = pollRepository.findByPostId(postId);
+        PostEntity postEntity = queryRepository.findPostDetail(postId);
+        Post post = Post.toDomain(postEntity);
+        PostDTO.Request postDto = PostDomainMapper.toRequest(userId, post);
+        if (pollOpt.isEmpty()) {
+            return PostDetailResponse.builder()
+                    .post(postDto)
+                    .poll(null)
+                    .hasPoll(false)
+                    .build();
+        }
+        PollDto.Response pollDto = pollService.getPollDetail(postId);
+        return PostDetailResponse.builder()
+                .post(postDto)
+                .poll(pollDto)
+                .hasPoll(true)
+                .build();
     }
 
     @Override

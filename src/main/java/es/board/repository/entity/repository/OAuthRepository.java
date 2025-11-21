@@ -1,7 +1,7 @@
 package es.board.repository.entity.repository;
 
 
-import es.board.repository.entity.OAuthUser;
+import es.board.repository.entity.user.OAuthUser;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

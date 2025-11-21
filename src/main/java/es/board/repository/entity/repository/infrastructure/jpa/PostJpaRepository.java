@@ -1,7 +1,6 @@
-package es.board.repository.entity.repository.infrastructure;
+package es.board.repository.entity.repository.infrastructure.jpa;
 
-import es.board.repository.entity.Notification;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.infrastructure.feed.CommentAggView;
 import es.board.repository.entity.repository.infrastructure.feed.ReplyAggView;
 import org.springframework.data.domain.Page;

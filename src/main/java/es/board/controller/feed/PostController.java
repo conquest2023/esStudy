@@ -2,9 +2,10 @@ package es.board.controller.feed;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.ex.TokenValidator;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.service.feed.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,7 +56,7 @@ public class PostController {
             @PathVariable int id){
 
         String currentUserId = checkToken(token);
-        PostDTO.Request postDetail = postService.findPostDetail(currentUserId,id);
+        PostDetailResponse postDetail = postService.findPostDetail(currentUserId, id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }
 

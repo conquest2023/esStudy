@@ -9,9 +9,9 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
-import es.board.repository.entity.FeedImage;
+import es.board.repository.entity.feed.FeedImage;
 import es.board.repository.entity.PointHistoryEntity;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.*;
 import es.board.service.FeedService;
 import es.board.service.NotificationService;
@@ -70,7 +70,7 @@ public class FeedServiceImpl implements FeedService {
 
     private final LikeDAO likeDAO;
 
-    private final LikeRepository likeRepository;
+//    private final LikeRepository likeRepository;
 
 //    private  final SlackNotifier slackNotifier;
 
@@ -304,20 +304,20 @@ public class FeedServiceImpl implements FeedService {
         if (isAlreadyLiked(id, userId)) {
             throw new IllegalStateException("이미 좋아요를 누른 상태입니다.");
         }
-        likeRepository.save(feedMapper.toLikeEntity(id, userId));
+//        likeRepository.save(feedMapper.toLikeEntity(id, userId));
         asyncService.postLike(userId, id);
     }
 
     @Override
     @Transactional
     public void cancelLike(String userId, String feedId) {
-
-        if (isAlreadyLiked(userId, feedId)) {
-            likeRepository.deleteByUserIdAndFeedUID(userId, feedId);
-            asyncService.cancelLike(userId, feedId);
-        } else {
-            throw new IllegalStateException("좋아요를 누른 상태가 아닙니다.");
-        }
+//
+//        if (isAlreadyLiked(userId, feedId)) {
+//            likeRepository.deleteByUserIdAndFeedUID(userId, feedId);
+//            asyncService.cancelLike(userId, feedId);
+//        } else {
+//            throw new IllegalStateException("좋아요를 누른 상태가 아닙니다.");
+//        }
     }
 
 
@@ -334,7 +334,8 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public boolean isAlreadyLiked(String userId, String id) {
-        return likeRepository.existsByUserIdAndFeedUID(userId, id);
+        return true;
+//        return likeRepository.existsByUserIdAndFeedUID(userId, id);
     }
 
     private void validateUsername(String username) {
@@ -351,7 +352,7 @@ public class FeedServiceImpl implements FeedService {
         List<Board> boards = new ArrayList<>();
         for (PostDTO.Response dto : res) {
             Board feed = Board.builder()
-                    .feedUID(dto.getFeedUID())
+//                    .feedUID(dto.getFeedUID())
                     .title(dto.getTitle())
                     .description(dto.getDescription())
                     .likeCount(dto.getLikeCount())

@@ -78,7 +78,7 @@ public class PostDTO {
         private  String userId;
 
 
-        private String feedUID;
+//        private String feedUID;
 
 
         @JsonSerialize(using = XssSafeSerializer.class)
@@ -120,9 +120,11 @@ public class PostDTO {
         private List<MultipartFile> imageFiles;
 
 
-        public void TimePush(){
-
-            this.createdAt=LocalDateTime.now();
+        public Response(String userId,String title, String category, String description) {
+            this.userId = userId;
+            this.title = title;
+            this.category = category;
+            this.description = description;
         }
     }
 

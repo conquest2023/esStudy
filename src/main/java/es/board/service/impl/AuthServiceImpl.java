@@ -1,21 +1,15 @@
 package es.board.service.impl;
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.*;
-import es.board.ex.TokenInvalidException;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.UserRepository;
-import es.board.repository.entity.User;
-import es.board.repository.entity.repository.infrastructure.projection.UserPointProjection;
-import es.board.repository.entity.repository.infrastructure.projection.UserPointSummary;
+import es.board.repository.entity.user.User;
 import es.board.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j

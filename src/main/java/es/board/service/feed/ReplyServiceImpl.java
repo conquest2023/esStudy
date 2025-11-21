@@ -2,7 +2,7 @@ package es.board.service.feed;
 
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.controller.model.mapper.ReplyDomainMapper;
-import es.board.repository.entity.ReplyEntity;
+import es.board.repository.entity.feed.ReplyEntity;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.repository.infrastructure.feed.ReplyRepository;
 import es.board.service.event.ReplyCreatedEvent;

@@ -4,7 +4,7 @@
 ////import es.board.config.s3.S3Uploader;
 //import es.board.controller.model.dto.feed.PostDTO;
 //import es.board.controller.model.dto.feed.TopWriter;
-//import es.board.repository.entity.FeedImage;
+//import es.board.repository.entity.feed.FeedImage;
 //import es.board.service.AuthService;
 //import es.board.service.FeedService;
 //import lombok.RequiredArgsConstructor;

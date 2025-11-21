@@ -1,6 +1,6 @@
-package es.board.repository.entity.repository.infrastructure;
+package es.board.repository.entity.repository.infrastructure.jpa;
 
-import es.board.repository.entity.CommentEntity;
+import es.board.repository.entity.feed.CommentEntity;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;

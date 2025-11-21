@@ -1,12 +1,10 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
-import es.board.repository.entity.CommentEntity;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.CommentEntity;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

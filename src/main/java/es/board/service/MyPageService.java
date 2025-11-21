@@ -1,14 +1,9 @@
 package es.board.service;
 
-import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.controller.model.dto.feed.PostDTO;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface MyPageService {
 

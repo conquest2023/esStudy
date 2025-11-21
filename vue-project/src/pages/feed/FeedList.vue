@@ -2,9 +2,9 @@
   <section class="container-fluid px-4 mt-4">
     <div class="row gx-4">
       <aside class="col-lg-3 d-none d-lg-block">
-        <div class="card shadow-sm p-3">
-          <h6 class="fw-bold mb-3">🌟 추천 글</h6>
-        </div>
+<!--        <div class="card shadow-sm p-3">-->
+<!--&lt;!&ndash;          <h6 class="fw-bold mb-3">🌟 추천 글</h6>&ndash;&gt;-->
+<!--        </div>-->
         <div class="card shadow-sm p-3 mt-3">
           <DailyQuestions />
         </div>
@@ -15,9 +15,9 @@
           <div class="mb-3">
             <DailyQuestions />
           </div>
-          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">
-            <i class="fas fa-list me-1"></i> 추천 글 보기
-          </button>
+<!--          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">-->
+<!--            <i class="fas fa-list me-1"></i> 추천 글 보기-->
+<!--          </button>-->
         </div>
 
         <transition name="slide">

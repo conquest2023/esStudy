@@ -1,6 +1,6 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
-import es.board.repository.entity.LikeEntity;
+import es.board.repository.entity.feed.LikeEntity;
 import es.board.repository.entity.repository.infrastructure.projection.LikeCountProjection;
 import es.board.service.domain.enum_type.TargetType;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package es.board.repository.entity;
+package es.board.repository.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 //import jakarta.persistence.Column;
 import es.board.controller.model.dto.feed.SignUpDTO;
+import es.board.repository.entity.Role;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;

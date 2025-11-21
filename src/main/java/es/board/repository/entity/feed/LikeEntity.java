@@ -1,4 +1,4 @@
-package es.board.repository.entity;
+package es.board.repository.entity.feed;
 
 import es.board.service.domain.enum_type.TargetType;
 import jakarta.persistence.*;

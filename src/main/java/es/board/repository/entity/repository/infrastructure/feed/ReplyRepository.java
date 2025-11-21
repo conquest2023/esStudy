@@ -1,7 +1,6 @@
 package es.board.repository.entity.repository.infrastructure.feed;
 
-import es.board.repository.entity.CommentEntity;
-import es.board.repository.entity.ReplyEntity;
+import es.board.repository.entity.feed.ReplyEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;

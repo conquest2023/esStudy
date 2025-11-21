@@ -1,5 +1,6 @@
-package es.board.repository.entity;
+package es.board.repository.entity.user;
 
+import es.board.repository.entity.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

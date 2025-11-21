@@ -38,7 +38,7 @@ public class PostDomainMapper {
     public static Post toDomain(String userId, PostDTO.Response dto) {
             if (dto == null) return null;
 
-            int  id      = dto.getId();
+            int  id    = dto.getId();
             LocalDateTime createdAt = dto.getCreatedAt();
             if (createdAt == null)
                 createdAt = LocalDateTime.now();

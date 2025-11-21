@@ -1,13 +1,12 @@
 package es.board.repository.entity.repository.infrastructure;
 
-import es.board.repository.entity.LikeEntity;
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.LikeEntity;
 import es.board.repository.entity.repository.infrastructure.feed.*;
+import es.board.repository.entity.repository.infrastructure.jpa.LikeJpaRepository;
 import es.board.repository.entity.repository.infrastructure.projection.LikeCountProjection;
 import es.board.service.domain.enum_type.TargetType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 

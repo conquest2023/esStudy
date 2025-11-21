@@ -1,7 +1,8 @@
-package es.board.repository.entity;
+package es.board.repository.entity.feed;
 
 
 
+import es.board.repository.entity.poll.PollEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
@@ -13,14 +14,12 @@ import java.time.LocalDateTime;
 @Table(name = "post")
 @Data
 @Builder
+//@ToString(exclude = "poll")
+//@EqualsAndHashCode(exclude = "poll")
 @AllArgsConstructor
-
 @Slf4j
 @RequiredArgsConstructor
 public class PostEntity {
-
-//    /    @Column(name = "feed_id")
-//    private  String feedUID;
 
 
     @Id
@@ -58,7 +57,10 @@ public class PostEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-
+//    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL,
+//            orphanRemoval = true,
+//            fetch = FetchType.LAZY)
+//    private PollEntity poll;
 
     public void applyFrom(String title,String description,LocalDateTime modifiedAt){
         this.title = title;

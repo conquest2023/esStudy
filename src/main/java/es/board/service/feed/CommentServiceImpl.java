@@ -2,7 +2,7 @@ package es.board.service.feed;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.mapper.CommentDomainMapper;
-import es.board.repository.entity.CommentEntity;
+import es.board.repository.entity.feed.CommentEntity;
 import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.service.domain.Comment;

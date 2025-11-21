@@ -1,9 +1,7 @@
 package es.board.repository.entity.repository.infrastructure;
 
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
-import es.board.repository.entity.PostEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import es.board.repository.entity.feed.PostEntity;
 
 import java.util.*;
 

@@ -2,7 +2,7 @@ package es.board.service.feed;
 
 import es.board.controller.model.dto.feed.LikeDto;
 import es.board.controller.model.mapper.LikeMapper;
-import es.board.repository.entity.LikeEntity;
+import es.board.repository.entity.feed.LikeEntity;
 import es.board.repository.entity.repository.infrastructure.feed.LikeRepository;
 import es.board.repository.entity.repository.infrastructure.projection.LikeCountProjection;
 import es.board.service.domain.Like;

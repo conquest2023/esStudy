@@ -1,9 +1,10 @@
 package es.board.repository.entity.repository.infrastructure;
 
-import es.board.repository.entity.PostEntity;
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.infrastructure.feed.CommentAggView;
 import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.ReplyAggView;
+import es.board.repository.entity.repository.infrastructure.jpa.PostJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

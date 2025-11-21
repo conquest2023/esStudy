@@ -1,6 +1,6 @@
-package es.board.repository.entity.repository.infrastructure;
+package es.board.repository.entity.repository.infrastructure.jpa;
 
-import es.board.repository.entity.ReplyEntity;
+import es.board.repository.entity.feed.ReplyEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
