@@ -32,7 +32,6 @@ public class VoteServiceImpl implements VoteService {
 
     private  final VoteUserRepository voteUserRepository;
 
-
     private final FeedMapper feedMapper;
 
     @Override

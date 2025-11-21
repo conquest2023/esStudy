@@ -60,9 +60,9 @@ public class PostEntity {
 
 
 
-    public void applyFrom(String title,String description){
+    public void applyFrom(String title,String description,LocalDateTime modifiedAt){
         this.title = title;
         this.description = description;
-        this.modifiedAt = LocalDateTime.now();
+        this.modifiedAt = modifiedAt;
     }
 }

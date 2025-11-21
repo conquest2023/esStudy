@@ -65,6 +65,7 @@ public class ReplyDTO {
 
             private boolean owner;
 
+            private boolean isAuthor;
 
             private String username;
 
@@ -83,6 +84,17 @@ public class ReplyDTO {
             @JsonDeserialize(using = LocalDateTimeDeserializer.class)
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
             private LocalDateTime updatedAt;
+
+            public Request(long id, long commentId, int postId, boolean owner, String username, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                this.id = id;
+                this.commentId = commentId;
+                this.postId = postId;
+                this.owner = owner;
+                this.username = username;
+                this.content = content;
+                this.createdAt = createdAt;
+                this.updatedAt = updatedAt;
+            }
         }
 
     @Data

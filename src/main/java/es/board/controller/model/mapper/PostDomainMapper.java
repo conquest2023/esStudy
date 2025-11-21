@@ -80,7 +80,6 @@ public class PostDomainMapper {
                 .title(d.getTitle())
                 .description(d.getDescription())
                 .category(d.getCategory())
-                .likeCount(d.getLikeCount())
                 .viewCount(d.getViewCount())
                 .createdAt(d.getCreatedAt())
                 .modifiedAt(d.getModifiedAt())

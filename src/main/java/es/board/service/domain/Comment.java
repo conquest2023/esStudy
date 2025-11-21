@@ -1,6 +1,5 @@
 package es.board.service.domain;
 
-import es.board.controller.model.mapper.CommentDomainMapper;
 import es.board.repository.entity.CommentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +20,7 @@ public class Comment {
     private String  userId;
     private String username;
     private String content;
-    private boolean anonymous;
+    private boolean isAuthor;
     private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -33,7 +32,7 @@ public class Comment {
         this.userId = userId;
         this.username = username;
         this.content = content;
-        this.anonymous = anonymous;
+        this.isAuthor = anonymous;
         this.likeCount = likeCount;
         this.createdAt = createdAt;
     }
@@ -46,7 +45,7 @@ public class Comment {
                 .userId(d.getUserId())
                 .username(d.getUsername())
                 .content(d.getContent())
-                .anonymous(d.isAnonymous())
+                .anonymous(d.isAuthor())
                 .likeCount(d.getLikeCount())
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
@@ -73,6 +72,10 @@ public class Comment {
     public  boolean isOwnedBy(String currentUserId) {
         return currentUserId != null && Objects.equals(userId, currentUserId);
     }
+    public boolean isAuthorBy(String postOwnerId){
+        return  postOwnerId !=null &&Objects.equals(postOwnerId,userId);
+    }
+
     public static List<Comment> toDomainList(List<CommentEntity> entities) {
         if (entities == null || entities.isEmpty())
             return List.of();
@@ -85,11 +88,11 @@ public class Comment {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Comment comment)) return false;
-        return postId == comment.postId && anonymous == comment.anonymous && likeCount == comment.likeCount && Objects.equals(id, comment.id) && Objects.equals(userId, comment.userId) && Objects.equals(username, comment.username) && Objects.equals(content, comment.content) && Objects.equals(createdAt, comment.createdAt) && Objects.equals(updatedAt, comment.updatedAt) && Objects.equals(deletedAt, comment.deletedAt);
+        return postId == comment.postId && isAuthor == comment.isAuthor && likeCount == comment.likeCount && Objects.equals(id, comment.id) && Objects.equals(userId, comment.userId) && Objects.equals(username, comment.username) && Objects.equals(content, comment.content) && Objects.equals(createdAt, comment.createdAt) && Objects.equals(updatedAt, comment.updatedAt) && Objects.equals(deletedAt, comment.deletedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, postId, userId, username, content, anonymous, likeCount, createdAt, updatedAt, deletedAt);
+        return Objects.hash(id, postId, userId, username, content, isAuthor, likeCount, createdAt, updatedAt, deletedAt);
     }
 }

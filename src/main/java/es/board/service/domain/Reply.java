@@ -1,6 +1,5 @@
 package es.board.service.domain;
 
-import es.board.controller.model.mapper.ReplyDomainMapper;
 import es.board.repository.entity.ReplyEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class Reply {
 
     private Long id;
@@ -22,16 +20,31 @@ public class Reply {
     private String userId;
     private String username;
     private String content;
-//    private boolean anonymous;
+    private boolean isAuthor;
     private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 
+
+    public Reply(Long id, Long commentId, int postId, String userId, String username, String content, int likeCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.commentId = commentId;
+        this.postId = postId;
+        this.userId = userId;
+        this.username = username;
+        this.content = content;
+        this.likeCount = likeCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public  boolean isOwnedBy(String currentUserId) {
         return currentUserId != null && Objects.equals(userId, currentUserId);
     }
+    public boolean isAuthorBy(String postOwnerId){
+        return postOwnerId !=null && Objects.equals(postOwnerId,userId);
+    }
+
     public static ReplyEntity toEntity(Reply d) {
         if (d == null) return null;
         return ReplyEntity.builder()
@@ -44,7 +57,6 @@ public class Reply {
                 .likeCount(d.getLikeCount())
                 .createdAt(d.getCreatedAt())
                 .updatedAt(d.getUpdatedAt())
-                .deletedAt(d.getDeletedAt())
                 .build();
     }
 
@@ -55,7 +67,6 @@ public class Reply {
                 .map(Reply::toDomain)
                 .collect(Collectors.toList());
     }
-
 
 
     public static Reply toDomain(ReplyEntity e) {
@@ -69,8 +80,6 @@ public class Reply {
                 e.getContent(),
                 e.getLikeCount(),
                 e.getCreatedAt(),
-                e.getUpdatedAt(),
-                e.getDeletedAt()
-        );
+                e.getUpdatedAt());
     }
 }

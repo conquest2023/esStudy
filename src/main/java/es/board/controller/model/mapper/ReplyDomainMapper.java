@@ -26,7 +26,7 @@ public class ReplyDomainMapper {
                 dto.getUsername(),
                 dto.getContent(),
                 dto.getLikeCount(),
-                createdAt,
+//                createdAt,
                 null,
                 null
         );
@@ -34,7 +34,23 @@ public class ReplyDomainMapper {
 
     // Request DTO -> Domain
 
-    public static ReplyDTO.Request toRequestDto(String userId, Reply d) {
+    public static ReplyDTO.Request toRequestDto(String userId,String postOwnerId, Reply d) {
+        if (d == null) return null;
+        return new ReplyDTO.Request(
+                d.getId(),
+                d.getCommentId(),
+                d.getPostId(),
+                d.isOwnedBy(userId),
+                d.isAuthorBy(postOwnerId),
+                d.getUsername(),
+                d.getContent(),
+                d.getLikeCount(),
+                d.getCreatedAt(),
+                d.getUpdatedAt()
+        );
+    }
+
+    public static ReplyDTO.Request toUpdateDto(String userId, Reply d) {
         if (d == null) return null;
         return new ReplyDTO.Request(
                 d.getId(),
@@ -43,16 +59,15 @@ public class ReplyDomainMapper {
                 d.isOwnedBy(userId),
                 d.getUsername(),
                 d.getContent(),
-                d.getLikeCount(),
                 d.getCreatedAt(),
                 d.getUpdatedAt()
         );
     }
-    public static List<ReplyDTO.Request> toRequestDtoList(String userId, List<Reply> domains) {
+    public static List<ReplyDTO.Request> toRequestDtoList(String userId,String postOwnerId, List<Reply> domains) {
         if (domains == null || domains.isEmpty()) return List.of();
         return domains.stream()
                 .filter(Objects::nonNull)
-                .map(d -> toRequestDto(userId, d))
+                .map(d -> toRequestDto(userId,postOwnerId, d))
                 .collect(Collectors.toList());
     }
 

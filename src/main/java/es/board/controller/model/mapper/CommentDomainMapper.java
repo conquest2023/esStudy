@@ -46,7 +46,21 @@ public class CommentDomainMapper {
     }
     // Request DTO -> Domain (작성 시 사용)
 
-    public static CommentDTO.Request toRequestDto(String userId, Comment domain) {
+    public static CommentDTO.Request toRequestDto(String userId,String postOwnerId, Comment domain) {
+        if (domain == null) return null;
+        return CommentDTO.Request.builder()
+                .id(domain.getId())
+                .owner(domain.isOwnedBy(userId))
+                .username(domain.getUsername())
+                .content(domain.getContent())
+                .isAuthor(domain.isAuthorBy(postOwnerId))
+                .likeCount(domain.getLikeCount())
+                .createdAt(domain.getCreatedAt())
+                .updatedAt(domain.getUpdatedAt())
+                .build();
+    }
+
+    public static CommentDTO.Request toUpdateDto(String userId, Comment domain) {
         if (domain == null) return null;
         return CommentDTO.Request.builder()
                 .id(domain.getId())
@@ -58,10 +72,10 @@ public class CommentDomainMapper {
                 .updatedAt(domain.getUpdatedAt())
                 .build();
     }
-    public static List<CommentDTO.Request> toRequestDtoList(String userId,List<Comment> domains) {
+    public static List<CommentDTO.Request> toRequestDtoList(String userId,String postOwnerId,List<Comment> domains) {
         if (domains == null || domains.isEmpty()) return List.of();
         return domains.stream()
-                .map(d -> toRequestDto(userId, d))
+                .map(d -> toRequestDto(userId,postOwnerId, d))
                 .collect(Collectors.toList());
     }
 }

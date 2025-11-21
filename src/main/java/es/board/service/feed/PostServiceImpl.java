@@ -55,7 +55,7 @@ public class PostServiceImpl implements PostService{
     public PostDTO.Request updatePost(int id,String userId, PostDTO.Update update) {
 
         PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
-        postEntity.applyFrom(update.getTitle(),update.getDescription());
+        postEntity.applyFrom(update.getTitle(),update.getDescription(),LocalDateTime.now());
         Post domain = Post.toDomain(postEntity);
         return PostDomainMapper.toRequest(postEntity.getUserId(),domain);
     }

@@ -122,11 +122,10 @@
             <div class="comment-meta">
               <RouterLink
                   :to="`/user/profile/${c.username}`"
-                  class="comment-author text-decoration-none"
-              >
+                  class="comment-author text-decoration-none">
                 <span class="badge-rank me-1">{{ rankBadge(c.username) }}</span>
                 <span class="fw-semibold">{{ c.username }}</span>
-
+                <span v-if="c.author" class="badge-author ms-1">글쓴이</span>
                 <span v-if="c.owner" class="badge-author ms-1">작성자</span>
               </RouterLink>
 
@@ -176,7 +175,7 @@
             <div class="d-flex gap-2">
               <button
                   class="btn btn-sm btn-primary"
-                  :disabled="editSending" @click="submitCommentEdit(c.id)">수정 완료
+                  :disabled="editSending" @click="upateComment(c.id)">수정 완료
               </button>
               <button class="btn btn-sm btn-outline-secondary" @click="cancelEdit">
                 취소
@@ -184,22 +183,18 @@
             </div>
           </div>
 
-          <!-- 대댓글 -->
           <div class="mt-2 reply-list" v-if="replies && replies[c.id]">
             <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item">
-              <!-- 상단 메타 + 액션 -->
               <div class="d-flex justify-content-between align-items-start">
                 <div class="reply-meta">
                   <RouterLink
                       :to="`/user/profile/${rp.username}`"
-                      class="comment-author text-decoration-none"
-                  >
+                      class="comment-author text-decoration-none">
                     <span class="badge-rank me-1">{{ rankBadge(rp.username) }}</span>
                     <span class="fw-semibold">{{ rp.username }}</span>
-                    <!-- 🔥 답글 작성자가 글 작성자라면 -->
+                    <span v-if="rp.author" class="badge-author ms-1">글쓴이</span>
                     <span v-if="rp.owner" class="badge-author ms-1">작성자</span>
                   </RouterLink>
-
                   <small class="text-muted ms-2">
                     <template v-if="rp.updatedAt">
                       (수정됨 · {{ fmtDate(rp.updatedAt) }})
@@ -249,7 +244,7 @@
           class="form-control mb-2"
       />
                 <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-primary" @click="submitReplyEdit(rp)">
+                  <button class="btn btn-sm btn-primary" @click="updateReply(rp)">
                     저장
                   </button>
                   <button
@@ -389,7 +384,7 @@ function cancelReplyEdit(id) {
   replyEditMode.value[id] = false
 }
 
-async function submitReplyEdit(rp) {
+async function updateReply(rp) {
   const text = (replyEditTexts.value[rp.id] || '').trim()
   if (!text) {
     alert('답글 내용을 입력하세요.')
@@ -406,10 +401,9 @@ async function submitReplyEdit(rp) {
   try {
     const { data } = await api.put(
         `/reply/${rp.id}`,
-        { content: text },                    // ReplyDTO.Update에 맞게 필드 조정
+        { content: text },
         { headers: { Authorization: `Bearer ${token}` } }
     )
-
     const updated = data?.reply ?? {}
 
     // 어느 댓글 밑의 답글인지 찾기
@@ -477,7 +471,7 @@ function cancelEdit() {
   editingCommentId.value = null
 }
 
-async function submitCommentEdit(commentId) {
+async function upateComment(commentId) {
   const text = editTexts.value[commentId] || ''
 
   if (!text.trim()) {
@@ -572,7 +566,6 @@ async function loadReplies(postId) {
       (Array.isArray(data?.replies) && data.replies) ||
       (Array.isArray(data?.data) && data.data) ||
       []
-
   const grouped = list.reduce((acc, r) => {
     const key = r.commentId ?? r.commentUID ?? r.comment_id
     if (!key) return acc
@@ -583,7 +576,8 @@ async function loadReplies(postId) {
       content:   r.content,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt ?? null,
-      owner:     r.owner ?? false
+      owner:     r.owner,
+      author:    r.author
     })
     return acc
   }, {})
@@ -598,7 +592,6 @@ async function loadFeedDetail(postId) {
     const raw = data?.ok ?? {}
     feed.value = {
       id:          raw.id,
-      feedUID:     raw.feedUID ?? null,                 // 지금은 null일 수 있음
       username:    raw.username ?? '',
       imageURL:    raw.imageURL ?? raw.imageUrl ?? null,
       title:       raw.title ?? '',
@@ -713,7 +706,6 @@ async function toggleLike(targetType, targetId) {
     state.count = prevCount
   }
 }
-// ↓ script setup 안, 아무 함수 위아래 상관없음 (ensureLikeState, likeCountOf 근처 추천)
 async function loadLikeCounts(postId) {
   try {
     const { data } = await api.get(`/like/count/${postId}`)

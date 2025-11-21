@@ -28,18 +28,6 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    public Notification toReplyNotification(String userId, ReplyDTO.Response reply) {
-        return Notification.builder()
-                .sender(reply.getUserId())
-                .userId(userId)
-                .username(reply.getUsername())
-                .message(reply.getContent())
-                .isCheck(false)
-                .type("답글")
-                .username(reply.getUsername())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
 
     public Board toBoardDocument(PostDTO.Response response, int id , String feedUID) {
         return Board.builder()
