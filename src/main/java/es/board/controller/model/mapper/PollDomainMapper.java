@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 @Slf4j
 public final class PollDomainMapper {
@@ -182,7 +183,6 @@ public final class PollDomainMapper {
     // =========================================================
     public static PollVoteEntity toVoteRequest(PollVoteDTO.Request request,String userId,PollEntity poll,PollOptionEntity option) {
 
-
         return PollVoteEntity.builder()
                 .poll(poll)
                 .option(option)
@@ -190,6 +190,32 @@ public final class PollDomainMapper {
                 .votedAt(LocalDateTime.now())
                 .build();
     }
+
+    public static List<PollVoteEntity> toVoteRequestList(
+            PollVoteDTO.MultiRequest request,
+            String userId,
+            PollEntity poll,
+            List<PollOptionEntity> options
+    ) {
+        // 옵션 ID → OptionEntity Map
+        Map<Long, PollOptionEntity> optionMap = options.stream()
+                .collect(Collectors.toMap(PollOptionEntity::getId, o -> o));
+        return request.getOptionIds().stream()
+                .map(optionId -> {
+                    PollOptionEntity option = optionMap.get(optionId);
+                    if (option == null) {
+                        throw new IllegalArgumentException("존재하지 않는 옵션 ID입니다: " + optionId);
+                    }
+                    return PollVoteEntity.builder()
+                            .poll(poll)
+                            .option(option)
+                            .voterId(userId)
+                            .votedAt(LocalDateTime.now())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
 
 //    public static List<PollVoteDTO.Response> toVoteResponses(List<PollVoteEntity> votes) {
 //        if (votes == null || votes.isEmpty()) {

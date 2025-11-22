@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,12 +35,13 @@ public class PollServiceImpl implements PollService{
     private final PollOptionRepository pollOptionRepository;
     @Override
     @Transactional
-    public void createPoll(String userId, PollDto.Request res) {
+    public void createPoll(String username, String userId, PollDto.Request res) {
 
         Post post = PostDomainMapper.toDomain(userId, new PostDTO.Response(
                 userId,
-                res.getCategory(),
+                username,
                 res.getTitle(),
+                res.getCategory(),
                 res.getDescription()));
 
         PostEntity entity = Post.toEntity(post);
@@ -69,8 +71,17 @@ public class PollServiceImpl implements PollService{
         PollOptionEntity option = pollOptionRepository.isCheckOption(request.getOptionId(), request.getPollId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 투표에 없는 옵션입니다."));
         PollVoteEntity vote = PollDomainMapper.toVoteRequest(request,userId, poll, option);
-
         pollVoteRepository.vote(vote);
+    }
+
+    @Override
+    public void voteAll(String userId, PollVoteDTO.MultiRequest requests) {
+        PollEntity poll = pollRepository.findById(requests.getPollId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 투표입니다."));
+        List<PollOptionEntity> options = pollOptionRepository.isCheckOptionList(requests.getPollId(),requests.getOptionIds())
+                .orElseThrow(() -> new IllegalArgumentException("해당 투표에 없는 옵션입니다."));
+        List<PollVoteEntity>  vote = PollDomainMapper.toVoteRequestList(requests, userId, poll, options);
+        pollVoteRepository.voteAll(vote);
     }
 
 }

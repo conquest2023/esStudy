@@ -6,13 +6,16 @@ import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollVoteDTO;
 import es.board.service.poll.PollService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
+@Slf4j
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class PollController {
@@ -24,9 +27,10 @@ public class PollController {
     @PostMapping("/poll")
     public ResponseEntity<?> savePoll(
             @RequestHeader(value = "Authorization") String token,
-            @RequestBody PollDto.Request res){
+            @RequestBody PollDto.Request req){
         String userId = checkToken(token);
-        pollService.createPoll(userId,res);
+        String username = provider.getUsername(token.substring(7));
+        pollService.createPoll(username,userId,req);
         return ResponseEntity.ok(Map.of(200,"투표가 생성되었습니다"));
     }
 
@@ -46,6 +50,15 @@ public class PollController {
             @RequestBody PollVoteDTO.Request req){
         String userId = checkToken(token);
         pollService.vote(userId,req);
+        return ResponseEntity.ok(Map.of(200,"투표가 작성되었습니다"));
+    }
+    @PostMapping("/votes")
+    public ResponseEntity<?> saveVotes(@RequestHeader(value = "Authorization") String token,
+                                       @RequestBody PollVoteDTO.MultiRequest req){
+
+        String userId = checkToken(token);
+        log.info(req.toString());
+        pollService.voteAll(userId,req);
         return ResponseEntity.ok(Map.of(200,"투표가 작성되었습니다"));
     }
 

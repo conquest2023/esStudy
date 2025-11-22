@@ -28,6 +28,11 @@ public class PollVoteAdapterRepository implements PollVoteRepository {
     }
 
     @Override
+    public void voteAll(List<PollVoteEntity> votes) {
+        pollVoteRepository.saveAll(votes);
+    }
+
+    @Override
     public Set<String> findVoters(long pollId) {
         return pollVoteRepository.findVoters(pollId);
     }

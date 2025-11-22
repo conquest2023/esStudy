@@ -6,6 +6,7 @@ import es.board.repository.entity.repository.infrastructure.poll.PollOptionRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,6 +17,12 @@ public class PollOptionAdapterRepository implements PollOptionRepository {
     @Override
     public Optional<PollOptionEntity> isCheckOption(long pollId, long optionId) {
         return  pollOptionJpaRepository.isCheckOption(pollId,optionId);
+    }
+
+
+    @Override
+    public Optional<List<PollOptionEntity>> isCheckOptionList(long pollId, List<Long> optionIds) {
+        return  pollOptionJpaRepository.isCheckOptionList(pollId, optionIds);
     }
 
 }

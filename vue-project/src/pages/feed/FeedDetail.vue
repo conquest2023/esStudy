@@ -175,7 +175,7 @@
             <div class="d-flex gap-2">
               <button
                   class="btn btn-sm btn-primary"
-                  :disabled="editSending" @click="upateComment(c.id)">수정 완료
+                  :disabled="editSending" @click="updateComment(c.id)">수정 완료
               </button>
               <button class="btn btn-sm btn-outline-secondary" @click="cancelEdit">
                 취소
@@ -470,7 +470,7 @@ function cancelEdit() {
   editingCommentId.value = null
 }
 
-async function upateComment(commentId) {
+async function updateComment(commentId) {
   const text = editTexts.value[commentId] || ''
 
   if (!text.trim()) {
@@ -531,6 +531,7 @@ function formatDate(dateTimeString) {
 
   return `${month}. ${day}. ${period} ${hour}:${formattedMinute}`;
 }
+
 const fmtDate = formatDate
 
 const dateText = computed(() => formatDate(feed.value.createdAt))
@@ -588,7 +589,6 @@ async function loadFeedDetail(postId) {
     loaded.value = false
     const { data } = await api.get(`/post/${postId}`)
     hasPoll.value = data?.ok?.hasPoll ?? false
-
     if (hasPoll.value && data.ok.poll) {
       postDetailStore.setDetail({
         post: data.ok.post,
@@ -685,7 +685,6 @@ watch(
 
 async function toggleLike(targetType, targetId) {
   if (!login.value) {
-    // 프로젝트에 push(toast) 있으면 그거 쓰고, 없으면 alert
     if (typeof push === 'function') {
       push('로그인이 필요합니다')
     } else {
@@ -766,7 +765,7 @@ async function loadLikeCounts(postId) {
       const prev = likeStates.value[key] || { liked: false, count: 0 }
 
       likeStates.value[key] = {
-        liked: prev.liked, // liked는 detail API에서 세팅
+        liked: prev.liked,
         count
       }
     })
@@ -807,7 +806,6 @@ async function loadLikeDetail(postId) {
     console.error('like detail 로드 실패', e)
   }
 }
-
 
 async function submitComment() {
   if (sending.value) return
@@ -856,20 +854,18 @@ async function onDelete() {
   if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) return
 
   try {
-    // (인증 필요하면 토큰 헤더 포함)
     const token = localStorage.getItem('token')
 
     await api.delete(`/post/${feed.value.id}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     })
-    // 성공 처리
-    // 필요하면 토스트도: push('게시글이 삭제되었습니다.')
     router.push('/')
   } catch (e) {
     console.error(e)
     alert('삭제 중 오류 발생')
   }
 }
+
 async function delComment(c) {
   if (!confirm('삭제할까요?')) return
 
@@ -936,8 +932,6 @@ async function submitReply(commentId) {
 }
 const processedDescription = computed(() => {
   const desc = feed.value.description || '';
-  // 1. decodeHtmlEntities: (옵션) 서버 응답이 HTML 엔티티라면 디코딩
-  // 2. convertLinks: URL을 <a> 태그나 <iframe>으로 변환 (기존 로직 사용)
   return convertLinks(decodeHtmlEntities(desc));
 });
 

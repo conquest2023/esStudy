@@ -45,7 +45,6 @@ watch(() => route.query.text, () => {
   keyword.value = route.query.text
   fetchSearch()
 })
-
 async function fetchSearch() {
   if (!keyword.value) return
   const { data } = await api.get('/search/content', { params: { text: keyword.value } })

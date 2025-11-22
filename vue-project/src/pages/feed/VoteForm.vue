@@ -168,9 +168,8 @@ async function submitForm() {
       content: opt.content,
       sortOrder: index
     })),
-    closesAt: null // 나중에 마감 시간 추가하면 여기서 넣으면 됨
+    closesAt: null
   }
-
   try {
     const res = await fetch('/api/poll', {
       method: 'POST',
@@ -180,7 +179,6 @@ async function submitForm() {
       },
       body: JSON.stringify(payload)
     })
-
     const result = await res.json()
 
     if (res.ok) {

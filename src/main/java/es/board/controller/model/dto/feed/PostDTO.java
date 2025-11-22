@@ -120,8 +120,9 @@ public class PostDTO {
         private List<MultipartFile> imageFiles;
 
 
-        public Response(String userId,String title, String category, String description) {
+        public Response(String userId,String username,String title, String category, String description) {
             this.userId = userId;
+            this.username=username;
             this.title = title;
             this.category = category;
             this.description = description;

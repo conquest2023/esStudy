@@ -15,6 +15,7 @@ public interface PollVoteRepository {
 
     void vote(PollVoteEntity vote);
 
+    void voteAll(List<PollVoteEntity> votes);
 
     Set<String> findVoters(long pollId);
 

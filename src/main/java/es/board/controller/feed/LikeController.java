@@ -48,6 +48,7 @@ public class LikeController {
     @GetMapping("/like/count/{id}")
     public ResponseEntity<?> getLikeDetailFedCount(@PathVariable int id){
         List<LikeCountProjection> likeFeedDetailCount = likeService.findLikeFeedDetailCount(id);
+        log.info(likeFeedDetailCount.toString());
         return ResponseEntity.ok(Map.of("likes",likeFeedDetailCount));
     }
 
