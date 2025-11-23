@@ -583,7 +583,6 @@ async function loadReplies(postId) {
   }, {})
   replies.value = grouped
 }
-
 async function loadFeedDetail(postId) {
   try {
     loaded.value = false

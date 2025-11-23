@@ -33,11 +33,10 @@ public class IpLimitInterceptor implements HandlerInterceptor {
 
     @Autowired
     private VisitorService visitorService;
-    private final Cache<String, LocalDateTime> visitCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)
-            .maximumSize(10000)
-            .build();
-
+//    private final Cache<String, LocalDateTime> visitCache = Caffeine.newBuilder()
+//            .expireAfterWrite(1, TimeUnit.DAYS)
+//            .maximumSize(10000)
+//            .build();
     private static final String VISIT_KEY_PREFIX = "visit:";
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -68,14 +67,13 @@ public class IpLimitInterceptor implements HandlerInterceptor {
             log.info(uri);
             return true;
         }
-
-
         String currentUserId = null;
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             String jwt = token.substring(7);
             currentUserId = jwtTokenProvider.getUserId(jwt);
         }
+
         request.setAttribute("userId", currentUserId);
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
