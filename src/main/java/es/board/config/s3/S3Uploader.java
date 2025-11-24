@@ -23,7 +23,7 @@ public class S3Uploader {
 
     private final S3Client s3Client;
 
-    @Value("${cloud.aws.s3.bucketName}")
+    @Value("${cloud.aws.s3.bucketname}")
     private String bucketName;
 
     public List<String> upload(List<MultipartFile> files) {
