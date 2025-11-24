@@ -250,7 +250,6 @@ function filesDropped (files) {
 async function buildHtmlWithUploadedImages () {
   const idToUrl = {};
 
-  // 1) 업로드 (병렬 권장)
   await Promise.all(
       pendingFiles.value.map(async (p) => {
         const form = new FormData();
@@ -266,7 +265,6 @@ async function buildHtmlWithUploadedImages () {
         }
       })
   );
-
   // 2) 에디터 복제 → img[data-id]를 S3 URL로 교체
   const clone = editor.value.cloneNode(true);
 

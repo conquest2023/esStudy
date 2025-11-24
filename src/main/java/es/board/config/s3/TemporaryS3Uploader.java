@@ -1,6 +1,7 @@
 package es.board.config.s3;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,13 @@ import java.io.InputStream;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TemporaryS3Uploader {
 
     private final S3Client s3Client;
 
-    @Value("${cloud.aws.s3.bucketName}")
+    @Value("${cloud.aws.s3.bucketname}")
     private String bucket;
 
     public String upload(MultipartFile file) {

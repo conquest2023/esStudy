@@ -30,6 +30,8 @@ public class UploadController {
     ) {
         try {
             String url;
+            log.info("[UPLOAD] name={}, size={}, ct={}",
+                    file.getOriginalFilename(), file.getSize(), file.getContentType());
             if (width != null && height != null && width > 0 && height > 0) {
                 url = s3Uploader.uploadResized(file, Math.max(width, 1), Math.max(height, 1), 0.82f);
                 log.info("resize={}",url);
