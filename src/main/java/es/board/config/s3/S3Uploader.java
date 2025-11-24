@@ -24,7 +24,7 @@ public class S3Uploader {
     private final S3Client s3Client;
 
     @Value("${cloud.aws.s3.bucketname}")
-    private String bucketName;
+    private String bucket;
 
     public List<String> upload(List<MultipartFile> files) {
         if (files.size()>3){
@@ -74,7 +74,7 @@ public class S3Uploader {
         try (InputStream inputStream = file.getInputStream()) {
             // PutObjectRequest 객체 생성
            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(bucket)
                     .key(s3FileName) // 저장할 파일 이름
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .contentType("image/" + extension)
@@ -86,6 +86,6 @@ public class S3Uploader {
             throw new RuntimeException("지원되지 않는 형식입니다.");
         }
 
-        return s3Client.utilities().getUrl(url -> url.bucket(bucketName).key(s3FileName)).toString();
+        return s3Client.utilities().getUrl(url -> url.bucket(bucket).key(s3FileName)).toString();
     }
 }
