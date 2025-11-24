@@ -6,20 +6,27 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "feed_images")
+@Table(name = "post_images")
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
 @Data
-public class FeedImage {
+public class PostImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 게시글이 저장되기 전엔 null일 수 있음
-    @Column(name = "feed_id")
-    private Long feedId;
+    @Column(name = "post_id")
+    private int postId;
+
+    private int seq;
+
+    @Column(name = "display_width")
+    private int displayWidth;
+
+    @Column(name = "display_height")
+    private int displayHeight;
 
     @Column(name = "image_url", nullable = false, length = 255)
     private String imageUrl;

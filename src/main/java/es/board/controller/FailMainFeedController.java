@@ -4,7 +4,7 @@
 ////import es.board.config.s3.S3Uploader;
 //import es.board.controller.model.dto.feed.PostDTO;
 //import es.board.controller.model.dto.feed.TopWriter;
-//import es.board.repository.entity.feed.FeedImage;
+//import es.board.repository.entity.feed.PostImage;
 //import es.board.service.AuthService;
 //import es.board.service.FeedService;
 //import lombok.RequiredArgsConstructor;
@@ -302,7 +302,7 @@
 //    @PostMapping("/search/view/feed/save")
 //    @ResponseBody
 //    public ResponseEntity<Map<String, Object>> saveFeed(
-//            @Validated @RequestPart("feed") PostDTO.Response res,
+//            @Validated @RequestPart("feed") PostDTO.Request res,
 //            @RequestHeader(value = "Authorization", required = false) String token) {
 //            authService.extractUserIdFromToken(token, res);
 //            return ResponseEntity.ok(Map.of("feed", feedService.saveFeed(res),"success", true));
@@ -315,7 +315,7 @@
 ////                                          @RequestParam(value = "height", required = false) Integer height) {
 ////        try {
 //////            String imageUrl = s3Uploader.upload(file, "feed", width);
-//////            FeedImage saved = feedService.saveFeedImages(imageUrl);
+//////            PostImage saved = feedService.saveFeedImages(imageUrl);
 ////            return ResponseEntity.ok(Map.of(
 ////                    "url", null,
 ////                    "imageId", null
@@ -376,7 +376,7 @@
 //    public ResponseEntity<?> getReplyDesc(@RequestParam(defaultValue = "0") int page,
 //                                             @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Request> data= feedService.findReplyDESC(page, size);
+//        List<PostDTO.Response> data= feedService.findReplyDESC(page, size);
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,
 //                "totalPage",500
@@ -387,7 +387,7 @@
 //    public ResponseEntity<?> getCommentDesc(@RequestParam(defaultValue = "0") int page,
 //                                          @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Request> data= feedService.findCommentDESC(page, size);
+//        List<PostDTO.Response> data= feedService.findCommentDESC(page, size);
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,
 //                "totalPage",500
@@ -399,7 +399,7 @@
 //    public ResponseEntity<?> getViewDesc(@RequestParam(defaultValue = "0") int page,
 //                                            @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Request> data = feedService.findViewDESC(page, size);
+//        List<PostDTO.Response> data = feedService.findViewDESC(page, size);
 //
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,

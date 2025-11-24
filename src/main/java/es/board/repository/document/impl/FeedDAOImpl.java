@@ -31,7 +31,7 @@ public class FeedDAOImpl implements FeedDAO {
     private final int increment = 1;
 
     @Override
-    public String saveFeed(String index, PostDTO.Response dto) {
+    public String saveFeed(String index, PostDTO.Request dto) {
         try {
             IndexResponse response = client.index(i -> i
                     .index(index)

@@ -24,8 +24,8 @@ public class PostAdapterRepository implements PostRepository {
     }
 
     @Override
-    public void savePost(PostEntity post) {
-        repository.save(post);
+    public PostEntity savePost(PostEntity post) {
+        return repository.save(post);
     }
 
     @Override

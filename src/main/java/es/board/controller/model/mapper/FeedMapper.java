@@ -18,44 +18,40 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class FeedMapper {
-    public PostEntity toPostEntity(PostDTO.Response feedSaveDTO) {
+    public PostEntity toPostEntity(PostDTO.Request feedSaveDTO) {
         return PostEntity.builder()
-                .userId(feedSaveDTO.getUserId())
-                .feedUID(UUID.randomUUID().toString())
+//                .userId(feedSaveDTO.getUserId())
+//                .feedUID(UUID.randomUUID().toString())
                 .username(feedSaveDTO.getUsername())
                 .title(feedSaveDTO.getTitle())
-                .imageUrl(feedSaveDTO.getImageURL())
                 .anonymous(feedSaveDTO.isAnonymous())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public Board toBoardDocument(PostDTO.Response response, int id , String feedUID) {
+    public Board toBoardDocument(PostDTO.Request response, int id , String feedUID) {
         return Board.builder()
                 .feedUID(feedUID)
                 .id(id)
-                .userId(response.getUserId())
+//                .userId(response.getUserId())
                 .username(response.getUsername())
-                .imageURL(response.getImageURL())
                 .title(response.getTitle())
                 .description(response.getDescription().replace("\\n", "\n"))
                 .category(response.getCategory())
                 .viewCount(response.getViewCount())
-                .likeCount(response.getLikeCount())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public List<PostDTO.Request> fromBoardDtoList(List<Board> boards) {
+    public List<PostDTO.Response> fromBoardDtoList(List<Board> boards) {
         return boards.stream()
-                .map(board -> PostDTO.Request.builder()
-                        .feedUID(board.getFeedUID())
+                .map(board -> PostDTO.Response.builder()
+//                        .feedUID(board.getFeedUID())
                         .id(board.getId())
                         .username(board.getUsername())
-                        .imageURL(board.getImageURL())
                         .title(board.getTitle())
                         .description(board.getDescription())
-                        .likeCount(board.getLikeCount())
+//                        .likeCount(board.getLikeCount())
                         .category(board.getCategory())
                         .viewCount(board.getViewCount())
                         .createdAt(board.getCreatedAt())
@@ -63,18 +59,17 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public PostDTO.Request fromBoardDto(Board board) {
-        return PostDTO.Request.builder()
-                .feedUID(board.getFeedUID())
+    public PostDTO.Response fromBoardDto(Board board) {
+        return PostDTO.Response.builder()
+//                .feedUID(board.getFeedUID())
                 .id(board.getId())
                 .userId(board.getUserId())
                 .username(board.getUsername())
-                .imageURL(board.getImageURL())
                 .title(board.getTitle())
                 .description(board.getDescription())
                 .category(board.getCategory())
                 .viewCount(board.getViewCount())
-                .likeCount(board.getLikeCount())
+//                .likeCount(board.getLikeCount())
                 .createdAt(board.getCreatedAt())
                 .build();
     }
@@ -265,9 +260,9 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-//    public List<ReplyDTO.Request> fromReplyDtoList(List<Reply> reply) {
+//    public List<ReplyDTO.Response> fromReplyDtoList(List<Reply> reply) {
 //        return reply.stream()
-//                .map(reply1 -> ReplyDTO.Request.builder()
+//                .map(reply1 -> ReplyDTO.Response.builder()
 //                        .feedUID(reply1.getFeedUID())
 //                        .commentUID(reply1.getCommentUID())
 //                        .username(reply1.getUsername())

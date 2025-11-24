@@ -32,7 +32,7 @@ public class ReplyDomainMapper {
         );
     }
 
-    // Request DTO -> Domain
+    // Response DTO -> Domain
 
     public static ReplyDTO.Request toRequestDto(String userId,String postOwnerId, Reply d) {
         if (d == null) return null;

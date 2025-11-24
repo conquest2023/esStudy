@@ -15,9 +15,8 @@ public class PostTestRepository implements PostRepository {
     }
 
     @Override
-    public void savePost(PostEntity post) {
-        stores.put(post.getId(),post);
-
+    public PostEntity savePost(PostEntity post) {
+        return stores.put(post.getId(),post);
     }
 
     @Override

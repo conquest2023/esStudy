@@ -1,10 +1,13 @@
 package es.board.service.feed;
 
+import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.repository.entity.feed.PostImage;
 import es.board.repository.entity.poll.PollEntity;
+import es.board.repository.entity.repository.PostImageRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
 import es.board.repository.entity.repository.infrastructure.feed.PostRepository;
 import es.board.repository.entity.feed.PostEntity;
@@ -12,31 +15,43 @@ import es.board.repository.entity.repository.infrastructure.poll.PollRepository;
 import es.board.service.domain.Post;
 import es.board.service.point.PointService;
 import es.board.service.poll.PollService;
+import es.board.util.ResizeImage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static es.board.util.ResizeImage.heightFrom;
+import static es.board.util.ResizeImage.widthFrom;
 
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PostServiceImpl implements PostService{
+public class PostServiceImpl implements PostService {
 
 
     private final PointService pointService;
 
     private final PollService pollService;
+
+    private final S3Uploader s3Uploader;
+
+    private final PostImageRepository imageRepository;
 
     private final PostRepository postRepository;
 
@@ -48,7 +63,7 @@ public class PostServiceImpl implements PostService{
     @Override
     @Transactional
     public void incrementViewCount(int postId) {
-         postRepository.increaseViewCount(postId);
+        postRepository.increaseViewCount(postId);
     }
 
     @Override
@@ -62,21 +77,24 @@ public class PostServiceImpl implements PostService{
 
     @Override
     @Transactional
-    public PostDTO.Request updatePost(int id,String userId, PostDTO.Update update) {
+    public PostDTO.Response updatePost(int id, String userId, PostDTO.Update update) {
 
         PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
-        postEntity.applyFrom(update.getTitle(),update.getDescription(),LocalDateTime.now());
+        postEntity.applyFrom(update.getTitle(), update.getDescription(), LocalDateTime.now());
         Post domain = Post.toDomain(postEntity);
-        return PostDomainMapper.toRequest(postEntity.getUserId(),domain);
+        return PostDomainMapper.toRequest(postEntity.getUserId(), domain);
     }
 
     @Override
-    public void savePost(String userId, PostDTO.Response feedSaveDTO) {
+    public void savePost(String userId, PostDTO.Request req) {
 
-        Post post = PostDomainMapper.toDomain(userId,feedSaveDTO);
-        postRepository.savePost(Post.toEntity(post));
-        pointService.grantActivityPoint(userId,"피드",3,5);
+        Post post = PostDomainMapper.toDomain(userId, req);
+        PostEntity postEntity = postRepository.savePost(Post.toEntity(post));
+        int postId = postEntity.getId();
+        imageUploadAndRewriteHtml(req.getImageFiles(), req.getDescription(), postId);
+        pointService.grantActivityPoint(userId, "피드", 3, 5);
     }
+
 
     @Override
     public Page<Integer> findIds(int page, int size) {
@@ -96,7 +114,7 @@ public class PostServiceImpl implements PostService{
         Optional<PollEntity> pollOpt = pollRepository.findByPostId(postId);
         PostEntity postEntity = queryRepository.findPostDetail(postId);
         Post post = Post.toDomain(postEntity);
-        PostDTO.Request postDto = PostDomainMapper.toRequest(userId, post);
+        PostDTO.Response postDto = PostDomainMapper.toRequest(userId, post);
         if (pollOpt.isEmpty()) {
             return PostDetailResponse.builder()
                     .post(postDto)
@@ -125,4 +143,91 @@ public class PostServiceImpl implements PostService{
         postRepository.deletePost(id);
     }
 
+
+    private void imageUploadAndRewriteHtml(List<MultipartFile> files, String descriptionHtml, int postId) {
+
+        String safeHtml = Jsoup.clean(descriptionHtml,
+                Safelist.basicWithImages()
+                        .addAttributes("img", "width", "height", "alt", "style"));
+        Document doc = Jsoup.parseBodyFragment(safeHtml);
+        Elements imgs = doc.select("img");
+        if (imgs.isEmpty()) {
+            return;
+        }
+        int seq = 1;
+        for (Element img : imgs) {
+            String url = img.attr("src");
+            Integer w = widthFrom(img);
+            Integer h = heightFrom(img);
+            PostImage postImage = PostImage.builder()
+                    .postId(postId)
+                    .imageUrl(url)
+                    .seq(seq++)
+                    .displayWidth(w)
+                    .displayHeight(h)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            log.info(postImage.toString());
+            imageRepository.save(postImage);
+        }
+        // 0) 업로드 (files 없으면 빈 리스트)
+//        List<String> uploadUrls = (files == null || files.isEmpty())
+//                ? List.of()
+//                : s3Uploader.upload(files); // 파일 순서 == 업로드 URL 순서
+
+        // 1) sanitize 한 번만
+//        String safeHtml = Jsoup.clean(descriptionHtml,
+//                Safelist.basicWithImages()
+//                        .addAttributes("img", "width", "height", "alt", "loading", "srcset", "data-src", "style"));
+//
+//        // 2) 파싱 한 번만
+//        Document doc = Jsoup.parseBodyFragment(safeHtml);
+//        Elements imgs = doc.select("img");
+//
+//        int seq = 1;
+//        int upIdx = 0; // uploadUrls 소비 인덱스
+//
+//        for (Element img : imgs) {
+//            String src = ResizeImage.pickSrc(img);
+//            boolean hasHttp = src != null && (src.startsWith("http://") || src.startsWith("https://"));
+//
+//            // A) 이미 절대 URL인 경우: 업로드 스킵, 메타만 저장
+//            if (hasHttp) {
+//                Integer w = widthFrom(img);
+//                Integer h = heightFrom(img);
+//                imageRepository.save(PostImage.builder()
+//                        .postId(postId)
+//                        .imageUrl(src)
+//                        .seq(seq++)
+//                        .displayWidth(w)
+//                        .displayHeight(h)
+//                        .createdAt(LocalDateTime.now())
+//                        .build());
+//                continue;
+//            }
+//
+//            // B) 로컬/미리보기 이미지인 경우: 업로드 URL로 치환
+//            if (upIdx >= uploadUrls.size()) {
+//                // 매칭 실패: 로컬 이미지가 더 많은 상황 → 스킵하거나 예외 처리 선택
+//                continue;
+//            }
+//            String uploadedUrl = uploadUrls.get(upIdx++);
+//            // HTML 치환
+//            img.attr("src", uploadedUrl);
+//            img.removeAttr("data-src");
+//            img.removeAttr("srcset");
+//            if (!img.hasAttr("loading")) img.attr("loading", "lazy");
+//
+//            Integer w = widthFrom(img);
+//            Integer h = heightFrom(img);
+//            imageRepository.save(PostImage.builder()
+//                    .postId(postId)
+//                    .imageUrl(uploadedUrl)
+//                    .seq(seq++)
+//                    .displayWidth(w)
+//                    .displayHeight(h)
+//                    .createdAt(LocalDateTime.now())
+//                    .build());
+//        }
+    }
 }

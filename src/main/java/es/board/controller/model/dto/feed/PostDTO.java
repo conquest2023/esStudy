@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,13 +25,13 @@ public class PostDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static  class Request {
+    public static  class Response {
         private int id;
 
         @JsonIgnore
         private String userId;
 
-        private String feedUID;
+//        private String feedUID;
 
         private boolean owner;
 
@@ -38,7 +39,7 @@ public class PostDTO {
         private String username;
 
         @JsonSerialize(using = XssSafeSerializer.class)
-        private String imageURL;
+        private List<String> imageURL;
 
         @JsonSerialize(using = XssSafeSerializer.class)
         private String title;
@@ -51,7 +52,7 @@ public class PostDTO {
         private String category;
 
 
-        private int likeCount;
+//        private int likeCount;
 
         private int viewCount;
 
@@ -72,20 +73,15 @@ public class PostDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Response{
-        private  int id;
+    public static class Request {
 
-        private  String userId;
-
-
-//        private String feedUID;
 
 
         @JsonSerialize(using = XssSafeSerializer.class)
         private String username;
 
         //    @JsonSerialize(using = XssSafeSerializer.class)
-        private  String imageURL;
+//        private  String imageURL;
 
 
         @JsonSerialize(using = XssSafeSerializer.class)
@@ -95,16 +91,14 @@ public class PostDTO {
         @JsonSerialize(using = XssSafeSerializer.class)
         private  String category;
 
-        //    @JsonSerialize(using = XssSafeSerializer.class)
+        @JsonSerialize(using = XssSafeSerializer.class)
         private String description;
 
         private  boolean anonymous;
 
-
         private int  viewCount;
 
-
-        private  int likeCount;
+//        private  int likeCount;
 
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -117,11 +111,10 @@ public class PostDTO {
 
         @JsonIgnore
         @JsonSerialize(using = XssSafeSerializer.class)
-        private List<MultipartFile> imageFiles;
+        private List<MultipartFile> imageFiles =new ArrayList<>();
 
 
-        public Response(String userId,String username,String title, String category, String description) {
-            this.userId = userId;
+        public Request(String username, String title, String category, String description) {
             this.username=username;
             this.title = title;
             this.category = category;

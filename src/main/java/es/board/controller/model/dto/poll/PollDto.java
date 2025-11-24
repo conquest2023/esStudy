@@ -39,7 +39,7 @@ public class PollDto {
         private List<PollOptionDTO.Response> options;
 
 
-//        private List<PollVoteDTO.Request> votes;
+//        private List<PollVoteDTO.Response> votes;
 
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)

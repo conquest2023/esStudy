@@ -28,35 +28,33 @@ public class Post {
 
     private int viewCount;
 
-    private int likeCount;
+//    private int likeCount;
 
     private boolean anonymous;
 
-    private String imageUrl;
+//    private String imageUrl;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime modifiedAt;
 
-    public Post(int id, String userId, String title, String description, LocalDateTime updateAt) {
-        this.id=id;
+    public Post(String userId, String title, String description, LocalDateTime updateAt) {
         this.userId=userId;
         this.title=title;
         this.description=description;
         this.modifiedAt=updateAt;
     }
 
-    public Post(int id, String userId, String username, String title, String description, String category, int viewCount, int likeCount, boolean anonymous, String imageUrl, LocalDateTime createdAt) {
-        this.id = id;
+    public Post( String userId, String username, String title, String description, String category, int viewCount, boolean anonymous, LocalDateTime createdAt) {
+//        this.id = id;
         this.userId = userId;
         this.username = username;
         this.title = title;
         this.description = description;
         this.category = category;
         this.viewCount = viewCount;
-        this.likeCount = likeCount;
+//        this.likeCount = likeCount;
         this.anonymous = anonymous;
-        this.imageUrl = imageUrl;
         this.createdAt = createdAt;
     }
 
@@ -64,14 +62,13 @@ public class Post {
         if (d == null) return null;
         return PostEntity.builder()
                 .id(d.getId())
-//                .feedId(d.getFeedId())
                 .userId(d.getUserId())
                 .username(d.getUsername())
                 .category(d.getCategory())
                 .description(d.getDescription())
                 .title(d.getTitle())
                 .anonymous(d.isAnonymous())
-                .imageUrl(d.getImageUrl())
+//                .imageUrl(d.getImageUrl())
                 .createdAt(d.getCreatedAt())
                 .modifiedAt(d.getModifiedAt())
                 .build();
@@ -99,9 +96,8 @@ public class Post {
                 e.getDescription(),
                 e.getCategory(),
                 e.getViewCount(),
-                e.getLikeCount(),
                 e.isAnonymous(),
-                e.getImageUrl(),
+//                e.getImageUrl(),
                 e.getCreatedAt(),
                 e.getModifiedAt()
         );
@@ -117,9 +113,7 @@ public class Post {
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", viewCount=" + viewCount +
-                ", likeCount=" + likeCount +
                 ", anonymous=" + anonymous +
-                ", imageUrl='" + imageUrl + '\'' +
                 ", createdAt=" + createdAt +
                 ", modifiedAt=" + modifiedAt +
                 '}';

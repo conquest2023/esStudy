@@ -36,14 +36,13 @@ public class PostController {
 
     @PostMapping("/post")
     public ResponseEntity<?> savePost(@RequestHeader(value = "Authorization", required = false) String token,
-                                      @RequestPart("feed")
-                                      PostDTO.Response response){
+                                      @RequestPart("feed")PostDTO.Request req){
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
         if (tokenCheckResponse == null) {
             return tokenCheckResponse;
         }
         String userId = provider.getUserId(token.substring(7));
-        postService.savePost(userId,response);
+        postService.savePost(userId,req);
         return ResponseEntity.ok(Map.of(
                 "ok", true,
                 "message", "게시글이 정상적으로 저장되었습니다."
@@ -83,7 +82,7 @@ public class PostController {
                                         @PathVariable int id,
                                         @RequestBody PostDTO.Update update){
         String userId = checkToken(token);
-        PostDTO.Request updatePost= postService.updatePost(id,userId, update);
+        PostDTO.Response updatePost= postService.updatePost(id,userId, update);
 
         return ResponseEntity.ok(Map.of("updatePost",updatePost));
     }

@@ -55,13 +55,23 @@
         />
         <p v-if="showPlaceholder" class="editor-placeholder">내용을 입력하세요…</p>
       </div>
+      <div class="thumb-tray mb-2" v-if="pendingFiles.length">
+        <div class="tray-head">
+          <span>이미지 {{ pendingFiles.length }}/{{ MAX_IMAGES }}</span>
+        </div>
+        <div class="thumbs">
+          <div class="thumb" v-for="p in pendingFiles" :key="p.id">
+            <img :src="p.url" :alt="p.file?.name || 'preview'">
+            <button type="button" class="thumb-del" @click="removePending(p.id)">×</button>
+          </div>
+        </div>
+      </div>
 
       <div
           class="upload-dropzone mb-4"
           @dragover.prevent
           @drop.prevent="filesDropped($event.dataTransfer.files)"
-          @click="$refs.imageInput.click()"
-      >
+          @click="$refs.imageInput.click()">
         <input
             ref="imageInput"
             type="file"
@@ -97,11 +107,13 @@ const username         = ref('')
 const category         = ref('')
 const title            = ref('')
 const store   = useUserStore()
-
+const MAX_IMAGES = 3
+const pendingFiles = ref([])
+// 간단 토스트
+function toast(msg){ alert(msg) }
 const categories       = ['자유', '자격증', '문제', '기술', '취업', 'Q/A', '자료']
 const showPlaceholder  = ref(true)
 const editor           = ref(null)
-const pendingFiles     = ref([])
 const isSubmitting     = ref(false) // 중복 제출 방지
 
 const applyFormat = type => {
@@ -115,140 +127,172 @@ const applyFormat = type => {
 const checkEditorEmpty = () => (showPlaceholder.value = !editor.value?.innerText.trim())
 const onEditorInput    = () => checkEditorEmpty()
 
-function filesDropped (files) { handleFiles({ target: { files } }) }
 
-function handleFiles (e) {
-  const files = Array.from(e.target.files)
 
-  files.forEach((file) => {
+// 기존 handleFiles 교체
+async function handleFiles (e) {
+  const list = e.target?.files ? Array.from(e.target.files) : Array.from(e)
+  const remain = MAX_IMAGES - pendingFiles.value.length
+  if (remain <= 0) {
+    toast(`이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있어요.`)
+    resetChooser()
+    return
+  }
+
+  const chosen = list.slice(0, remain)
+  if (list.length > remain) {
+    toast(`최대 ${MAX_IMAGES}장까지 가능: ${remain}장만 추가됩니다.`)
+  }
+
+  for (const file of chosen) {
+    if (!file.type.startsWith('image/')) continue
     const id  = crypto.randomUUID()
     const url = URL.createObjectURL(file)
 
-    /* 3-1. 미리보기 IMG */
+    // 미리보기 이미지 (비율 고정)
     const img = document.createElement('img')
     img.src = url
     img.dataset.id = id
     Object.assign(img.style, {
+      display: 'block',
       maxWidth: '100%',
-      margin   : '10px 0',
-      display  : 'block',
-      /* 초기 400px 폭 지정 (사용자 조절 가능) */
-      width    : '400px',
-      height   : 'auto'
+      width: '480px',   // 기본 표시 폭
+      height: 'auto',   // 🔑 비율 유지
+      margin: '10px 0'
     })
 
-    /* 3-2. Resize 가능한 Wrapper */
+    // 래퍼 (삭제 버튼만 유지, resize 핸들 제거)
     const wrap = document.createElement('div')
-    wrap.className   = 'image-wrapper'
-    wrap.dataset.id  = id
+    wrap.className = 'image-wrapper'
+    wrap.dataset.id = id
     wrap.contentEditable = 'false'
     Object.assign(wrap.style, {
-      position : 'relative',
-      display  : 'inline-block',
-      resize   : 'both',
-      overflow : 'auto',
-      maxWidth : '100%'
+      position: 'relative',
+      display: 'block'
     })
 
-    /* 3-3. X 삭제 버튼 */
     const del = document.createElement('button')
-    del.innerHTML = '&times;'
+    del.type = 'button'
+    del.textContent = '×'
     Object.assign(del.style, {
-      position   : 'absolute',
-      top        : '5px',
-      right      : '5px',
-      width      : '26px',
-      height     : '26px',
-      background : '#dc3545',
-      color      : '#fff',
-      border     : 'none',
-      borderRadius: '50%',
-      cursor     : 'pointer'
+      position:'absolute', top:'4px', right:'4px',
+      width:'26px', height:'26px',
+      background:'#dc3545', color:'#fff', border:'none',
+      borderRadius:'50%', cursor:'pointer'
     })
-    del.onclick = () => {
-      wrap.remove()
-      pendingFiles.value = pendingFiles.value.filter((p) => p.id !== id)
-      URL.revokeObjectURL(url)
-    }
+    del.onclick = () => removePending(id)
 
-    /* 3-4. Wrapper-IMG 동기화 (사용자 resize → img.style 갱신) */
     wrap.append(img, del)
-    attachResizeSync(wrap, img)
 
-    editor.value.append(wrap, document.createElement('br'))
-    pendingFiles.value.push({ id, file })
-  })
-}
+    // 커서 뒤에 삽입 (에디터 UX)
+    insertAtCaret(wrap)
+    editor.value?.append(document.createElement('br'))
 
-function attachResizeSync (wrap, img) {
-  const init = () => {
-    const w = img.naturalWidth  || 400
-    const h = img.naturalHeight || 300
-    wrap.style.width  = `${w}px`
-    wrap.style.height = `${h}px`
-    img.style.width   = `${w}px`
-    img.style.height  = `${h}px`
+    // 자연 크기 읽어 비율 저장
+    await imgDecode(img)
+    const natW = img.naturalWidth || 1
+    const natH = img.naturalHeight || 1
+    pendingFiles.value.push({
+      id, file, url,
+      width: img.clientWidth,
+      height: img.clientHeight,
+      ratio: natW / natH
+    })
   }
 
-  if (img.complete) init()       // 캐시된 이미지도 커버
-  else img.onload = init
-
-  new ResizeObserver(() => {
-    img.style.width  = `${wrap.offsetWidth}px`
-    img.style.height = `${wrap.offsetHeight}px`
-  }).observe(wrap)
+  resetChooser() // 같은 파일 재선택 가능하게 초기화
 }
+function imgDecode(img){
+  return img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
+}
+
+// 커서 위치에 노드 삽입
+function insertAtCaret(node) {
+  const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) {
+    editor.value?.appendChild(node)
+    return
+  }
+  const range = sel.getRangeAt(0)
+  range.collapse(false)
+  range.insertNode(node)
+  // 커서 wrap 뒤로
+  range.setStartAfter(node)
+  range.setEndAfter(node)
+  sel.removeAllRanges()
+  sel.addRange(range)
+}
+// 파일 입력 초기화
+function resetChooser(){
+  if (typeof $refs?.imageInput?.value !== 'undefined') {
+    $refs.imageInput.value = ''
+  }
+}
+function removePending(id){
+  // 본문에서 제거
+  const wrap = editor.value?.querySelector(`.image-wrapper[data-id="${id}"]`)
+  if (wrap) wrap.remove()
+  // 목록에서 제거
+  const idx = pendingFiles.value.findIndex(p => p.id === id)
+  if (idx >= 0) {
+    URL.revokeObjectURL(pendingFiles.value[idx].url)
+    pendingFiles.value.splice(idx, 1)
+  }
+}
+
+// 드래그 앤 드롭 핸들링 유지
+function filesDropped (files) {
+  handleFiles(files)
+}
+
+
+
 async function buildHtmlWithUploadedImages () {
-  const idToUrl = {} // {id: s3Url}
+  const idToUrl = {};
 
-  for (const { id, file } of pendingFiles.value) {
-    const wrap = editor.value.querySelector(`.image-wrapper[data-id="${id}"]`)
-    const img  = wrap?.querySelector('img')
-    if (!img) continue
+  // 1) 업로드 (병렬 권장)
+  await Promise.all(
+      pendingFiles.value.map(async (p) => {
+        const form = new FormData();
+        form.append('file',   p.file);
+        form.append('width',  p.width || 0);
+        form.append('height', p.height || 0);
+        try {
+          const res = await fetch('/api/upload-images', { method: 'POST', body: form });
+          const { url } = await res.json();
+          idToUrl[p.id] = url; // p.id === img[data-id] 여야 함!
+        } catch (e) {
+          console.error('이미지 업로드 실패', e);
+        }
+      })
+  );
 
-    /* (1) 실제 표시 px 크기 계산 */
-    const width  = parseInt(img.style.width)  || img.naturalWidth
-    const height = parseInt(img.style.height) || img.naturalHeight
+  // 2) 에디터 복제 → img[data-id]를 S3 URL로 교체
+  const clone = editor.value.cloneNode(true);
 
-    /* (2) FormData 전송 */
-    const form = new FormData()
-    form.append('file',   file)
-    form.append('width',  width)
-    form.append('height', height)
+  clone.querySelectorAll('img[data-id]').forEach((img) => {
+    const id = img.dataset.id;
+    const s3Url = idToUrl[id];
 
-    try {
-      const res      = await fetch('/api/upload-images', { method: 'POST', body: form })
-      const { url }  = await res.json()
-      idToUrl[id]    = url
-    } catch (err) {
-      console.error('이미지 업로드 실패', err)
-    }
-  }
+    // 원본 렌더 폭 기반 width/height 계산(가능하면 유지)
+    const renderedW = Math.round(img.clientWidth || parseInt(img.style.width) || img.naturalWidth || 0);
+    const ratio = (pendingFiles.value.find(p => p.id === id)?.ratio) || (img.naturalWidth ? img.naturalWidth / (img.naturalHeight || 1) : 0);
+    const renderedH = renderedW && ratio ? Math.round(renderedW / ratio) : (img.naturalHeight || 0);
 
-  /* (3) 에디터 복제 → wrapper 를 <img> 로 치환 */
-  const clone = editor.value.cloneNode(true)
+    const clean = document.createElement('img');
+    clean.src = s3Url || img.src; // 업로드 실패 시라도 미리보기 유지
+    if (renderedW)  clean.setAttribute('width', renderedW);
+    if (renderedH)  clean.setAttribute('height', renderedH);
+    clean.setAttribute('loading', 'lazy');
+    clean.style.maxWidth = '100%';
 
-  clone.querySelectorAll('.image-wrapper').forEach((w) => {
-    const id  = w.dataset.id
-    const img = w.querySelector('img')
-    if (!img) return
+    // data-id 등 미리보기 전용 속성 제거
+    img.replaceWith(clean);
+  });
 
-    const width  = parseInt(img.style.width)  || img.naturalWidth
-    const height = parseInt(img.style.height) || img.naturalHeight
-
-    const clean = img.cloneNode(false)
-    clean.src  = idToUrl[id] || img.src
-    clean.removeAttribute('data-id')
-    clean.removeAttribute('style')
-    clean.setAttribute('width',  width)
-    clean.setAttribute('height', height)
-    clean.style.maxWidth = '100%'
-
-    w.replaceWith(clean)
-  })
-
-  return clone.innerHTML
+  return clone.innerHTML;
 }
+
 async function submitForm() {
   if (isSubmitting.value) return
   isSubmitting.value = true
@@ -260,7 +304,7 @@ async function submitForm() {
     }
 
     const descriptionHtml = await buildHtmlWithUploadedImages()
-
+    console.log('[DEBUG] HTML to send:\n', descriptionHtml)
     const feedBlob = new Blob([
       JSON.stringify({
         title: title.value,
@@ -349,7 +393,12 @@ onMounted(async () => {
   color: #555;
   cursor: pointer
 }
-
+.thumb-tray { border:1px solid #e5e7eb; border-radius:8px; padding:8px; background:#fafafa }
+.tray-head { font-size:.9rem; color:#666; margin-bottom:6px; display:flex; justify-content:space-between }
+.thumbs { display:flex; gap:8px; flex-wrap:wrap }
+.thumb { position:relative; width:84px; height:84px; border-radius:8px; overflow:hidden; background:#fff; border:1px solid #e5e7eb }
+.thumb img { width:100%; height:100%; object-fit:cover }
+.thumb-del { position:absolute; top:2px; right:2px; width:22px; height:22px; border:none; border-radius:50%; background:#dc3545; color:#fff; cursor:pointer }
 .content-editor {
   min-height: 230px;
   padding: 14px;
@@ -383,4 +432,17 @@ onMounted(async () => {
   width: 400px;
   max-width: 100%
 }
+.image-wrapper img,
+.content-editor img {
+  image-rendering: auto;
+  -webkit-user-drag: none;
+}
+
+.image-wrapper img {
+  max-width: 100%;
+  width: 480px;
+  height: auto;  /* 🔑 중요 */
+  border: 1px dashed #ced4da;
+}
+
 </style>

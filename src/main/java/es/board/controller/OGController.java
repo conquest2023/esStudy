@@ -35,7 +35,7 @@ public class OGController {
     public String serveOGPage(@RequestParam("id") String id, Model model) {
 
         log.info("sadads");
-        PostDTO.Request feed = feedService.getFeedDetail(id);
+        PostDTO.Response feed = feedService.getFeedDetail(id);
         model.addAttribute("title", feed.getTitle());
         model.addAttribute("description", feed.getDescription());
         model.addAttribute("image", feed.getImageURL());

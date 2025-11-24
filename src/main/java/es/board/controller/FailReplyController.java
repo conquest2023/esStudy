@@ -33,7 +33,7 @@
 //
 //    @PostMapping("/search/view/reply/save")
 //    public ResponseEntity<?> postReply(@RequestHeader(value = "Authorization", required = false) String token,
-//                                            @Valid @RequestBody ReplyDTO.Response response) {
+//                                            @Valid @RequestBody ReplyDTO.Request response) {
 //
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {
@@ -49,7 +49,7 @@
 //
 //    @PostMapping("/search/view/vote/reply/save")
 //    public ResponseEntity<?> postVoteReply(@RequestHeader(value = "Authorization", required = false)
-//                                               String token,@RequestBody ReplyDTO.Response response) {
+//                                               String token,@RequestBody ReplyDTO.Request response) {
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {
 //            return tokenCheckResponse;

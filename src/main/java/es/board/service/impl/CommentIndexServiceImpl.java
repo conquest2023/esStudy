@@ -1,6 +1,5 @@
 package es.board.service.impl;
 
-import es.board.config.slack.SlackNotifier;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.CommentMapper;
 import es.board.controller.model.mapper.FeedMapper;
@@ -69,7 +68,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
     }
 
     @Override
-    public List<PostDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size) {
+    public List<PostDTO.Response> getFeedAndCommentMyPage(String userId, int page , int size) {
 
         return  feedMapper.fromBoardDtoList(commentDAO.findFeedAndCommentMypage(userId,page,size));
     }

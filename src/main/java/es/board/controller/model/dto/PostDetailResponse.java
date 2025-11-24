@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PostDetailResponse {
 
-    private PostDTO.Request post;
+    private PostDTO.Response post;
 
     private PollDto.Response poll;
 

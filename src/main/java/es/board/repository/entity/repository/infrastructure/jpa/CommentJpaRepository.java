@@ -33,7 +33,6 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity,Long> 
             "p.title AS title," +
             "p.description AS description," +
             "p.viewCount AS viewCount," +
-            "p.likeCount AS likeCount, " +
             "p.createdAt AS createdAt " +
             " FROM CommentEntity c  INNER  join PostEntity p on c.postId= p.id JOIN User u ON c.userId = u.userId" +
             " WHERE u.userId = :userId")

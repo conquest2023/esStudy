@@ -12,7 +12,7 @@ public interface PostRepository {
 
     String findByUserId(int id);
 
-    void savePost(PostEntity post);
+    PostEntity savePost(PostEntity post);
     void deletePost(int id);
 
     void increaseViewCount(int postId);

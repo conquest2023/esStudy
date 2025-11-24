@@ -121,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
 //        if (!(comments instanceof List<?>)) {
 //            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
 //        }
-//        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+//        List<CommentDTO.Response> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
 //        return commentList.stream()
 //                .peek(comment -> {
 //                    comment.setAuthor(comment.getUserId().equals(userId));

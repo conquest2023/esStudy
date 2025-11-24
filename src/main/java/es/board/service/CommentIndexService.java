@@ -17,7 +17,7 @@ public interface CommentIndexService {
     Map<String,Long> getTodayCommentAggregation();
     Map<String, Object> getUserComments(String userId);
     List<CommentDTO.Request> getUserRangeTimeActive(String userId);
-    List<PostDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size);
+    List<PostDTO.Response> getFeedAndCommentMyPage(String userId, int page , int size);
 //    String saveDocument(String indexName, CommentDTO dto) ;
 
     List<Comment> getSearchComment(String text) ;

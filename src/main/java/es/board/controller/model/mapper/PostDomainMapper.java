@@ -4,14 +4,12 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.service.domain.Post;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 public class PostDomainMapper {
 
-    public static Post toDomain(PostDTO.Request dto) {
+    public static Post toDomain(PostDTO.Response dto) {
         if (dto == null) return null;
 
         int id = dto.getId();
@@ -27,40 +25,35 @@ public class PostDomainMapper {
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getCategory(),
-                dto.getLikeCount(),
+//                dto.getLikeCount(),
                 dto.getViewCount(),
                 dto.isOwner(),
-                dto.getImageURL(),
+//                dto.getImageURL(),
                 createdAt,
                 createdAt                     // modifiedAt 초기값
         );
     }
-    public static Post toDomain(String userId, PostDTO.Response dto) {
+    public static Post toDomain(String userId, PostDTO.Request dto) {
             if (dto == null) return null;
 
-            int  id    = dto.getId();
             LocalDateTime createdAt = dto.getCreatedAt();
             if (createdAt == null)
                 createdAt = LocalDateTime.now();
 
             return new Post(
-                    id,
                     userId,
                     dto.getUsername(),
                     dto.getTitle(),
                     dto.getDescription(),
                     dto.getCategory(),
                     0,
-                    0,
                     dto.isAnonymous(),
-                    dto.getImageURL(),
                     createdAt
             );
         }
     public static Post toUpdateDomain(int id,String userId, PostDTO.Update dto) {
         LocalDateTime updateAt = LocalDateTime.now();
         return new Post(
-                id,
                 userId,
                 dto.getTitle(),
                 dto.getDescription(),
@@ -68,15 +61,14 @@ public class PostDomainMapper {
     }
 
 
-    /** Domain → Request DTO (주로 수정/재전송 용도로 필요 시) */
-    public static PostDTO.Request toRequest(String userId, Post d) {
+    /** Domain → Response DTO (주로 수정/재전송 용도로 필요 시) */
+    public static PostDTO.Response toRequest(String userId, Post d) {
         if (d == null) return null;
-        return PostDTO.Request.builder()
+        return PostDTO.Response.builder()
                 .id(d.getId())
                 .userId(d.getUserId())
                 .owner(d.isOwnedBy(userId))
                 .username(d.getUsername())
-                .imageURL(d.getImageUrl())
                 .title(d.getTitle())
                 .description(d.getDescription())
                 .category(d.getCategory())
@@ -85,7 +77,7 @@ public class PostDomainMapper {
                 .modifiedAt(d.getModifiedAt())
                 .build();
     }
-//    public static List<PostDTO.Request> toRequestList(List<Post> posts) {
+//    public static List<PostDTO.Response> toRequestList(List<Post> posts) {
 //        if (posts == null || posts.isEmpty()) return List.of();
 //        return posts.stream()
 //                .map(PostDomainMapper::toRequest)

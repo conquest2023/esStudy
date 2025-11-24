@@ -71,7 +71,7 @@ public class NoticeServiceImpl  implements NoticeService {
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
-//        NoticeDTO.Request notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token,feedUID),feedUID);
+//        NoticeDTO.Response notice=feedMapper.fromNoticeDocument(NoticeSaveId(noticeDTO, token,feedUID),feedUID);
 //        CompletableFuture.supplyAsync(() -> {
 //            asyncService.saveNoticeAsync(notice,notice.getId());
 //            return null;
@@ -88,7 +88,7 @@ public class NoticeServiceImpl  implements NoticeService {
     }
 
 
-//    private NoticeEntity NoticeSaveId(NoticeDTO.Request noticeDTO, String token, String feedUID) {
+//    private NoticeEntity NoticeSaveId(NoticeDTO.Response noticeDTO, String token, String feedUID) {
 //       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
 //    }
     

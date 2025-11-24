@@ -9,7 +9,7 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
-import es.board.repository.entity.feed.FeedImage;
+import es.board.repository.entity.feed.PostImage;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.repository.*;
@@ -23,11 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,7 +48,7 @@ public class FeedServiceImpl implements FeedService {
 
     private final FeedMapper feedMapper;
 
-    private  final FeedImageRepository feedImageRepository;
+    private  final PostImageRepository feedImageRepository;
 
     private  final NotificationService notificationService;
 
@@ -58,7 +56,6 @@ public class FeedServiceImpl implements FeedService {
 
     private  final RedisTemplate redisTemplate;
 
-//    private final S3Uploader s3Uploader;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -89,13 +86,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<PostDTO.Request> findWeekBestFeed(int page, int size) {
+    public   List<PostDTO.Response> findWeekBestFeed(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findWeekBestFeed(page,size));
     }
 
 
     @Override
-    public   List<PostDTO.Request> findCommentDESC(int page, int size) {
+    public   List<PostDTO.Response> findCommentDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findCountComment(page,size));
     }
 
@@ -105,13 +102,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<PostDTO.Request> findReplyDESC(int page, int size) {
+    public   List<PostDTO.Response> findReplyDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
     }
 
 
     @Override
-    public   List<PostDTO.Request> findViewDESC(int page, int size) {
+    public   List<PostDTO.Response> findViewDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findViewDESC(page,size));
     }
 
@@ -135,7 +132,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public CompletableFuture<PostDTO.Response> saveFeed(PostDTO.Response res) {
+    public CompletableFuture<PostDTO.Request> saveFeed(PostDTO.Request res) {
         return CompletableFuture.supplyAsync(() -> {
             checkValueFeed(res);
             Map<String,Object> Ids = savePost(res);
@@ -144,75 +141,75 @@ public class FeedServiceImpl implements FeedService {
 //                    res.getUsername(),
 //                    res.getDescription().replace("\"", "'")));
             List<String> imageUrls = extractImageUrls(res.getDescription());
-            if (!imageUrls.isEmpty() || res.getImageURL()!=null){
-                Long postId = ((Number) Ids.get("postId")).longValue();
-                feedImageRepository.updateFeedIdByImageUrls(postId, imageUrls);
-            }
+//            if (!imageUrls.isEmpty() || res.getImageURL()!=null){
+//                Long postId = ((Number) Ids.get("postId")).longValue();
+////                feedImageRepository.updateFeedIdByImageUrls(postId, imageUrls);
+//            }
             return res;
         }).thenApplyAsync(response -> {
-            grantFeedPoint(response.getUserId(),response.getUsername());
-            notificationService.sendPointNotification(response.getUserId(),response.getId(),"피드 작성 포인트를 발급 받으셨습니디");
+//            grantFeedPoint(response.getUserId(),response.getUsername());
+//            notificationService.sendPointNotification(response.getUserId(),response.getId(),"피드 작성 포인트를 발급 받으셨습니디");
             return  null;
         });
 
     }
 
     @Override
-    public List<PostDTO.Request> getRecommendFeed() {
+    public List<PostDTO.Response> getRecommendFeed() {
 
-        ValueOperations<String, List<PostDTO.Request>> valueOps = redisTemplate.opsForValue();
+        ValueOperations<String, List<PostDTO.Response>> valueOps = redisTemplate.opsForValue();
 
-        List<PostDTO.Request> cachedData = valueOps.get(RECOMMEND_KEY);
+        List<PostDTO.Response> cachedData = valueOps.get(RECOMMEND_KEY);
 
         if (cachedData != null) {
             return cachedData;
         }
-        List<PostDTO.Request> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
+        List<PostDTO.Response> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
 
         valueOps.set(RECOMMEND_KEY, feedRequests, 6, TimeUnit.HOURS);
         return feedRequests;
     }
 
     @Override
-    public List<String> getfeedUIDList(List<PostDTO.Request> requests) {
+    public List<String> getfeedUIDList(List<PostDTO.Response> requests) {
 
-        return extractFeedUID(requests);
+        return null;
     }
 
     @Override
-    public List<PostDTO.Request> getCategoryFeed(String category) {
+    public List<PostDTO.Response> getCategoryFeed(String category) {
         return feedMapper.fromBoardDtoList(feedDAO.findCategoryAndContent(category));
     }
 
     @Override
-    public List<PostDTO.Request> getMonthPopularFeed() {
+    public List<PostDTO.Response> getMonthPopularFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMonthPopularFeed());
     }
 
     @Override
-    public List<PostDTO.Request> getPopularFeedDESC(int page, int size) {
+    public List<PostDTO.Response> getPopularFeedDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findPopularFeedDESC(page, size));
     }
 
     @Override
-    public List<PostDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
+    public List<PostDTO.Response> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
         return feedMapper.fromBoardDtoList(feedDAO.findRangeTimeFeed(startDate, endTime));
     }
     @Override
-    public PostDTO.Request getPopularFeedOne() {
+    public PostDTO.Response getPopularFeedOne() {
 
         return feedMapper.fromBoardDto(feedDAO.findPopularFeedOne());
     }
 
     @Override
-    public List<PostDTO.Request> getRecentFeed() {
+    public List<PostDTO.Response> getRecentFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findRecentFeed());
     }
 
     @Override
-    public List<PostDTO.Response> createBulkFeed(List<PostDTO.Response> feeds) {
+    public List<PostDTO.Request> createBulkFeed(List<PostDTO.Request> feeds) {
         feedDAO.saveBulkFeed(bulkToEntity(feeds));
         return feeds;
     }
@@ -237,9 +234,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public FeedImage saveFeedImages(String imageUrl) {
-        FeedImage saved = feedImageRepository.save(
-                FeedImage.builder()
+    public PostImage saveFeedImages(String imageUrl) {
+        PostImage saved = feedImageRepository.save(
+                PostImage.builder()
                         .imageUrl(imageUrl)
                         .createdAt(LocalDateTime.now())
                         .build()
@@ -253,19 +250,19 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<PostDTO.Request> getLikeCount() {
+    public List<PostDTO.Response> getLikeCount() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<PostDTO.Request> getPagingFeed(int page, int size) {
+    public List<PostDTO.Response> getPagingFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findPagingMainFeed(page, size));
     }
 
     @Override
-    public List<PostDTO.Request> getMostViewFeed(int page, int size) {
+    public List<PostDTO.Response> getMostViewFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMostViewFeed(page, size));
     }
@@ -322,7 +319,7 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
-    public PostDTO.Request getFeedDetail(String id) {
+    public PostDTO.Response getFeedDetail(String id) {
 
         return feedMapper.fromBoardDto(feedDAO.findFeedDetail(id));
     }
@@ -348,14 +345,14 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-    public List<Board> bulkToEntity(List<PostDTO.Response> res) {
+    public List<Board> bulkToEntity(List<PostDTO.Request> res) {
         List<Board> boards = new ArrayList<>();
-        for (PostDTO.Response dto : res) {
+        for (PostDTO.Request dto : res) {
             Board feed = Board.builder()
 //                    .feedUID(dto.getFeedUID())
                     .title(dto.getTitle())
                     .description(dto.getDescription())
-                    .likeCount(dto.getLikeCount())
+//                    .likeCount(dto.getLikeCount())
                     .createdAt(LocalDateTime.now())
                     .build();
             boards.add(feed);
@@ -371,22 +368,22 @@ public class FeedServiceImpl implements FeedService {
         return urls;
     }
 
-    private Map<String,Object>  savePost(PostDTO.Response feedSaveDTO) {
+    private Map<String,Object>  savePost(PostDTO.Request feedSaveDTO) {
         Map<String,Object> Ids=new HashMap<>();
         PostEntity savedPost = postRepository.save(feedMapper.toPostEntity(feedSaveDTO));
         Ids.put("postId",savedPost.getId());
-        Ids.put("feedUID",savedPost.getFeedUID());
+//        Ids.put("feedUID",savedPost.getFeedUID());
         return Ids;
     }
 
 
-    private List<String> extractFeedUID(List<PostDTO.Request> requests) {
-        List<String> feedUIDs = requests.stream()
-                .map(PostDTO.Request::getFeedUID)
-                .collect(Collectors.toList());
-        return feedUIDs;
-    }
-    private static void checkValueFeed(PostDTO.Response feedSaveDTO) {
+//    private List<String> extractFeedUID(List<PostDTO.Response> requests) {
+//        List<String> feedUIDs = requests.stream()
+//                .map(PostDTO.Response::getFeedUID)
+//                .collect(Collectors.toList());
+//        return feedUIDs;
+//    }
+    private static void checkValueFeed(PostDTO.Request feedSaveDTO) {
         if (isEmpty(feedSaveDTO.getTitle()) || isEmpty(feedSaveDTO.getDescription()) || isEmpty(feedSaveDTO.getCategory())) {
             throw new IllegalArgumentException("제목, 본문, 카테고리는 필수 입력값입니다.");
         }
@@ -444,24 +441,24 @@ public class FeedServiceImpl implements FeedService {
         return topWriters;
     }
 
-    @Scheduled(cron = "0 0 * * * *") // 매 시 정각
-    public void cleanUnusedImages() {
-        File uploadDir = new File("/Users/wngud/esfile/file/");
-        File[] files = uploadDir.listFiles();
-
-        if (files == null) return;
-
-        for (File file : files) {
-            String url = "/static/feed-images/" + file.getName();
-            boolean inUse = feedImageRepository.existsByImageUrl(url);
-
-            if (!inUse) {
-                file.delete();
-//                s3Uploader.deleteFile(url);
-                log.info("삭제됨: {}", file.getName());
-            }
-        }
-    }
+//    @Scheduled(cron = "0 0 * * * *") // 매 시 정각
+//    public void cleanUnusedImages() {
+//        File uploadDir = new File("/Users/wngud/esfile/file/");
+//        File[] files = uploadDir.listFiles();
+//
+//        if (files == null) return;
+//
+//        for (File file : files) {
+//            String url = "/static/feed-images/" + file.getName();
+//            boolean inUse = feedImageRepository.existsByImageUrl(url);
+//
+//            if (!inUse) {
+//                file.delete();
+////                s3Uploader.deleteFile(url);
+//                log.info("삭제됨: {}", file.getName());
+//            }
+//        }
+//    }
 }
 
 

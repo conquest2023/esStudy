@@ -2,7 +2,6 @@ package es.board.repository.entity.feed;
 
 
 
-import es.board.repository.entity.poll.PollEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
@@ -26,8 +25,8 @@ public class PostEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "feed_id")
-    private String feedUID;
+//    @Column(name = "feed_id")
+//    private String feedUID;
 
     @Column(name = "user_id")
     private String userId;
@@ -40,16 +39,13 @@ public class PostEntity {
 
     private String category;
 
-    @Column(name = "like_count")
-    private int likeCount;
 
     @Column(name = "view_count")
     private int viewCount;
 
     private  boolean anonymous;
 
-    @Column(name = "image_url")
-    private  String imageUrl;
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

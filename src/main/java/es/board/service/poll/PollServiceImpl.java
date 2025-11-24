@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -37,8 +36,7 @@ public class PollServiceImpl implements PollService{
     @Transactional
     public void createPoll(String username, String userId, PollDto.Request res) {
 
-        Post post = PostDomainMapper.toDomain(userId, new PostDTO.Response(
-                userId,
+        Post post = PostDomainMapper.toDomain(userId, new PostDTO.Request(
                 username,
                 res.getTitle(),
                 res.getCategory(),

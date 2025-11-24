@@ -30,7 +30,7 @@ public interface FeedDAO {
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO.Request dto, Long id);
     List<Board> findUserRangeTimeFeed(String userId);
-    String saveFeed(String index, PostDTO.Response dto) ;
+    String saveFeed(String index, PostDTO.Request dto) ;
 
     List<Board> saveBulkFeed(List<Board> pages) ;
 

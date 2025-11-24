@@ -17,7 +17,4 @@ public interface PostRepository  extends JpaRepository<PostEntity,Integer> {
     void deleteById(@Param("id") String id , @Param("userId") String userId);
 
 
-
-    @Query(" select p.userId from PostEntity p where p.feedUID=:id")
-    String findByFeedUID(@Param("id") String id);
 }

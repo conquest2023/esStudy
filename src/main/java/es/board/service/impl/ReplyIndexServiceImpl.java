@@ -65,9 +65,9 @@ public class ReplyIndexServiceImpl implements ReplyIndexService {
     }
     public Map<String, List<ReplyDTO.Request>> getRepliesGroupedByComment(String feedId) {
         return  null;
-//        List<ReplyDTO.Request> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
+//        List<ReplyDTO.Response> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
 //        return replies.stream()
-//                .collect(Collectors.groupingBy(ReplyDTO.Request::getCommentUID));
+//                .collect(Collectors.groupingBy(ReplyDTO.Response::getCommentUID));
     }
 
     private static void checkValueReply(ReplyDTO.Response response) {

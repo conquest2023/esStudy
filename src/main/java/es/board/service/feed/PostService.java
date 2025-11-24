@@ -13,9 +13,9 @@ public interface PostService {
     void incrementViewCount(int postId);
 
     Page<PostEntity> findPopularPostsInLast7Weeks(int page,int size);
-    PostDTO.Request updatePost(int id,String userId,PostDTO.Update update);
+    PostDTO.Response updatePost(int id, String userId, PostDTO.Update update);
 
-    void savePost(String userId, PostDTO.Response feedSaveDTO);
+    void savePost(String userId, PostDTO.Request feedSaveDTO);
 
     Page<Integer> findIds(int page ,int size);
 
