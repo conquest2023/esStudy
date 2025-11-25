@@ -313,8 +313,6 @@ async function fetchFeedsAll(newPage = page.value) {
 
     counts.value = nextCounts
     likeCounts.value = nextLikeCounts
-
-
   } catch (err) {
     console.error('전체 글 로딩 실패:', err)
     posts.value = []
@@ -390,7 +388,7 @@ async function fetchFeeds(newPage = page.value) {
 onMounted(() => {
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
-  // fetchNotice()
+  fetchNotice()
 })
 
 watch(activeTab, () =>

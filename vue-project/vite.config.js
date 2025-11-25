@@ -41,11 +41,10 @@ export default defineConfig({
     },
   },
 
-  // 🔥 빌드 최적화: 모바일 초기 JS 줄이기 & 캐시 재활용
   build: {
-    target: 'es2020',          // 최신 모바일 대상, 불필요 폴리필/코드 감소
-    cssCodeSplit: true,        // CSS 청크 분리
-    assetsInlineLimit: 0,      // data: URL 인라인 방지(캐시/압축 이점 극대화)
+    target: 'es2020',
+    cssCodeSplit: true,
+    assetsInlineLimit: 0,
     modulePreload: { polyfill: false },
 
     rollupOptions: {
