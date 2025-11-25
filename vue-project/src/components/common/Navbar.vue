@@ -27,11 +27,12 @@ const notiPanel = ref(null)
 
 onMounted(() => {
   const token = localStorage.getItem('token')
-  if (token)
+  if (token) {
     useSSE(token)
+  }
+  fetchNotifications()
   applySavedTheme()
   user.fetchMe()
-  fetchNotifications()
 
   // 전역 클릭 리스너 (알림/유저메뉴 닫기)
   window.addEventListener('click', handleGlobalClick)
@@ -49,7 +50,6 @@ async function fetchNotifications() {
     const { data } = await api.get('/notifications/recent', {
       headers: { Authorization: `Bearer ${token}` }
     })
-
     notifications.value = data || []
     const unread = notifications.value.filter(n => !n.isCheck).length
     if (unread > 0) {
@@ -157,7 +157,7 @@ function handleGlobalClick(e) {
     }
   }
 
-  // 유저 메뉴 닫기 (원하면)
+
   if (showUserMenu.value) {
     const userMenuBtn = e.target.closest('.user-menu-trigger')
     const userMenuDropdown = e.target.closest('.user-menu-dropdown')
@@ -166,7 +166,6 @@ function handleGlobalClick(e) {
     }
   }
 
-  // 상단 대분류 드롭다운 닫기 (원하면)
   if (openDropdownIdx.value !== null) {
     const navArea = e.target.closest('.top-nav-menu-area')
     if (!navArea) {
@@ -450,7 +449,7 @@ const menus = [
   z-index: 2000;
 }
 
-/* 브랜드 */
+
 .okky-navbar .navbar-brand {
   font-size: 1.4rem;
   font-weight: 800;
@@ -513,7 +512,7 @@ const menus = [
 }
 
 .notification-dropdown {
-  width: 360px; /* PC 환경 기본 너비 유지 */
+  width: 360px;
   background: white;
   border-radius: 18px;
   overflow: hidden;
@@ -605,19 +604,6 @@ const menus = [
 
   .okky-navbar {
     height: 58px;
-  }
-
-  .notification-dropdown {
-    width: calc(100vw - 30px); /* 화면 전체 너비에서 좌우 패딩을 뺀 값 */
-
-    right: 5px; /* 오른쪽에서 살짝 띄우기 */
-    left: auto; /* 기본적으로 right 기준으로 동작 */
-
-    border-radius: 10px;
-
-    top: 55px;
-
-    max-width: 360px; /* 너무 커지지 않도록 상한선 설정 (태블릿 고려) */
   }
 }
 

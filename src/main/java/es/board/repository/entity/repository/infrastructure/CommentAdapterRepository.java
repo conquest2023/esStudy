@@ -1,6 +1,7 @@
 package es.board.repository.entity.repository.infrastructure;
 
 import es.board.repository.entity.feed.CommentEntity;
+import es.board.repository.entity.repository.infrastructure.feed.CommentAggView;
 import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
 import es.board.repository.entity.repository.infrastructure.jpa.CommentJpaRepository;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
@@ -18,6 +19,12 @@ import java.util.Optional;
 public class CommentAdapterRepository implements CommentRepository {
 
     private final CommentJpaRepository repository;
+
+    @Override
+    public List<CommentAggView> countCommentsIn(List<Integer> postIds) {
+         return repository.countCommentsIn(postIds);
+    }
+
     @Override
     public void saveComment(CommentEntity comment) {
 
@@ -47,11 +54,6 @@ public class CommentAdapterRepository implements CommentRepository {
     @Override
     public Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable, String userId) {
         return repository.findByMyPageUserPostsAndComments(pageable,userId);
-    }
-
-    @Override
-    public CommentEntity findCommentDetail(long id) {
-        return null;
     }
 
     @Override

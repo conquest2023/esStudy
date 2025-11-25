@@ -205,9 +205,7 @@ const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
   z-index: 1040;
 }
 
-/*********
-* Mobile *
-*********/
+
 @media (max-width: 992px) {
   .sidebar-drawer {
     width: 100%;
@@ -220,9 +218,7 @@ const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
   }
 }
 
-/***********
-* FAB btn  *
-***********/
+
 .sidebar-fab {
   position: fixed;
   bottom: 550px;
@@ -246,20 +242,8 @@ const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
   transform: scale(1.08);
 }
 
-/****************
-* Transitions   *
-****************/
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
-}
 
-/* Nav pills */
+
 .nav-pills .nav-link {
   border-radius: 50rem !important;
   font-size: 0.875rem;

@@ -121,7 +121,6 @@ const route = useRoute()
 const router = useRouter()
 const recommendPosts = ref([])
 const showSidebar = ref(false)
-
 // onMounted(async () => {
 //   // showSidebar.value = window.innerWidth >= 992
 //   try {
@@ -283,8 +282,6 @@ async function fetchNotice() {
 async function fetchFeedsAll(newPage = page.value) {
   try {
     loading.value = true
-
-    // 1-based UI → 0-based 서버 보정 (page 쿼리 보존)
     const uiPage = Number(newPage ?? 1)
     page.value = uiPage
     router.replace({ query: { ...route.query, page: uiPage } })
@@ -297,36 +294,32 @@ async function fetchFeedsAll(newPage = page.value) {
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
     posts.value     = Array.isArray(content) ? content : []
     totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
-    // if (curSort.value === 'COMMENT')      url = '/comment/count'
-    // else if (curSort.value === 'REPLY')   url = '/reply/count'
-    // else if (curSort.value === 'VIEW')    url = '/view/count'
+    const { data: statsRes } = await api.get('/post/stats', { params })
+    const postStats = statsRes.stats || []
 
-    const { data: aggRes } = await api.get('/count', { params })
-
-
-    const aggsObj = aggRes?.aggs ?? {}
     const nextCounts = {}
-    for (const p of posts.value) {
-      const pid = p.id
-      const key = String(pid)
-      nextCounts[pid] = aggsObj[key] ?? aggsObj[pid] ?? 0
-    }
-    counts.value = nextCounts
-
-    const { data: likeRes } = await api.get('/likes', { params })
-    const likesObj = likeRes?.likes ?? {}
     const nextLikeCounts = {}
-    for (const p of posts.value) {
-      const pid = p.id
-      const key = String(pid)
-      nextLikeCounts[pid] = likesObj[key] ?? likesObj[pid] ?? 0
+
+    for (const stat of postStats) {
+      if (stat.postId && stat.totalCommentCount !== undefined) {
+        nextCounts[stat.postId] = stat.totalCommentCount
+      }
+
+
+      if (stat.postId && stat.likeCount !== undefined) {
+        nextLikeCounts[stat.postId] = stat.likeCount
+      }
     }
+
+    counts.value = nextCounts
     likeCounts.value = nextLikeCounts
-    await fetchNotice()
+
+
   } catch (err) {
-    console.error('전체 글 로딩 실패', err)
+    console.error('전체 글 로딩 실패:', err)
     posts.value = []
     counts.value = {}
+    likeCounts.value = {}
     totalPage.value = 0
   } finally {
     loading.value = false
@@ -341,7 +334,7 @@ async function fetchFeeds(newPage = page.value) {
 
   loading.value = true
 
-  // 1-based (UI) 페이지 번호 설정 및 쿼리 업데이트
+
   const uiPage = Number(newPage) || 1
   page.value = uiPage
   router.replace({ query: { ...route.query, page: uiPage } })
@@ -353,7 +346,7 @@ async function fetchFeeds(newPage = page.value) {
   if (tab.category) params.category = tab.category
   if (tab.id === 'DATA') params.category = selectedCategory.value
 
-  // 정렬 옵션 추가 (ALL 탭 외의 다른 탭에서도 정렬이 필요한 경우)
+
   if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') {
     params.sort = curSort.value
   }

@@ -1,8 +1,6 @@
 <!-- src/layouts/DefaultLayout.vue -->
 <script setup>
-import Navbar            from '@/components/common/Navbar.vue'
 import RightSidebar      from '@/components/sidebar/RightSidebar.vue'
-import NotificationToast from '@/components/common/NotificationToast.vue'
 import MobileBottomNav   from '@/components/mobile/MobileBottomNav.vue'
 import { useRouter }     from 'vue-router'
 import { ref, watch, nextTick ,onMounted,computed} from 'vue'
@@ -69,11 +67,7 @@ const navItems = [
   }
 ]
 </script>
-
 <template>
-  <Navbar />
-<!--  <NotificationToast />-->
-
   <div class="page-wrap">
     <main class="main-wrap"><router-view /></main>
     <RightSidebar class="desktop-only" />
@@ -84,6 +78,18 @@ const navItems = [
       @fab="router.push('/search/view/feed/Form')"
   />
 </template>
+<!--<template>-->
+<!--  <Navbar />-->
+<!--  <div class="page-wrap">-->
+<!--    <main class="main-wrap"><router-view /></main>-->
+<!--    <RightSidebar class="desktop-only" />-->
+<!--  </div>-->
+
+<!--  <MobileBottomNav-->
+<!--      :navItems="navItems"-->
+<!--      @fab="router.push('/search/view/feed/Form')"-->
+<!--  />-->
+<!--</template>-->
 
 <style>
 .page-wrap{display:flex;justify-content:center;gap:30px;max-width:1280px;margin:0 auto;padding:0 20px}

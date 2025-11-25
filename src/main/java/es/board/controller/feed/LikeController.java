@@ -38,17 +38,16 @@ public class LikeController {
 
         return ResponseEntity.ok(Map.of("ok","좋아요를 누르셨습니다"));
     }
+
     @GetMapping("/like/detail/{id}")
     public ResponseEntity<?> getLikeDetailFeed(@PathVariable int id,
                                                @RequestAttribute("userId") String userId){
         List<LikeDto.Request> likeFeedDetail = likeService.findLikeFeedDetail(id,userId);
         return ResponseEntity.ok(Map.of("likes",likeFeedDetail));
     }
-
     @GetMapping("/like/count/{id}")
     public ResponseEntity<?> getLikeDetailFedCount(@PathVariable int id){
         List<LikeCountProjection> likeFeedDetailCount = likeService.findLikeFeedDetailCount(id);
-        log.info(likeFeedDetailCount.toString());
         return ResponseEntity.ok(Map.of("likes",likeFeedDetailCount));
     }
 

@@ -1,10 +1,12 @@
 package es.board.repository.entity.repository.infrastructure.jpa;
 
 import es.board.repository.entity.feed.ReplyEntity;
+import es.board.repository.entity.repository.infrastructure.feed.ReplyAggView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,12 @@ public interface ReplyJpaRepository extends JpaRepository<ReplyEntity,Long> {
 
     @Query("select r from ReplyEntity r where r.postId=:id")
     List<ReplyEntity> findReplys(long id);
+
+    @Query("""
+      select r.postId as postId, count(r) as cnt
+      from ReplyEntity r
+      where r.postId in :postIds
+      group by r.postId
+      """)
+    List<ReplyAggView> countRepliesIn(@Param("postIds") List<Integer> postIds);
 }

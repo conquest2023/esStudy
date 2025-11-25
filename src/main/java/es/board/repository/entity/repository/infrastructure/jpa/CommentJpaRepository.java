@@ -1,6 +1,7 @@
 package es.board.repository.entity.repository.infrastructure.jpa;
 
 import es.board.repository.entity.feed.CommentEntity;
+import es.board.repository.entity.repository.infrastructure.feed.CommentAggView;
 import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,16 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity,Long> 
             " FROM CommentEntity c  INNER  join PostEntity p on c.postId= p.id JOIN User u ON c.userId = u.userId" +
             " WHERE u.userId = :userId")
     Page<PostsAndCommentsProjection> findByMyPageUserPostsAndComments(Pageable pageable, @Param("userId") String userId);
+
+
+    @Query("""
+      select  c.postId as postId,
+       count(c) as cnt
+      from CommentEntity c
+      where c.postId in :postIds
+      group by c.postId
+      """)
+    List<CommentAggView> countCommentsIn(@Param("postIds") List<Integer> postIds);
     @Query("select c from CommentEntity c where c.postId=:id")
     List<CommentEntity> findById(int id);
 

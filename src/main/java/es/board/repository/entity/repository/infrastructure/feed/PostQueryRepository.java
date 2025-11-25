@@ -11,18 +11,15 @@ import java.util.Map;
 public interface PostQueryRepository {
 
 
+    Page<Integer>  findIds(Pageable pageable);
+    List<Integer> findPostIds(int page,int size);
+    PostEntity findPostDetail(int id);
+
     Page<PostEntity> findByMyPageUserPosts(Pageable pageable, String userId);
-
-
 
     Page<PostEntity> findByPagePosts(Pageable pageable);
 
-    List<Integer> findPostIds(Pageable pageable);
-    PostEntity findPostDetail(int id);
-
-    Page<Integer>  findIds(Pageable pageable);
-
     Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable, LocalDateTime lastSevenDays);
 
-    Map<Integer, Long> countByReplyAndComment(List<Integer> ids);
+
 }

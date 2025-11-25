@@ -11,7 +11,8 @@ export const useUserStore = defineStore('user', {
 
         notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
 
-        loading: false,
+        _inFlight: null, // 요청 진행 상태 추가
+        loading: false, // 기존 로딩 상태 유지
     }),
 
     /* --------------- actions --------------- */
@@ -19,16 +20,24 @@ export const useUserStore = defineStore('user', {
         async fetchMe () {
             const token = localStorage.getItem('token')
             if (!token) return this.$reset()
-            try {
-                this.loading = true
-                const { data } = await api.get('/info')   // axios interceptor가 토큰 붙임
-                this.isLoggedIn = !!data?.isLoggedIn
-                this.username   = data?.username || ''
-            } catch (e) {
-                this.$reset()
-            } finally {
-                this.loading = false
-            }
+
+            // 1. 이미 요청 중이라면, 해당 Promise를 반환하고 종료
+            if (this._inFlight) return this._inFlight
+
+            this.loading = true
+            this._inFlight = (async () => {
+                try {
+                    const { data } = await api.get('/info')
+                    this.isLoggedIn = !!data?.isLoggedIn
+                    this.username   = data?.username || ''
+                } catch (e) {
+                    this.$reset()
+                } finally {
+                    this.loading = false
+                    this._inFlight = null // 요청 완료 후 해제
+                }
+            })()
+            return this._inFlight
         },
 
         setAuth (token, name) {

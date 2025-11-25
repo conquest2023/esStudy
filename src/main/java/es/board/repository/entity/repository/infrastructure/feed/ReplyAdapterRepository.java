@@ -23,6 +23,11 @@ public class ReplyAdapterRepository implements ReplyRepository {
     }
 
     @Override
+    public List<ReplyAggView> countRepliesIn(List<Integer> postIds) {
+        return repository.countRepliesIn(postIds);
+    }
+
+    @Override
     public List<ReplyEntity> findByReplys(int id) {
         return repository.findReplys(id);
     }
@@ -37,10 +42,6 @@ public class ReplyAdapterRepository implements ReplyRepository {
         return null;
     }
 
-    @Override
-    public ReplyEntity findReplyDetail(long id) {
-        return null;
-    }
 
     @Override
     public void deleteReply(long id) {

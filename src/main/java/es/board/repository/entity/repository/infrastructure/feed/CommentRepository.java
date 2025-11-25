@@ -5,6 +5,7 @@ import es.board.repository.entity.repository.infrastructure.projection.MyComment
 import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository {
 
-
+    List<CommentAggView> countCommentsIn(List<Integer> postIds);
     void saveComment(CommentEntity post);
 
     String findByUserId(long commentId);
@@ -23,8 +24,6 @@ public interface CommentRepository {
     Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId);
 
     Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable,String userId);
-
-    CommentEntity findCommentDetail(long id);
 
     void deleteComment(long id);
 

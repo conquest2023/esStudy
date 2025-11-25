@@ -4,8 +4,10 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.controller.model.dto.stats.PostStatsDTO;
 import es.board.ex.TokenValidator;
 import es.board.repository.entity.feed.PostEntity;
+import es.board.service.CommandQueryService;
 import es.board.service.feed.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,7 @@ public class PostController {
 
     private final JwtTokenProvider provider;
 
-
+    private final CommandQueryService commandQueryService;
     private final PostService postService;
 
     private final TokenValidator tokenValidator;
@@ -66,6 +69,14 @@ public class PostController {
         return ResponseEntity.ok(Map.of(
                 "ids", ids));
     }
+
+    @GetMapping("/post/stats")
+    public ResponseEntity<?> getPostStats(@RequestParam int page, @RequestParam int size) {
+        List<PostStatsDTO> postStats = commandQueryService.getPostStats(page, size);
+        return ResponseEntity.ok(Map.of(
+                "stats", postStats));
+    }
+
 
     @GetMapping("/posts/popular/week")
     public ResponseEntity<?> getPopularPostsInLast7Weeks(@RequestParam int page, @RequestParam int size){

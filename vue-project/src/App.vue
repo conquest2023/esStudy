@@ -12,7 +12,6 @@
     </keep-alive>
   </RouterView>
 </template>
-
 <script setup>
 import {computed,onMounted} from 'vue'
 import { useRoute } from 'vue-router'
@@ -24,8 +23,6 @@ import ToastContainer from "@/components/common/ToastContainer.vue";
 
 const route = useRoute()
 const store = useUserStore()
-const sb = useSidebarStore()
-const hideLayout = computed(() => route.meta.hideLayout === true)
 </script>
 
 <style>

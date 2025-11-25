@@ -7,14 +7,11 @@ import es.board.repository.entity.repository.infrastructure.projection.LikeCount
 import es.board.service.domain.enum_type.TargetType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +19,6 @@ public class LikeAdapterRepository implements LikeRepository {
 
     private final LikeJpaRepository likeRepository;
 
-    private final PostQueryRepository postRepository;
     @Override
     public void save(LikeEntity likeEntity) {
         likeRepository.save(likeEntity);
@@ -39,17 +35,9 @@ public class LikeAdapterRepository implements LikeRepository {
     }
 
     @Override
-    public Map<Integer, Long> findPagingPosts(Pageable pageable) {
-        List<Integer> ids = postRepository.findPostIds(pageable);
-        Map<Integer, Long> likes = likeRepository.findPagingPost(ids)
-                .stream().collect(Collectors.toMap(LikeAggView::getPostId, LikeAggView::getCnt));
-        Map<Integer, Long> map = new HashMap<>();
-        for (Integer id : ids) {
-            if(likes.containsKey(id)){
-                map.put(id,likes.get(id));
-            }
-        }
-        return map;
+    public List<LikeAggView> findPagingLikes(List<Integer> ids) {
+
+        return likeRepository.findPagingLikes(ids);
     }
 
     @Override

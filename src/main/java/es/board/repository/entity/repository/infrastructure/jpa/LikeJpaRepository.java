@@ -17,9 +17,10 @@ import java.util.Optional;
 public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
 
 
-    @Query("select  l.postId as postId, count(l) as cnt from LikeEntity l where l.postId in :id" +
-            " group by postId order by  postId  DESC ")
-    List<LikeAggView> findPagingPost(List<Integer> id);
+    @Query("select  l.postId as postId, count(l) as cnt from LikeEntity l " +
+            "where l.postId in :id" +
+            " group by postId ")
+    List<LikeAggView> findPagingLikes(List<Integer> id);
 
     @Query("SELECT l FROM LikeEntity l WHERE l.userId = :userId" +
             " AND l.postId = :postId AND l.targetType=:targetType")

@@ -40,8 +40,8 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
-    public List<Integer> findPostIds(Pageable pageable) {
-        return repository.findPostIds(pageable);
+    public List<Integer> findPostIds(int page,int size) {
+        return repository.findPostIds(page,size);
     }
     @Override
     public Page<PostEntity> findByPagePosts(Pageable pageable) {
@@ -55,19 +55,4 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         return post.get();
     }
 
-    @Override
-    public Map<Integer, Long> countByReplyAndComment(List<Integer> ids) {
-        Map<Integer, Long> comments = repository.countCommentsIn(ids).stream()
-                .collect(Collectors.toMap(CommentAggView::getPostId, CommentAggView::getCnt));
-        Map<Integer, Long> replies = repository.countRepliesIn(ids).stream()
-                .collect(Collectors.toMap(ReplyAggView::getPostId, ReplyAggView::getCnt));
-        Map<Integer, Long> map = new HashMap<>();
-        for (Integer id : ids) {
-            long commentId= comments.getOrDefault(id,0L);
-            long replyId= replies.getOrDefault(id,0L);
-
-            map.put(id,commentId+replyId);
-        }
-        return map;
-    }
 }

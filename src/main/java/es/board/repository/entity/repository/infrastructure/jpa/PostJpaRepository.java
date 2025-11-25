@@ -30,8 +30,14 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     @Query("select p.id from PostEntity p")
     Page<Integer> findIds(Pageable pageable);
 
-    @Query("select p.id from PostEntity p order by p.createdAt desc")
-    List<Integer> findPostIds(Pageable pageable);
+    @Query(
+            value = "select p.id from post p " +
+                    " where not exists (select 1 from notice n where n.post_id = p.id)" +
+                    " order by p.created_at desc limit :size offset :offset",
+            nativeQuery = true
+    )
+    List<Integer> findPostIds(@Param("offset") int offset,
+                              @Param("size") int size);
 
 
     @Query("select p from PostEntity p where p.userId=:userId")
@@ -49,20 +55,4 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     void incrementViewCount(@Param("postId") int postId);
 
 
-    @Query("""
-      select  c.postId as postId,
-       count(c) as cnt
-      from CommentEntity c
-      where c.postId in :postIds
-      group by c.postId
-      """)
-    List<CommentAggView> countCommentsIn(@Param("postIds") List<Integer> postIds);
-
-    @Query("""
-      select r.postId as postId, count(r) as cnt
-      from ReplyEntity r
-      where r.postId in :postIds
-      group by r.postId
-      """)
-    List<ReplyAggView> countRepliesIn(@Param("postIds") List<Integer> postIds);
 }
