@@ -37,7 +37,6 @@ public class NoticeServiceImpl  implements NoticeService {
 
     private final FeedMapper feedMapper;
 
-
     private final ObjectMapper objectMapper;
 
 
@@ -67,7 +66,6 @@ public class NoticeServiceImpl  implements NoticeService {
 
     @Override
     public void createNotice(String userId, NoticeDTO.Request noticeDTO) {
-//        String feedUID= java.util.UUID.randomUUID().toString();
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }

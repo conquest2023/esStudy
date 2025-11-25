@@ -171,8 +171,8 @@ function insertAtCaret(node) {
   }
 }
 function resetChooser(){
-  if (typeof $refs?.imageInput?.value !== 'undefined') {
-    $refs.imageInput.value = ''
+  if (imageInput.value) {
+    imageInput.value.value = '';
   }
 }
 function removePending(id){

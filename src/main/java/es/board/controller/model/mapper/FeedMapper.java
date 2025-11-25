@@ -86,7 +86,7 @@ public class FeedMapper {
         return notice.stream()
                 .map(notice1 -> NoticeDTO.Request.builder()
                         .id(notice1.getId())
-                        .feedUID(notice1.getFeedUID())
+//                        .feedUID(notice1.getFeedUID())
                         .username(notice1.getUsername())
                         .title(notice1.getTitle())
                         .description(notice1.getDescription())
@@ -100,7 +100,7 @@ public class FeedMapper {
                 .id(notice.getId())
                 .category(notice.getCategory())
                 .title(notice.getTitle())
-                .imageURL(notice.getImageURL())
+//                .imageURL(notice.getImageURL())
                 .description(notice.getDescription().replace("\\n", "\n"))
                 .username(notice.getUsername())
                 .createdAt(notice.getCreatedAt())
@@ -108,15 +108,15 @@ public class FeedMapper {
                 .build();
     }
 
-    public NoticeEntity toNotice(NoticeDTO.Request notice, String userId, String feedUID) {
+    public NoticeEntity toNotice(NoticeDTO.Request notice, String userId) {
         return NoticeEntity.builder()
                 .id(notice.getId())
-                .feedUID(feedUID)
+//                .feedUID(feedUID)
                 .category("공지사항")
                 .userId(userId)
                 .title(notice.getTitle())
                 .description(notice.getDescription().replace("\\n", "\n"))
-                .imageURL(notice.getImageURL())
+//                .imageURL(notice.getImageURL())
                 .username("관리자")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -131,7 +131,7 @@ public class FeedMapper {
                 .userId(userId)
                 .title(notice.getTitle())
                 .description(notice.getDescription().replace("\\n", "\n"))
-                .imageURL(notice.getImageURL())
+//                .imageURL(notice.getImageURL())
                 .createdAt(LocalDateTime.now())
                 .build();
     }

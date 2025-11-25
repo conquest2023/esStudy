@@ -23,9 +23,6 @@ public class PointHistoryEntity {
     @Column(name = "user_id", nullable = false)
     private String userId;
 
-//    @Transient
-//    private  String  username;
-
     @Column(name = "point_change", nullable = false)
     private int pointChange;
 
