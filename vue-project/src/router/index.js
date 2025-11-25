@@ -1,76 +1,121 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import VoteForm from '@/pages/feed/VoteForm.vue'
-import JobView from '@/pages/site/JobView.vue'
-import JobSiteList from '@/pages/site/JobSiteList.vue'
-import Todo from '@/pages/todo/Todo.vue'
-import NewTodo from '@/pages/todo/TodoAdd.vue'
-import FeedUpdate from '@/pages/feed/FeedUpdate.vue'
-import QuestionBank from '@/pages/certificate/QuestionBank.vue'
-import PracticeQuestion from '@/pages/certificate/PracticeQuestion.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import calendar from '@/pages/calendar/CalendarPage.vue'
-import OAuthGoogleLogin from '@/pages/auth/Google.vue'
-import OAuthKakaoLogin from '@/pages/auth/Kakao.vue'
-import OAuthNaverLogin from '@/pages/auth/Naver.vue'
+
+// ✨ 전부 동적 import로 전환 (필요 시 라우트 진입 시 로드)
+const DefaultLayout = () => import('@/layouts/DefaultLayout.vue')
+
+// feed & post
+const FeedList = () => import('@/pages/feed/FeedList.vue')
+const FeedDetail = () => import('@/pages/feed/FeedDetail.vue')
+const PostFeed = () => import('@/pages/feed/PostFeed.vue')
+const NoticeDetail = () => import('@/pages/feed/NoticeDetail.vue')
+const FeedUpdate = () => import('@/pages/feed/FeedUpdate.vue')
+const FeedForm = () => import('@/pages/feed/FeedForm.vue')
+
+// vote / poll
+const VoteForm = () => import('@/pages/feed/VoteForm.vue')
+const PollDetail = () => import('@/pages/feed/PollDetail.vue')
+
+// site / jobs
+const JobView = () => import('@/pages/site/JobView.vue')
+const JobSiteList = () => import('@/pages/site/JobSiteList.vue')
+
+// todo
+const Todo = () => import('@/pages/todo/Todo.vue')
+const NewTodo = () => import('@/pages/todo/TodoAdd.vue')
+
+// certificate
+const CertificateData = () => import('@/pages/certificate/CertificateData.vue')
+const CertificateDetail = () => import('@/pages/certificate/CertificateDetail.vue')
+const CertificateCalendar = () => import('@/pages/certificate/CertificateCalendar.vue')
+const CertificateSearch = () => import('@/pages/certificate/CertificateSearch.vue')
+const QuestionBank = () => import('@/pages/certificate/QuestionBank.vue')
+const PracticeQuestion = () => import('@/pages/certificate/PracticeQuestion.vue')
+
+// interview
+const GovInterviewPanel = () => import('@/pages/interview/GovInterviewPanel.vue')
+const PriInterviewPanel = () => import('@/pages/interview/PriInterviewPanel.vue')
+
+// calendar, auth, etc.
+const CalendarPage = () => import('@/pages/calendar/CalendarPage.vue')
+const Login = () => import('@/pages/auth/Login.vue')
+const SignUp = () => import('@/pages/auth/SignUp.vue')
+const SomeoneProfile = () => import('@/pages/feed/user/SomeoneProfile.vue')
+const SearchResult = () => import('@/pages/SearchResult.vue')
+const MyPage = () => import('@/pages/feed/MyPage.vue')
+const NotificationsPage = () => import('@/components/NotificationsPage.vue')
+
+const OAuthGoogleLogin = () => import('@/pages/auth/Google.vue')
+const OAuthKakaoLogin  = () => import('@/pages/auth/Kakao.vue')
+const OAuthNaverLogin  = () => import('@/pages/auth/Naver.vue')
 
 const routes = [
     {
         path: '/',
         component: DefaultLayout,
         children: [
-            { path: '', component: () => import('@/pages/feed/FeedList.vue') },
+            { path: '', component: FeedList },
+
+            // site / jobs
             { path: 'search/view/feed/list/job', name: 'job-view', component: JobView },
             { path: 'site', name: 'job-sites', component: JobSiteList },
+
+            // todo
             { path: 'todo', name: 'todo', component: Todo },
             { path: 'todo/new', name: 'NewTodo', component: NewTodo },
-            { path: 'calendar', name: 'calendar', component: calendar },
-            {
-                path: '/notice/detail/:id',
-                name: 'NoticeDetail',
-                component: () => import('@/pages/feed/NoticeDetail.vue')
-            },
-            {
-                path: '/post/update',
-                name: 'PostUpdate',
-                component: FeedUpdate,
-            },
-            { path: '/notice', component: () => import('@/pages/feed/PostFeed.vue') },
-            { path: '/mypage', component: () => import('@/pages/feed/MyPage.vue') },
-            { path: 'certificate/data', component: () => import('@/pages/certificate/CertificateData.vue') },
-            { path: 'certificate/detail', component: () => import('@/pages/certificate/CertificateDetail.vue') },
-            { path: 'certificate/calendar', component: () => import('@/pages/certificate/CertificateCalendar.vue') },
-            { path: 'certificate/list', component: () => import('@/pages/certificate/CertificateSearch.vue') },
-            { path: 'interview/govinterview', component: () => import('@/pages/interview/GovInterviewPanel.vue') },
-            { path: '/interview/priinterview', component: () => import('@/pages/interview/PriInterviewPanel.vue') },
+
+            // calendar
+            { path: 'calendar', name: 'calendar', component: CalendarPage },
+
+            // feed
+            { path: 'notice', component: PostFeed },
+            { path: 'mypage', component: MyPage },
+            { path: 'notice/detail/:id', name: 'NoticeDetail', component: NoticeDetail },
+            { path: 'post/update', name: 'PostUpdate', component: FeedUpdate },
+
+            // certificate
+            { path: 'certificate/data', component: CertificateData },
+            { path: 'certificate/detail', component: CertificateDetail },
+            { path: 'certificate/calendar', component: CertificateCalendar },
+            { path: 'certificate/list', component: CertificateSearch },
+
+            // interview
+            { path: 'interview/govinterview', component: GovInterviewPanel },
+            { path: 'interview/priinterview', component: PriInterviewPanel },
+
+            // question bank
             { path: 'search/view/question', name: 'QuestionBank', component: QuestionBank },
             { path: 'search/view/practical/question', name: 'PracticeQuestion', component: PracticeQuestion },
-            { path: '/search/view/og/feed/id', meta: { ssrOnly: true },
-    }
-    ]
+
+            // ⚠️ 이 라우트는 component 누락되어 있던데? SSR-only라면 프록시/리다이렉트로 처리하고
+            // 프론트 라우터에서는 빼는 게 안전.
+            // { path: 'search/view/og/feed/id', meta: { ssrOnly: true } },
+        ],
     },
-    { path: '/login', name:`Login`, component: () => import('@/pages/auth/Login.vue'), meta: { hideLayout: true } },
-    { path: '/signup', component: () => import('@/pages/auth/SignUp.vue'), meta: { hideLayout: true } },
-    { path: '/user/profile/:username', name: 'user-profile', component: () => import('@/pages/feed/user/SomeoneProfile.vue')},
+
+    // auth
+    { path: '/login', name: 'Login', component: Login, meta: { hideLayout: true } },
+    { path: '/signup', component: SignUp, meta: { hideLayout: true } },
+
+    // detail pages outside layout
+    { path: '/post/:id', name: 'PostDetail', component: FeedDetail, meta: { hideLayout: true } },
+
+    // others
     { path: '/search/view/feed/update', name: 'feed-update', component: FeedUpdate },
-    { path: '/search/view/feed/Form', name: 'feed-form', component: () => import('@/pages/feed/FeedForm.vue'), meta: { hideLayout: true } },
-    { path: '/post/:id', name: 'PostDetail', component: () => import('@/pages/feed/FeedDetail.vue'), meta: { hideLayout: true } },
+    { path: '/search/view/feed/Form', name: 'feed-form', component: FeedForm, meta: { hideLayout: true } },
+    { path: '/user/profile/:username', name: 'user-profile', component: SomeoneProfile },
+    { path: '/search/view/content', name: 'search-result', component: SearchResult },
     { path: '/search/view/feed/vote', name: 'vote-form', component: VoteForm },
-    {
-        path: '/poll/:id',
-        name: 'PollDetail',
-        component: () => import('@/pages/feed/PollDetail.vue')
-    },
-    { path: '/search/view/content', name: 'search-result', component: () => import('@/pages/SearchResult.vue') },
-    { path: '/search/view/feed/list/page', component: () => import('@/pages/feed/MyPage.vue') },
-    { path:'/notifications', name:'Notifications', component:() => import('@/components/NotificationsPage.vue') },
-    {path: '/google/callback', name: 'GoogleOAuth', component: OAuthGoogleLogin},
-    {path: '/kakao/callback', name: 'KakaoOAuth', component: OAuthKakaoLogin},
-    {path: '/naver/callback', name: 'NaverOAuth', component: OAuthNaverLogin}
+    { path: '/poll/:id', name: 'PollDetail', component: PollDetail },
+    { path: '/search/view/feed/list/page', component: MyPage },
+    { path: '/notifications', name: 'Notifications', component: NotificationsPage },
+
+    // oauth
+    { path: '/google/callback', name: 'GoogleOAuth', component: OAuthGoogleLogin },
+    { path: '/kakao/callback',  name: 'KakaoOAuth',  component: OAuthKakaoLogin },
+    { path: '/naver/callback',  name: 'NaverOAuth',  component: OAuthNaverLogin },
 ]
+
 export default createRouter({
-    components: {
-        DefaultLayout
-    },
     history: createWebHistory(),
-    routes
+    routes,
 })

@@ -1,8 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+
+// (선택) 브로틀리/지집 압축 산출물 생성해서 CDN/Nginx가 서빙하도록 하고 싶으면 주석 해제
+// import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
   server: {
@@ -22,17 +24,52 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true
       }
-
     }
+  },
 
-    },
   plugins: [
     vue(),
     vueDevTools(),
+    // (선택) 압축 산출물 생성
+    // viteCompression({ algorithm: 'brotliCompress' }),
+    // viteCompression({ algorithm: 'gzip' })
   ],
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+
+  // 🔥 빌드 최적화: 모바일 초기 JS 줄이기 & 캐시 재활용
+  build: {
+    target: 'es2020',          // 최신 모바일 대상, 불필요 폴리필/코드 감소
+    cssCodeSplit: true,        // CSS 청크 분리
+    assetsInlineLimit: 0,      // data: URL 인라인 방지(캐시/압축 이점 극대화)
+    modulePreload: { polyfill: false },
+
+    rollupOptions: {
+      output: {
+        // 라우트/도메인 기준으로 청크 분할 → 초기 번들 최소화 + 캐시 효율 ↑
+        manualChunks(id) {
+          if (id.includes('node_modules')) return 'vendor'
+
+          // 폴더 기준 라우트 묶음 (필요에 따라 수정)
+          if (id.includes('/pages/feed/'))        return 'feed'
+          if (id.includes('/pages/site/'))        return 'site'
+          if (id.includes('/pages/todo/'))        return 'todo'
+          if (id.includes('/pages/certificate/')) return 'certificate'
+          if (id.includes('/pages/interview/'))   return 'interview'
+          if (id.includes('/pages/auth/'))        return 'auth'
+
+          return undefined
+        }
+      }
+    }
+  },
+
+  // (선택) 사전 번들링 최적화: 개발 체감 개선
+  optimizeDeps: {
+    // include: [], exclude: []
+  }
 })
