@@ -110,7 +110,6 @@ const title            = ref('')
 const store   = useUserStore()
 const MAX_IMAGES = 3
 const pendingFiles = ref([])
-// 간단 토스트
 function toast(msg){ alert(msg) }
 const categories       = ['자유', '자격증', '문제', '기술', '취업', 'Q/A', '자료']
 const showPlaceholder  = ref(true)
@@ -130,7 +129,6 @@ const onEditorInput    = () => checkEditorEmpty()
 
 
 
-// 기존 handleFiles 유지
 async function handleFiles (e) {
   const list = e.target?.files ? Array.from(e.target.files) : Array.from(e)
   const remain = MAX_IMAGES - pendingFiles.value.length
@@ -159,12 +157,12 @@ function imgDecode(img){
   return img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
 }
 
-// 커서 위치에 노드 삽입
 function insertAtCaret(node) {
   const sel = window.getSelection()
 
   editor.value?.appendChild(node)
-
+  const newLine = document.createElement('br');
+  editor.value?.appendChild(newLine);
   if (sel) {
     const range = document.createRange()
     range.setStartAfter(node)
@@ -173,7 +171,6 @@ function insertAtCaret(node) {
     sel.addRange(range)
   }
 }
-// 파일 입력 초기화
 function resetChooser(){
   if (typeof $refs?.imageInput?.value !== 'undefined') {
     $refs.imageInput.value = ''
@@ -191,16 +188,13 @@ function removePending(id){
   }
 }
 
-// 드래그 앤 드롭 핸들링 유지
 function filesDropped (files) {
   handleFiles(files)
 }
 function getEditorWidth () {
-  // 에디터 실제 컨텐츠 폭(패딩 감안)
   const el = editor.value
   if (!el) return 720
   const rect = el.getBoundingClientRect()
-  // 좌우 패딩 28px 가정(네 스타일 기준)
   return Math.max(320, Math.min(720, Math.round(rect.width - 28)))
 }
 let _onResize
@@ -220,7 +214,6 @@ function clampImagesToContainer () {
     let w = wrap.clientWidth
     if (w > containerW) {
       w = containerW
-      // width/height 속성 우선 → 없으면 natural 기준
       const wAttr = parseInt(img.getAttribute('width'))
       const hAttr = parseInt(img.getAttribute('height'))
       const ratio = (wAttr && hAttr) ? (wAttr / hAttr)
@@ -240,7 +233,6 @@ function clampImagesToContainer () {
   })
 }
 
-// ✅ 수정된 insertFromTray 함수 (초기 크기 설정 보강)
 function insertFromTray(p) {
   const wrap = document.createElement('div')
   wrap.className = 'image-wrapper'
@@ -248,19 +240,16 @@ function insertFromTray(p) {
   wrap.contentEditable = 'false'
 
   const containerW = getEditorWidth()
-  // 초기 폭을 컨테이너 폭과 임시 저장된 p.width, 자연 폭 중 작은 값으로 설정 (최대 폭 제한)
-  const naturalW   = p.file ? Math.round(p.width * p.ratio) : 99999
-  const initW      = Math.min(containerW, p.width || containerW, naturalW)
-  const initH      = Math.round(initW / (p.ratio || 1))
+  const initW = containerW
+  const initH = Math.round(initW / (p.ratio || 1))
 
   Object.assign(wrap.style, {
     position: 'relative',
-    display: 'inline-block',
     maxWidth: '100%',
     resize: 'both',
     overflow: 'auto',
-    width: initW + 'px',   // 래퍼의 초기 크기 설정
-    height: initH + 'px',  // 래퍼의 초기 크기 설정
+    width: initW + 'px',
+    height: initH + 'px',
   })
 
   const img = document.createElement('img')
@@ -268,8 +257,8 @@ function insertFromTray(p) {
   img.draggable = false
 
   Object.assign(img.style, {
-    width:  initW + 'px', // 이미지의 초기 크기 설정
-    height: initH + 'px', // 이미지의 초기 크기 설정
+    width:  initW + 'px',
+    height: initH + 'px',
     display: 'block',
     maxWidth: '100%'
   })
@@ -278,26 +267,88 @@ function insertFromTray(p) {
   del.type = 'button'
   del.className = 'img-del'
   del.textContent = '×'
-  del.onclick = () => removePending(p.id)
+  del.onclick = (e) => { e.stopPropagation(); removePending(p.id); }; // 이벤트 버블링 방지
 
-  wrap.append(img, del)
+  const resizeHandleLeft = document.createElement('div');
+  resizeHandleLeft.className = 'resize-handle resize-handle-left';
+
+  const resizeHandleRight = document.createElement('div');
+  resizeHandleRight.className = 'resize-handle resize-handle-right';
+
+  wrap.append(img, del, resizeHandleLeft, resizeHandleRight);
+
   enableResizable(wrap, img, p)
   insertAtCaret(wrap)
   editor.value?.focus()
 }
 
-// 기존 enableResizable 유지 (이미 클램프 로직이 잘 되어 있음)
 function enableResizable(wrap, img, p) {
-  // 최초 값 저장 (insertFromTray에서 이미 설정되므로 여기서는 생략 가능하지만, 안전하게 다시 설정)
-  const initW = parseInt(img.style.width) || getEditorWidth()
-  p.width  = initW
-  p.height = Math.round(initW / (p.ratio || 1))
+  // 리사이즈 핸들 드래그 로직
+  let isResizing = false;
+  let startX, startWidth;
+
+  wrap.querySelectorAll('.resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', (e) => {
+      e.stopPropagation(); // 에디터 클릭 이벤트 방지
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = wrap.clientWidth;
+
+      const currentTransform = getComputedStyle(wrap).transform;
+      const matrix = new DOMMatrixReadOnly(currentTransform);
+      const currentTranslateX = matrix.m41;
+
+      const onMouseMove = (moveEvent) => {
+        if (!isResizing) return;
+        moveEvent.preventDefault();
+
+        let deltaX = moveEvent.clientX - startX;
+        let newWidth = startWidth + deltaX;
+        let newTranslateX = currentTranslateX;
+
+        if (handle.classList.contains('resize-handle-left')) {
+          newWidth = startWidth - deltaX;
+          newTranslateX = currentTranslateX + deltaX;
+        }
+
+        const containerW = getEditorWidth();
+        const clampedWidth = Math.max(240, Math.min(newWidth, containerW));
+
+        if (handle.classList.contains('resize-handle-left')) {
+          const diff = startWidth - clampedWidth;
+          wrap.style.transform = `translateX(${currentTranslateX + diff / 2}px)`;
+
+        } else if (handle.classList.contains('resize-handle-right')) {
+          const diff = clampedWidth - startWidth;
+          wrap.style.transform = `translateX(${currentTranslateX + diff / 2}px)`;
+        }
+
+        const h = Math.round(clampedWidth / (p.ratio || 1));
+
+        wrap.style.width = clampedWidth + 'px';
+        wrap.style.height = h + 'px';
+        img.style.width = clampedWidth + 'px';
+        img.style.height = h + 'px';
+
+        p.width = clampedWidth;
+        p.height = h;
+      };
+
+      const onMouseUp = () => {
+        isResizing = false;
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+  });
 
   const ro = new ResizeObserver(() => {
     const containerW = getEditorWidth()
     const wantedW    = wrap.clientWidth
 
-    // 컨테이너 폭, 최소 폭(240px)으로 클램프
     const w = Math.max(240, Math.min(wantedW, containerW))
     const h = Math.round(w / (p.ratio || 1))
 
@@ -307,8 +358,17 @@ function enableResizable(wrap, img, p) {
     img.style.height = h + 'px'
 
     p.width  = w
-    p.height = h
-  })
+    p.height = h;
+
+    const currentMarginLeft = parseFloat(getComputedStyle(wrap).marginLeft);
+    const parentWidth = wrap.parentNode ? wrap.parentNode.clientWidth : containerW;
+    if (parentWidth && wrap.clientWidth < parentWidth) {
+      const newTransformX = (parentWidth - wrap.clientWidth) / 2;
+      wrap.style.transform = `translateX(${newTransformX - currentMarginLeft}px)`;
+    } else {
+      wrap.style.transform = 'none';
+    }
+  });
   ro.observe(wrap)
 }
 async function buildHtmlWithUploadedImages () {
@@ -329,7 +389,6 @@ async function buildHtmlWithUploadedImages () {
         }
       })
   );
-  // 2) 에디터 복제 → img[data-id]를 S3 URL로 교체
   const clone = editor.value.cloneNode(true);
 
   clone.querySelectorAll('.image-wrapper').forEach((wrap) => {
@@ -338,7 +397,6 @@ async function buildHtmlWithUploadedImages () {
     const s3Url = idToUrl[id];
 
     if (!img || !id || !s3Url) {
-      // 업로드 실패나 데이터 문제 시 해당 래퍼 제거 (또는 미리보기 유지)
       wrap.remove();
       return;
     }
@@ -353,9 +411,8 @@ async function buildHtmlWithUploadedImages () {
     if (renderedH)  clean.setAttribute('height', renderedH);
     clean.setAttribute('loading', 'lazy');
     clean.style.maxWidth = '100%';
-
-    // .image-wrapper의 인라인 스타일을 새로운 <figure> 등으로 교체하거나, 간단히 img로 대체
-    // 여기서는 래퍼 자체를 img로 대체하고 인라인 width/height를 속성으로 옮깁니다.
+    clean.style.display = 'block';
+    clean.style.margin = '0 auto';
     wrap.replaceWith(clean);
   });
 
@@ -463,7 +520,11 @@ onMounted(async () => {
   cursor: pointer
 }
 .img-del{
-  position:absolute; top:6px; right:6px; width:26px; height:26px;
+  position:absolute;
+  top:6px;
+  left: 50%; /* 중앙 */
+  transform: translateX(-50%);
+  width:26px; height:26px;
   border:none; border-radius:50%; background:#dc3545; color:#fff; cursor:pointer;
   z-index:3;
 }
@@ -520,12 +581,48 @@ onMounted(async () => {
   image-rendering: auto;
   -webkit-user-drag: none;
 }
-.image-wrapper { max-width: 100%; }
-.image-wrapper img {
+.image-wrapper {
   max-width: 100%;
-  width: auto; /* ✅ 수정됨: 고정 폭 제거 */
-  height: auto;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  overflow: visible;
   border: 1px dashed #ced4da;
 }
+.image-wrapper img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  display: block; /* 이미지 자체도 블록 요소로 */
+  margin: 0 auto; /* 이미지 자체도 중앙 정렬 */
+}
+
+.resize-handle {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: #007bff;
+  border: 1px solid #fff;
+  z-index: 5;
+  opacity: 0.5;
+  cursor: grab;
+}
+.resize-handle:hover {
+  opacity: 1;
+}
+
+.resize-handle-left {
+  left: -7px;
+  top: 50%;
+  transform: translateY(-50%); /* 세로 중앙 정렬 */
+  cursor: ew-resize; /* 좌우 리사이즈 커서 */
+}
+.resize-handle-right {
+  right: -7px; /* 래퍼의 오른쪽 가장자리 밖으로 절반 정도 나오게 */
+  top: 50%;
+  transform: translateY(-50%); /* 세로 중앙 정렬 */
+  cursor: ew-resize; /* 좌우 리사이즈 커서 */
+}
+
 
 </style>
