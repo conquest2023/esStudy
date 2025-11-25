@@ -63,6 +63,7 @@
           <div class="thumb" v-for="p in pendingFiles" :key="p.id">
             <img :src="p.url" :alt="p.file?.name || 'preview'">
             <button type="button" class="thumb-del" @click="removePending(p.id)">×</button>
+            <button type="button" class="thumb-insert" @click.stop="insertFromTray(p)">삽입</button>
           </div>
         </div>
       </div>
@@ -100,7 +101,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {useUserStore} from "@/stores/user.js";
-
+import {onBeforeUnmount, nextTick } from 'vue'
 const router           = useRouter()
 const anonymous        = ref(false)
 const username         = ref('')
@@ -129,78 +130,30 @@ const onEditorInput    = () => checkEditorEmpty()
 
 
 
-// 기존 handleFiles 교체
+// 기존 handleFiles 유지
 async function handleFiles (e) {
   const list = e.target?.files ? Array.from(e.target.files) : Array.from(e)
   const remain = MAX_IMAGES - pendingFiles.value.length
-  if (remain <= 0) {
-    toast(`이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있어요.`)
-    resetChooser()
-    return
-  }
+  if (remain <= 0) { toast(`이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있어요.`); resetChooser(); return }
 
   const chosen = list.slice(0, remain)
-  if (list.length > remain) {
-    toast(`최대 ${MAX_IMAGES}장까지 가능: ${remain}장만 추가됩니다.`)
-  }
+  if (list.length > remain) toast(`최대 ${MAX_IMAGES}장까지 가능: ${remain}장만 추가됩니다.`)
 
   for (const file of chosen) {
     if (!file.type.startsWith('image/')) continue
     const id  = crypto.randomUUID()
     const url = URL.createObjectURL(file)
+    const img = new Image()
+    await new Promise(r => { img.onload = r; img.src = url })
 
-    // 미리보기 이미지 (비율 고정)
-    const img = document.createElement('img')
-    img.src = url
-    img.dataset.id = id
-    Object.assign(img.style, {
-      display: 'block',
-      maxWidth: '100%',
-      width: '480px',   // 기본 표시 폭
-      height: 'auto',   // 🔑 비율 유지
-      margin: '10px 0'
-    })
-
-    // 래퍼 (삭제 버튼만 유지, resize 핸들 제거)
-    const wrap = document.createElement('div')
-    wrap.className = 'image-wrapper'
-    wrap.dataset.id = id
-    wrap.contentEditable = 'false'
-    Object.assign(wrap.style, {
-      position: 'relative',
-      display: 'block'
-    })
-
-    const del = document.createElement('button')
-    del.type = 'button'
-    del.textContent = '×'
-    Object.assign(del.style, {
-      position:'absolute', top:'4px', right:'4px',
-      width:'26px', height:'26px',
-      background:'#dc3545', color:'#fff', border:'none',
-      borderRadius:'50%', cursor:'pointer'
-    })
-    del.onclick = () => removePending(id)
-
-    wrap.append(img, del)
-
-    // 커서 뒤에 삽입 (에디터 UX)
-    insertAtCaret(wrap)
-    editor.value?.append(document.createElement('br'))
-
-    // 자연 크기 읽어 비율 저장
-    await imgDecode(img)
-    const natW = img.naturalWidth || 1
-    const natH = img.naturalHeight || 1
     pendingFiles.value.push({
       id, file, url,
-      width: img.clientWidth,
-      height: img.clientHeight,
-      ratio: natW / natH
+      width: 480, // 초기 임시 폭
+      height: Math.round(480 * (img.naturalHeight / img.naturalWidth)), // 초기 임시 높이
+      ratio: img.naturalWidth / img.naturalHeight
     })
   }
-
-  resetChooser() // 같은 파일 재선택 가능하게 초기화
+  resetChooser()
 }
 function imgDecode(img){
   return img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
@@ -209,18 +162,16 @@ function imgDecode(img){
 // 커서 위치에 노드 삽입
 function insertAtCaret(node) {
   const sel = window.getSelection()
-  if (!sel || !sel.rangeCount) {
-    editor.value?.appendChild(node)
-    return
+
+  editor.value?.appendChild(node)
+
+  if (sel) {
+    const range = document.createRange()
+    range.setStartAfter(node)
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
   }
-  const range = sel.getRangeAt(0)
-  range.collapse(false)
-  range.insertNode(node)
-  // 커서 wrap 뒤로
-  range.setStartAfter(node)
-  range.setEndAfter(node)
-  sel.removeAllRanges()
-  sel.addRange(range)
 }
 // 파일 입력 초기화
 function resetChooser(){
@@ -244,9 +195,122 @@ function removePending(id){
 function filesDropped (files) {
   handleFiles(files)
 }
+function getEditorWidth () {
+  // 에디터 실제 컨텐츠 폭(패딩 감안)
+  const el = editor.value
+  if (!el) return 720
+  const rect = el.getBoundingClientRect()
+  // 좌우 패딩 28px 가정(네 스타일 기준)
+  return Math.max(320, Math.min(720, Math.round(rect.width - 28)))
+}
+let _onResize
+onMounted(async () => {
+  _onResize = () => clampImagesToContainer()
+  window.addEventListener('resize', _onResize)
+  await nextTick()
+  clampImagesToContainer()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', _onResize)
+})
+function clampImagesToContainer () {
+  const containerW = getEditorWidth()
+  editor.value?.querySelectorAll('.image-wrapper').forEach(wrap => {
+    const img = wrap.querySelector('img'); if (!img) return
+    let w = wrap.clientWidth
+    if (w > containerW) {
+      w = containerW
+      // width/height 속성 우선 → 없으면 natural 기준
+      const wAttr = parseInt(img.getAttribute('width'))
+      const hAttr = parseInt(img.getAttribute('height'))
+      const ratio = (wAttr && hAttr) ? (wAttr / hAttr)
+          : (img.naturalWidth && img.naturalHeight ? (img.naturalWidth / img.naturalHeight) : 1)
 
+      const h = Math.round(w / (ratio || 1))
+      wrap.style.width = w + 'px'
+      wrap.style.height = h + 'px'
+      img.style.width = w + 'px'
+      img.style.height = h + 'px'
 
+      // pendingFiles에도 반영(업로드 시 올바른 크기 전송)
+      const id = wrap.dataset.id
+      const p = pendingFiles.value.find(x => x.id === id)
+      if (p) { p.width = w; p.height = h }
+    }
+  })
+}
 
+// ✅ 수정된 insertFromTray 함수 (초기 크기 설정 보강)
+function insertFromTray(p) {
+  const wrap = document.createElement('div')
+  wrap.className = 'image-wrapper'
+  wrap.dataset.id = p.id
+  wrap.contentEditable = 'false'
+
+  const containerW = getEditorWidth()
+  // 초기 폭을 컨테이너 폭과 임시 저장된 p.width, 자연 폭 중 작은 값으로 설정 (최대 폭 제한)
+  const naturalW   = p.file ? Math.round(p.width * p.ratio) : 99999
+  const initW      = Math.min(containerW, p.width || containerW, naturalW)
+  const initH      = Math.round(initW / (p.ratio || 1))
+
+  Object.assign(wrap.style, {
+    position: 'relative',
+    display: 'inline-block',
+    maxWidth: '100%',
+    resize: 'both',
+    overflow: 'auto',
+    width: initW + 'px',   // 래퍼의 초기 크기 설정
+    height: initH + 'px',  // 래퍼의 초기 크기 설정
+  })
+
+  const img = document.createElement('img')
+  img.src = p.url
+  img.draggable = false
+
+  Object.assign(img.style, {
+    width:  initW + 'px', // 이미지의 초기 크기 설정
+    height: initH + 'px', // 이미지의 초기 크기 설정
+    display: 'block',
+    maxWidth: '100%'
+  })
+
+  const del = document.createElement('button')
+  del.type = 'button'
+  del.className = 'img-del'
+  del.textContent = '×'
+  del.onclick = () => removePending(p.id)
+
+  wrap.append(img, del)
+  enableResizable(wrap, img, p)
+  insertAtCaret(wrap)
+  editor.value?.focus()
+}
+
+// 기존 enableResizable 유지 (이미 클램프 로직이 잘 되어 있음)
+function enableResizable(wrap, img, p) {
+  // 최초 값 저장 (insertFromTray에서 이미 설정되므로 여기서는 생략 가능하지만, 안전하게 다시 설정)
+  const initW = parseInt(img.style.width) || getEditorWidth()
+  p.width  = initW
+  p.height = Math.round(initW / (p.ratio || 1))
+
+  const ro = new ResizeObserver(() => {
+    const containerW = getEditorWidth()
+    const wantedW    = wrap.clientWidth
+
+    // 컨테이너 폭, 최소 폭(240px)으로 클램프
+    const w = Math.max(240, Math.min(wantedW, containerW))
+    const h = Math.round(w / (p.ratio || 1))
+
+    wrap.style.width = w + 'px'
+    wrap.style.height = h + 'px'
+    img.style.width = w + 'px'
+    img.style.height = h + 'px'
+
+    p.width  = w
+    p.height = h
+  })
+  ro.observe(wrap)
+}
 async function buildHtmlWithUploadedImages () {
   const idToUrl = {};
 
@@ -268,24 +332,31 @@ async function buildHtmlWithUploadedImages () {
   // 2) 에디터 복제 → img[data-id]를 S3 URL로 교체
   const clone = editor.value.cloneNode(true);
 
-  clone.querySelectorAll('img[data-id]').forEach((img) => {
-    const id = img.dataset.id;
+  clone.querySelectorAll('.image-wrapper').forEach((wrap) => {
+    const img = wrap.querySelector('img');
+    const id = wrap.dataset.id;
     const s3Url = idToUrl[id];
 
-    // 원본 렌더 폭 기반 width/height 계산(가능하면 유지)
+    if (!img || !id || !s3Url) {
+      // 업로드 실패나 데이터 문제 시 해당 래퍼 제거 (또는 미리보기 유지)
+      wrap.remove();
+      return;
+    }
+
     const renderedW = Math.round(img.clientWidth || parseInt(img.style.width) || img.naturalWidth || 0);
     const ratio = (pendingFiles.value.find(p => p.id === id)?.ratio) || (img.naturalWidth ? img.naturalWidth / (img.naturalHeight || 1) : 0);
     const renderedH = renderedW && ratio ? Math.round(renderedW / ratio) : (img.naturalHeight || 0);
 
     const clean = document.createElement('img');
-    clean.src = s3Url || img.src; // 업로드 실패 시라도 미리보기 유지
+    clean.src = s3Url;
     if (renderedW)  clean.setAttribute('width', renderedW);
     if (renderedH)  clean.setAttribute('height', renderedH);
     clean.setAttribute('loading', 'lazy');
     clean.style.maxWidth = '100%';
 
-    // data-id 등 미리보기 전용 속성 제거
-    img.replaceWith(clean);
+    // .image-wrapper의 인라인 스타일을 새로운 <figure> 등으로 교체하거나, 간단히 img로 대체
+    // 여기서는 래퍼 자체를 img로 대체하고 인라인 width/height를 속성으로 옮깁니다.
+    wrap.replaceWith(clean);
   });
 
   return clone.innerHTML;
@@ -391,12 +462,28 @@ onMounted(async () => {
   color: #555;
   cursor: pointer
 }
+.img-del{
+  position:absolute; top:6px; right:6px; width:26px; height:26px;
+  border:none; border-radius:50%; background:#dc3545; color:#fff; cursor:pointer;
+  z-index:3;
+}
 .thumb-tray { border:1px solid #e5e7eb; border-radius:8px; padding:8px; background:#fafafa }
 .tray-head { font-size:.9rem; color:#666; margin-bottom:6px; display:flex; justify-content:space-between }
 .thumbs { display:flex; gap:8px; flex-wrap:wrap }
 .thumb { position:relative; width:84px; height:84px; border-radius:8px; overflow:hidden; background:#fff; border:1px solid #e5e7eb }
 .thumb img { width:100%; height:100%; object-fit:cover }
-.thumb-del { position:absolute; top:2px; right:2px; width:22px; height:22px; border:none; border-radius:50%; background:#dc3545; color:#fff; cursor:pointer }
+.thumb-del {
+  position:absolute;
+  top:2px; right:2px;
+  width:22px; height:22px;
+  border:none;
+  border-radius:50%; background:#dc3545;
+  color:#fff; cursor:pointer
+}
+.thumb-del, .thumb-insert {
+  position:absolute; right:4px; border:none; border-radius:12px; cursor:pointer;
+  z-index: 2;
+}
 .content-editor {
   min-height: 230px;
   padding: 14px;
@@ -426,20 +513,18 @@ onMounted(async () => {
 }
 
 .image-wrapper img {
-  border: 1px dashed #ced4da;
-  width: 400px;
-  max-width: 100%
+  image-rendering:auto; -webkit-user-drag:none; pointer-events:none;
 }
 .image-wrapper img,
 .content-editor img {
   image-rendering: auto;
   -webkit-user-drag: none;
 }
-
+.image-wrapper { max-width: 100%; }
 .image-wrapper img {
   max-width: 100%;
-  width: 480px;
-  height: auto;  /* 🔑 중요 */
+  width: auto; /* ✅ 수정됨: 고정 폭 제거 */
+  height: auto;
   border: 1px dashed #ced4da;
 }
 

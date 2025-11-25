@@ -49,7 +49,6 @@ public class PostServiceImpl implements PostService {
 
     private final PollService pollService;
 
-    private final S3Uploader s3Uploader;
 
     private final PostImageRepository imageRepository;
 

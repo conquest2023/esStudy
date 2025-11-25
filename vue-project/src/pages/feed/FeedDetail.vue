@@ -586,15 +586,27 @@ async function loadReplies(postId) {
 async function loadFeedDetail(postId) {
   try {
     loaded.value = false
-    const { data } = await api.get(`/post/${postId}`)
+    const {data} = await api.get(`/post/${postId}`)
     hasPoll.value = data?.ok?.hasPoll ?? false
     if (hasPoll.value && data.ok.poll) {
       postDetailStore.setDetail({
+
         post: data.ok.post,
         poll: data.ok.poll,
       })
-
-      router.replace({
+   try{
+      fetch('/api/view/count', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({id})
+      }).catch(e => console.error('조회수 증가 실패', e))
+    } catch (e)
+    {
+      console.error(e)
+      router.replace('/')
+    }
+    router.replace({
         name: 'PollDetail',
         params: { id: data.ok.post.id || postId },
       })
