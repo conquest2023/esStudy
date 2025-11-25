@@ -2,6 +2,7 @@ package es.board.repository.entity.feed;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
@@ -28,6 +29,7 @@ public class PostEntity {
 //    @Column(name = "feed_id")
 //    private String feedUID;
 
+
     @Column(name = "user_id")
     private String userId;
 
@@ -53,7 +55,9 @@ public class PostEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-//    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL,
+
+
+    //    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL,
 //            orphanRemoval = true,
 //            fetch = FetchType.LAZY)
 //    private PollEntity poll;

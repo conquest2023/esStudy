@@ -1,13 +1,20 @@
 package es.board.service;
 
 import es.board.controller.model.dto.feed.NoticeDTO;
+import es.board.controller.model.dto.feed.PostDTO;
+import es.board.repository.entity.feed.PostEntity;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public interface NoticeService {
 
-    NoticeDTO.Request getLatestNotice();
+    PostDTO.Response getLatestNotice();
 
-    NoticeDTO.Request getDetailNotice(Long id);
+    PostDTO.Response getDetailNotice(Long id);
 
+
+    Page<PostEntity> getNoticeList(int page , int size, String category);
 
     void createNotice(String userId, NoticeDTO.Request noticeDTO);
 }

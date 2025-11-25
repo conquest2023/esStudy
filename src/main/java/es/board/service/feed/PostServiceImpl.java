@@ -1,6 +1,5 @@
 package es.board.service.feed;
 
-import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
@@ -15,7 +14,6 @@ import es.board.repository.entity.repository.infrastructure.poll.PollRepository;
 import es.board.service.domain.Post;
 import es.board.service.point.PointService;
 import es.board.service.poll.PollService;
-import es.board.util.ResizeImage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +79,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
         postEntity.applyFrom(update.getTitle(), update.getDescription(), LocalDateTime.now());
         Post domain = Post.toDomain(postEntity);
-        return PostDomainMapper.toRequest(postEntity.getUserId(), domain);
+        return PostDomainMapper.toResponse(postEntity.getUserId(), domain);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class PostServiceImpl implements PostService {
         Optional<PollEntity> pollOpt = pollRepository.findByPostId(postId);
         PostEntity postEntity = queryRepository.findPostDetail(postId);
         Post post = Post.toDomain(postEntity);
-        PostDTO.Response postDto = PostDomainMapper.toRequest(userId, post);
+        PostDTO.Response postDto = PostDomainMapper.toResponse(userId, post);
         if (pollOpt.isEmpty()) {
             return PostDetailResponse.builder()
                     .post(postDto)

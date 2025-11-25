@@ -17,6 +17,13 @@ import java.util.List;
 @Repository
 public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
 
+
+    @Query("""
+        select p
+        from PostEntity p
+        where not exists (select 1 from NoticeEntity n where n.post = p)
+        order by p.createdAt desc
+        """)
     Page<PostEntity> findAll(Pageable pageable);
 
 

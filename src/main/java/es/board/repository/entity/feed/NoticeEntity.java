@@ -27,19 +27,20 @@ public class NoticeEntity {
     private  String userId;
 
 
-//    @OneToOne
-//    @JoinColumn(name = "post_id")
-//    private Post post;
-
-    private  String  category;
-
-    @Column(nullable = false, length = 255)
-    private String title;
-
-    private String description;
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "post_id", nullable = false, unique = true)
+    private PostEntity post;
 
 
-    private String username;
+//    private  String  category;
+//
+//    @Column(nullable = false, length = 255)
+//    private String title;
+//
+//    private String description;
+//
+//
+//    private String username;
 
 //    @Column(name = "image_url")
 //    private String  imageURL;

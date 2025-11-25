@@ -45,7 +45,7 @@ public class Post {
         this.modifiedAt=updateAt;
     }
 
-    public Post( String userId, String username, String title, String description, String category, int viewCount, boolean anonymous, LocalDateTime createdAt) {
+    public Post( String userId, String username, String title, String description, String category, int viewCount, LocalDateTime createdAt) {
 //        this.id = id;
         this.userId = userId;
         this.username = username;
@@ -54,7 +54,7 @@ public class Post {
         this.category = category;
         this.viewCount = viewCount;
 //        this.likeCount = likeCount;
-        this.anonymous = anonymous;
+//        this.anonymous = anonymous;
         this.createdAt = createdAt;
     }
 

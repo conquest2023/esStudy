@@ -82,59 +82,59 @@ public class FeedMapper {
 //                .build();
 //    }
 
-    public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
-        return notice.stream()
-                .map(notice1 -> NoticeDTO.Request.builder()
-                        .id(notice1.getId())
-//                        .feedUID(notice1.getFeedUID())
-                        .username(notice1.getUsername())
-                        .title(notice1.getTitle())
-                        .description(notice1.getDescription())
-                        .createdAt(notice1.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-    }
+//    public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
+//        return notice.stream()
+//                .map(notice1 -> NoticeDTO.Request.builder()
+//                        .id(notice1.getId())
+////                        .feedUID(notice1.getFeedUID())
+//                        .username(notice1.getUsername())
+//                        .title(notice1.getTitle())
+//                        .description(notice1.getDescription())
+//                        .createdAt(notice1.getCreatedAt())
+//                        .build())
+//                .collect(Collectors.toList());
+//    }
 
-    public NoticeDTO.Request fromNotice(NoticeEntity notice) {
+    public static NoticeDTO.Request toNoticeDto(NoticeEntity notice) {
         return NoticeDTO.Request.builder()
-                .id(notice.getId())
-                .category(notice.getCategory())
-                .title(notice.getTitle())
-//                .imageURL(notice.getImageURL())
-                .description(notice.getDescription().replace("\\n", "\n"))
-                .username(notice.getUsername())
-                .createdAt(notice.getCreatedAt())
+//                .id(notice.getId())
+//                .category(notice.getCategory())
+//                .title(notice.getTitle())
+////                .imageURL(notice.getImageURL())
+//                .description(notice.getDescription().replace("\\n", "\n"))
+//                .username(notice.getUsername())
+//                .createdAt(notice.getCreatedAt())
 //                .updatedAt(notice.getUpdatedAt())
                 .build();
     }
 
-    public NoticeEntity toNotice(NoticeDTO.Request notice, String userId) {
-        return NoticeEntity.builder()
-                .id(notice.getId())
-//                .feedUID(feedUID)
-                .category("공지사항")
-                .userId(userId)
-                .title(notice.getTitle())
-                .description(notice.getDescription().replace("\\n", "\n"))
-//                .imageURL(notice.getImageURL())
-                .username("관리자")
-                .createdAt(LocalDateTime.now())
-                .build();
+    public static NoticeEntity toNoticeEntity(NoticeDTO.Request notice, String userId) {
+        return NoticeEntity.builder().build();
+//                .id(notice.getId())
+////                .feedUID(feedUID)
+//                .category("공지사항")
+//                .userId(userId)
+//                .title(notice.getTitle())
+//                .description(notice.getDescription().replace("\\n", "\n"))
+////                .imageURL(notice.getImageURL())
+//                .username("관리자")
+//                .createdAt(LocalDateTime.now())
+//                .build();
     }
 
-    public NoticeDTO.Request fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
-        return NoticeDTO.Request.builder()
-                .id(notice.getId())
-                .username("관리자")
-                .feedUID(feedUID)
-                .category("공지사항")
-                .userId(userId)
-                .title(notice.getTitle())
-                .description(notice.getDescription().replace("\\n", "\n"))
-//                .imageURL(notice.getImageURL())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
+//    public NoticeDTO.Request fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
+//        return NoticeDTO.Request.builder()
+//                .id(notice.getId())
+//                .username("관리자")
+//                .feedUID(feedUID)
+//                .category("공지사항")
+//                .userId(userId)
+//                .title(notice.getTitle())
+//                .description(notice.getDescription().replace("\\n", "\n"))
+////                .imageURL(notice.getImageURL())
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//    }
 
     public Vote toVoteEntity(VoteDTO.Request voteResponse, String  username, String userId) {
         return Vote.builder()

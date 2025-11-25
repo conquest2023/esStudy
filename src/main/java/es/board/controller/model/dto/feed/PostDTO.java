@@ -68,6 +68,16 @@ public class PostDTO {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
         private LocalDateTime modifiedAt;
 
+        public Response(int id, String username, String title, String description, String category, int viewCount, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+            this.id = id;
+            this.username = username;
+            this.title = title;
+            this.description = description;
+            this.category = category;
+            this.viewCount = viewCount;
+            this.createdAt = createdAt;
+            this.modifiedAt = modifiedAt;
+        }
     }
     @Data
     @AllArgsConstructor
@@ -112,6 +122,8 @@ public class PostDTO {
         @JsonIgnore
         @JsonSerialize(using = XssSafeSerializer.class)
         private List<MultipartFile> imageFiles =new ArrayList<>();
+
+
 
 
         public Request(String username, String title, String category, String description) {

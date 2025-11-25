@@ -218,6 +218,7 @@ const sorts = [
   { id: 'REPLY',   label: '답글순' },
   { id: 'VIEW',    label: '조회순' },
 ]
+
 const curSort = ref('ALL')
 const sortLabel = computed(() => sorts.find(s => s.id === curSort.value)?.label ?? '정렬')
 function changeSort(id) {
@@ -232,7 +233,7 @@ const TABS = [
   { id: 'BEST',   label: '이번주 인기글',  url: '/posts/popular/week' },
   { id: 'VOTE',   label: '투표',          url: '/search/view/vote/page' },
   { id: 'DATA',   label: '학습 자료',      url: '/data/feed', requiresCategory: true },
-  { id: 'NOTICE', label: '공지사항',       url: '/notice/feed' },
+  { id: 'NOTICE', label: '공지사항',       url: '/notices', category: '공지사항' },
   { id: 'QNA',    label: 'Q&A',           url: '/data/feed', category: 'Q/A' },
 ]
 const dataCategories  = ['자료', '기술', '취업', '자격증']
@@ -243,8 +244,6 @@ const targetPath = computed(() =>
         ? `/notice/detail/${props.post.id}`
         : `/post/${props.post.id}`
 )
-
-
 const loading    = ref(false)
 const page       = ref(0)
 const totalPage  = ref(0)
@@ -341,46 +340,57 @@ async function fetchFeeds(newPage = page.value) {
   if (tab.id === 'ALL') return fetchFeedsAll(newPage)
 
   loading.value = true
-  page.value = newPage-1
-  router.replace({ query: { ...route.query, page: newPage } })
 
-  const params = { page: newPage, size: 10 }
+  // 1-based (UI) 페이지 번호 설정 및 쿼리 업데이트
+  const uiPage = Number(newPage) || 1
+  page.value = uiPage
+  router.replace({ query: { ...route.query, page: uiPage } })
+
+  // 0-based (Server) 페이지 번호 계산
+  const zeroBasedPage = Math.max(0, uiPage - 1)
+  const params = { page: zeroBasedPage, size: 10 }
+
   if (tab.category) params.category = tab.category
   if (tab.id === 'DATA') params.category = selectedCategory.value
 
+  // 정렬 옵션 추가 (ALL 탭 외의 다른 탭에서도 정렬이 필요한 경우)
+  if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') {
+    params.sort = curSort.value
+  }
+
   try {
-    if (tab.id === 'BEST') {
-      const uiPage = Number(newPage) || 1
-      page.value = uiPage
-
-      router.replace({ query: { ...route.query, page: uiPage } })
-
-      const params = {
-        page: uiPage - 1,
-        size: 10
-      }
-      const { data } = await api.get(tab.url, { params })
-      const payload    = data?.ok ?? data ?? {}
-      const content    = payload.posts    ?? payload.data   ?? []
-      const totalPages = payload.totalPages ?? payload.totalPage ?? 0
-      const countsMap  = payload.count ?? {}
-
-      posts.value     = Array.isArray(content) ? content : []
-      totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
-      counts.value    = countsMap
-      notices.value   = []
-      return
-    }
-
     const { data } = await api.get(tab.url, { params })
 
-    posts.value     = data.data ?? data ?? []
-    counts.value    = data.count ?? {}
-    totalPage.value = data.totalPage ?? Math.ceil(posts.value.length / 10)
+    // 서버 응답에서 Page 객체 형태의 공통 데이터 파싱
+    const payload    = data?.ok ?? data ?? {}
+    const content    = payload.content    ?? payload.data   ?? []
+    const totalPages = payload.totalPages ?? payload.totalPage ?? 0
 
+    // 데이터 초기화
+    posts.value = []
     notices.value = []
+    counts.value = {}
+    likeCounts.value = {}
+
+    if (tab.id === 'NOTICE') {
+      notices.value = Array.isArray(content) ? content : []
+    } else {
+      posts.value = Array.isArray(content) ? content : []
+
+      if (payload.count) {
+        counts.value = payload.count
+      }
+      // TODO: BEST 탭 외의 다른 탭에서 좋아요/댓글 카운트를 별도로 가져와야 한다면, 여기에 추가 API 호출 필요
+    }
+
+    totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
+
   } catch (err) {
     console.error(`${tab.label} 로딩 실패`, err)
+    posts.value = []
+    notices.value = []
+    counts.value = {}
+    totalPage.value = 0
   } finally {
     loading.value = false
   }

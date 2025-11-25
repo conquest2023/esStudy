@@ -59,7 +59,7 @@ async function submitNotice() {
   }
 
   try {
-    await axios.post('/api/add/notice', formData, {
+    await axios.post('/api/notice', formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',

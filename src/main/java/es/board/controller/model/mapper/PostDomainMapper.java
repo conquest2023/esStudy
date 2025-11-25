@@ -47,7 +47,7 @@ public class PostDomainMapper {
                     dto.getDescription(),
                     dto.getCategory(),
                     0,
-                    dto.isAnonymous(),
+//                    dto.isAnonymous(),
                     createdAt
             );
         }
@@ -62,7 +62,7 @@ public class PostDomainMapper {
 
 
     /** Domain → Response DTO (주로 수정/재전송 용도로 필요 시) */
-    public static PostDTO.Response toRequest(String userId, Post d) {
+    public static PostDTO.Response toResponse(String userId, Post d) {
         if (d == null) return null;
         return PostDTO.Response.builder()
                 .id(d.getId())

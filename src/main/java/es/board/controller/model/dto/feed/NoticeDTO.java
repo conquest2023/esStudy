@@ -21,23 +21,48 @@ public class NoticeDTO {
     @AllArgsConstructor
     public static class Request {
 
-        private Long id;
-
-
         private String userId;
 
         private String title;
+
+        private String description;
+
 
         private String category;
 
         private int viewCount;
 
-        private String imageURL;
+        private String username;
+
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+        private LocalDateTime createdAt;
+
+        private LocalDateTime updatedAt;
+
+    }
 
 
-        private String feedUID;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Response {
+
+        private Long id;
+
+        private String userId;
+
+        private String title;
 
         private String description;
+
+
+        private String category;
+
+        private int viewCount;
 
         private String username;
 
