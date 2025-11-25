@@ -142,7 +142,6 @@ const activeUsers = computed(() => visitorStats.value.active)
 const todayUsers  = computed(() => visitorStats.value.today)
 const totalUsers  = computed(() => visitorStats.value.total)
 let loadedOnce = false
-
 onMounted(() => {
   if (!loadedOnce) {
     sb.loadLive()
@@ -157,9 +156,10 @@ const route      = useRoute()
 const isFeedMain = computed(() => route.path === '/')
 
 let timer = null
-onBeforeUnmount(() => clearInterval(timer))
+onBeforeUnmount(
+    () => clearInterval(timer)
+)
 
-/* ▣ 헬퍼 */
 const statusIcon = s => (s === 'DONE' ? '✅' : s === 'IN_PROGRESS' ? '⏳' : '📝')
 const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
 </script>

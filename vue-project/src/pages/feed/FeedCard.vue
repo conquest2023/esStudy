@@ -28,7 +28,10 @@
 
       <!-- 메타 정보 -->
       <div class="feed-meta">
-        <span class="feed-meta__item">{{ post.username }}</span>
+      <span class="feed-meta__item">
+        <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
+        {{ post.username }}
+      </span>
         <span class="feed-meta__dot">·</span>
         <span class="feed-meta__item">{{ time }}</span>
 
@@ -48,8 +51,12 @@
 </template>
 
 <script setup>
+import {useRankIcon} from "@/composables/useRankIcon.js";
+
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import {useSidebarStore} from "@/stores/sidebar.js";
+import {storeToRefs} from "pinia";
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -61,10 +68,21 @@ const props = defineProps({
   page: { type: Number, default: 1 }
 })
 
+const { rankIcon } = useRankIcon()
 const router = useRouter()
-
-// 목록에서 투표카드 판별: id 없으면 투표 카드로 간주 (기존 로직 유지)
 const isVoteCard = computed(() => !props.notice && !props.post?.id)
+const sb = useSidebarStore()
+const { topWriters } = storeToRefs(sb)
+const userRankIndex = computed(() => {
+  if (!topWriters.value || !props.post.username) {
+    return -1
+  }
+  const index = topWriters.value.findIndex(
+      writer => writer.username === props.post.username
+  )
+
+  return index
+})
 
 const time = computed(() => {
   const raw = props.post?.createdAt
@@ -101,7 +119,6 @@ function goToDetail () {
 </script>
 
 <style scoped>
-/* 전체 한 줄(row) 스타일 */
 .feed-row {
   padding: 0.75rem 0.4rem;
   border-bottom: 1px solid #f1f3f5;
@@ -119,7 +136,6 @@ function goToDetail () {
   background: #f8fafc;
 }
 
-/* 공지 스타일 */
 .feed-row--notice {
   background: #fff9e7;
   border-bottom-color: #f6e3b3;
@@ -129,7 +145,6 @@ function goToDetail () {
   background: #fff4cf;
 }
 
-/* 투표 카드 스타일 (살짝 강조) */
 .feed-row--vote .feed-title {
   color: #15803d;
 }

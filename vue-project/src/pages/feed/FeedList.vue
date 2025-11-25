@@ -53,7 +53,6 @@
 
         <div class="board-wrap">
           <SearchBar class="mb-4" />
-
           <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-3" />
           <div v-if="activeTab === 'DATA'" class="category-bar">
             <button
@@ -95,7 +94,6 @@
                       :page="page"
                       :posts="posts" />
           </div>
-
           <div class="d-flex justify-content-center mt-5">
             <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
             <Spinner v-if="loading" />
@@ -117,12 +115,10 @@ import Pagination from '@/common/Pagination.vue'
 import BoardTabs from '@/components/BoardTabs.vue'
 import FeedCard from '@/pages/feed/FeedCard.vue'
 import Spinner from '@/components/Spinner.vue'
+import {useRankIcon} from "@/composables/useRankIcon.js";
 
-/* ───── 상태 ───── */
 const route = useRoute()
 const router = useRouter()
-
-/* ▣ 추천 글 */
 const recommendPosts = ref([])
 const showSidebar = ref(false)
 
@@ -136,7 +132,6 @@ const showSidebar = ref(false)
 //   }
 // })
 const likeCounts = ref({})
-/* ▣ 면접 질문 */
 const itQs = ref([])
 const genQs = ref([])
 const curCat = ref('IT')
@@ -145,7 +140,7 @@ const answerInput = ref('')
 const isInterviewOpen = ref(false)
 const curArr = computed(() => (curCat.value === 'IT' ? itQs.value : genQs.value))
 const curQuestion = computed(() => curArr.value[curIdx.value] ?? null)
-
+const { rankIcon } = useRankIcon()
 function changeCat(cat) {
   curCat.value = cat
   curIdx.value = 0

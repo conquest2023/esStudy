@@ -193,13 +193,13 @@ public class InterviewServiceImpl implements InterviewService {
             log.info("{}님은 오늘 인터뷰 작성 포인트 한도를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId,username);
+        createPointHistory(userId);
         log.info("인터뷰 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
     }
-    public void createPointHistory(String userId,String username) {
+    public void createPointHistory(String userId) {
         PointHistoryEntity history = PointHistoryEntity.builder()
                 .userId(userId)
-                .username(username)
+//                .username(username)
                 .pointChange(15)
                 .reason("면접대답")
                 .createdAt(LocalDateTime.now())

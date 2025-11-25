@@ -59,7 +59,7 @@
 
           <div class="post-meta-row small">
             <RouterLink :to="`/user/profile/${feed.username}`" class="post-author-link text-decoration-none d-inline-flex align-items-center">
-              <span class="badge-rank me-1">{{ rankBadge(feed.username) }}</span>
+              <span v-if="userRankIndex !== -1" class="me-1">{{ rankIcon(userRankIndex) }}</span>
               <span class="fw-semibold">{{ feed.username }}</span>
             </RouterLink>
             <span class="dot">·</span>
@@ -111,19 +111,13 @@
       </div>
 
       <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item d-flex">
-        <!-- 아바타 -->
-        <div class="comment-avatar d-none d-sm-flex">
-          <span>{{ (c.username || '?').charAt(0).toUpperCase() }}</span>
-        </div>
-
-        <!-- 본문 -->
         <div class="comment-body flex-grow-1">
           <div class="d-flex justify-content-between align-items-start">
             <div class="comment-meta">
               <RouterLink
                   :to="`/user/profile/${c.username}`"
                   class="comment-author text-decoration-none">
-                <span class="badge-rank me-1">{{ rankBadge(c.username) }}</span>
+                <span class="me-1">{{ rankBadge(c.username) }}</span>
                 <span class="fw-semibold">{{ c.username }}</span>
                 <span v-if="c.author" class="badge-author ms-1">글쓴이</span>
                 <span v-if="c.owner" class="badge-author ms-1">작성자</span>
@@ -190,7 +184,7 @@
                   <RouterLink
                       :to="`/user/profile/${rp.username}`"
                       class="comment-author text-decoration-none">
-                    <span class="badge-rank me-1">{{ rankBadge(rp.username) }}</span>
+                    <span class="me-1">{{ rankBadge(rp.username) }}</span>
                     <span class="fw-semibold">{{ rp.username }}</span>
                     <span v-if="rp.author" class="badge-author ms-1">글쓴이</span>
                     <span v-if="rp.owner" class="badge-author ms-1">작성자</span>
@@ -221,7 +215,6 @@
                     삭제
                   </button>
 
-                  <!-- 🔥 답글 좋아요 버튼 -->
                   <button
                       class="btn btn-link btn-sm text-danger p-0 d-inline-flex align-items-center"
                       @click="() => toggleLike('REPLY', rp.id)"
@@ -318,6 +311,9 @@ import PrevNextButtons from '@/components/PrevNextButtons.vue'
 import { useUserStore } from '@/stores/user'
 import { usePostDetailStore } from '@/stores/postDetail'
 import { RouterLink } from 'vue-router'
+import {storeToRefs} from "pinia";
+import {useRankIcon} from "@/composables/useRankIcon.js";
+import {useSidebarStore} from "@/stores/sidebar.js";
 const route   = useRoute()
 const router  = useRouter()
 const store   = useUserStore()
@@ -327,6 +323,7 @@ const feed       = ref({})
 const replyEditTexts = ref({})
 const replyEditMode  = ref({})
 const likeStates = ref({})
+const { rankIcon } = useRankIcon()
 const feedHtml   = ref('')
 const comments = ref([])
 const hasPoll = ref(false)
@@ -351,7 +348,34 @@ const pageParam = computed(() => {
   const q = parseInt(route.query.page ?? '0', 10)
   return Number.isNaN(q) ? 0 : q        // 잘못된 값이면 0
 })
+const sb = useSidebarStore()
+const { topWriters } = storeToRefs(sb)
 
+const userRankIndex = computed(() => {
+  const username = feed.value.username
+  if (!topWriters.value || !username) {
+    return -1
+  }
+  const index = topWriters.value.findIndex(
+      writer => writer.username === username
+  )
+  return index
+})
+function getRankIconForUser(username) {
+  if (!topWriters.value || !username) {
+    return ''
+  }
+
+  const index = topWriters.value.findIndex(
+      writer => writer.username === username
+  )
+
+  return index !== -1 ? rankIcon(index) : ''
+}
+
+function rankBadge(username) {
+  return getRankIconForUser(username)
+}
 function convertLinks(txt = '') {
   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
     const prev = str.slice(Math.max(0, offset - 5), offset)
@@ -535,11 +559,7 @@ function formatDate(dateTimeString) {
 const fmtDate = formatDate
 
 const dateText = computed(() => formatDate(feed.value.createdAt))
-const topWriters = JSON.parse(localStorage.getItem('topWriters')||'{}')
-function rankBadge(name){
-  const r = topWriters[name]||0
-  return r===1?'👑':r===2?'🥇':r===3?'🥈':r>0&&r<=5?'🥉':''
-}
+
 async function loadComments(postId) {
 
   const { data } = await api.get('/comments', { params: { postId } })
@@ -664,7 +684,11 @@ async function loadFeedDetail(postId) {
     router.replace('/')
   }
 }
-onMounted(() => loadFeedDetail(route.params.id))
+onMounted(
+    () => loadFeedDetail(route.params.id)
+
+
+)
 const likeKey = (targetType, targetId) => `${targetType}-${targetId}`
 
 function ensureLikeState(targetType, targetId, initialCount = 0, initialLiked = false) {

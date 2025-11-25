@@ -296,9 +296,7 @@ const menus = [
         </li>
       </ul>
 
-      <!-- 오른쪽 영역: 알림, 테마, 글쓰기, 유저 -->
       <div class="d-flex align-items-center ms-auto gap-3 position-relative">
-        <!-- 알림 -->
         <div class="position-relative me-2">
           <i
               class="fas fa-bell fa-lg bell-trigger"
@@ -365,7 +363,6 @@ const menus = [
                   </router-link>
                 </div>
 
-                <!-- 버튼 그룹 -->
                 <div class="btn-group btn-group-sm ms-1 flex-shrink-0">
                   <button
                       class="btn btn-outline-success btn-sm"
@@ -394,7 +391,6 @@ const menus = [
               <div>최근 7일 이내 알림이 없습니다</div>
             </div>
 
-            <!-- 전체 보기 버튼 -->
             <div class="text-center px-3 py-2 border-top">
               <button
                   class="btn w-100 py-2 fw-semibold shadow-sm border-0 text-white"
@@ -412,12 +408,10 @@ const menus = [
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
 
-        <!-- 글쓰기 -->
         <button class="btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
           글쓰기
         </button>
 
-        <!-- 로그인 / 유저 메뉴 -->
         <template v-if="user.isLoggedIn">
           <div class="position-relative user-menu-trigger" @click.stop="showUserMenu = !showUserMenu">
             <button class="btn btn-outline-secondary btn-sm">
@@ -482,11 +476,10 @@ const menus = [
   color: #2563eb;
 }
 .user-menu-dropdown {
-  right: 0;          /* 버튼 오른쪽에 붙고 */
-  left: auto;        /* 왼쪽 고정 해제 */
-  transform: translateX(-5%);  /* 전체를 왼쪽으로 40% 정도 이동 */
+  right: 0;
+  left: auto;
+  transform: translateX(-5%);
 }
-/* 드롭다운 (카드형 메뉴) */
 .dropdown-menu {
   border-radius: 14px !important;
   padding: 12px !important;

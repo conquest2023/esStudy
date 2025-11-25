@@ -23,7 +23,8 @@ public class PointHistoryEntity {
     @Column(name = "user_id", nullable = false)
     private String userId;
 
-    private  String  username;
+//    @Transient
+//    private  String  username;
 
     @Column(name = "point_change", nullable = false)
     private int pointChange;
@@ -35,7 +36,7 @@ public class PointHistoryEntity {
     private LocalDateTime createdAt;
 
     public PointHistoryEntity(String username, Long pointSum) {
-        this.username=username;
+//        this.username=username;
         this.pointChange = pointSum.intValue();
     }
 }

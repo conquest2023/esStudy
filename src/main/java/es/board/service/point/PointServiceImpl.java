@@ -29,7 +29,7 @@ public class PointServiceImpl implements PointService {
 
     private  final RedisTemplate redisTemplate;
 
-    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
+    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEY";
 
 
     @Override
@@ -82,6 +82,9 @@ public class PointServiceImpl implements PointService {
 
     private List<TopWriter> getWriters() {
         List<UserPointProjection> pointHistories = repository.sumPointUserTop5();
+        for (UserPointProjection pointHistory : pointHistories) {
+            log.info(String.valueOf(pointHistory.getTotalCount()));
+        }
         List<TopWriter> list = pointHistories.stream().map(p -> new TopWriter(p.getUsername(),
                 p.getTotalCount())).toList();
         return list;

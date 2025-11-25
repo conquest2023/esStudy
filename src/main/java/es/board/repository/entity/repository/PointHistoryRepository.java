@@ -22,10 +22,11 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
     @Query("select sum(p.pointChange) from PointHistoryEntity p where p.userId=:userId")
     int sumPointUser(@Param("userId") String userId);
 
-    @Query("SELECT sum(u.pointChange) as totalCount, " +
+    @Query("SELECT sum(p.pointChange) as totalCount, " +
             "u.username as username " +
-            "FROM PointHistoryEntity u " +
-            "WHERE u.username NOT IN ('asd', 'hoeng') " +
+            "FROM PointHistoryEntity p " +
+            " inner join User  u on p.userId = u.userId " +
+            " WHERE u.username NOT IN ('asd', 'hoeng') " +
             "GROUP BY u.username " +
             "ORDER BY totalCount DESC " +
             "LIMIT 5")
@@ -33,7 +34,10 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
 
 
 
-    @Query("SELECT new es.board.repository.entity.PointHistoryEntity(u.username, sum(u.pointChange)) FROM PointHistoryEntity u GROUP BY u.username")
+    @Query("SELECT new es.board.repository.entity.PointHistoryEntity(u.username, sum(p.pointChange))" +
+            " FROM PointHistoryEntity p" +
+            " inner join User u where u.userId=p.userId" +
+            " GROUP BY u.username")
     List<PointHistoryEntity> findByUserAllId();
 
 }

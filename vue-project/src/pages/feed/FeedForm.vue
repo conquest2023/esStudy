@@ -159,7 +159,6 @@ function imgDecode(img){
 
 function insertAtCaret(node) {
   const sel = window.getSelection()
-
   editor.value?.appendChild(node)
   const newLine = document.createElement('br');
   editor.value?.appendChild(newLine);

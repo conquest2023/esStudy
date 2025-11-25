@@ -186,14 +186,14 @@ public class ToDoServiceImpl implements ToDoService {
                 log.info("{}님은 오늘 Todo 작성 포인트 한도를 초과했습니다.", userId);
                 return;
             }
-            createPointHistory(userId,username);
+            createPointHistory(userId);
             log.info("Todo 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
         }
 
-        public void createPointHistory(String userId,String username) {
+        public void createPointHistory(String userId) {
             PointHistoryEntity history = PointHistoryEntity.builder()
                     .userId(userId)
-                    .username(username)
+//                    .username(username)
                     .pointChange(5)
                     .reason("Todo")
                     .createdAt(LocalDateTime.now())

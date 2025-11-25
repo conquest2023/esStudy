@@ -11,8 +11,6 @@
       >
         {{ tab.label }}
       </button>
-
-      <!-- 하이라이트 바 -->
       <div class="highlight-bar" :style="highlightStyle"></div>
     </div>
   </div>

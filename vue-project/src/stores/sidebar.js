@@ -56,7 +56,6 @@ export const useSidebarStore = defineStore('sidebar', {
             if (this._liveLoaded) return
             if (this._liveInFlight) return this._liveInFlight
 
-
             this._liveLoaded = true
 
             this._liveInFlight = (async () => {
@@ -83,4 +82,5 @@ export const useSidebarStore = defineStore('sidebar', {
             return this._liveInFlight
         }
     }
+
 })

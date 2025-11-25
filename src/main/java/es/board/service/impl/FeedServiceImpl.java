@@ -121,14 +121,15 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<TopWriter> getTopWriters() {
-        ValueOperations<String, List<TopWriter>> valueOps = redisTemplate.opsForValue();
-        List<TopWriter> cachedData = valueOps.get(TOP5_USER_KEY);
-        if (cachedData != null) {
-            return cachedData;
-        }
-        List<TopWriter> topWriters = getWriters();
-        valueOps.set(TOP5_USER_KEY, topWriters, 3, TimeUnit.HOURS);
-        return topWriters;
+//        ValueOperations<String, List<TopWriter>> valueOps = redisTemplate.opsForValue();
+//        List<TopWriter> cachedData = valueOps.get(TOP5_USER_KEY);
+//        if (cachedData != null) {
+//            return cachedData;
+//        }
+//        List<TopWriter> topWriters = getWriters();
+//        valueOps.set(TOP5_USER_KEY, topWriters, 3, TimeUnit.HOURS);
+//        return topWriters;
+        return  null;
     }
 
     @Override
@@ -410,36 +411,36 @@ public class FeedServiceImpl implements FeedService {
             log.info("{}님은 오늘 피드 작성 포인트 한도(5개)를 초과했습니다.", userId);
             return;
         }
-        createPointHistory(userId,username);
+        createPointHistory(userId);
         log.info("피드 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
         }
-        public void createPointHistory(String userId,String username) {
+        public void createPointHistory(String userId) {
            PointHistoryEntity history = PointHistoryEntity.builder()
                     .userId(userId)
                     .pointChange(3)
-                    .username(username)
+//                    .username(username)
                     .reason("피드")
                     .createdAt(LocalDateTime.now())
                     .build();
             pointHistoryRepository.save(history);
         }
 
-    private List<TopWriter> getWriters() {
-        List<TopWriter> topWriters = feedDAO.findTopWriters();
-        List<PointHistoryEntity> pointHistories = pointHistoryRepository.findByUserAllId();
-        Map<String, Integer> pointMap = pointHistories.stream()
-                .collect(Collectors.toMap(PointHistoryEntity::getUsername,
-                                        PointHistoryEntity::getPointChange));
-        for (TopWriter writer : topWriters) {
-            Integer points = pointMap.get(writer.getUsername());
-            if (points != null) {
-                writer.setTotalCount(writer.getTotalCount() + points);
-            }
-        }
-        topWriters.sort(Comparator.comparingDouble(TopWriter::getTotalCount).reversed());
-
-        return topWriters;
-    }
+//    private List<TopWriter> getWriters() {
+//        List<TopWriter> topWriters = feedDAO.findTopWriters();
+//        List<PointHistoryEntity> pointHistories = pointHistoryRepository.findByUserAllId();
+//        Map<String, Integer> pointMap = pointHistories.stream()
+//                .collect(Collectors.toMap(PointHistoryEntity::getUsername,
+//                                        PointHistoryEntity::getPointChange));
+//        for (TopWriter writer : topWriters) {
+//            Integer points = pointMap.get(writer.getUsername());
+//            if (points != null) {
+//                writer.setTotalCount(writer.getTotalCount() + points);
+//            }
+//        }
+//        topWriters.sort(Comparator.comparingDouble(TopWriter::getTotalCount).reversed());
+//
+//        return topWriters;
+//    }
 
 //    @Scheduled(cron = "0 0 * * * *") // 매 시 정각
 //    public void cleanUnusedImages() {
