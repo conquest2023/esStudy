@@ -153,45 +153,37 @@ async function loadComments() {
   stats.value[1].value = data.totalCountComment ?? 0
 }
 
-/* 3. 댓글 단 게시물 */
 async function loadCommentedPosts() {
   const { data } = await api.get(`/mypage/post/comment/paging?page=${page.value}&size=${size.value}`, auth())
   commentedPosts.value = data.all
   totalPages.value = data.totalPages ?? 1
 }
 
-/* 4. 좋아요 한 글 */
 async function loadLikedPosts() {
   const { data } = await api.get(`/mypage/feed/like/paging?page=${page.value}&size=${size.value}`, auth())
   likedPosts.value = data.likedFeedList
   totalPages.value = data.totalPages ?? 1
 }
 
-/* 5. 북마크한 문제 */
 async function loadBookmarks() {
   const { data } = await api.get(`/get/daily/bookmark?page=${page.value}&size=${size.value}`, auth())
   bookmarkedQuestions.value = data.bookmarks
   totalPages.value = data.totalPages ?? 1
 }
 
-// Authorization 헤더
 function auth() {
   return { headers: { Authorization: `Bearer ${token}` } }
 }
 
-// 탭 바뀌면 page 초기화하고 리스트 다시 불러오기
 watch(activeTab, () => {
   page.value = 0
   loadPage()
 })
-
-// 페이지 변경 시 API 갱신
 function changePage(newPage) {
   page.value = newPage
   loadPage()
 }
 
-// 초기 로딩
 onMounted(async () => {
   if (!token) return
   await fetchUserInformation()

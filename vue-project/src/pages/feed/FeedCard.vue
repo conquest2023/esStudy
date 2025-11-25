@@ -182,7 +182,6 @@ function goToDetail () {
   color: #b91c1c;
 }
 
-/* 메타 정보 라인 */
 .feed-meta {
   margin-top: 0.15rem;
   font-size: 0.78rem;
@@ -202,12 +201,10 @@ function goToDetail () {
   color: #d1d5db;
 }
 
-/* 좋아요 색 */
 .text-like {
   color: #ef4444 !important;
 }
 
-/* 모바일 대응 */
 @media (max-width: 576px) {
   .feed-row {
     padding: 0.65rem 0.25rem;

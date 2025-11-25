@@ -361,12 +361,10 @@ async function fetchFeeds(newPage = page.value) {
   try {
     const { data } = await api.get(tab.url, { params })
 
-    // 서버 응답에서 Page 객체 형태의 공통 데이터 파싱
     const payload    = data?.ok ?? data ?? {}
     const content    = payload.content    ?? payload.data   ?? []
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
 
-    // 데이터 초기화
     posts.value = []
     notices.value = []
     counts.value = {}
@@ -450,16 +448,6 @@ watch(activeTab, () =>
   z-index: 1060 !important;
 }
 
-.slide-enter-active, .slide-leave-active {
-  transition: transform 0.3s ease-in-out;
-}
-.slide-enter-from, .slide-leave-to {
-  transform: translateX(-100%);
-}
-.slide-enter-to, .slide-leave-from {
-  transform: translateX(0);
-}
-
 
 .nav-pills .nav-item {
   margin-right: 0.5rem;
@@ -508,9 +496,6 @@ textarea.form-control:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rg
 }
 @media (max-width: 992px) {
   .mobile-sidebar { transition: transform 0.3s ease-in-out; }
-  .slide-enter-active, .slide-leave-active { transition: transform 0.3s ease-in-out; }
-  .slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
-  .slide-enter-to, .slide-leave-from { transform: translateX(0); }
 }
 /* ▣ 정렬 바 */
 .sort-bar .btn.active { background: #0d6efd; color: #fff; }
