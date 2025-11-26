@@ -27,15 +27,8 @@ public class ReplyController {
     private final TokenValidator tokenValidator;
     @PostMapping("/reply")
     public ResponseEntity<?> saveReply(
-            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestAttribute("userId") String userId,
             @RequestBody ReplyDTO.Response response){
-
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        String userId = provider.getUserId(token.substring(7));
-
         replyService.saveReply(userId,response);
 
 
@@ -47,20 +40,17 @@ public class ReplyController {
 
     @GetMapping("/replys")
     public ResponseEntity<?> getReplys(
-            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestAttribute("userId") String userId,
             @RequestParam int postId
     ){
-        String currentUserId = checkToken(token);
-
-        List<ReplyDTO.Request> replies = replyService.getReplys(currentUserId,postId);
+        List<ReplyDTO.Request> replies = replyService.getReplys(userId,postId);
         return ResponseEntity.ok(Map.of("ok",replies));
     }
 
     @PutMapping("reply/{id}")
     public ResponseEntity<?> updateReply(@PathVariable long id,
-                                         @RequestHeader(value = "Authorization") String token,
+                                         @RequestAttribute("userId") String userId,
                                          @RequestBody ReplyDTO.Update update){
-        checkToken(token);
         ReplyDTO.Request reply = replyService.updateReply(id, update);
         return ResponseEntity.ok(Map.of("reply",reply));
     }

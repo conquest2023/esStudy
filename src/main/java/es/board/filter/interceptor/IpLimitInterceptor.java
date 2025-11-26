@@ -40,8 +40,16 @@ public class IpLimitInterceptor implements HandlerInterceptor {
     private static final String VISIT_KEY_PREFIX = "visit:";
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String currentUserId = null;
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            String jwt =token.substring(7);
+            currentUserId = jwtTokenProvider.getUserId(jwt);
+        }
+        request.setAttribute("userId", currentUserId);
         String uri = request.getRequestURI();
-        if (uri.startsWith("/api/top-writers") ||
+        String ipAddress = getClientIpAddress(request);
+        if ("127.0.0.1".equals(ipAddress) || uri.startsWith("/api/top-writers") ||
                 uri.startsWith("/api/get-ip") ||
                 uri.startsWith("/api/day") ||
                 uri.startsWith("/api/interview/aggregation") ||
@@ -51,6 +59,9 @@ public class IpLimitInterceptor implements HandlerInterceptor {
                 uri.startsWith("/api/civil") ||
                 uri.startsWith("/api/auth/status")||
                 uri.startsWith("/api/info") ||
+                uri.startsWith("/api/likes") ||
+                uri.startsWith("/api/like/detail") ||
+                uri.startsWith("/api/like/count") ||
                 uri.startsWith("/api/replys") ||
                 uri.startsWith("/api/comments") ||
                 uri.startsWith("/api/interview/test") ||
@@ -59,6 +70,7 @@ public class IpLimitInterceptor implements HandlerInterceptor {
                 uri.startsWith("/api/feeds") ||
                 uri.startsWith("/api/vote/detail") ||
                 uri.startsWith("/error") ||
+                uri.startsWith("/api/post/stats") ||
                 uri.startsWith("/api/post") ||
                 uri.startsWith("/api/subscribe") ||
                 uri.startsWith("/api/notifications/all") ||
@@ -67,22 +79,13 @@ public class IpLimitInterceptor implements HandlerInterceptor {
             log.info(uri);
             return true;
         }
-        String currentUserId = null;
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            String jwt = token.substring(7);
-            currentUserId = jwtTokenProvider.getUserId(jwt);
-        }
-
-        request.setAttribute("userId", currentUserId);
-        String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
         String userId = (token != null && token.startsWith("Bearer "))
                 ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
         String today = LocalDate.now().toString();
         String visitKey = VISIT_KEY_PREFIX + today + ":" + ipAddress;
         Boolean hasVisited = redisTemplate.hasKey(visitKey);
-        if (!"127.0.0.1".equals(ipAddress) && (hasVisited == null || !hasVisited)) {
+        if ((hasVisited == null || !hasVisited)) {
             redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));
             visitorService.saveIP(userId, ipAddress, userAgent);
             log.info("새로운 방문자 기록 - {} , {}", ipAddress ,visitKey);

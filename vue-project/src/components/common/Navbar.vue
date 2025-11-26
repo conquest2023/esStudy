@@ -50,16 +50,42 @@ async function fetchNotifications() {
     const { data } = await api.get('/notifications/recent', {
       headers: { Authorization: `Bearer ${token}` }
     })
-    notifications.value = data || []
-    const unread = notifications.value.filter(n => !n.isCheck).length
-    if (unread > 0) {
-      push('🔔 새로운 알림이 있습니다!')
+
+    // 알림 데이터를 초기화하고 저장합니다.
+    const fetchedNotifications = data || []
+    notifications.value = fetchedNotifications
+
+    console.log('가져온 알림:', fetchedNotifications)
+
+    // 1. 읽지 않은 알림만 필터링합니다.
+    let unreadNotifications = fetchedNotifications.filter(n => !n.isCheck)
+
+    unreadNotifications.sort((a, b) => {
+      return b.createdAt.localeCompare(a.createdAt)
+    })
+
+    const unreadCount = unreadNotifications.length
+
+    const pushCount = Math.ceil(unreadCount / 2)
+
+    if (pushCount > 0) {
+      const notificationsToPush = unreadNotifications.slice(0, pushCount)
+      notificationsToPush.forEach((notification) => {
+        const { username, message, createdAt } = notification
+        const time = new Date(createdAt).toLocaleTimeString('ko-KR', {
+          hour: '2-digit', minute: '2-digit'
+        })
+        const beautifulMessage = `(${time}) ${username}: ${message} `
+        const notificationBody = ``
+
+        push(`🔔 ${beautifulMessage}\n\n${notificationBody}`)
+      })
     }
+
   } catch (e) {
     console.error('알림 불러오기 실패', e)
   }
 }
-
 window.addEventListener('storage', e => {
   if (e.key === 'token') user.fetchMe()
 })

@@ -35,13 +35,9 @@ public class PostController {
     private final TokenValidator tokenValidator;
 
     @PostMapping("/post")
-    public ResponseEntity<?> savePost(@RequestHeader(value = "Authorization", required = false) String token,
+    public ResponseEntity<?> savePost(@RequestAttribute("userId") String userId,
                                       @RequestPart("feed")PostDTO.Request req){
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        String userId = provider.getUserId(token.substring(7));
+
         postService.savePost(userId,req);
         return ResponseEntity.ok(Map.of(
                 "ok", true,
@@ -51,11 +47,10 @@ public class PostController {
 
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<?> getPost(@RequestHeader(value = "Authorization", required = false) String token,
-            @PathVariable int id){
+    public ResponseEntity<?> getPost(@RequestAttribute("userId") String userId,
+                                     @PathVariable int id){
 
-        String currentUserId = checkToken(token);
-        PostDetailResponse postDetail = postService.findPostDetail(currentUserId, id);
+        PostDetailResponse postDetail = postService.findPostDetail(userId, id);
         return ResponseEntity.ok(Map.of("ok",postDetail));
     }
 
@@ -94,10 +89,9 @@ public class PostController {
     }
 
     @PutMapping("/post/{id}")
-    public ResponseEntity<?> updatePost(@RequestHeader(value = "Authorization", required = false) String token,
+    public ResponseEntity<?> updatePost(@RequestAttribute("userId") String userId,
                                         @PathVariable int id,
                                         @RequestBody PostDTO.Update update){
-        String userId = checkToken(token);
         PostDTO.Response updatePost= postService.updatePost(id,userId, update);
 
         return ResponseEntity.ok(Map.of("updatePost",updatePost));

@@ -75,16 +75,12 @@ public class NoticeController {
 
 
     @PostMapping("/notice")
-    public void createNotice(@RequestHeader(value = "Authorization") String token,
+    public void createNotice(@RequestAttribute("userId") String userId,
                              @ModelAttribute NoticeDTO.Request noticeDTO,
                              @RequestParam(required = false, value = "imageFile") MultipartFile file){
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                String userId=jwtTokenProvider.getUserId(token);
+
                 noticeService.createNotice(userId,noticeDTO);
             }
-        }
     }
 
 //    private void processFileUpload(MultipartFile file, NoticeDTO noticeDTO, String  userId) throws IOException {
@@ -93,4 +89,4 @@ public class NoticeController {
 //            noticeDTO.setImageURL(s3Uploader.upload(file,userId));
 //        }
 //    }
-}
+

@@ -87,7 +87,6 @@ public class CommonController {
         if (refreshToken != null) {
             String userId = jwtTokenProvider.getUserId(refreshToken);
             String storedRefresh = redis.opsForValue().get("RT:" + userId);
-
             if (storedRefresh != null && storedRefresh.equals(refreshToken)) {
                 String newAccessToken = jwtTokenProvider.generateAccessToken("user", jwtTokenProvider.getUsername(refreshToken), userId);
                 return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).body("자동 로그인 성공!");

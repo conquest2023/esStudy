@@ -30,11 +30,11 @@ public class NotificationController {
     private  final UserNotificationService userNotificationService;
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token) {
+    public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token,@RequestAttribute("userId") String userId) {
         if (token == null || token.isBlank()) {
             throw  new RuntimeException("토큰이 필요합니다");
         }
-        SseEmitter emitter = notificationService.subscribe(jwtTokenProvider.getUserId(token));
+        SseEmitter emitter = notificationService.subscribe(userId);
         return new ResponseEntity<>(emitter, HttpStatus.OK);
     }
 

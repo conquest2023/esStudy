@@ -24,16 +24,10 @@ public class CommentController {
 
     private final JwtTokenProvider provider;
 
-    private final TokenValidator tokenValidator;
     @PostMapping("/comment")
     public ResponseEntity<?> saveComment(
-            @RequestHeader(value = "Authorization") String token,
+            @RequestAttribute("userId") String userId,
             @RequestBody CommentDTO.Response response){
-        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
-            return tokenCheckResponse;
-        }
-        String userId = provider.getUserId(token.substring(7));
         commentService.saveComment(userId,response);
         return ResponseEntity.ok(Map.of(
                 "ok", true,
@@ -44,9 +38,8 @@ public class CommentController {
 
     @PutMapping("/comment/{id}")
     public ResponseEntity<?> updateComment(@PathVariable long id,
-                                           @RequestHeader(value = "Authorization") String token,
+                                           @RequestAttribute("userId") String userId,
                                            @RequestBody CommentDTO.Update update){
-        checkToken(token);
         CommentDTO.Request request = commentService.updateComment(id, update);
         return ResponseEntity.ok(Map.of("comment",request));
     }
@@ -54,17 +47,15 @@ public class CommentController {
 
     @GetMapping("/comments")
     public ResponseEntity<?> getComments(
-            @RequestHeader(value = "Authorization",required = false) String token,
+            @RequestAttribute("userId") String userId,
             @RequestParam int postId){
 
-        String currentUserId = checkToken(token);
-        List<CommentDTO.Request> comments = commentService.getComments(currentUserId,postId);
+        List<CommentDTO.Request> comments = commentService.getComments(userId,postId);
         return ResponseEntity.ok(Map.of("ok",comments));
     }
 
     @DeleteMapping("/comment/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable int id){
-        log.info("삭제완료={}",id);
         commentService.deleteComment(id);
         return ResponseEntity.ok(Map.of("ok",true,
                 "message","게시글이 삭제 되었습니다"
