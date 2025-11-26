@@ -2,17 +2,22 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollVoteDTO;
+import es.board.repository.entity.feed.PostEntity;
+import es.board.repository.entity.poll.PollEntity;
 import es.board.service.poll.PollService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -32,6 +37,30 @@ public class PollController {
         String username = provider.getUsername(token.substring(7));
         pollService.createPoll(username,userId,req);
         return ResponseEntity.ok(Map.of(200,"투표가 생성되었습니다"));
+    }
+
+    @GetMapping("/polls")
+    public ResponseEntity<?> getPostIds(@RequestParam int page, @RequestParam int size) {
+
+        Page<PostEntity> poll = pollService.getPollList(page, size);
+        List<PostDTO.Response> collect = poll.stream()
+                .map(o -> new PostDTO.Response(o.getId(),
+                        o.getUsername(),
+                        o.getTitle(),
+                        o.getDescription(),
+                        o.getCategory(),
+                        o.getViewCount(),
+                        o.getCreatedAt(),
+                        o.getModifiedAt()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(
+                Map.of(
+                        "page", poll.getNumber(),
+                        "size", poll.getSize(),
+                        "totalPages", poll.getTotalPages(),
+                        "totalElements", poll.getTotalElements(),
+                        "last", poll.isLast(),
+                        "content",collect));
     }
 
 

@@ -4,7 +4,6 @@
       <li :class="['page-item',{disabled:page===0}]" @click="emitPage(0)">
         <span class="page-link">&laquo;</span>
       </li>
-
       <li v-if="startPage > 0" class="page-item" @click="emitPage(startPage - 1)">
         <span class="page-link">&lsaquo;</span>
       </li>
@@ -14,7 +13,6 @@
           @click="emitPage(p)">
         <span class="page-link">{{ p + 1 }}</span>
       </li>
-
       <li v-if="endPage < totalPages - 1" class="page-item"
           @click="emitPage(endPage + 1)">
         <span class="page-link">&rsaquo;</span>

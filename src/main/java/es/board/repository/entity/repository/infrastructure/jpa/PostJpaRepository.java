@@ -39,7 +39,14 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     List<Integer> findPostIds(@Param("offset") int offset,
                               @Param("size") int size);
 
-
+    @Query(
+            value = "select p.id from post p where p.created_at>=:sevenDaysAgo  " +
+                    " order by p.view_count desc limit :size offset :offset",
+            nativeQuery = true
+    )
+    List<Integer> findBestWeekPostIds(@Param("offset") int offset,
+                                      @Param("size") int size,
+                                      @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
     @Query("select p from PostEntity p where p.userId=:userId")
     Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId);
 

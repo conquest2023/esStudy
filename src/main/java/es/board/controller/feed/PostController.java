@@ -32,7 +32,6 @@ public class PostController {
 
     private final JwtTokenProvider provider;
 
-    private final CommandQueryService commandQueryService;
     private final PostService postService;
 
     private final TokenValidator tokenValidator;
@@ -70,22 +69,31 @@ public class PostController {
                 "ids", ids));
     }
 
-    @GetMapping("/post/stats")
-    public ResponseEntity<?> getPostStats(@RequestParam int page, @RequestParam int size) {
-        List<PostStatsDTO> postStats = commandQueryService.getPostStats(page, size);
-        return ResponseEntity.ok(Map.of(
-                "stats", postStats));
-    }
 
 
     @GetMapping("/posts/popular/week")
     public ResponseEntity<?> getPopularPostsInLast7Weeks(@RequestParam int page, @RequestParam int size){
 
-        Page<PostEntity> popularPostsInLast7Weeks = postService.findPopularPostsInLast7Weeks(page, size);
+        Page<PostEntity> p = postService.findPopularPostsInLast7Weeks(page, size);
+
+        List<PostDTO.Response> collect = p.stream()
+                .map(o -> new PostDTO.Response(o.getId(),
+                        o.getUsername(),
+                        o.getTitle(),
+                        o.getDescription(),
+                        o.getCategory(),
+                        o.getViewCount(),
+                        o.getCreatedAt(),
+                        o.getModifiedAt()))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(
-                Map.of("totalPage",popularPostsInLast7Weeks.getTotalElements(),
-                            "posts",popularPostsInLast7Weeks.get().collect(Collectors.toList()))
-        );
+                Map.of(
+                        "page", p.getNumber(),
+                        "size", p.getSize(),
+                        "totalPages", p.getTotalPages(),
+                        "totalElements", p.getTotalElements(),
+                        "last", p.isLast(),
+                            "content",collect));
     }
 
     @PutMapping("/post/{id}")
@@ -101,8 +109,18 @@ public class PostController {
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
         Page<PostEntity> p = postService.findAllPosts(page, size);
+        List<PostDTO.Response> collect = p.stream()
+                .map(o -> new PostDTO.Response(o.getId(),
+                        o.getUsername(),
+                        o.getTitle(),
+                        o.getDescription(),
+                        o.getCategory(),
+                        o.getViewCount(),
+                        o.getCreatedAt(),
+                        o.getModifiedAt()))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(Map.of(
-                "content", p.getContent(),
+                "content", collect,
                 "page", p.getNumber(),
                 "size", p.getSize(),
                 "totalPages", p.getTotalPages(),
@@ -117,6 +135,7 @@ public class PostController {
                                         "message","게시글이 삭제 되었습니다"
         ));
     }
+
     @PostMapping("/view/count")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request,
                                                HttpServletResponse response,

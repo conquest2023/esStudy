@@ -40,9 +40,15 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
-    public List<Integer> findPostIds(int page,int size) {
-        return repository.findPostIds(page,size);
+    public List<Integer> findPostIds(int offset,int size) {
+        return repository.findPostIds(offset,size);
     }
+
+    @Override
+    public List<Integer> findBestWeekPostIds(int page, int size, LocalDateTime lastSevenDays) {
+        return repository.findBestWeekPostIds(page,size,lastSevenDays);
+    }
+
     @Override
     public Page<PostEntity> findByPagePosts(Pageable pageable) {
         return repository.findAll(pageable);

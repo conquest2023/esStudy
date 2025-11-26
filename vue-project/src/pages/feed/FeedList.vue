@@ -230,7 +230,7 @@ function changeSort(id) {
 const TABS = [
   { id: 'ALL',    label: '전체 글',        url: '/posts' },
   { id: 'BEST',   label: '이번주 인기글',  url: '/posts/popular/week' },
-  { id: 'VOTE',   label: '투표',          url: '/search/view/vote/page' },
+  { id: 'VOTE',   label: '투표',          url: '/polls' },
   { id: 'DATA',   label: '학습 자료',      url: '/data/feed', requiresCategory: true },
   { id: 'NOTICE', label: '공지사항',       url: '/notices', category: '공지사항' },
   { id: 'QNA',    label: 'Q&A',           url: '/data/feed', category: 'Q/A' },
@@ -285,7 +285,6 @@ async function fetchFeedsAll(newPage = page.value) {
     const uiPage = Number(newPage ?? 1)
     page.value = uiPage
     router.replace({ query: { ...route.query, page: uiPage } })
-
     const zeroBasedPage = Math.max(0, uiPage)
     const params = { page: zeroBasedPage, size: 10 }
     const { data } = await api.get('/posts', { params })
@@ -299,7 +298,7 @@ async function fetchFeedsAll(newPage = page.value) {
 
     const nextCounts = {}
     const nextLikeCounts = {}
-
+    fetchNotice()
     for (const stat of postStats) {
       if (stat.postId && stat.totalCommentCount !== undefined) {
         nextCounts[stat.postId] = stat.totalCommentCount
@@ -326,41 +325,71 @@ async function fetchFeedsAll(newPage = page.value) {
 
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
-  if (!tab) return
+  posts.value = []
+  notices.value = []
+  counts.value = {}
+  likeCounts.value = {}
+  if (!tab)
+    return
 
-  if (tab.id === 'ALL') return fetchFeedsAll(newPage)
-
+  if (tab.id === 'ALL') {
+    return fetchFeedsAll(newPage)
+  }
   loading.value = true
+  const zeroBasedPage = Number(newPage) || 0
+  page.value = zeroBasedPage
+  const uiPageForUrl = zeroBasedPage + 1;
+  router.replace({ query: { ...route.query, page: uiPageForUrl } })
 
-
-  const uiPage = Number(newPage) || 1
-  page.value = uiPage
-  router.replace({ query: { ...route.query, page: uiPage } })
-
-  // 0-based (Server) 페이지 번호 계산
-  const zeroBasedPage = Math.max(0, uiPage - 1)
-  const params = { page: zeroBasedPage, size: 10 }
-
+  const params = { page: zeroBasedPage, size: 10 } // P
   if (tab.category) params.category = tab.category
-  if (tab.id === 'DATA') params.category = selectedCategory.value
-
+  if (tab.id === 'DATA') {
+    params.category = selectedCategory.value
+  }
 
   if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') {
     params.sort = curSort.value
   }
-
   try {
     const { data } = await api.get(tab.url, { params })
-
     const payload    = data?.ok ?? data ?? {}
-    const content    = payload.content    ?? payload.data   ?? []
+    const content = payload.posts ?? payload.content ?? payload.data ?? []
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
+    if (tab.id === 'BEST') {
+      const { data: statsRes } = await api.get('/post/popular/stats', { params })
+      const postStats = statsRes.stats || []
+      const nextCounts = {}
+      const nextLikeCounts = {}
+      for (const stat of postStats) {
+        if (stat.postId && stat.totalCommentCount !== undefined) {
+          nextCounts[stat.postId] = stat.totalCommentCount
+        }
+        if (stat.postId && stat.likeCount !== undefined) {
+          nextLikeCounts[stat.postId] = stat.likeCount
+        }
+      }
+      counts.value = nextCounts
+      likeCounts.value = nextLikeCounts
 
-    posts.value = []
-    notices.value = []
-    counts.value = {}
-    likeCounts.value = {}
+    }
 
+    if (tab.id === 'VOTE') {
+      const { data: statsRes } = await api.get('/poll/stats', { params })
+      const postStats = statsRes.stats || []
+      const nextCounts = {}
+      const nextLikeCounts = {}
+      for (const stat of postStats) {
+        if (stat.postId && stat.totalCommentCount !== undefined) {
+          nextCounts[stat.postId] = stat.totalCommentCount
+        }
+        if (stat.postId && stat.likeCount !== undefined) {
+          nextLikeCounts[stat.postId] = stat.likeCount
+        }
+      }
+      counts.value = nextCounts
+      likeCounts.value = nextLikeCounts
+
+    }
     if (tab.id === 'NOTICE') {
       notices.value = Array.isArray(content) ? content : []
     } else {
@@ -369,9 +398,7 @@ async function fetchFeeds(newPage = page.value) {
       if (payload.count) {
         counts.value = payload.count
       }
-      // TODO: BEST 탭 외의 다른 탭에서 좋아요/댓글 카운트를 별도로 가져와야 한다면, 여기에 추가 API 호출 필요
     }
-
     totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
 
   } catch (err) {
@@ -384,7 +411,10 @@ async function fetchFeeds(newPage = page.value) {
     loading.value = false
   }
 }
-
+function goToNextPage() {
+  const nextPage = page.value + 1;
+  fetchFeeds(nextPage);
+}
 onMounted(() => {
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)

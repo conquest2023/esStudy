@@ -1,11 +1,15 @@
 package es.board.repository.entity.repository.infrastructure;
 
+import es.board.repository.entity.feed.PostEntity;
 import es.board.repository.entity.poll.PollEntity;
 import es.board.repository.entity.repository.infrastructure.jpa.PollJpaRepository;
 import es.board.repository.entity.repository.infrastructure.poll.PollRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -19,6 +23,16 @@ public class PollAdapterRepository implements PollRepository {
     public void save(PollEntity poll) {
 
         pollJpaRepository.save(poll);
+    }
+
+    @Override
+    public List<Integer> findPollIds(int offset, int size) {
+        return pollJpaRepository.findPollIds(offset,size);
+    }
+
+    @Override
+    public Page<PostEntity> findPollPagingList(Pageable pageable) {
+        return pollJpaRepository.findByPollPagingList(pageable);
     }
 
     @Override
