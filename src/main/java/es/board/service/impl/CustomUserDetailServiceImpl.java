@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.repository.entity.repository.UserRepository;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;

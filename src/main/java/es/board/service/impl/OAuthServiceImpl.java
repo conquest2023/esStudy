@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.dto.feed.OAuthInfo;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.OAuthSignUp;
-import es.board.repository.entity.user.OAuthUser;
+import es.board.infrastructure.entity.user.OAuthUser;
 import es.board.repository.entity.repository.OAuthRepository;
 import es.board.service.OAuthService;
 import lombok.RequiredArgsConstructor;

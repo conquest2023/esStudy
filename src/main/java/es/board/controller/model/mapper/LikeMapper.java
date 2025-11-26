@@ -1,8 +1,8 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.LikeDto;
-import es.board.repository.entity.feed.LikeEntity;
-import es.board.service.domain.Like;
+import es.board.infrastructure.entity.feed.LikeEntity;
+import es.board.domain.Like;
 
 import java.util.Collections;
 import java.util.List;

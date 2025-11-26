@@ -9,9 +9,9 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
 import es.board.repository.document.Board;
-import es.board.repository.entity.feed.PostImage;
+import es.board.infrastructure.entity.feed.PostImage;
 import es.board.repository.entity.PointHistoryEntity;
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.*;
 import es.board.service.FeedService;
 import es.board.service.NotificationService;
@@ -34,7 +34,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Builder

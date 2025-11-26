@@ -1,32 +1,17 @@
 package es.board.controller;
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.controller.model.jwt.JwtToken;
-import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
-import es.board.repository.document.Comment;
-import es.board.repository.entity.repository.infrastructure.projection.UserPointProjection;
-import es.board.repository.entity.repository.infrastructure.projection.UserPointSummary;
-import es.board.service.CommentIndexService;
-import es.board.service.FeedService;
 import es.board.service.AuthService;
-import es.board.service.point.PointService;
-import jakarta.servlet.http.HttpServletRequest;
+import es.board.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 @Slf4j
@@ -48,6 +33,11 @@ public class UserController {
         return ResponseEntity.ok(Map.of("top5",sumPoint));
     }
 
+    @PostMapping("/check")
+    public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpDTO sign) {
+        boolean isAvailable = userService.checkId(sign);
+        return ResponseEntity.ok(isAvailable);
+    }
 
 //    @GetMapping("/login")
 //    public String login() {
@@ -264,12 +254,6 @@ public class UserController {
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 //    }
-    @PostMapping("/check")
-    public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpDTO sign) {
-        boolean isAvailable = userService.checkId(sign);
-        return ResponseEntity.ok(isAvailable);
-    }
-
 
 //    @PostMapping("/login/pass")
 //    public String loginPass(Model model, LoginDTO response) {

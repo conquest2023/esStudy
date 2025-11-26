@@ -1,6 +1,6 @@
 package es.board.controller.model.dto.feed;
 
-import es.board.service.domain.enum_type.TargetType;
+import es.board.domain.enum_type.TargetType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

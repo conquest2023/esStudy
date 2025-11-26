@@ -3,10 +3,10 @@ package es.board.controller.model.mapper;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollOptionDTO;
 import es.board.controller.model.dto.poll.PollVoteDTO;
-import es.board.repository.entity.feed.PostEntity;
-import es.board.repository.entity.poll.PollEntity;
-import es.board.repository.entity.poll.PollOptionEntity;
-import es.board.repository.entity.poll.PollVoteEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
+import es.board.infrastructure.entity.poll.PollEntity;
+import es.board.infrastructure.entity.poll.PollOptionEntity;
+import es.board.infrastructure.entity.poll.PollVoteEntity;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;

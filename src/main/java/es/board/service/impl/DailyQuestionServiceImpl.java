@@ -7,7 +7,7 @@ import es.board.controller.model.dto.feed.DailyCheckDTO;
 import es.board.controller.model.dto.interview.DailyBookMark;
 import es.board.repository.entity.Bookmark;
 import es.board.repository.entity.DailyQuestion;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 import es.board.repository.entity.repository.BookMarkRepository;
 import es.board.repository.entity.repository.DailyQuestionRepository;
 import es.board.repository.entity.repository.UserRepository;

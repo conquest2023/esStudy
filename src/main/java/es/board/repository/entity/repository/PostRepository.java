@@ -1,6 +1,6 @@
 package es.board.repository.entity.repository;
 
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

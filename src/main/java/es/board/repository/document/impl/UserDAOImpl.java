@@ -9,7 +9,7 @@ import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.UserDAO;
 import es.board.repository.document.EsUser;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

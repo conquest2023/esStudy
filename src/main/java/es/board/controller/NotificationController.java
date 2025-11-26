@@ -29,19 +29,6 @@ public class NotificationController {
 
     private  final UserNotificationService userNotificationService;
 
-
-    private  final TokenValidator tokenValidator;
-
-    // 클라이언트가 SSE 연결을 요청할 때 호출됨
-//    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//    public SseEmitter subscribe(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        log.info(token);
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7);
-//        }
-//        return notificationService.subscribe(jwtTokenProvider.getUserId(token));
-//    }
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(@RequestParam("token") String token) {
         if (token == null || token.isBlank()) {

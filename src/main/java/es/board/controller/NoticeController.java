@@ -4,7 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 //import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

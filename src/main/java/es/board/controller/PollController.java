@@ -5,9 +5,8 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollVoteDTO;
-import es.board.repository.entity.feed.PostEntity;
-import es.board.repository.entity.poll.PollEntity;
-import es.board.service.poll.PollService;
+import es.board.infrastructure.entity.feed.PostEntity;
+import es.board.domain.poll.PollService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +85,6 @@ public class PollController {
                                        @RequestBody PollVoteDTO.MultiRequest req){
 
         String userId = checkToken(token);
-        log.info(req.toString());
         pollService.voteAll(userId,req);
         return ResponseEntity.ok(Map.of(200,"투표가 작성되었습니다"));
     }

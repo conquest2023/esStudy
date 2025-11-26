@@ -6,8 +6,8 @@ import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.repository.document.Board;
 import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
-import es.board.repository.entity.feed.NoticeEntity;
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.NoticeEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

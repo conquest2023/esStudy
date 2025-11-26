@@ -1,9 +1,8 @@
 package es.board.controller.model.mapper;
 
-import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.entity.Notification;
-import es.board.service.domain.Reply;
+import es.board.domain.Reply;
 
 import java.time.LocalDateTime;
 import java.util.List;

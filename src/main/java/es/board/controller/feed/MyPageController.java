@@ -1,13 +1,16 @@
 package es.board.controller.feed;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.repository.entity.feed.PostEntity;
-import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
-import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.controller.model.dto.feed.PostDTO;
+import es.board.infrastructure.entity.feed.PostEntity;
+import es.board.infrastructure.entity.user.User;
+import es.board.infrastructure.projection.MyCommentProjection;
+import es.board.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.AuthService;
 import es.board.service.MyPageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -39,10 +44,10 @@ public class MyPageController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 String username = jwtTokenProvider.getUsername(token);
-                String userId = userService.findById(username);
+                User user = userService.findByUser(username);
                 Map<String, Object> response = Map.of(
                         "username",username,
-                        "userId",userId
+                        "userId",user.getUserId()
                 );
                 return ResponseEntity.ok(response);
             }
@@ -71,7 +76,8 @@ public class MyPageController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                Page<PostEntity> myPageFeedList = myPageService.getMyPageFeedList(page, size, jwtTokenProvider.getUserId(token));
+                String userId = jwtTokenProvider.getUserId(token);
+                Page<PostEntity> myPageFeedList = myPageService.getMyPageFeedList(page,size, userId);
                 return ResponseEntity.ok(Map.of(
                         "totalCountPost",myPageFeedList.getTotalElements()
                         ,"totalPage",myPageFeedList.getTotalPages(),
@@ -81,7 +87,6 @@ public class MyPageController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
-
     @GetMapping("/mypage/comment/paging")
     public ResponseEntity<?> getMyPageComments(HttpServletRequest request,
                                              @RequestParam int page,
@@ -89,8 +94,9 @@ public class MyPageController {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
+            String userId = jwtTokenProvider.getUserId(token);
             if (jwtTokenProvider.validateToken(token)) {
-                Page<MyCommentProjection> myPageCommentsList = myPageService.getMyPageCommentList(page, size, jwtTokenProvider.getUserId(token));
+                Page<MyCommentProjection> myPageCommentsList = myPageService.getMyPageCommentList(page, size,userId);
                 return ResponseEntity.ok(Map.of(
                         "totalCountComment",myPageCommentsList.getTotalElements()
                         ,"totalPage",myPageCommentsList.getTotalPages(),

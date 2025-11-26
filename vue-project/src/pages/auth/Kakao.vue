@@ -24,7 +24,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-// import {co} from "@fullcalendar/core/internal-common.js";
 
 const router = useRouter()
 const showUsernameForm = ref(false)

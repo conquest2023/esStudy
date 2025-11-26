@@ -2,10 +2,8 @@ package es.board.service;
 
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 public interface NoticeService {
 

@@ -1,8 +1,8 @@
 package es.board.service;
 
-import es.board.repository.entity.feed.PostEntity;
-import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
-import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.entity.feed.PostEntity;
+import es.board.infrastructure.projection.MyCommentProjection;
+import es.board.infrastructure.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
 
 public interface MyPageService {

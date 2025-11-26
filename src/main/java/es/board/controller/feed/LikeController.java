@@ -1,13 +1,11 @@
 package es.board.controller.feed;
 
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.LikeDto;
-import es.board.repository.entity.repository.infrastructure.projection.LikeCountProjection;
-import es.board.service.feed.LikeService;
+import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.domain.feed.LikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -2,7 +2,7 @@ package es.board.repository;
 
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 
 public interface UserDAO {
 

@@ -1,17 +1,14 @@
 package es.board.service;
 
-import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.LoginDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
-import es.board.repository.entity.repository.infrastructure.projection.UserPointProjection;
+import es.board.infrastructure.entity.user.User;
 import org.springframework.security.core.Authentication;
-
-import java.util.List;
 
 public interface AuthService {
 
 //    List<UserPointProjection> getSumPointUser();
-    String findById(String  username);
+     User findByUser(String  username);
 
     void  autoLogin(String userId, String token);
 

@@ -1,5 +1,5 @@
 package es.board.repository.entity.repository;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 import jakarta.transaction.Transactional;
 import  org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,8 +15,8 @@ import java.util.Optional;
 public interface UserRepository  extends  JpaRepository<User,Integer> {
 
 
-    @Query("select u.userId from User u where u.username= :username")
-    Optional<String> findById(@Param("username") String username);
+    @Query("select u from User u where u.username= :username")
+    Optional<User> findByUser(@Param("username") String username);
 
 
     @Query("select u.userId from User u where u.userId = :id")

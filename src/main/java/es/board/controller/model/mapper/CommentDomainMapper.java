@@ -2,7 +2,7 @@ package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.entity.Notification;
-import es.board.service.domain.Comment;
+import es.board.domain.Comment;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class CommentDomainMapper {
 
-    public static es.board.service.domain.Comment toDomain(String userId, CommentDTO.Response dto, int postId) {
+    public static Comment toDomain(String userId, CommentDTO.Response dto, int postId) {
         if (dto == null) return null;
 
         Long id = dto.getId(); // commentUID가 UUID라면 null일 수 있음
@@ -20,7 +20,7 @@ public class CommentDomainMapper {
         LocalDateTime createdAt = dto.getCreatedAt();
         if (createdAt == null) createdAt = LocalDateTime.now();
 
-        return new es.board.service.domain.Comment(
+        return new Comment(
                 id,
                 resolvedPostId,
                 userId,

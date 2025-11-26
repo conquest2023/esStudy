@@ -4,7 +4,7 @@ import es.board.controller.model.dto.feed.*;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.UserRepository;
-import es.board.repository.entity.user.User;
+import es.board.infrastructure.entity.user.User;
 import es.board.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -61,10 +61,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String findById(String  username){
-        Optional<String> userId=userRepository.findById(username);
-        if (userId.isPresent()){
-            return  userId.get();
+    public User findByUser(String  username){
+        Optional<User> user=userRepository.findByUser(username);
+        if (user.isPresent()){
+            return  user.get();
         }else {
             throw  new RuntimeException("찾으시는 유저가 없습니다");
         }

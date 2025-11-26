@@ -5,8 +5,8 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.ex.TokenValidator;
-import es.board.repository.entity.feed.PostEntity;
-import es.board.service.feed.PostService;
+import es.board.infrastructure.entity.feed.PostEntity;
+import es.board.domain.feed.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +66,6 @@ public class PostController {
         return ResponseEntity.ok(Map.of(
                 "ids", ids));
     }
-
 
 
     @GetMapping("/posts/popular/week")

@@ -1,10 +1,10 @@
 package es.board.service.impl;
-import es.board.repository.entity.feed.PostEntity;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
-import es.board.repository.entity.repository.infrastructure.feed.CommentRepository;
-import es.board.repository.entity.repository.infrastructure.feed.PostQueryRepository;
-import es.board.repository.entity.repository.infrastructure.projection.MyCommentProjection;
-import es.board.repository.entity.repository.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.domain.CommentRepository;
+import es.board.infrastructure.feed.PostQueryRepository;
+import es.board.infrastructure.projection.MyCommentProjection;
+import es.board.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +32,8 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public  Page<PostEntity> getMyPageFeedList(int page, int size,String userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<PostEntity> byMyPageUserPosts = queryRepository.findByMyPageUserPosts(pageable, userId);
+        Page<PostEntity> byMyPageUserPosts = queryRepository.findByMyPageUserPosts(page,size, userId);
 
         return byMyPageUserPosts;
     }

@@ -126,6 +126,7 @@ public class OAuthLoginController {
         authService.saveUserName(sign);
         return ResponseEntity.ok(Map.of("result", "ok", "redirect", "/"));
         }
+
     @PostMapping("/api/oauth/login")
     @ResponseBody
     public ResponseEntity<?> loginPass(@RequestBody LoginDTO response) {

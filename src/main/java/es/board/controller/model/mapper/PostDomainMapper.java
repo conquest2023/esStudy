@@ -1,7 +1,7 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.service.domain.Post;
+import es.board.domain.Post;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
