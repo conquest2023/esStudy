@@ -25,7 +25,6 @@ public class PostStatsController {
     @GetMapping("/post/stats")
     public ResponseEntity<?> getPostStats(@RequestParam int page, @RequestParam int size) {
         List<PostStatsDTO> postStats = commandQueryService.getPostStats(page, size);
-        log.info(postStats.toString());
         return ResponseEntity.ok(Map.of(
                 "stats", postStats));
     }
@@ -33,7 +32,6 @@ public class PostStatsController {
     @GetMapping("/post/popular/stats")
     public ResponseEntity<?> getBestPopularPostStats(@RequestParam int page, @RequestParam int size) {
         List<PostStatsDTO> postStats = commandQueryService.getBestWeekPostStats(page, size);
-        log.info(postStats.toString());
         return ResponseEntity.ok(Map.of(
                 "stats", postStats));
     }
@@ -41,7 +39,6 @@ public class PostStatsController {
     @GetMapping("/poll/stats")
     public ResponseEntity<?> getPollStats(@RequestParam int page, @RequestParam int size) {
         List<PostStatsDTO> postStats = commandQueryService.getPollStats(page, size);
-        log.info(postStats.toString());
         return ResponseEntity.ok(Map.of(
                 "stats", postStats));
     }

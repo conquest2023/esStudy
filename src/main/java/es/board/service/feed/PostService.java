@@ -22,7 +22,7 @@ public interface PostService {
 
     void deletePost(int id);
 
-    Page<PostEntity> findAllPosts(int page, int size);
+    Page<PostEntity> findPostPagingList(int page, int size);
 
 
     PostDetailResponse findPostDetail(String userId, int id);

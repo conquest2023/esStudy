@@ -43,7 +43,7 @@ public class PollServiceImpl implements PollService{
         Post post = PostDomainMapper.toDomain(userId, new PostDTO.Request(
                 username,
                 res.getTitle(),
-                res.getCategory(),
+                "투표",
                 res.getDescription()));
 
         PostEntity entity = Post.toEntity(post);

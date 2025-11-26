@@ -5,17 +5,17 @@
 
       <form @submit.prevent="submitForm">
         <!-- 카테고리 선택 -->
-        <div class="mb-3">
-          <select v-model="form.category" class="form-select" required>
-            <option value="" disabled>카테고리를 선택해 주세요.</option>
-            <option value="자유">자유</option>
-            <option value="자격증">자격증</option>
-            <option value="기술">기술</option>
-            <option value="취업">취업</option>
-            <option value="Q/A">질문</option>
-            <option value="자료">자료</option>
-          </select>
-        </div>
+<!--        <div class="mb-3">-->
+<!--          <select v-model="form.category" class="form-select" required>-->
+<!--            <option value="" disabled>카테고리를 선택해 주세요.</option>-->
+<!--            <option value="자유">자유</option>-->
+<!--            <option value="자격증">자격증</option>-->
+<!--            <option value="기술">기술</option>-->
+<!--            <option value="취업">취업</option>-->
+<!--            <option value="Q/A">질문</option>-->
+<!--            <option value="자료">자료</option>-->
+<!--          </select>-->
+<!--        </div>-->
 
         <!-- 제목 -->
         <div class="mb-3">
@@ -158,7 +158,6 @@ async function submitForm() {
 
   // 백엔드 DTO에 맞게 payload 정리
   const payload = {
-    category: form.value.category,
     title: form.value.title,
     description: form.value.description,
     multiSelect: form.value.multiSelect,

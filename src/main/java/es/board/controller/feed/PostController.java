@@ -4,10 +4,8 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.dto.stats.PostStatsDTO;
 import es.board.ex.TokenValidator;
 import es.board.repository.entity.feed.PostEntity;
-import es.board.service.CommandQueryService;
 import es.board.service.feed.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -108,7 +106,7 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
-        Page<PostEntity> p = postService.findAllPosts(page, size);
+        Page<PostEntity> p = postService.findPostPagingList(page, size);
         List<PostDTO.Response> collect = p.stream()
                 .map(o -> new PostDTO.Response(o.getId(),
                         o.getUsername(),

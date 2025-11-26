@@ -24,7 +24,7 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
         where not exists (select 1 from NoticeEntity n where n.post = p)
         order by p.createdAt desc
         """)
-    Page<PostEntity> findAll(Pageable pageable);
+    Page<PostEntity> findPostPagingList(Pageable pageable);
 
 
     @Query("select p.id from PostEntity p")

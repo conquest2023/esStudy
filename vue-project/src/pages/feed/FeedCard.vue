@@ -70,7 +70,9 @@ const props = defineProps({
 
 const { rankIcon } = useRankIcon()
 const router = useRouter()
-const isVoteCard = computed(() => !props.notice && !props.post?.id)
+const isVoteCard = computed(
+    () => props.post?.category === '투표'
+)
 const sb = useSidebarStore()
 const { topWriters } = storeToRefs(sb)
 const userRankIndex = computed(() => {
@@ -102,13 +104,13 @@ const likeCount = computed(() =>
 const viewCount = computed(() => props.post?.viewCount ?? 0)
 
 function goToDetail () {
-  if (isVoteCard.value) {
-    router.push({
-      path: '/search/view/vote/detail',
-      query: { id: props.post.id, page: props.page }
-    })
-    return
-  }
+  // if (isVoteCard.value) {
+  //   router.push({
+  //     path: '/post/',
+  //     query: { id: props.post.id, page: props.page }
+  //   })
+  //   return
+  // }
 
   router.push({
     name: 'PostDetail',

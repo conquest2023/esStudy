@@ -100,7 +100,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostEntity> findAllPosts(int page, int size) {
+    public Page<PostEntity> findPostPagingList(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<PostEntity> byPagePosts = queryRepository.findByPagePosts(pageable);
         return byPagePosts;
