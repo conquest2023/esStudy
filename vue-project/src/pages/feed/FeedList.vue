@@ -67,7 +67,7 @@
           </div>
 
           <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-            <h5 class="fw-bold text-dark">전체 피드</h5>
+            <h5 class="fw-bold text-dark"></h5>
             <div class="dropdown">
               <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
                 <i class="fas fa-sort-amount-down-alt"></i> {{ sortLabel }}

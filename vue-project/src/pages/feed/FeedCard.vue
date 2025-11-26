@@ -9,24 +9,25 @@
       @click="goToDetail"
   >
     <div class="feed-main">
-      <!-- 제목 -->
       <div class="feed-title-line">
         <h6 class="feed-title text-truncate mb-0">
-          <span v-if="notice">📢 </span>
-          <span v-else-if="isVoteCard">🗳️ </span>
+          <span v-if="notice">📢 공지 | </span>
+          <span v-else-if="isVoteCard">🗳️ 투표 | </span>
           {{ post.title }}
         </h6>
-
-        <!-- 댓글 수 뱃지 -->
         <span
-            v-if="!notice && !isVoteCard && commentCount"
+            v-if="!notice && isNew"
+            class="feed-badge-new ms-1">
+          N
+        </span>
+        <span
+            v-if="!notice && commentCount"
             class="feed-badge-comment"
         >
           {{ commentCount }}
         </span>
       </div>
 
-      <!-- 메타 정보 -->
       <div class="feed-meta">
       <span class="feed-meta__item">
         <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
@@ -34,7 +35,6 @@
       </span>
         <span class="feed-meta__dot">·</span>
         <span class="feed-meta__item">{{ time }}</span>
-
         <template v-if="!notice">
           <span class="feed-meta__dot">·</span>
           <span class="feed-meta__item">
@@ -49,6 +49,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import {useRankIcon} from "@/composables/useRankIcon.js";
@@ -67,7 +68,21 @@ const props = defineProps({
   commentCount: { type: Number, default: 0 },
   page: { type: Number, default: 1 }
 })
+const NEW_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 
+const isNew = computed(() => {
+  const postCreatedTime = new Date(props.post.createdAt).getTime();
+
+  const latestCommentTime = props.post.latestCommentTime
+      ? new Date(props.post.latestCommentTime).getTime()
+      : 0;
+  const now = Date.now();
+  const isPostNew = (now - postCreatedTime) < NEW_THRESHOLD_MS;
+  const isCommentActivityNew = props.commentCount > 0 &&
+      (now - latestCommentTime) < NEW_THRESHOLD_MS;
+
+  return isPostNew || isCommentActivityNew;
+});
 const { rankIcon } = useRankIcon()
 const router = useRouter()
 const isVoteCard = computed(
@@ -151,13 +166,11 @@ function goToDetail () {
   color: #15803d;
 }
 
-/* 안쪽 레이아웃 */
 .feed-main {
   flex: 1;
   min-width: 0;
 }
 
-/* 제목 라인: 제목 + 댓글 뱃지 */
 .feed-title-line {
   display: flex;
   align-items: center;
@@ -170,7 +183,7 @@ function goToDetail () {
   letter-spacing: -0.01em;
 }
 
-/* 댓글 수 뱃지 */
+
 .feed-badge-comment {
   display: inline-flex;
   align-items: center;
@@ -198,7 +211,19 @@ function goToDetail () {
   display: inline-flex;
   align-items: center;
 }
-
+.feed-badge-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem; /* 너비 고정 */
+  height: 1.25rem;
+  padding: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #dc2626;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
 .feed-meta__dot {
   color: #d1d5db;
 }

@@ -11,17 +11,15 @@ export const useUserStore = defineStore('user', {
 
         notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
 
-        _inFlight: null, // 요청 진행 상태 추가
-        loading: false, // 기존 로딩 상태 유지
+        _inFlight: null,
+        loading: false,
     }),
 
-    /* --------------- actions --------------- */
     actions: {
         async fetchMe () {
             const token = localStorage.getItem('token')
             if (!token) return this.$reset()
 
-            // 1. 이미 요청 중이라면, 해당 Promise를 반환하고 종료
             if (this._inFlight) return this._inFlight
 
             this.loading = true
