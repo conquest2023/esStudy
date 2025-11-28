@@ -6,11 +6,12 @@ export const useSidebarStore = defineStore('sidebar', {
     state: () => ({
         dDayList: [],
         todoList: [],
+
         remaining: 0,
 
         visitorStats: { active: 0, today: 0, total: 0 },
         topWriters: [],
-
+        topRecentWriters: [],
         _staticLoaded: false,
         _staticInFlight: null,
 
@@ -60,9 +61,10 @@ export const useSidebarStore = defineStore('sidebar', {
 
             this._liveInFlight = (async () => {
                 try {
-                    const [ipRes, writerRes] = await Promise.all([
+                    const [ipRes, writerRes,recentRes] = await Promise.all([
                         api.get('/get-ip'),
-                        api.get('/points/summary')
+                        api.get('/points/summary'),
+                        api.get('/points/recent')
                     ])
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
@@ -70,7 +72,7 @@ export const useSidebarStore = defineStore('sidebar', {
                         total: ipRes.data.data.totalVisitors
                     }
                     this.topWriters = writerRes.data.top5 ?? []
-
+                    this.topRecentWriters = recentRes.data.recent ??[]
                 } catch (e) {
                     console.error('[sidebar] live 로딩 실패', e)
                     this._liveLoaded = false

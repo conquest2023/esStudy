@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity, Long> {
@@ -31,6 +32,17 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             "ORDER BY totalCount DESC " +
             "LIMIT 5")
     List<UserPointProjection> sumPointUserTop5();
+
+
+    @Query("SELECT sum(p.pointChange) as totalCount, " +
+            "u.username as username " +
+            "FROM PointHistoryEntity p " +
+            " inner join User  u on p.userId = u.userId " +
+            " WHERE u.username NOT IN ('asd', 'hoeng' ,'호문무권신','잠수브로','머신는자','하이','공시준비') and p.createdAt >=:sevenDaysAgo" +
+            " GROUP BY u.username " +
+            "ORDER BY totalCount DESC " +
+            "LIMIT 5")
+    List<UserPointProjection> sumPointUserRecentTop5(@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
 
 

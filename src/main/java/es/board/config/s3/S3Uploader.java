@@ -30,7 +30,6 @@ public class S3Uploader {
         if (files.size()>3){
             throw new RuntimeException("사진은 최대 3개 가능합니다");
         }
-        // 각 파일을 업로드하고 url을 리스트로 반환
         return files.stream()
                 .map(this::uploadImage)
                 .toList();
@@ -86,6 +85,7 @@ public class S3Uploader {
             throw new RuntimeException("지원되지 않는 형식입니다.");
         }
 
-        return s3Client.utilities().getUrl(url -> url.bucket(bucket).key(s3FileName)).toString();
+        return s3Client.utilities().getUrl(
+                url -> url.bucket(bucket).key(s3FileName)).toString();
     }
 }

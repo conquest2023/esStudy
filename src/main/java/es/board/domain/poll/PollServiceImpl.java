@@ -45,9 +45,7 @@ public class PollServiceImpl implements PollService{
                 res.getTitle(),
                 "투표",
                 res.getDescription()));
-
         PostEntity entity = Post.toEntity(post);
-
         PollEntity poll = PollDomainMapper.toEntity(entity, res);
         postRepository.save(entity);
         pollRepository.save(poll);

@@ -40,15 +40,13 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public Page<MyCommentProjection> getMyPageCommentList(int page, int size, String userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<MyCommentProjection> userMyPageComments = commentRepository.findUserMyPageComments(pageable, userId);
+        Page<MyCommentProjection> userMyPageComments = commentRepository.findUserMyPageComments(page,size, userId);
         return userMyPageComments;
     }
 
     @Override
     public Page<PostsAndCommentsProjection> getPostsCommentedByUser(int page, int size, String userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-         return commentRepository.findMyPagePostsAndComments(pageable,userId);
+         return commentRepository.findMyPagePostsAndComments(page,size,userId);
     }
 }

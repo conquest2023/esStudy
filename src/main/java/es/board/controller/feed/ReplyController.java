@@ -24,7 +24,6 @@ public class ReplyController {
     private final JwtTokenProvider provider;
 
 
-    private final TokenValidator tokenValidator;
     @PostMapping("/reply")
     public ResponseEntity<?> saveReply(
             @RequestAttribute("userId") String userId,

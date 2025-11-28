@@ -30,9 +30,11 @@
 
       <div class="feed-meta">
       <span class="feed-meta__item">
-        <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
-        {{ post.username }}
-      </span>
+      <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
+      <span v-if="isHotUser(post.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
+      {{ post.username }}
+    </span>
+
         <span class="feed-meta__dot">·</span>
         <span class="feed-meta__item">{{ time }}</span>
         <template v-if="!notice">
@@ -89,7 +91,7 @@ const isVoteCard = computed(
     () => props.post?.category === '투표'
 )
 const sb = useSidebarStore()
-const { topWriters } = storeToRefs(sb)
+const { topWriters, topRecentWriters } = storeToRefs(sb)
 const userRankIndex = computed(() => {
   if (!topWriters.value || !props.post.username) {
     return -1
@@ -101,6 +103,13 @@ const userRankIndex = computed(() => {
   return index
 })
 
+const topRecentSet = computed(() =>
+    new Set((topRecentWriters.value ?? []).slice(0, 5).map(w => w.username))
+)
+function isHotUser(username) {
+  if (!username) return false
+  return topRecentSet.value.has(username) // 최근 Top5만 불꽃
+}
 const time = computed(() => {
   const raw = props.post?.createdAt
   if (!raw) return ''
@@ -230,6 +239,12 @@ function goToDetail () {
 
 .text-like {
   color: #ef4444 !important;
+}
+.hot-fire {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 576px) {

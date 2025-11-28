@@ -1,24 +1,20 @@
 package es.board.infrastructure.entity.feed;
 
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import es.board.infrastructure.entity.poll.PollEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "post")
-@Data
+@Getter
 @Builder
-//@ToString(exclude = "poll")
-//@EqualsAndHashCode(exclude = "poll")
+@ToString(exclude = "poll")
+@NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
-@RequiredArgsConstructor
 public class PostEntity {
 
 
@@ -56,15 +52,16 @@ public class PostEntity {
     private LocalDateTime modifiedAt;
 
 
-
-    //    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL,
-//            orphanRemoval = true,
+//    @OneToOne(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL,
 //            fetch = FetchType.LAZY)
+//    @JsonIgnore
 //    private PollEntity poll;
+
 
     public void applyFrom(String title,String description,LocalDateTime modifiedAt){
         this.title = title;
         this.description = description;
         this.modifiedAt = modifiedAt;
     }
+
 }

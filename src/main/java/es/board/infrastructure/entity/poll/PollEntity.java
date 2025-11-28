@@ -29,16 +29,16 @@ public class PollEntity {
     private String userId;
 
     @Column(name = "multi_select", nullable = false)
-    private boolean multiSelect;  // 0/1 → boolean 매핑
+    private boolean multiSelect;
 
     @Column(name = "max_select_cnt")
-    private Integer maxSelectCnt; // 복수 선택일 때 최대 개수
+    private Integer maxSelectCnt;
 
     @Column(name = "is_anonymous", nullable = false)
-    private boolean anonymous; // 익명 투표 여부
+    private boolean anonymous;
 
     @Column(name = "closes_at")
-    private LocalDateTime closesAt; // 마감 시간
+    private LocalDateTime closesAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,7 +48,6 @@ public class PollEntity {
     @Builder.Default
     private List<PollOptionEntity> options = new ArrayList<>();
 
-    // 투표 내역 (필요 없으면 삭제해도 됨)
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PollVoteEntity> votes = new ArrayList<>();

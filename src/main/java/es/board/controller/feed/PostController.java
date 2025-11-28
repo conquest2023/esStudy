@@ -4,6 +4,7 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.ex.TokenValidator;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.domain.feed.PostService;
@@ -31,8 +32,6 @@ public class PostController {
     private final JwtTokenProvider provider;
 
     private final PostService postService;
-
-    private final TokenValidator tokenValidator;
 
     @PostMapping("/post")
     public ResponseEntity<?> savePost(@RequestAttribute("userId") String userId,
@@ -68,16 +67,7 @@ public class PostController {
 
         Page<PostEntity> p = postService.findPopularPostsInLast7Weeks(page, size);
 
-        List<PostDTO.Response> collect = p.stream()
-                .map(o -> new PostDTO.Response(o.getId(),
-                        o.getUsername(),
-                        o.getTitle(),
-                        o.getDescription(),
-                        o.getCategory(),
-                        o.getViewCount(),
-                        o.getCreatedAt(),
-                        o.getModifiedAt()))
-                .collect(Collectors.toList());
+        List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
         return ResponseEntity.ok(
                 Map.of(
                         "page", p.getNumber(),
@@ -100,16 +90,7 @@ public class PostController {
     @GetMapping("/posts")
     public ResponseEntity<?> getPosts(@RequestParam int page, @RequestParam int size) {
         Page<PostEntity> p = postService.findPostPagingList(page, size);
-        List<PostDTO.Response> collect = p.stream()
-                .map(o -> new PostDTO.Response(o.getId(),
-                        o.getUsername(),
-                        o.getTitle(),
-                        o.getDescription(),
-                        o.getCategory(),
-                        o.getViewCount(),
-                        o.getCreatedAt(),
-                        o.getModifiedAt()))
-                .collect(Collectors.toList());
+        List<PostDTO.Response> collect = PostDomainMapper.toResponse(p);
         return ResponseEntity.ok(Map.of(
                 "content", collect,
                 "page", p.getNumber(),
@@ -145,12 +126,12 @@ public class PostController {
         }
         return ResponseEntity.ok("조회수 증가 성공");
     }
-    @GetMapping("/count")
-    public ResponseEntity<?> getCountCommentAndReply(@RequestParam int page, @RequestParam int size) {
-        Map<Integer, Long> countByCommentAndReply = postService.getCountByCommentAndReply(page, size);
-        return ResponseEntity.ok(Map.of(
-                "aggs", countByCommentAndReply));
-    }
+//    @GetMapping("/count")
+//    public ResponseEntity<?> getCountCommentAndReply(@RequestParam int page, @RequestParam int size) {
+//        Map<Integer, Long> countByCommentAndReply = postService.getCountByCommentAndReply(page, size);
+//        return ResponseEntity.ok(Map.of(
+//                "aggs", countByCommentAndReply));
+//    }
 
     @Nullable
     private String checkToken(String token) {

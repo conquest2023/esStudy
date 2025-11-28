@@ -1,6 +1,7 @@
 <template>
 
   <NavBar />
+
   <div id="toastContainer"
        class="position-fixed top-0 end-0 p-3"
        style="z-index: 2500; pointer-events: none; width: 400px;">
@@ -20,6 +21,7 @@ import { useSidebarStore } from '@/stores/sidebar'
 import NavBar from '@/components/common/Navbar.vue'
 import RightSidebar from '@/components/sidebar/RightSidebar.vue'
 import ToastContainer from "@/components/common/ToastContainer.vue";
+import ToastList from "@/components/common/ToastList.vue";
 
 const route = useRoute()
 const store = useUserStore()

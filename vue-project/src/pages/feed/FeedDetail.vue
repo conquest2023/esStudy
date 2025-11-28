@@ -60,6 +60,7 @@
           <div class="post-meta-row small">
             <RouterLink :to="`/user/profile/${feed.username}`" class="post-author-link text-decoration-none d-inline-flex align-items-center">
               <span v-if="userRankIndex !== -1" class="me-1">{{ rankIcon(userRankIndex) }}</span>
+              <span v-if="isHotUser(feed.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
               <span class="fw-semibold">{{ feed.username }}</span>
             </RouterLink>
             <span class="dot">·</span>
@@ -114,10 +115,9 @@
         <div class="comment-body flex-grow-1">
           <div class="d-flex justify-content-between align-items-start">
             <div class="comment-meta">
-              <RouterLink
-                  :to="`/user/profile/${c.username}`"
-                  class="comment-author text-decoration-none">
+              <RouterLink :to="`/user/profile/${c.username}`" class="comment-author text-decoration-none">
                 <span class="me-1">{{ rankBadge(c.username) }}</span>
+                <span v-if="isHotUser(c.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
                 <span class="fw-semibold">{{ c.username }}</span>
                 <span v-if="c.author" class="badge-author ms-1">글쓴이</span>
                 <span v-if="c.owner" class="badge-author ms-1">작성자</span>
@@ -181,14 +181,15 @@
             <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="reply-meta">
-                  <RouterLink
-                      :to="`/user/profile/${rp.username}`"
-                      class="comment-author text-decoration-none">
+                  <RouterLink :to="`/user/profile/${rp.username}`" class="comment-author text-decoration-none">
                     <span class="me-1">{{ rankBadge(rp.username) }}</span>
+                    <span v-if="isHotUser(rp.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
                     <span class="fw-semibold">{{ rp.username }}</span>
                     <span v-if="rp.author" class="badge-author ms-1">글쓴이</span>
                     <span v-if="rp.owner" class="badge-author ms-1">작성자</span>
                   </RouterLink>
+
+
                   <small class="text-muted ms-2">
                     <template v-if="rp.updatedAt">
                       (수정됨 · {{ fmtDate(rp.updatedAt) }})
@@ -231,11 +232,7 @@
 
                 <!-- 내용 or 수정 폼 -->
               <div v-if="replyEditMode[rp.id]" class="mt-2">
-      <textarea
-          v-model="replyEditTexts[rp.id]"
-          rows="2"
-          class="form-control mb-2"
-      />
+              <textarea v-model="replyEditTexts[rp.id]" rows="2" class="form-control mb-2"/>
                 <div class="d-flex gap-2">
                   <button class="btn btn-sm btn-primary" @click="updateReply(rp)">
                     저장
@@ -349,7 +346,7 @@ const pageParam = computed(() => {
   return Number.isNaN(q) ? 0 : q        // 잘못된 값이면 0
 })
 const sb = useSidebarStore()
-const { topWriters } = storeToRefs(sb)
+const { topWriters , topRecentWriters } = storeToRefs(sb)
 
 const userRankIndex = computed(() => {
   const username = feed.value.username
@@ -361,6 +358,13 @@ const userRankIndex = computed(() => {
   )
   return index
 })
+const topRecentSet = computed(() =>
+    new Set((topRecentWriters.value ?? []).slice(0, 5).map(w => w.username))
+)
+function isHotUser(username) {
+  if (!username) return false
+  return topRecentSet.value.has(username)
+}
 function getRankIconForUser(username) {
   if (!topWriters.value || !username) {
     return ''
@@ -380,7 +384,6 @@ function convertLinks(txt = '') {
   return txt.replace(/(https?:\/\/[^\s<"]+)/g, (m, url, offset, str) => {
     const prev = str.slice(Math.max(0, offset - 5), offset)
     if (/src=\"?$/.test(prev)) return m
-
     const youtubeMatch = m.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/)
     if (youtubeMatch) {
       const videoId = youtubeMatch[1]
@@ -1062,11 +1065,13 @@ const processedDescription = computed(() => {
   color: #d1d5db;
 }
 
-/* 랭킹 뱃지 간단하게 */
-.badge-rank {
-  font-size: 0.9rem;
+.hot-fire {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95rem;      /* 살짝만 작게 */
+  line-height: 1;
+  vertical-align: text-bottom;
 }
-
 /* 본문 내용 */
 .post-content {
   margin-top: 1rem;

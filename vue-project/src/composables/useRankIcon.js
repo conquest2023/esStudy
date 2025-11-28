@@ -7,7 +7,13 @@ export function useRankIcon() {
         return ['👑', '🥇', '🥈', '🥉'][i] || `${i + 1}.`
     }
 
+    const recentRankIcon = i => {
+        const fire = '🔥'
+        return `${i+1}. ${fire}`
+    }
+
     return {
-        rankIcon
+        rankIcon,
+        recentRankIcon
     }
 }

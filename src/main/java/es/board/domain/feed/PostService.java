@@ -27,6 +27,4 @@ public interface PostService {
 
     PostDetailResponse findPostDetail(String userId, int id);
 
-
-    Map<Integer, Long> getCountByCommentAndReply(int page , int size);
 }

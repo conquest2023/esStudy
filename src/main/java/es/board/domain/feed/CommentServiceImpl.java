@@ -2,6 +2,7 @@ package es.board.domain.feed;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.mapper.CommentDomainMapper;
+//import es.board.domain.event.Events;
 import es.board.infrastructure.entity.feed.CommentEntity;
 import es.board.domain.CommentRepository;
 import es.board.domain.PostRepository;
@@ -33,8 +34,8 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = CommentDomainMapper.toDomain(userId,res, res.getPostId());
         CommentEntity entity = Comment.toEntity(comment);
         commentRepository.saveComment(entity);
-        CommentCreatedEvent event = new CommentCreatedEvent(res.getPostId(),userId, res);
-        eventPublisher.publishEvent(event);
+//        CommentCreatedEvent event = Events.raise(new CommentCreatedEvent(res.getPostId(),userId, res));
+        eventPublisher.publishEvent(new CommentCreatedEvent(res.getPostId(),userId, res));
     }
 
     @Override

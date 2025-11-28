@@ -3,6 +3,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.projection.MyCommentProjection;
@@ -64,17 +65,7 @@ public class SomeoneProfileController {
             if (jwtTokenProvider.validateToken(token)) {
                 User user = userService.findByUser(username);
                 Page<PostEntity> myPageFeedList = myPageService.getMyPageFeedList(page, size,user.getUserId());
-                List<PostDTO.Response> collect = myPageFeedList.stream()
-                        .map(o -> new PostDTO.Response(o.getId(),
-                                o.getUsername(),
-                                o.getTitle(),
-                                o.getDescription(),
-                                o.getCategory(),
-                                o.getViewCount(),
-                                o.getCreatedAt(),
-                                o.getModifiedAt()))
-                        .collect(Collectors.toList());
-                log.info(collect.get(0).toString());
+                List<PostDTO.Response> collect = PostDomainMapper.toResponse(myPageFeedList);
                 return ResponseEntity.ok(
                         Map.of(
                                 "page", myPageFeedList.getNumber(),

@@ -65,10 +65,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostEntity> findPopularPostsInLast7Weeks(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastSevenDay = now.minusDays(7);
-        Page<PostEntity> byMyPageUserPosts = queryRepository.findPopularPostsInLast7Week(pageable, lastSevenDay);
+        Page<PostEntity> byMyPageUserPosts = queryRepository.findPopularPostsInLast7Week(page,size, lastSevenDay);
         return byMyPageUserPosts;
     }
 
@@ -88,21 +87,19 @@ public class PostServiceImpl implements PostService {
         Post post = PostDomainMapper.toDomain(userId, req);
         PostEntity postEntity = postRepository.savePost(Post.toEntity(post));
         int postId = postEntity.getId();
-        imageUploadAndRewriteHtml(req.getImageFiles(), req.getDescription(), postId);
+        imageUploadAndRewriteHtml(req.getDescription(), postId);
         pointService.grantActivityPoint(userId, "피드", 3, 5);
     }
 
 
     @Override
     public Page<Integer> findIds(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return queryRepository.findIds(pageable);
+        return queryRepository.findIds(page,size);
     }
 
     @Override
     public Page<PostEntity> findPostPagingList(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PostEntity> byPagePosts = queryRepository.findByPagePosts(pageable);
+        Page<PostEntity> byPagePosts = queryRepository.findByPagePosts(page,size);
         return byPagePosts;
     }
 
@@ -128,21 +125,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Map<Integer, Long> getCountByCommentAndReply(int page, int size) {
-
-        List<Integer> ids = queryRepository.findPostIds(page,size);
-
-//        Map<Integer, Long> map = queryRepository.countByReplyAndComment(ids);
-        return null;
-    }
-
-    @Override
     public void deletePost(int id) {
         postRepository.deletePost(id);
     }
 
 
-    private void imageUploadAndRewriteHtml(List<MultipartFile> files, String descriptionHtml, int postId) {
+    private void imageUploadAndRewriteHtml(String descriptionHtml, int postId) {
 
         String safeHtml = Jsoup.clean(descriptionHtml,
                 Safelist.basicWithImages()

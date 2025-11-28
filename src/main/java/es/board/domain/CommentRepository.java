@@ -21,9 +21,9 @@ public interface CommentRepository {
     List<CommentEntity> findByComments(int id);
 
     Optional<CommentEntity> isExist(long id);
-    Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId);
+    Page<MyCommentProjection> findUserMyPageComments(int page,int size, String userId);
 
-    Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable,String userId);
+    Page<PostsAndCommentsProjection> findMyPagePostsAndComments(int page,int size,String userId);
 
     void deleteComment(long id);
 

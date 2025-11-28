@@ -17,7 +17,7 @@ public class NotificationEventListener {
     private final NotificationRepository notificationRepository;
     private final PostRepository postRepository;
 
-    @EventListener
+    @EventListener(CommentCreatedEvent.class)
     public void handleCommentCreated(CommentCreatedEvent event) {
 
         String commenterId = event.getUserId();
@@ -32,7 +32,7 @@ public class NotificationEventListener {
                     event.getResponse().getUsername() + "님이 댓글을 작성하였습니다: " + event.getResponse().getContent()
             );
 
-             notificationRepository.save(CommentDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
+            notificationRepository.save(CommentDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
 
         }
     }

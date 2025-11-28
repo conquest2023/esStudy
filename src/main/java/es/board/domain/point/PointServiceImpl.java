@@ -30,6 +30,8 @@ public class PointServiceImpl implements PointService {
 
     private  static  final String TOP5_USER_KEY= "TOP_USER5_KEY";
 
+    private  static  final String RECENT_USER_KEY= "TOP_RECENT_KEY";
+
 
     @Override
     public void grantActivityPoint(String userId, String activityType, int pointChange, int limitCount) {
@@ -50,6 +52,23 @@ public class PointServiceImpl implements PointService {
         }
         createPointHistory(userId, pointChange, activityType);
         log.info("{} 작성 포인트 지급 완료! 현재 작성 횟수: {}", activityType, currentCount);
+    }
+
+    @Override
+    public List<TopWriter> getSumTop5RecentUser() {
+        ValueOperations<String, List<TopWriter>> valueOps = redisTemplate.opsForValue();
+        List<TopWriter> cachedData = valueOps.get(RECENT_USER_KEY);
+        if (cachedData != null) {
+            return cachedData;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastSevenDay = now.minusDays(7);
+        List<UserPointProjection> recentTop5= repository.sumPointUserRecentTop5(lastSevenDay);
+        List<TopWriter> topWriters = recentTop5.stream().map(p -> new TopWriter(p.getUsername(),
+                p.getTotalCount())).toList();
+        valueOps.set(RECENT_USER_KEY, topWriters, 3, TimeUnit.HOURS);
+
+        return topWriters;
     }
 
     @Override
@@ -81,9 +100,6 @@ public class PointServiceImpl implements PointService {
 
     private List<TopWriter> getWriters() {
         List<UserPointProjection> pointHistories = repository.sumPointUserTop5();
-        for (UserPointProjection pointHistory : pointHistories) {
-            log.info(String.valueOf(pointHistory.getTotalCount()));
-        }
         List<TopWriter> list = pointHistories.stream().map(p -> new TopWriter(p.getUsername(),
                 p.getTotalCount())).toList();
         return list;

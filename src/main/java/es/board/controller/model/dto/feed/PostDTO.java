@@ -31,8 +31,6 @@ public class PostDTO {
         @JsonIgnore
         private String userId;
 
-//        private String feedUID;
-
         private boolean owner;
 
         @JsonSerialize(using = XssSafeSerializer.class)
@@ -44,7 +42,6 @@ public class PostDTO {
         @JsonSerialize(using = XssSafeSerializer.class)
         private String title;
 
-        //    @JsonSerialize(using = XssSafeSerializer.class)
         private String description;
 
 
@@ -52,7 +49,6 @@ public class PostDTO {
         private String category;
 
 
-//        private int likeCount;
 
         private int viewCount;
 
@@ -78,6 +74,7 @@ public class PostDTO {
             this.createdAt = createdAt;
             this.modifiedAt = modifiedAt;
         }
+
     }
     @Data
     @AllArgsConstructor
@@ -108,7 +105,6 @@ public class PostDTO {
 
         private int  viewCount;
 
-//        private  int likeCount;
 
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)

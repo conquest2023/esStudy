@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-@Component
-@Slf4j
+
 @RequiredArgsConstructor
 public class ReplyEventListener {
 
@@ -22,12 +21,11 @@ public class ReplyEventListener {
     private final CommentRepository commentRepository;
 
 
-    @EventListener
+    @EventListener(ReplyCreatedEvent.class)
     public void handleReplyCreated(ReplyCreatedEvent event) {
 
         String commenterId = event.getUserId();
         String postOwnerId = commentRepository.findByUserId(event.getCommentId());
-        log.info(postOwnerId);
         if (postOwnerId != null && !commenterId.equals(postOwnerId)) {
 
 

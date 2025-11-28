@@ -8,7 +8,9 @@ import es.board.infrastructure.projection.MyCommentProjection;
 import es.board.infrastructure.projection.PostsAndCommentsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -47,12 +49,14 @@ public class CommentAdapterRepository implements CommentRepository {
     }
 
     @Override
-    public Page<MyCommentProjection> findUserMyPageComments(Pageable pageable, String userId) {
+    public Page<MyCommentProjection> findUserMyPageComments(int page,int size, String userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return repository.findByMyPageUserComments(pageable,userId);
     }
 
     @Override
-    public Page<PostsAndCommentsProjection> findMyPagePostsAndComments(Pageable pageable, String userId) {
+    public Page<PostsAndCommentsProjection> findMyPagePostsAndComments(int page,int size, String userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return repository.findByMyPageUserPostsAndComments(pageable,userId);
     }
 

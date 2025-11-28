@@ -10,7 +10,7 @@ import java.util.List;
 public interface PostQueryRepository {
 
 
-    Page<Integer>  findIds(Pageable pageable);
+    Page<Integer> findIds(int page,int size);
     List<Integer> findPostIds(int page,int size);
 
     List<Integer> findBestWeekPostIds(int page,int size,LocalDateTime lastSevenDays);
@@ -18,9 +18,9 @@ public interface PostQueryRepository {
 
     Page<PostEntity> findByMyPageUserPosts(int page,int size, String userId);
 
-    Page<PostEntity> findByPagePosts(Pageable pageable);
+    Page<PostEntity> findByPagePosts(int page,int size);
 
-    Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable, LocalDateTime lastSevenDays);
+    Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays);
 
 
 }

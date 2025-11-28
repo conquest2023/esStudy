@@ -41,7 +41,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleGlobalClick)
 })
-
+function handleClick(toast) {
+  if (toast.url) {
+    // URL이 있으면 라우터 이동
+    router.push(toast.url)
+    // 이동 후 토스트 제거
+    removeToast(toast.id)
+  }
+}
 async function fetchNotifications() {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -51,34 +58,30 @@ async function fetchNotifications() {
       headers: { Authorization: `Bearer ${token}` }
     })
 
-    // 알림 데이터를 초기화하고 저장합니다.
     const fetchedNotifications = data || []
     notifications.value = fetchedNotifications
 
-    console.log('가져온 알림:', fetchedNotifications)
-
-    // 1. 읽지 않은 알림만 필터링합니다.
     let unreadNotifications = fetchedNotifications.filter(n => !n.isCheck)
-
-    unreadNotifications.sort((a, b) => {
-      return b.createdAt.localeCompare(a.createdAt)
-    })
+    unreadNotifications.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
     const unreadCount = unreadNotifications.length
-
     const pushCount = Math.ceil(unreadCount / 2)
 
     if (pushCount > 0) {
       const notificationsToPush = unreadNotifications.slice(0, pushCount)
+
       notificationsToPush.forEach((notification) => {
-        const { username, message, createdAt } = notification
+        const { username, message, createdAt, postId } = notification
         const time = new Date(createdAt).toLocaleTimeString('ko-KR', {
           hour: '2-digit', minute: '2-digit'
         })
-        const beautifulMessage = `(${time}) ${username}: ${message} `
-        const notificationBody = ``
 
-        push(`🔔 ${beautifulMessage}\n\n${notificationBody}`)
+        const beautifulMessage = `(${time}) ${username}: ${message}`
+        push(
+            `🔔 ${beautifulMessage}`,
+            `/post/${postId}`
+        )
+
       })
     }
 
@@ -312,8 +315,7 @@ const menus = [
                 v-for="item in m.items"
                 :key="item.href"
                 class="dropdown-item d-flex flex-column"
-                :to="item.href"
-            >
+                :to="item.href">
               <span class="fw-bold">{{ item.title }}</span>
               <small class="text-muted">{{ item.desc }}</small>
             </router-link>
@@ -332,17 +334,14 @@ const menus = [
           <span
               v-if="unreadCount > 0"
               class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle"
-              style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"
-          >
+              style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
             {{ unreadCount }}
           </span>
 
           <div
               ref="notiPanel"
               class="notification-dropdown shadow rounded-4 p-0"
-              :class="{ show: showNoti }"
-          >
-            <!-- 헤더 -->
+              :class="{ show: showNoti }">
             <div class="noti-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
               <div class="d-flex flex-column">
                 <span class="fw-semibold">
@@ -361,17 +360,13 @@ const menus = [
                 모두 읽음
               </button>
             </div>
-
-            <!-- 알림 리스트 -->
             <ul v-if="notifications.length > 0" class="list-unstyled mb-0 small noti-list">
               <li
                   v-for="n in notifications"
                   :key="n.notificationId"
                   :class="[
                   'noti-item d-flex justify-content-between align-items-start px-3 py-2 border-bottom',
-                  { 'noti-unread': !n.isCheck }
-                ]"
-              >
+                  { 'noti-unread': !n.isCheck }]">
                 <div class="flex-grow-1 me-2">
                   <router-link
                       :to="'/post/' + n.postId"

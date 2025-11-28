@@ -4,6 +4,7 @@ import es.board.config.jwt.JwtTokenProvider;
 //import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.PostDTO;
+import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -51,18 +52,7 @@ public class NoticeController {
                                              @RequestParam int size){
         Page<PostEntity> p = noticeService.getNoticeList(page, size, category);
 
-        List<PostDTO.Response> responseList = p.getContent().stream()
-                .map(entity -> new PostDTO.Response(
-                        entity.getId(),
-                        entity.getUsername(),
-                        entity.getTitle(),
-                        entity.getDescription(),
-                        entity.getCategory(),
-                        entity.getViewCount(),
-                        entity.getCreatedAt(),
-                        entity.getModifiedAt()
-                ))
-                .collect(Collectors.toList());
+        List<PostDTO.Response> responseList = PostDomainMapper.toResponse(p);
         return ResponseEntity.ok(Map.of(
                 "content", responseList,
                 "page", p.getNumber(),
@@ -80,6 +70,7 @@ public class NoticeController {
                              @RequestParam(required = false, value = "imageFile") MultipartFile file){
 
                 noticeService.createNotice(userId,noticeDTO);
+
             }
     }
 

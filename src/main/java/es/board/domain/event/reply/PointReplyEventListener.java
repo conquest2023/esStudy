@@ -1,6 +1,7 @@
 package es.board.domain.event.reply;
 
 import es.board.domain.event.CommentCreatedEvent;
+import es.board.domain.event.ReplyCreatedEvent;
 import es.board.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -12,8 +13,8 @@ public class PointReplyEventListener {
 
     private final PointService pointService;
 
-    @EventListener
-    public void handleReplyCreated(CommentCreatedEvent event) {
+    @EventListener(ReplyCreatedEvent.class)
+    public void handleReplyCreated(ReplyCreatedEvent event) {
 
         // 1. 이벤트에서 필요한 데이터 추출
         String userId = event.getUserId();

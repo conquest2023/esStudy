@@ -10,6 +10,7 @@ import es.board.domain.event.reply.ReplyEventListener;
 import es.board.domain.Reply;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +24,15 @@ public class ReplyServiceImpl implements ReplyService {
 
     private final PostRepository postRepository;
 
-    private final ReplyEventListener replyEventListener;
+    private final ApplicationEventPublisher eventPublisher;
+
     @Override
     public void saveReply(String userId, ReplyDTO.Response response) {
 
         Reply reply = ReplyDomainMapper.toDomain(userId, response);
         ReplyEntity entity = Reply.toEntity(reply);
         replyRepository.saveReply(entity);
-        replyEventListener.handleReplyCreated(new ReplyCreatedEvent(response.getPostId(),userId,entity.getCommentId(),response));
+        eventPublisher.publishEvent(new ReplyCreatedEvent(response.getPostId(),userId,entity.getCommentId(),response));
     }
     @Override
     public List<ReplyDTO.Request> getReplys(String userId,int postId) {

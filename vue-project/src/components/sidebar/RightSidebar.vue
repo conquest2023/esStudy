@@ -39,14 +39,13 @@
               <div><span class="fw-bold">{{ activeUsers }}</span> 접속</div>
               <div><span class="fw-bold">{{ todayUsers }}</span> 오늘</div>
               <div><span class="fw-bold">{{ totalUsers }}</span> 누적</div>
-
             </div>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-3">
           <div class="card-body p-3">
-            <h6 class="fw-bold mb-2"><i class="fas fa-crown me-1"></i> Top 5 기여자</h6>
+            <h6 class="fw-bold mb-2"><i class="fas fa-crown me-1"></i> Top 5</h6>
             <div v-if="!topWriters.length" class="text-muted small text-center">데이터가 없습니다</div>
             <div
                 v-for="(w, idx) in topWriters"
@@ -55,6 +54,20 @@
             >
               <span>{{ rankIcon(idx) }} {{ w.username }}</span>
               <span class="text-muted">{{ w.totalCount }}점</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-3">
+            <h6 class="fw-bold mb-2"><i class="fas fa-fire me-1"></i> 이번 주 베스트 Top 5</h6>
+            <div v-if="!topRecentWriters.length" class="text-muted small text-center">데이터가 없습니다</div>
+            <div
+                v-for="(w, idx) in topRecentWriters"
+                :key="w.username"
+                class="d-flex justify-content-start align-items-center small py-1"
+            >
+              <span>{{ recentRankIcon(idx) }} {{ w.username }}</span>
             </div>
           </div>
         </div>
@@ -129,15 +142,13 @@ import { useSidebarStore } from '@/stores/sidebar'
 const collapsed      = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 const currentSection = ref('dashboard')
 const sections = [
-  { id: 'dashboard', title: '대시보드', icon: 'fas fa-chart-pie' },
-  { id: 'tasks',     title: '작업',     icon: 'fas fa-list-check' },
-  { id: 'calendar',  title: '캘린더',   icon: 'far fa-calendar-alt' }
+  // ... (기존 sections)
 ]
 
 watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v))
 
 const sb = useSidebarStore()
-const { dDayList, todoList, todoProgress, visitorStats, topWriters } = storeToRefs(sb)
+const { dDayList, todoList, todoProgress, visitorStats, topWriters, topRecentWriters } = storeToRefs(sb)
 const activeUsers = computed(() => visitorStats.value.active)
 const todayUsers  = computed(() => visitorStats.value.today)
 const totalUsers  = computed(() => visitorStats.value.total)
@@ -149,19 +160,14 @@ onMounted(() => {
   }
 })
 
-// const activeUsers = computed(() => sb.visitorStats.active)
-// const todayUsers  = computed(() => sb.visitorStats.today)
-// const totalUsers  = computed(() => sb.visitorStats.total)
-const route      = useRoute()
-const isFeedMain = computed(() => route.path === '/')
-
-let timer = null
-onBeforeUnmount(
-    () => clearInterval(timer)
-)
 
 const statusIcon = s => (s === 'DONE' ? '✅' : s === 'IN_PROGRESS' ? '⏳' : '📝')
 const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
+
+const recentRankIcon = i => {
+  const fire = '🔥'
+  return `${i+1}. ${fire}`
+}
 </script>
 
 <style scoped>
