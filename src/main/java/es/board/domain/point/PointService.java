@@ -8,7 +8,6 @@ public interface PointService {
 
     void grantActivityPoint(String userId, String activityType, int pointChange, int limitCount);
 
-
     List<TopWriter> getSumTop5RecentUser();
     List<TopWriter> getSumTop5User();
     void createPointHistory(String userId, int pointChange, String reason);

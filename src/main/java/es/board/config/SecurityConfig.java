@@ -2,6 +2,7 @@ package es.board.config;
 
 //import es.board.filter.JwtAuthenticationFilter;
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.filter.JwtUserResolverFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +23,17 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-
+    @Bean
+    public JwtUserResolverFilter jwtUserResolverFilter() {
+        return new JwtUserResolverFilter(jwtTokenProvider);
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll())
-//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtUserResolverFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

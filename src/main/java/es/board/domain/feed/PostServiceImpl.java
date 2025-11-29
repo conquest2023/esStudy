@@ -4,6 +4,7 @@ import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.repository.entity.repository.PostImageRepository;
@@ -22,6 +23,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,10 +45,9 @@ import static es.board.util.ResizeImage.widthFrom;
 public class PostServiceImpl implements PostService {
 
 
-    private final PointService pointService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final PollService pollService;
-
 
     private final PostImageRepository imageRepository;
 
@@ -88,7 +89,8 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postRepository.savePost(Post.toEntity(post));
         int postId = postEntity.getId();
         imageUploadAndRewriteHtml(req.getDescription(), postId);
-        pointService.grantActivityPoint(userId, "피드", 3, 5);
+        eventPublisher.publishEvent(new PostCreatedEvent(postId,userId,req));
+
     }
 
 

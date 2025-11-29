@@ -5,6 +5,8 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.config.redis.RedisConfig;
+import es.board.domain.point.PointService;
+import es.board.service.AuthService;
 import es.board.service.VisitorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +35,13 @@ public class IpLimitInterceptor implements HandlerInterceptor {
 
     @Autowired
     private VisitorService visitorService;
+
+    @Autowired
+    private PointService pointService;
+
+    @Autowired
+    private AuthService authService;
+
 //    private final Cache<String, LocalDateTime> visitCache = Caffeine.newBuilder()
 //            .expireAfterWrite(1, TimeUnit.DAYS)
 //            .maximumSize(10000)
@@ -80,14 +89,16 @@ public class IpLimitInterceptor implements HandlerInterceptor {
             return true;
         }
         String userAgent = request.getHeader("User-Agent");
-        String userId = (token != null && token.startsWith("Bearer "))
-                ? jwtTokenProvider.getUserId(token.substring(7)) : "guest";
         String today = LocalDate.now().toString();
         String visitKey = VISIT_KEY_PREFIX + today + ":" + ipAddress;
         Boolean hasVisited = redisTemplate.hasKey(visitKey);
         if ((hasVisited == null || !hasVisited)) {
+            if (currentUserId!=null){
+                pointService.grantActivityPoint(currentUserId,"로그인",3,1);
+                authService.updateLastLogin(currentUserId);
+            }
             redisTemplate.opsForValue().set(visitKey, "visited", Duration.ofDays(1));
-            visitorService.saveIP(userId, ipAddress, userAgent);
+            visitorService.saveIP(currentUserId, ipAddress, userAgent);
             log.info("새로운 방문자 기록 - {} , {}", ipAddress ,visitKey);
         } else {
             log.info("중복 방문 방지 - {}", ipAddress);

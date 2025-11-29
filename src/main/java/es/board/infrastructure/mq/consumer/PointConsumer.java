@@ -1,9 +1,9 @@
-package es.board.domain.event.consumer;
+package es.board.infrastructure.mq.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
-import es.board.domain.event.FeedEvent;
+import es.board.infrastructure.mq.FeedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

@@ -1,4 +1,4 @@
-package es.board.domain.event;
+package es.board.infrastructure.mq;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

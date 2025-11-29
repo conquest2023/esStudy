@@ -1,6 +1,7 @@
 package es.board.service.impl;
 
 import es.board.controller.model.dto.feed.*;
+import es.board.domain.point.PointService;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.repository.entity.repository.UserRepository;
@@ -27,15 +28,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-
+    private final PointService pointService;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final UserRepository userRepository;
-
-//    private final AsyncService asyncService;
-
-    private final PointHistoryRepository pointHistoryRepository;
 
     private final StringRedisTemplate redisTemplate;
 
@@ -56,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.updateLastLogin(login.getUserId(), LocalDateTime.now());
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
         authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        grantLoginPoint(login.getUserId());
+        pointService.grantActivityPoint(login.getUserId(),"로그인",3,1);
         return true;
     }
 
@@ -71,6 +68,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void updateLastLogin(String userId) {
+          userRepository.updateLastLogin(userId,LocalDateTime.now());
+    }
+
+    @Override
     public Boolean checkId(SignUpDTO sign) {
         if (userRepository.findByUserid(sign.getUserId()) == null) {
             return true;
@@ -78,55 +80,17 @@ public class AuthServiceImpl implements AuthService {
         return false;
     }
 
-
     @Override
     public void autoLogin(String userId,String token) {
 
         redisTemplate.opsForValue().set("RT:" + userId,
-                token, Duration.ofDays(7) // 만료시간 설정
+                token, Duration.ofDays(7)
         );
     }
-
     @Override
     public Authentication authenticate(LoginDTO login) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);
     }
 
-    public void grantLoginPoint(String userId) {
-        String today = LocalDate.now().toString();
-        String key = "login:point:" + userId + ":" + today;
-        if (redisTemplate.hasKey(key)) {
-            log.info("이미 로그인 포인트를 받은 유저입니다: {}", userId);
-            return;
-        }
-        createPointHistory(userId);
-        redisTemplate.opsForValue().set(key, "done", Duration.ofDays(1));
-        log.info("로그인 포인트 지급 완료: {}", userId);
-    }
-
-    public void createPointHistory(String userId) {
-        PointHistoryEntity history = PointHistoryEntity.builder()
-                .userId(userId)
-                .pointChange(2)
-                .reason("로그인")
-                .createdAt(LocalDateTime.now())
-                .build();
-        pointHistoryRepository.save(history);
-    }
-
-    public List<CommentDTO.Request> getCommentOwnerList(Object comments, String commentOwner, String feedUID, String userId) {
-
-        return  null;
-//        if (!(comments instanceof List<?>)) {
-//            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
-//        }
-//        List<CommentDTO.Response> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-//        return commentList.stream()
-//                .peek(comment -> {
-//                    comment.setAuthor(comment.getUserId().equals(userId));
-//                    comment.setCommentOwner(comment.getUserId().equals(commentOwner));
-//                })
-//                .collect(Collectors.toList());
-    }
 }

@@ -40,7 +40,6 @@ public class UserController {
     }
 
 
-
     @PostMapping("/check")
     public ResponseEntity<Boolean> checkUserId(@RequestBody SignUpDTO sign) {
         boolean isAvailable = userService.checkId(sign);

@@ -1,8 +1,8 @@
-package es.board.domain.event.producer;
+package es.board.infrastructure.mq.producer;
 
 
 import es.board.config.rabbitmq.RabbitMQQueue;
-import es.board.domain.event.FeedEvent;
+import es.board.infrastructure.mq.FeedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;

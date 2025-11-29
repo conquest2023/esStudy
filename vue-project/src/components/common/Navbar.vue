@@ -428,7 +428,10 @@ const menus = [
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
 
-        <button class="btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
+        <button
+            class="d-none d-md-inline-block btn btn-danger btn-sm"
+            @click="router.push('/search/view/feed/Form')"
+        >
           글쓰기
         </button>
 

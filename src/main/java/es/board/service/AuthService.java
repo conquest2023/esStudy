@@ -10,6 +10,8 @@ public interface AuthService {
 //    List<UserPointProjection> getSumPointUser();
      User findByUser(String  username);
 
+    void updateLastLogin(String userId);
+
     void  autoLogin(String userId, String token);
 
     void registerUser(SignUpDTO sign);
