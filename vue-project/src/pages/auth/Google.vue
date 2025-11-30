@@ -52,7 +52,7 @@ const loginWithSocialUser = async (user) => {
 
     const tokenData = await res.json()
     localStorage.setItem('token', tokenData.accessToken)
-    window.location.href = '/'x3
+    window.location.href = '/'
   } catch (error) {
     console.error('JWT 발급 실패:', error)
   }

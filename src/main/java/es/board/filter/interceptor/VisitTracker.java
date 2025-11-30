@@ -41,6 +41,7 @@ public class VisitTracker {
             redisTemplate.expireAt(dailyIpSetKey, expireAt);
         }
 
+
         // 2) 유저 기준 '오늘 유니크 사용자' 집합 (포인트/마지막 로그인 1회)
         if (userId != null) {
             String dailyUserSetKey = "visit:user:unique:" + today;
