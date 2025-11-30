@@ -5,7 +5,6 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.PostDomainMapper;
-import es.board.ex.TokenValidator;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.domain.feed.PostService;
 import jakarta.servlet.http.Cookie;
@@ -21,7 +20,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class PostController {
 
     @PostMapping("/post")
     public ResponseEntity<?> savePost(@RequestAttribute("userId") String userId,
-                                      @RequestPart("feed")PostDTO.Request req){
+                                      @RequestPart("feed") PostDTO.Request req){
 
         postService.savePost(userId,req);
         return ResponseEntity.ok(Map.of(

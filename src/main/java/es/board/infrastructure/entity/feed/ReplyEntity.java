@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reply", schema = "board")
 @Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -47,9 +48,6 @@ public class ReplyEntity {
     @Column(name = "like_count", nullable = false)
     private int likeCount;
 
-    /**
-     * 생성 시각
-     */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

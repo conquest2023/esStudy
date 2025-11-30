@@ -2,7 +2,6 @@
   <teleport to="body">
     <div class="toast-container" @click="onToastContainerClick">
       <div v-for="t in toasts" :key="t.id" class="toast-item">
-        <!-- 여기에서 v-html 로 메시지를 렌더 -->
         <div class="toast-body" v-html="t.msg"></div>
       </div>
     </div>

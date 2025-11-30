@@ -43,11 +43,11 @@ public class FeedMapper {
                 .build();
     }
 
-    public List<PostDTO.Response> fromBoardDtoList(List<Board> boards) {
+    public List<PostDTO.Request> fromBoardDtoList(List<Board> boards) {
         return boards.stream()
-                .map(board -> PostDTO.Response.builder()
+                .map(board -> PostDTO.Request.builder()
 //                        .feedUID(board.getFeedUID())
-                        .id(board.getId())
+//                        .id(board.getId())
                         .username(board.getUsername())
                         .title(board.getTitle())
                         .description(board.getDescription())
@@ -59,11 +59,11 @@ public class FeedMapper {
                 .collect(Collectors.toList());
     }
 
-    public PostDTO.Response fromBoardDto(Board board) {
-        return PostDTO.Response.builder()
+    public PostDTO.Request fromBoardDto(Board board) {
+        return PostDTO.Request.builder()
 //                .feedUID(board.getFeedUID())
-                .id(board.getId())
-                .userId(board.getUserId())
+//                .id(board.getId())
+//                .userId(board.getUserId())
                 .username(board.getUsername())
                 .title(board.getTitle())
                 .description(board.getDescription())
@@ -260,9 +260,9 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-//    public List<ReplyDTO.Response> fromReplyDtoList(List<Reply> reply) {
+//    public List<ReplyDTO.Request> fromReplyDtoList(List<Reply> reply) {
 //        return reply.stream()
-//                .map(reply1 -> ReplyDTO.Response.builder()
+//                .map(reply1 -> ReplyDTO.Request.builder()
 //                        .feedUID(reply1.getFeedUID())
 //                        .commentUID(reply1.getCommentUID())
 //                        .username(reply1.getUsername())

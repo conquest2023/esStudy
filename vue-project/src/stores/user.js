@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', {
     }),
 
     actions: {
-        async fetchMe () {
+        async fetchMe() {
             const token = localStorage.getItem('token')
             if (!token) return this.$reset()
 
@@ -25,9 +25,9 @@ export const useUserStore = defineStore('user', {
             this.loading = true
             this._inFlight = (async () => {
                 try {
-                    const { data } = await api.get('/info')
+                    const {data} = await api.get('/info')
                     this.isLoggedIn = !!data?.isLoggedIn
-                    this.username   = data?.username || ''
+                    this.username = data?.username || ''
                 } catch (e) {
                     this.$reset()
                 } finally {
@@ -38,28 +38,36 @@ export const useUserStore = defineStore('user', {
             return this._inFlight
         },
 
-        setAuth (token, name) {
+        setAuth(token, name) {
             localStorage.setItem('token', token)
             localStorage.setItem('username', name)
             this.isLoggedIn = true
-            this.username   = name
+            this.username = name
         },
 
-        logout () {
+        logout() {
             localStorage.removeItem('token')
             localStorage.removeItem('username')
             this.$reset()
         },
 
-        // /** ▣ 알림 추가 */
-        // addNotification (n) {
-        //     // Vue가 반응형으로 감지할 수 있도록 새 배열로 할당
-        //     this.notifications = [n, ...this.notifications]
-        //     localStorage.setItem('notifications', JSON.stringify(this.notifications))
-        // },
-        //
+        addNotification(parsed) {
+            const {postId = null, message} = parsed;
 
-        /** ▣ 알림 일괄 읽음 */
+            const newNotification = {
+                id: Date.now(),
+                postId: postId,
+                message: message,
+                read: false
+            };
+
+            this.notifications = [newNotification, ...this.notifications];
+
+            localStorage.setItem('notifications', JSON.stringify(this.notifications));
+
+            return newNotification;
+        },
+
         markAllRead () {
             this.notifications.forEach(n => (n.read = true))
             localStorage.setItem('notifications', JSON.stringify(this.notifications))

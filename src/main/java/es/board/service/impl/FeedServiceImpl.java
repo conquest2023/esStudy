@@ -85,13 +85,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<PostDTO.Response> findWeekBestFeed(int page, int size) {
+    public   List<PostDTO.Request> findWeekBestFeed(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findWeekBestFeed(page,size));
     }
 
 
     @Override
-    public   List<PostDTO.Response> findCommentDESC(int page, int size) {
+    public   List<PostDTO.Request> findCommentDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findCountComment(page,size));
     }
 
@@ -101,13 +101,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public   List<PostDTO.Response> findReplyDESC(int page, int size) {
+    public   List<PostDTO.Request> findReplyDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
     }
 
 
     @Override
-    public   List<PostDTO.Response> findViewDESC(int page, int size) {
+    public   List<PostDTO.Request> findViewDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findViewDESC(page,size));
     }
 
@@ -155,55 +155,55 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<PostDTO.Response> getRecommendFeed() {
+    public List<PostDTO.Request> getRecommendFeed() {
 
-        ValueOperations<String, List<PostDTO.Response>> valueOps = redisTemplate.opsForValue();
+        ValueOperations<String, List<PostDTO.Request>> valueOps = redisTemplate.opsForValue();
 
-        List<PostDTO.Response> cachedData = valueOps.get(RECOMMEND_KEY);
+        List<PostDTO.Request> cachedData = valueOps.get(RECOMMEND_KEY);
 
         if (cachedData != null) {
             return cachedData;
         }
-        List<PostDTO.Response> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
+        List<PostDTO.Request> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
 
         valueOps.set(RECOMMEND_KEY, feedRequests, 6, TimeUnit.HOURS);
         return feedRequests;
     }
 
     @Override
-    public List<String> getfeedUIDList(List<PostDTO.Response> requests) {
+    public List<String> getfeedUIDList(List<PostDTO.Request> requests) {
 
         return null;
     }
 
     @Override
-    public List<PostDTO.Response> getCategoryFeed(String category) {
+    public List<PostDTO.Request> getCategoryFeed(String category) {
         return feedMapper.fromBoardDtoList(feedDAO.findCategoryAndContent(category));
     }
 
     @Override
-    public List<PostDTO.Response> getMonthPopularFeed() {
+    public List<PostDTO.Request> getMonthPopularFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMonthPopularFeed());
     }
 
     @Override
-    public List<PostDTO.Response> getPopularFeedDESC(int page, int size) {
+    public List<PostDTO.Request> getPopularFeedDESC(int page, int size) {
         return feedMapper.fromBoardDtoList(feedDAO.findPopularFeedDESC(page, size));
     }
 
     @Override
-    public List<PostDTO.Response> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
+    public List<PostDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
         return feedMapper.fromBoardDtoList(feedDAO.findRangeTimeFeed(startDate, endTime));
     }
     @Override
-    public PostDTO.Response getPopularFeedOne() {
+    public PostDTO.Request getPopularFeedOne() {
 
         return feedMapper.fromBoardDto(feedDAO.findPopularFeedOne());
     }
 
     @Override
-    public List<PostDTO.Response> getRecentFeed() {
+    public List<PostDTO.Request> getRecentFeed() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findRecentFeed());
     }
@@ -250,19 +250,19 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<PostDTO.Response> getLikeCount() {
+    public List<PostDTO.Request> getLikeCount() {
 
         return feedMapper.fromBoardDtoList(feedDAO.findLikeCount());
     }
 
     @Override
-    public List<PostDTO.Response> getPagingFeed(int page, int size) {
+    public List<PostDTO.Request> getPagingFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findPagingMainFeed(page, size));
     }
 
     @Override
-    public List<PostDTO.Response> getMostViewFeed(int page, int size) {
+    public List<PostDTO.Request> getMostViewFeed(int page, int size) {
 
         return feedMapper.fromBoardDtoList(feedDAO.findMostViewFeed(page, size));
     }
@@ -319,7 +319,7 @@ public class FeedServiceImpl implements FeedService {
 
 
     @Override
-    public PostDTO.Response getFeedDetail(String id) {
+    public PostDTO.Request getFeedDetail(String id) {
 
         return feedMapper.fromBoardDto(feedDAO.findFeedDetail(id));
     }
@@ -377,9 +377,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-//    private List<String> extractFeedUID(List<PostDTO.Response> requests) {
+//    private List<String> extractFeedUID(List<PostDTO.Request> requests) {
 //        List<String> feedUIDs = requests.stream()
-//                .map(PostDTO.Response::getFeedUID)
+//                .map(PostDTO.Request::getFeedUID)
 //                .collect(Collectors.toList());
 //        return feedUIDs;
 //    }

@@ -130,8 +130,8 @@
 //            @RequestParam(defaultValue = "0") int page,
 //            @RequestParam(defaultValue = "10") int size) {
 //            Map<String,Object> feedCount=  feedService.getFetchTotalFeedStats();
-//            List<VoteDTO.Response> vote=voteService.getVotePageFeed(page,size);
-//            List<PostDTO.Response> data = feedService.getPagingFeed(page, size);
+//            List<VoteDTO.Request> vote=voteService.getVotePageFeed(page,size);
+//            List<PostDTO.Request> data = feedService.getPagingFeed(page, size);
 //            Map<String,Double> countMap = commentService.getCommentAndReplyAggregation(feedService.getfeedUIDList(data), page, size);
 //            Long totalPage = (Long) feedCount.get("totalFeedCount");
 //            return ResponseEntity.ok(Map.of(
@@ -226,7 +226,7 @@
 ////        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
 ////        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
 ////        response.put("count",commentRes.get("commentCount"));
-////        PostDTO.Response feedRequest=feedService.getFeedDetail(feedUID);
+////        PostDTO.Request feedRequest=feedService.getFeedDetail(feedUID);
 ////        String token = request.getHeader("Authorization");
 ////        if (token != null && token.startsWith("Bearer ")) {
 ////            token = token.substring(7);
@@ -244,7 +244,7 @@
 ////        Map<String,Object> commentRes= commentService.findCommentsWithCount(feedUID);
 ////        response.put("replies", replyService.getRepliesGroupedByComment(feedUID));
 ////        response.put("count",commentRes.get("commentCount"));
-////        VoteDTO.Response req=voteService.getVoteDetail(feedUID);
+////        VoteDTO.Request req=voteService.getVoteDetail(feedUID);
 ////        if (token != null && token.startsWith("Bearer ")) {
 ////            token =token.substring(7);
 ////            if (jwtTokenProvider.validateToken(token)) {
@@ -267,7 +267,7 @@
 //        response.put("redirectUrl", "/");
 //        return ResponseEntity.ok(response);
 //    }
-//    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(PostDTO.Response feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
+//    private ResponseEntity<Map<String, Object>>handleAuthenticatedRequest(PostDTO.Request feedRequest, String commentOwner, Map<String, Object> response, String token, Object comments) {
 //        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),feedRequest.getFeedUID()));
 //        response.put("Owner", jwtTokenProvider.getUserId(token).equals(feedRequest.getUserId()));
 //        response.put("username", jwtTokenProvider.getUsername(token));
@@ -276,13 +276,13 @@
 //        response.put("data", feedRequest);
 //        return ResponseEntity.ok(response);
 //    }
-////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, PostDTO.Response req, Map<String, Object> response) {
+////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedRequest(Object comments, PostDTO.Request req, Map<String, Object> response) {
 ////
 ////        if (!(comments instanceof List<?>)) {
 ////            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
 ////        }
-////        List<CommentDTO.Response> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-////        List<CommentDTO.Response> requests=  commentList
+////        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+////        List<CommentDTO.Request> requests=  commentList
 ////                .stream()
 ////                .peek(comment -> {
 ////                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));
@@ -296,7 +296,7 @@
 ////        return ResponseEntity.ok(response);
 ////    }
 ////
-////    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO.Response req, String commentOwner, Map<String, Object> response, String token, Object comments) {
+////    private ResponseEntity<Map<String, Object>>handleAuthenticatedVoteRequest(VoteDTO.Request req, String commentOwner, Map<String, Object> response, String token, Object comments) {
 //////        response.put("isLiked",feedService.isAlreadyLiked(jwtTokenProvider.getUserId(token),req.getFeedUID()));
 ////        response.put("Owner", jwtTokenProvider.getUserId(token).equals(req.getUserId()));
 ////        response.put("username", jwtTokenProvider.getUsername(token));
@@ -305,13 +305,13 @@
 ////        response.put("data", req);
 ////        return ResponseEntity.ok(response);
 ////    }
-////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO.Response req, Map<String, Object> response) {
+////    private ResponseEntity<Map<String, Object>> handleUnauthenticatedVoteRequest(Object comments, VoteDTO.Request req, Map<String, Object> response) {
 ////
 ////        if (!(comments instanceof List<?>)) {
 ////            throw new IllegalArgumentException("comments 파라미터가 List<CommentRequest> 타입이 아닙니다.");
 ////        }
-////        List<CommentDTO.Response> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
-////        List<CommentDTO.Response> requests=  commentList
+////        List<CommentDTO.Request> commentList = commentMapper.changeCommentListDTO((List<Comment>) comments);
+////        List<CommentDTO.Request> requests=  commentList
 ////                .stream()
 ////                .peek(comment -> {
 ////                    comment.setAuthor(req.getUserId()!=null && req.getUserId().equals(comment.getUserId()));

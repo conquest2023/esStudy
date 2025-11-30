@@ -376,7 +376,7 @@
 //    public ResponseEntity<?> getReplyDesc(@RequestParam(defaultValue = "0") int page,
 //                                             @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Response> data= feedService.findReplyDESC(page, size);
+//        List<PostDTO.Request> data= feedService.findReplyDESC(page, size);
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,
 //                "totalPage",500
@@ -387,7 +387,7 @@
 //    public ResponseEntity<?> getCommentDesc(@RequestParam(defaultValue = "0") int page,
 //                                          @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Response> data= feedService.findCommentDESC(page, size);
+//        List<PostDTO.Request> data= feedService.findCommentDESC(page, size);
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,
 //                "totalPage",500
@@ -399,7 +399,7 @@
 //    public ResponseEntity<?> getViewDesc(@RequestParam(defaultValue = "0") int page,
 //                                            @RequestParam(defaultValue = "10") int size) {
 //
-//        List<PostDTO.Response> data = feedService.findViewDESC(page, size);
+//        List<PostDTO.Request> data = feedService.findViewDESC(page, size);
 //
 //        return ResponseEntity.ok(Map.of(
 //                "data", data,

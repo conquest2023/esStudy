@@ -68,7 +68,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
     }
 
     @Override
-    public List<PostDTO.Response> getFeedAndCommentMyPage(String userId, int page , int size) {
+    public List<PostDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size) {
 
         return  feedMapper.fromBoardDtoList(commentDAO.findFeedAndCommentMypage(userId,page,size));
     }

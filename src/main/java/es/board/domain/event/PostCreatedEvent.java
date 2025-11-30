@@ -1,7 +1,6 @@
 package es.board.domain.event;
 
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.dto.feed.ReplyDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,7 +13,7 @@ public class PostCreatedEvent {
 
     private final String userId;
 
-    private final PostDTO.Request request;
+    private final PostDTO.Request response;
 
 
 

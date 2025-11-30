@@ -6,10 +6,10 @@ import es.board.infrastructure.entity.feed.ReplyEntity;
 import es.board.domain.PostRepository;
 import es.board.domain.ReplyRepository;
 import es.board.domain.event.ReplyCreatedEvent;
-import es.board.domain.event.reply.ReplyEventListener;
 import es.board.domain.Reply;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
 
@@ -32,7 +33,7 @@ public class ReplyServiceImpl implements ReplyService {
         Reply reply = ReplyDomainMapper.toDomain(userId, response);
         ReplyEntity entity = Reply.toEntity(reply);
         replyRepository.saveReply(entity);
-        eventPublisher.publishEvent(new ReplyCreatedEvent(response.getPostId(),userId,entity.getCommentId(),response));
+        eventPublisher.publishEvent(new ReplyCreatedEvent(response.getPostId(),entity.getUserId(),response.getCommentId(),response));
     }
     @Override
     public List<ReplyDTO.Request> getReplys(String userId,int postId) {

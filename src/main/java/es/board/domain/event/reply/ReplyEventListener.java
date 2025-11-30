@@ -10,7 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class ReplyEventListener {
 
@@ -24,18 +25,15 @@ public class ReplyEventListener {
     @EventListener(ReplyCreatedEvent.class)
     public void handleReplyCreated(ReplyCreatedEvent event) {
 
-        String commenterId = event.getUserId();
-        String postOwnerId = commentRepository.findByUserId(event.getCommentId());
-        if (postOwnerId != null && !commenterId.equals(postOwnerId)) {
-
-
+        String commentOwnerId = commentRepository.findByUserId(event.getCommentId());
+        if (commentOwnerId != null) {
             notificationService.sendReplyNotification(
-                    commenterId,
+                    commentOwnerId,
                     event.getPostId(),
                     event.getResponse().getUsername() + "님이 답글을 작성하였습니다: " + event.getResponse().getContent()
             );
 
-            notificationRepository.save(ReplyDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
+            notificationRepository.save(ReplyDomainMapper.toEntityNotification(commentOwnerId, event.getResponse()));
 
         }
     }

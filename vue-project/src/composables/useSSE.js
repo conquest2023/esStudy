@@ -1,52 +1,58 @@
 import { onBeforeUnmount } from 'vue'
 import { useToast } from './useToast'
 import { useUserStore } from '@/stores/user'
-import { addFeedNotification } from '@/utils/notification'
-import { showToast } from '@/utils/showToast'
 export function useSSE(token) {
-    if (!token) return
+    if (!token) {
+        console.warn('[SSE] 토큰이 없어 연결을 시도하지 않습니다.')
+        return
+    }
+
     const { push } = useToast()
     const store = useUserStore()
+
 
     const es = new EventSource(`/api/subscribe?token=${encodeURIComponent(token)}`)
 
     const handleNotification = (e, emoji) => {
-        console.log('핸들러 진입 성공!', e);
+        console.log(`[SSE] ${emoji} 이벤트 수신 성공!`, e.type, e.data);
         let parsed
-        setTimeout(() => console.log(e), 50000)
+
         try {
             parsed = JSON.parse(e.data)
         }
-        catch {
-            return console.error('알림 JSON 파싱 실패', e.data)
+        catch (error) {
+            return console.error('[SSE] 알림 JSON 파싱 실패:', e.data, error)
         }
-        store.addNotification({
-            id: Date.now(),
-            postId:  parsed.postId,
-            message: parsed.message,
-            read:    false
-        })
-        push(e.data);
-        // addFeedNotification(parsed, store, showToast)
 
+
+        const newNotification = store.addNotification(parsed)
+
+        const beautifulMessage = `${emoji} ${newNotification.message}`
+        const postPath = `/post/${newNotification.postId}`
+        push(beautifulMessage, postPath);
     }
+
+
     es.onopen = () => {
-        console.log('[SSE] 연결 성공')
+        console.log('[SSE] 연결 성공 및 스트리밍 시작')
     }
-    es.onerror = () => {
-        console.warn('[SSE] 오류 발생 – 20초 뒤 재연결 시도')
+
+    es.onerror = (error) => {
+        console.warn('[SSE] ❌ 오류 발생 또는 연결 끊김. 20초 뒤 재연결 시도', error)
         es.close()
-        setTimeout(() => useSSE(token), 30000)
+
+        setTimeout(() => useSSE(token), 20000)
     }
-    // 다양한 타입의 알림
-    es.addEventListener('comment-notifications', e => handleNotification(e, '💬'))
+
+
+    es.addEventListener('comment-notification', e => handleNotification(e, '💬'))
     es.addEventListener('todo-notification', e => handleNotification(e, '📝'))
     es.addEventListener('reply-notification', e => handleNotification(e, '↩️'))
     es.addEventListener('notice-notification', e => handleNotification(e, '📢'))
-    es.addEventListener('point-notification', e => handleNotification(e, '📢'))
+    es.addEventListener('point-notification', e => handleNotification(e, '💰'))
 
     onBeforeUnmount(() => {
-        console.log('[SSE] 연결 종료')
+        console.log('[SSE] 🚪 컴포넌트 언마운트 시 연결 종료')
         es.close()
     })
 }

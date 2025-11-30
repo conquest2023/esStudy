@@ -20,7 +20,7 @@ public class JwtUserResolverFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         String auth = req.getHeader("Authorization");
-        String uid = null;
+        String uid ="";
         if (auth != null && auth.startsWith("Bearer ")) {
             uid = jwt.getUserId(auth.substring(7));
         }

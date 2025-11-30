@@ -22,7 +22,7 @@ public final class PollDomainMapper {
     }
 
     // =========================================================
-    // Poll: DTO.Response -> Entity
+    // Poll: DTO.Request -> Entity
     // =========================================================
     public static PollEntity toEntity(PostEntity post, PollDto.Request dto) {
 
@@ -163,7 +163,7 @@ public final class PollDomainMapper {
 //    }
 
     // =========================================================
-    // PollVote: DTO.Response -> Entity
+    // PollVote: DTO.Request -> Entity
     // (주의: Poll, PollOption 주입은 Service 레벨에서)
     // =========================================================
     public static PollVoteEntity toVoteEntity(PollVoteDTO.Response dto, PollEntity poll, PollOptionEntity option) {

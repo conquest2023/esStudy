@@ -35,10 +35,10 @@ public class OGController {
     public String serveOGPage(@RequestParam("id") String id, Model model) {
 
         log.info("sadads");
-        PostDTO.Response feed = feedService.getFeedDetail(id);
+        PostDTO.Request feed = feedService.getFeedDetail(id);
         model.addAttribute("title", feed.getTitle());
         model.addAttribute("description", feed.getDescription());
-        model.addAttribute("image", feed.getImageURL());
+//        model.addAttribute("image", feed.getImageURL());
         model.addAttribute("url", "https://workly.info/search/view/feed/id/" + id);
 
         return "/basic/feed/FeedDetails"; // ✅ OG 태그 포함된 Thymeleaf 템플릿

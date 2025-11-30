@@ -50,7 +50,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public boolean login(LoginDTO login) {
-        userRepository.updateLastLogin(login.getUserId(), LocalDateTime.now());
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(), login.getPassword());
         authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         pointService.grantActivityPoint(login.getUserId(),"로그인",3,1);
@@ -69,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void updateLastLogin(String userId) {
+
           userRepository.updateLastLogin(userId,LocalDateTime.now());
     }
 

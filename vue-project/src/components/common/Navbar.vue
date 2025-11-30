@@ -8,7 +8,7 @@ import { useToast } from '@/composables/useToast'
 
 const user = useUserStore()
 const router = useRouter()
-const { push } = useToast()
+const { push, toasts } = useToast()
 const notifications = ref([])
 const unreadCount = computed(() =>
     notifications.value.filter(n => !n.isCheck).length
@@ -41,14 +41,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleGlobalClick)
 })
-function handleClick(toast) {
-  if (toast.url) {
-    // URL이 있으면 라우터 이동
-    router.push(toast.url)
-    // 이동 후 토스트 제거
-    removeToast(toast.id)
-  }
-}
+
+// 🚨 handleClick(toast) 함수는 useToast.js의 onClick 핸들러로 대체되었으므로 제거했습니다.
+// function handleClick(toast) {
+//   if (toast.url) {
+//     router.push(toast.url)
+//     removeToast(toast.id)
+//   }
+// }
 async function fetchNotifications() {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -63,28 +63,27 @@ async function fetchNotifications() {
 
     let unreadNotifications = fetchedNotifications.filter(n => !n.isCheck)
     unreadNotifications.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-
-    const unreadCount = unreadNotifications.length
-    const pushCount = Math.ceil(unreadCount / 2)
-
-    if (pushCount > 0) {
-      const notificationsToPush = unreadNotifications.slice(0, pushCount)
-
-      notificationsToPush.forEach((notification) => {
-        const { username, message, createdAt, postId } = notification
-        const time = new Date(createdAt).toLocaleTimeString('ko-KR', {
-          hour: '2-digit', minute: '2-digit'
-        })
-
-        const beautifulMessage = `(${time}) ${username}: ${message}`
-        push(
-            `🔔 ${beautifulMessage}`,
-            `/post/${postId}`
-        )
-
-      })
-    }
-
+    // 이전 코드에서 unread notifications을 fetch 후 토스트로 푸시하는 로직은 주석 처리되어 있습니다.
+    // 필요하다면 주석을 해제하세요. (이 코드는 서버가 아닌 Vue 클라이언트에서 토스트를 재발행합니다.)
+    // const unreadCount = unreadNotifications.length
+    // const pushCount = Math.ceil(unreadCount / 2)
+    //
+    // if (pushCount > 0) {
+    //   const notificationsToPush = unreadNotifications.slice(0, pushCount)
+    //
+    //   notificationsToPush.forEach((notification) => {
+    //     const { username, message, createdAt, postId } = notification
+    //     const time = new Date(createdAt).toLocaleTimeString('ko-KR', {
+    //       hour: '2-digit', minute: '2-digit'
+    //     })
+    //
+    //     const beautifulMessage = `(${time}) ${username}: ${message}`
+    //     push(
+    //         `🔔 ${beautifulMessage}`,
+    //         `/post/${postId}`
+    //     )
+    //   })
+    // }
   } catch (e) {
     console.error('알림 불러오기 실패', e)
   }
@@ -296,15 +295,12 @@ const menus = [
 <template>
   <nav class="okky-navbar navbar fixed-top bg-white shadow-sm px-3">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-      <!-- 로고 -->
       <router-link to="/" class="navbar-brand text-primary fw-bold">Workly</router-link>
 
-      <!-- 태그라인 -->
       <span class="tagline d-none d-md-inline text-muted me-4 flex-shrink-1 text-wrap">
         미래를 준비하는 사람들을 위한 사이트
       </span>
 
-      <!-- 상단 메뉴 -->
       <ul class="nav d-none d-md-flex gap-3 top-nav-menu-area">
         <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
           <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
@@ -329,8 +325,7 @@ const menus = [
               class="fas fa-bell fa-lg bell-trigger"
               :class="hasUnread ? 'text-primary bell-has-unread' : 'text-secondary'"
               style="cursor:pointer"
-              @click.stop="toggleNoti"
-          />
+              @click.stop="toggleNoti"/>
           <span
               v-if="unreadCount > 0"
               class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle"
@@ -402,7 +397,6 @@ const menus = [
               </li>
             </ul>
 
-            <!-- 비어있을 때 -->
             <div
                 v-else
                 class="d-flex flex-column align-items-center justify-content-center text-muted py-4 small"
@@ -423,7 +417,6 @@ const menus = [
           </div>
         </div>
 
-        <!-- 테마 토글 -->
         <button class="btn btn-outline-dark btn-sm" @click="toggleTheme">
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
@@ -461,6 +454,19 @@ const menus = [
       </div>
     </div>
   </nav>
+
+<!--  <div class="toast-wrapper">-->
+<!--    <div-->
+<!--        v-for="toast in toasts"-->
+<!--        :key="toast.id"-->
+<!--        class="custom-toast"-->
+<!--        :class="{ 'clickable': !!toast.onClick }"-->
+<!--        @click="toast.onClick ? toast.onClick() : null"-->
+<!--    >-->
+<!--      <div class="toast-message">{{ toast.msg }}</div>-->
+<!--      <i v-if="toast.onClick" class="fas fa-external-link-alt toast-icon"></i>-->
+<!--    </div>-->
+<!--  </div>-->
 </template>
 
 <style scoped>
@@ -651,6 +657,65 @@ const menus = [
     right: 10px;
     left: 10px;
     max-width: none; /* 최대 너비 제한 해제 */
+  }
+}
+
+/* ⬅️ 💡 토스트 스타일 추가 💡 ➡️ */
+.toast-wrapper {
+  position: fixed;
+  top: 74px; /* 네비게이션 바 아래에 위치 */
+  right: 20px;
+  z-index: 3000; /* 네비게이션 바(z-index: 2000) 위에 표시 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.custom-toast {
+  background-color: var(--c-surface, #ffffff);
+  color: var(--c-text, #212529);
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border-left: 5px solid #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0.95;
+  transition: all 0.3s ease;
+  transform: translateX(0);
+  animation: slideIn 0.3s ease-out;
+}
+
+.custom-toast.clickable {
+  cursor: pointer;
+  border-color: #2563eb; /* 클릭 가능한 토스트 강조 */
+}
+
+.custom-toast.clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.toast-message {
+  font-weight: 500;
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.toast-icon {
+  font-size: 0.8em;
+  color: #2563eb;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 0.95;
+    transform: translateX(0);
   }
 }
 </style>

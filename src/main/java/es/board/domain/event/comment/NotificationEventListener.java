@@ -6,9 +6,11 @@ import es.board.domain.PostRepository;
 import es.board.service.NotificationService;
 import es.board.domain.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationEventListener {
@@ -20,14 +22,13 @@ public class NotificationEventListener {
     @EventListener(CommentCreatedEvent.class)
     public void handleCommentCreated(CommentCreatedEvent event) {
 
-        String commenterId = event.getUserId();
         String postOwnerId = postRepository.findByUserId(event.getPostId());
-
-        if (postOwnerId != null && !commenterId.equals(postOwnerId)) {
+        log.info(postOwnerId);
+        if (postOwnerId != null) {
 
             // 2. 알림 전송 로직
             notificationService.sendCommentNotification(
-                    commenterId,
+                    postOwnerId,
                     event.getPostId(),
                     event.getResponse().getUsername() + "님이 댓글을 작성하였습니다: " + event.getResponse().getContent()
             );

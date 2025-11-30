@@ -60,14 +60,14 @@ public class ReplyIndexServiceImpl implements ReplyIndexService {
 ////        slackNotifier.sendMessage(String.format("%s님이 \"%s\" 글을 작성하셨습니다",
 ////                response.getUsername(),
 ////                response.getContent().replace("\"", "'")));
-        notificationService.sendPointNotification(response.getUserId(),response.getPostId(),"답글 작성 포인트를 발급 받으셨습니디");
+//        notificationService.sendPointNotification(response.getUserId(),response.getPostId(),"답글 작성 포인트를 발급 받으셨습니디");
 
     }
     public Map<String, List<ReplyDTO.Request>> getRepliesGroupedByComment(String feedId) {
         return  null;
-//        List<ReplyDTO.Response> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
+//        List<ReplyDTO.Request> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
 //        return replies.stream()
-//                .collect(Collectors.groupingBy(ReplyDTO.Response::getCommentUID));
+//                .collect(Collectors.groupingBy(ReplyDTO.Request::getCommentUID));
     }
 
     private static void checkValueReply(ReplyDTO.Response response) {

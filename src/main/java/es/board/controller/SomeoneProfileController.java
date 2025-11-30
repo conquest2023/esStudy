@@ -10,7 +10,6 @@ import es.board.infrastructure.projection.MyCommentProjection;
 import es.board.infrastructure.projection.PostsAndCommentsProjection;
 import es.board.service.AuthService;
 import es.board.service.MyPageService;
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController

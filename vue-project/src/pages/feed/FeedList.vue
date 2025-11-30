@@ -418,7 +418,6 @@ function goToNextPage() {
 onMounted(() => {
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
-  fetchNotice()
 })
 
 watch(activeTab, () =>
@@ -460,7 +459,7 @@ watch(activeTab, () =>
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1050; /* 사이드바(1060)보다 낮게 설정 */
+  z-index: 1050;
   transition: opacity 0.3s ease-in-out;
 }
 
@@ -482,13 +481,7 @@ watch(activeTab, () =>
   font-weight: 600;
 }
 
-.search-bar {
 
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-}
 .search-bar input {
   border: none;
   background: transparent;
@@ -502,7 +495,6 @@ watch(activeTab, () =>
 }
 .board-wrap { max-width: 100%; margin: 0; }
 .interview-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; cursor: pointer; }
-.search-bar { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; }
 .search-bar input { font-size: 0.95rem; }
 .btn-group .btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }
 textarea.form-control:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }

@@ -115,7 +115,7 @@ public class NoticeServiceImpl  implements NoticeService {
     }
 
 
-//    private NoticeEntity NoticeSaveId(NoticeDTO.Response noticeDTO, String token, String feedUID) {
+//    private NoticeEntity NoticeSaveId(NoticeDTO.Request noticeDTO, String token, String feedUID) {
 //       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
 //    }
     

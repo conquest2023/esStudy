@@ -47,7 +47,7 @@ public class CommentController {
 
     @GetMapping("/comments")
     public ResponseEntity<?> getComments(
-            @RequestAttribute("userId") String userId,
+            @RequestAttribute(value = "userId",required = false) String userId,
             @RequestParam int postId){
 
         List<CommentDTO.Request> comments = commentService.getComments(userId,postId);

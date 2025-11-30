@@ -4,6 +4,7 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.infrastructure.projection.UserPointProjection;
+import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class PointServiceImpl implements PointService {
 
     private final PointHistoryRepository repository;
+
+    private final NotificationService notificationService;
 
     private final StringRedisTemplate stringRedisTemplate;
 
@@ -50,6 +53,9 @@ public class PointServiceImpl implements PointService {
             log.info("{}님은 오늘 {} 작성 포인트 한도({}개)를 초과했습니다.", userId, activityType, limitCount);
             return;
         }
+        String msg = String.format("포인트를 발급받으셨습니다. %s: +%d점", activityType, pointChange);
+        notificationService.sendPointNotification(userId, msg);
+
         createPointHistory(userId, pointChange, activityType);
         log.info("{} 작성 포인트 지급 완료! 현재 작성 횟수: {}", activityType, currentCount);
     }

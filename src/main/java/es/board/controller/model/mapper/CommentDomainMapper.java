@@ -44,7 +44,7 @@ public class CommentDomainMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    // Response DTO -> Domain (작성 시 사용)
+    // Request DTO -> Domain (작성 시 사용)
 
     public static CommentDTO.Request toRequestDto(String userId,String postOwnerId, Comment domain) {
         if (domain == null) return null;

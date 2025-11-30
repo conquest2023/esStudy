@@ -8,7 +8,7 @@ import java.util.List;
 public interface NotificationService {
 
 
-    void sendPointNotification(String userId, int postId, String message);
+    void sendPointNotification(String userId,String message);
     void sendNoticeNotification(List<String> userIds, int postId, String message);
     void  sendReplyNotification(String userId,int postId,String message);
     void sendCommentNotification(String userId, int postId, String message);

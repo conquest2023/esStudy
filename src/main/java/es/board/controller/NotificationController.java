@@ -40,7 +40,9 @@ public class NotificationController {
                 throw new RuntimeException("권한이 없습니다");
             }
         }
-        SseEmitter emitter = notificationService.subscribe(jwtTokenProvider.getUserId(token));
+        String userId = jwtTokenProvider.getUserId(token);
+        SseEmitter emitter = notificationService.subscribe(userId);
+        log.info("[subscribe] userId={}", userId);
         return new ResponseEntity<>(emitter, HttpStatus.OK);
     }
 
