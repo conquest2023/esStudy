@@ -19,7 +19,6 @@ const PollDetail = () => import('@/pages/feed/PollDetail.vue')
 const JobView = () => import('@/pages/site/JobView.vue')
 const JobSiteList = () => import('@/pages/site/JobSiteList.vue')
 
-// todo
 const Todo = () => import('@/pages/todo/Todo.vue')
 const NewTodo = () => import('@/pages/todo/TodoAdd.vue')
 
@@ -31,11 +30,9 @@ const CertificateSearch = () => import('@/pages/certificate/CertificateSearch.vu
 const QuestionBank = () => import('@/pages/certificate/QuestionBank.vue')
 const PracticeQuestion = () => import('@/pages/certificate/PracticeQuestion.vue')
 
-// interview
 const GovInterviewPanel = () => import('@/pages/interview/GovInterviewPanel.vue')
 const PriInterviewPanel = () => import('@/pages/interview/PriInterviewPanel.vue')
 
-// calendar, auth, etc.
 const CalendarPage = () => import('@/pages/calendar/CalendarPage.vue')
 const Login = () => import('@/pages/auth/Login.vue')
 const SignUp = () => import('@/pages/auth/SignUp.vue')
@@ -86,8 +83,7 @@ const routes = [
             { path: 'search/view/question', name: 'QuestionBank', component: QuestionBank },
             { path: 'search/view/practical/question', name: 'PracticeQuestion', component: PracticeQuestion },
 
-            // ⚠️ 이 라우트는 component 누락되어 있던데? SSR-only라면 프록시/리다이렉트로 처리하고
-            // 프론트 라우터에서는 빼는 게 안전.
+
             // { path: 'search/view/og/feed/id', meta: { ssrOnly: true } },
         ],
     },

@@ -14,15 +14,10 @@
   </RouterView>
 </template>
 <script setup>
-import {computed,onMounted} from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { useSidebarStore } from '@/stores/sidebar'
 import NavBar from '@/components/common/Navbar.vue'
-import RightSidebar from '@/components/sidebar/RightSidebar.vue'
 import ToastContainer from "@/components/common/ToastContainer.vue";
-import ToastList from "@/components/common/ToastList.vue";
-
 const route = useRoute()
 const store = useUserStore()
 </script>

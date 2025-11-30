@@ -38,14 +38,13 @@ public class LoginController {
     }
     @PostMapping("/authlogin")
     @ResponseBody
-    public ResponseEntity<?> loginPass(@RequestBody LoginDTO response) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO response) {
         if (!userService.login(response)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
         }
         Authentication authentication = userService.authenticate(response);
         JwtToken token = jwtTokenProvider.generateToken(authentication, response.getUserId());
-//        userService.updateVisitCount(response.getUserId());
         if(response.isAutoLogin()){
             userService.autoLogin(response.getUserId(),token.getRefreshToken());
         }

@@ -102,7 +102,6 @@ public class NotificationServiceImpl implements NotificationService {
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
         List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
-        log.info("[pending] userId={}, type={}, size={}", userId, eventType, notifications == null ? 0 : notifications.size());
         if (notifications != null && !notifications.isEmpty()) {
             try {
                 for (String message : notifications) {
@@ -155,12 +154,12 @@ public class NotificationServiceImpl implements NotificationService {
             payload.put("message", message);
             payload.put("postId", postId);
             String jsonPayload = objectMapper.writeValueAsString(payload);
-            if (!emitters.containsKey(userId)) {
+//            if (!emitters.containsKey(userId)) {
                 redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
                 redisTemplate.opsForList().trim(redisKey, 0, 20);
                 log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
-                return;
-            }
+//                return;
+//            }
 
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {

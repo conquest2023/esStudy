@@ -31,10 +31,8 @@ onMounted(() => {
     useSSE(token)
   }
   fetchNotifications()
-  applySavedTheme()
   user.fetchMe()
-
-  // 전역 클릭 리스너 (알림/유저메뉴 닫기)
+  applySavedTheme()
   window.addEventListener('click', handleGlobalClick)
 })
 
@@ -42,29 +40,17 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleGlobalClick)
 })
 
-// 🚨 handleClick(toast) 함수는 useToast.js의 onClick 핸들러로 대체되었으므로 제거했습니다.
-// function handleClick(toast) {
-//   if (toast.url) {
-//     router.push(toast.url)
-//     removeToast(toast.id)
-//   }
-// }
 async function fetchNotifications() {
   const token = localStorage.getItem('token')
   if (!token) return
-
   try {
     const { data } = await api.get('/notifications/recent', {
       headers: { Authorization: `Bearer ${token}` }
     })
-
     const fetchedNotifications = data || []
     notifications.value = fetchedNotifications
-
     let unreadNotifications = fetchedNotifications.filter(n => !n.isCheck)
     unreadNotifications.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    // 이전 코드에서 unread notifications을 fetch 후 토스트로 푸시하는 로직은 주석 처리되어 있습니다.
-    // 필요하다면 주석을 해제하세요. (이 코드는 서버가 아닌 Vue 클라이언트에서 토스트를 재발행합니다.)
     // const unreadCount = unreadNotifications.length
     // const pushCount = Math.ceil(unreadCount / 2)
     //

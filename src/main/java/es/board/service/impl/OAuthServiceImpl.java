@@ -155,7 +155,6 @@ public class OAuthServiceImpl implements OAuthService {
         String responseBody = response.getBody();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         JsonNode responseNode = jsonNode.get("response");
-        log.info(responseNode.toString());
         String id = responseNode.get("id").asText();
         String email =   responseNode.get("email").asText();
         String name = responseNode.get("name").asText();
@@ -209,7 +208,6 @@ public class OAuthServiceImpl implements OAuthService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
         String password=passwordEncoder.encode(id.toString());
-        log.info(jsonNode.toString());
         return new OAuthInfo(id, nickname, email,password);
     }
 
@@ -244,7 +242,6 @@ public class OAuthServiceImpl implements OAuthService {
                     .lastLogin(LocalDateTime.now())
                     .build();
             oAuthRepository.save(user);
-            log.info(user.toString());
             result.put("result", "newUser");
             result.put("provider", user.getProvider());
             result.put("providerId", user.getUserId());
@@ -281,7 +278,6 @@ public class OAuthServiceImpl implements OAuthService {
                     .lastLogin(LocalDateTime.now())
                     .build();
             oAuthRepository.save(user);
-            log.info(user.toString());
             result.put("result", "newUser");
             result.put("provider", user.getProvider());
             result.put("providerId", user.getUserId());
@@ -319,7 +315,6 @@ public class OAuthServiceImpl implements OAuthService {
                     .lastLogin(LocalDateTime.now())
                     .build();
             oAuthRepository.save(user);
-            log.info(user.toString());
             result.put("result", "newUser");
             result.put("provider", user.getProvider());
             result.put("providerId", user.getUserId());
@@ -332,9 +327,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public Authentication authenticate(LoginDTO login) {
-        log.info(login.toString());
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(login.getUserId(),login.getUserId());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(login.getUserId(),login.getUserId());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         return authentication;
     }

@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -72,12 +74,13 @@ public class CommonController {
     @GetMapping("/get-ip")
     public ResponseEntity<?> getClientIp() {
         Set<String> activeUsers = redisTemplate.keys("online_users:*");
-//        List<String> rawKeys = new ArrayList<>(redisTemplate.keys("visit*"));
-//        List<String> todayKeys = new ArrayList<>();
-//        todayAggregation(rawKeys, todayKeys);
-//        log.info("오늘 자정까지 유효한 방문자 수: {}", todayKeys.size());
+        ZoneId KST = ZoneId.of("Asia/Seoul");
+        LocalDateTime now = LocalDateTime.now(KST);
+        LocalDate today = now.toLocalDate();
+        Long size = redisTemplate.opsForSet().size("visit:unique:" + today);
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
+                "today",size,
                 "data", visitService.getStats()));
     }
 

@@ -45,7 +45,10 @@ export function useSSE(token) {
     }
 
 
-    es.addEventListener('comment-notification', e => handleNotification(e, '💬'))
+    es.addEventListener('comment-notification', e => {
+        console.log('[SSE raw] comment-notification', e.data)
+        handleNotification(e, '💬')
+    })
     es.addEventListener('todo-notification', e => handleNotification(e, '📝'))
     es.addEventListener('reply-notification', e => handleNotification(e, '↩️'))
     es.addEventListener('notice-notification', e => handleNotification(e, '📢'))

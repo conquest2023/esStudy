@@ -124,7 +124,9 @@ public class OAuthLoginController {
     @PostMapping("/api/oauth/username")
     public ResponseEntity<?> createUsername(@RequestBody OAuthSignUp sign) {
         authService.saveUserName(sign);
-        return ResponseEntity.ok(Map.of("result", "ok", "redirect", "/"));
+        return ResponseEntity.ok(Map.of(
+                "result", "ok",
+                "redirect", "/"));
         }
 
     @PostMapping("/api/oauth/login")

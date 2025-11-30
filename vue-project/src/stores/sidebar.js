@@ -66,9 +66,10 @@ export const useSidebarStore = defineStore('sidebar', {
                         api.get('/points/summary'),
                         api.get('/points/recent')
                     ])
+                    console.log(ipRes)
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
-                        today: ipRes.data.data.todayVisitors,
+                        today: ipRes.data.today,
                         total: ipRes.data.data.totalVisitors
                     }
                     this.topWriters = writerRes.data.top5 ?? []

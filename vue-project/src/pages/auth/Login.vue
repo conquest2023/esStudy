@@ -78,7 +78,6 @@ function handleLogin() {
         autoLogin: autoLogin.value
       })
       .then((res) => {
-        console.log(res)
         if (res.data.accessToken) {
           localStorage.setItem('token', res.data.accessToken)
           window.location.href = '/'

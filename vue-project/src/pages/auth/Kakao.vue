@@ -24,12 +24,17 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
+import {useSSE} from "@/composables/useSSE.js";
+import {useUserStore} from "@/stores/user.js";
+import {useNotificationStore} from "@/stores/notification.js";
+const info = useUserStore()
+const noti= useNotificationStore();
 const router = useRouter()
 const showUsernameForm = ref(false)
 const newUsername = ref('')
 const tempSocialUser = ref(null)
 const loginWithSocialUser = async (user) => {
+
   try {
     const res = await fetch('/api/oauth/login', {
       method: 'POST',
@@ -43,12 +48,11 @@ const loginWithSocialUser = async (user) => {
     })
     const tokenData = await res.json()
     localStorage.setItem('token', tokenData.accessToken)
-    router.push('/')
+    window.location.href = '/'
   } catch (err) {
     console.error('JWT 발급 실패:', err)
   }
 }
-
 const submitUsername = async () => {
   const payload = {
     username: newUsername.value,
@@ -56,13 +60,11 @@ const submitUsername = async () => {
     providerId: tempSocialUser.value.providerId,
     email: tempSocialUser.value.email
   }
-
   const res = await fetch('/api/oauth/username', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
-
   const data = await res.json()
   if (data.result === 'ok') {
     loginWithSocialUser(payload)
@@ -71,12 +73,10 @@ const submitUsername = async () => {
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search)
-  console.log(urlParams)
   const code = urlParams.get('code')
   if (code) {
     try {
       const res = await fetch(`/api/kakao/callback/json?code=${code}`)
-      console.log(res)
       const text = await res.text()
       let data
       try {
@@ -86,7 +86,6 @@ onMounted(async () => {
         return
       }
       tempSocialUser.value = data
-
       if (data.result === 'ok') {
         loginWithSocialUser(data)
       } else if (data.result === 'newUser') {
