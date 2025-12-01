@@ -17,6 +17,7 @@ public interface ReplyRepository {
     void saveReply(ReplyEntity reply);
     List<ReplyAggView> countRepliesIn(@Param("postIds") List<Integer> postIds);
 
+    Optional<ReplyEntity> findById(long id);
 
     List<ReplyEntity> findByReplys(int id);
 

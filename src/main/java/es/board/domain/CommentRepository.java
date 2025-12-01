@@ -17,6 +17,7 @@ public interface CommentRepository {
     List<CommentAggView> countCommentsIn(List<Integer> postIds);
     void saveComment(CommentEntity post);
 
+    Optional<CommentEntity> findById(long id);
     String findByUserId(long commentId);
     List<CommentEntity> findByComments(int id);
 

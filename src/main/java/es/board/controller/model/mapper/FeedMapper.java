@@ -82,9 +82,9 @@ public class FeedMapper {
 //                .build();
 //    }
 
-//    public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
+//    public  List<NoticeDTO.Response> fromNoticeList(List<NoticeEntity> notice) {
 //        return notice.stream()
-//                .map(notice1 -> NoticeDTO.Request.builder()
+//                .map(notice1 -> NoticeDTO.Response.builder()
 //                        .id(notice1.getId())
 ////                        .feedUID(notice1.getFeedUID())
 //                        .username(notice1.getUsername())
@@ -122,8 +122,8 @@ public class FeedMapper {
 //                .build();
     }
 
-//    public NoticeDTO.Request fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
-//        return NoticeDTO.Request.builder()
+//    public NoticeDTO.Response fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
+//        return NoticeDTO.Response.builder()
 //                .id(notice.getId())
 //                .username("관리자")
 //                .feedUID(feedUID)
@@ -260,9 +260,9 @@ public class FeedMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-//    public List<ReplyDTO.Request> fromReplyDtoList(List<Reply> reply) {
+//    public List<ReplyDTO.Response> fromReplyDtoList(List<Reply> reply) {
 //        return reply.stream()
-//                .map(reply1 -> ReplyDTO.Request.builder()
+//                .map(reply1 -> ReplyDTO.Response.builder()
 //                        .feedUID(reply1.getFeedUID())
 //                        .commentUID(reply1.getCommentUID())
 //                        .username(reply1.getUsername())

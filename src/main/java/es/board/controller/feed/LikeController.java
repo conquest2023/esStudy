@@ -29,7 +29,7 @@ public class LikeController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<?> savePostLike(@RequestBody LikeDto.Response response,
+    public ResponseEntity<?> savePostLike(@RequestBody LikeDto.Request response,
                                           @RequestAttribute("userId") String userId
     ){
         likeService.toggleLike(userId, response);
@@ -39,8 +39,10 @@ public class LikeController {
 
     @GetMapping("/like/detail/{id}")
     public ResponseEntity<?> getLikeDetailFeed(@PathVariable int id,
-                                               @RequestAttribute("userId") String userId){
-        List<LikeDto.Request> likeFeedDetail = likeService.findLikeFeedDetail(id,userId);
+                                               @RequestAttribute(value = "userId",required = false) String userId){
+        List<LikeDto.Response> likeFeedDetail = likeService.findLikeFeedDetail(id,userId);
+
+        log.info(likeFeedDetail.toString());
         return ResponseEntity.ok(Map.of("likes",likeFeedDetail));
     }
     @GetMapping("/like/count/{id}")

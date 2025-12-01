@@ -1,5 +1,6 @@
 package es.board.infrastructure;
 
+import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.jpa.LikeJpaRepository;
 import es.board.infrastructure.entity.feed.LikeEntity;
@@ -23,6 +24,16 @@ public class LikeAdapterRepository implements LikeRepository {
     @Override
     public void save(LikeEntity likeEntity) {
         likeRepository.save(likeEntity);
+    }
+
+    @Override
+    public User findByLikeUser(String userId, TargetType type) {
+        return likeRepository.findByLikeUser(userId,type);
+    }
+
+    @Override
+    public Optional<LikeEntity> findById(long id) {
+        return likeRepository.findById((int) id);
     }
 
     @Override

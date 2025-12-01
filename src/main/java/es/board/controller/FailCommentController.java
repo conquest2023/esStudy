@@ -32,7 +32,7 @@
 //    @ResponseBody
 //    public ResponseEntity<?> saveCommentId(
 //            @RequestParam("feedUID") String id,
-//            @Valid @RequestBody CommentDTO.Request response,
+//            @Valid @RequestBody CommentDTO.Response response,
 //            @RequestHeader(value = "Authorization") String token) {
 //        if (token != null && token.startsWith("Bearer ")) {
 //            token = token.substring(7);
@@ -48,7 +48,7 @@
 //    @ResponseBody
 //    public ResponseEntity<?> saveVoteCommentId(
 //            @RequestParam("feedUID") String id,
-//            @RequestBody CommentDTO.Request response,
+//            @RequestBody CommentDTO.Response response,
 //            @RequestHeader(value = "Authorization", required = false) String token) {
 //        if (token != null && token.startsWith("Bearer ")) {
 //            token = token.substring(7);

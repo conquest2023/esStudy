@@ -65,8 +65,9 @@ public class NoticeController {
 
     @PostMapping("/notice")
     public void createNotice(@RequestAttribute("userId") String userId,
-                             @ModelAttribute NoticeDTO.Request noticeDTO,
+                             NoticeDTO.Request noticeDTO,
                              @RequestParam(required = false, value = "imageFile") MultipartFile file){
+
 
                 noticeService.createNotice(userId,noticeDTO);
 

@@ -1,9 +1,13 @@
 package es.board.controller.model.mapper;
 
 import es.board.controller.model.dto.feed.LikeDto;
+import es.board.controller.record.LikeTargetInfo;
+import es.board.domain.enum_type.TargetType;
 import es.board.infrastructure.entity.feed.LikeEntity;
 import es.board.domain.Like;
+import es.board.repository.entity.Notification;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,11 +33,11 @@ public class LikeMapper {
                 .map(LikeMapper::toDomain)   // Entity → Domain
                 .toList();
     }
-    public static List<LikeDto.Request> toRequestList(List<Like> domains,String userId) {
+    public static List<LikeDto.Response> toRequestList(List<Like> domains, String userId) {
         if (domains == null) return Collections.emptyList();
 
         return domains.stream()
-                .map(like -> new LikeDto.Request(
+                .map(like -> new LikeDto.Response(
                         like.getId(),
                         like.isOwner(userId),
                         like.getPostId(),
@@ -42,23 +46,33 @@ public class LikeMapper {
                 ))
                 .toList();
     }
-//    public static Like toDomainForCreate(String userId, Long targetId, TargetType targetType) {
-//        return Like.create(userId, targetId, targetType);
-//    }
 
-//    public static Like toDomain(LikeEntity entity) {
-//        if (entity == null) return null;
-//
-//        return Like.of(
-//                entity.getId(),
-//                entity.getPostId(),
-//                entity.getUserId(),
-//                entity.getTargetId(),
-//                entity.getTargetType(),
-//                entity.getCreatedAt()
-//        );
-//    }
-
+    public static Notification toEntity(String username, TargetType targetType, LikeTargetInfo info,String msg){
+        String type = switch (targetType) {
+            case POST -> "게시글";
+            case COMMENT -> "댓글";
+            case REPLY -> "답글";
+            default -> throw new IllegalArgumentException("지원하지 않는 TargetType: " + targetType);
+        };
+        if (targetType.toString().equals("게시글")){
+            type="게시글";
+        }
+        if (targetType.toString().equals("댓글")){
+            type="댓글";
+        }
+        if (targetType.toString().equals("답글")){
+            type="답글";
+        }
+        return Notification.builder()
+                .username(username)
+                .userId(info.ownerId())
+                .postId(info.postId())
+                .type(type)
+                .message(msg)
+                .isCheck(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 
     public static LikeEntity toEntity(Like like) {
         if (like == null) return null;
@@ -84,12 +98,12 @@ public class LikeMapper {
     }
 
 
-//    public static LikeDto.Request toResponse(Like like) {
+//    public static LikeDto.Response toResponse(Like like) {
 //        if (like == null) return null;
 //
 ////        int id = like.getId() == null ? 0 : like.getId().intValue();
 //
-//        return new LikeDto.Request(
+//        return new LikeDto.Response(
 //                like.getPostId(),
 //                like.getUserId(),
 //                like.getTargetId(),
@@ -98,13 +112,13 @@ public class LikeMapper {
 //        );
 //    }
 
-    // Entity 바로 → DTO(Request) (편의용)
-//    public static LikeDto.Request toResponse(LikeEntity entity) {
+    // Entity 바로 → DTO(Response) (편의용)
+//    public static LikeDto.Response toResponse(LikeEntity entity) {
 //        if (entity == null) return null;
 //
 //        int id = entity.getId() == null ? 0 : entity.getId().intValue();
 //
-//        return new LikeDto.Request(
+//        return new LikeDto.Response(
 //                id,
 //                entity.getUserId(),
 //                entity.getTargetId(),

@@ -32,7 +32,10 @@ public class CommentAdapterRepository implements CommentRepository {
 
         repository.save(comment);
     }
-
+    @Override
+    public Optional<CommentEntity> findById(long id){
+        return repository.findById(id);
+    }
     @Override
     public String findByUserId(long commentId) {
         return repository.findByUserId(commentId);

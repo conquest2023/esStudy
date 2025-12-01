@@ -377,9 +377,9 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-//    private List<String> extractFeedUID(List<PostDTO.Request> requests) {
+//    private List<String> extractFeedUID(List<PostDTO.Response> requests) {
 //        List<String> feedUIDs = requests.stream()
-//                .map(PostDTO.Request::getFeedUID)
+//                .map(PostDTO.Response::getFeedUID)
 //                .collect(Collectors.toList());
 //        return feedUIDs;
 //    }

@@ -122,11 +122,11 @@ public class PostDTO {
 
 
 
-        public Request(String username, String title, String category, String description) {
+        public Request(String username, String title, String description, String category) {
             this.username=username;
             this.title = title;
-            this.category = category;
             this.description = description;
+            this.category = category;
         }
     }
 

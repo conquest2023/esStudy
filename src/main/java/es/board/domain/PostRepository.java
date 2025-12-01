@@ -12,6 +12,7 @@ public interface PostRepository {
 
     String findByUserId(int id);
 
+
     PostEntity savePost(PostEntity post);
     void deletePost(int id);
 

@@ -28,6 +28,10 @@ public class ReplyAdapterRepository implements ReplyRepository {
     public List<ReplyAggView> countRepliesIn(List<Integer> postIds) {
         return repository.countRepliesIn(postIds);
     }
+    @Override
+    public Optional<ReplyEntity> findById(long id){
+        return repository.findById(id);
+    }
 
     @Override
     public List<ReplyEntity> findByReplys(int id) {

@@ -13,11 +13,11 @@ public interface LikeService {
 
 
 
-    void toggleLike(String userId, LikeDto.Response like);
+    void toggleLike(String userId, LikeDto.Request like);
 
 //    List<Lik>
 
-    List<LikeDto.Request> findLikeFeedDetail(int id,String userId);
+    List<LikeDto.Response> findLikeFeedDetail(int id, String userId);
 
     List<LikeCountProjection> findLikeFeedDetailCount(int id);
 

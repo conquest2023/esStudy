@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class NotificationEventListener {
+public class CommentEventListener {
 
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
@@ -23,10 +23,8 @@ public class NotificationEventListener {
     public void handleCommentCreated(CommentCreatedEvent event) {
 
         String postOwnerId = postRepository.findByUserId(event.getPostId());
-        log.info(postOwnerId);
         if (postOwnerId != null) {
 
-            // 2. 알림 전송 로직
             notificationService.sendCommentNotification(
                     postOwnerId,
                     event.getPostId(),

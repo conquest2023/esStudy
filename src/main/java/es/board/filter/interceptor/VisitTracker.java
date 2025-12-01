@@ -16,8 +16,8 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class VisitTracker {
-    private static final String VISIT_KEY_PREFIX = "visit:";
     private static final String ONLINE_PREFIX = "online_users:";
+
     private final StringRedisTemplate redisTemplate;
 
     private final VisitorService visitorService;

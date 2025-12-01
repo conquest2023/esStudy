@@ -78,6 +78,7 @@ public class NoticeServiceImpl  implements NoticeService {
     @Override
     @Transactional
     public void createNotice(String userId, NoticeDTO.Request noticeDTO) {
+
         if (!isAdmin(userId)) {
             throw new RuntimeException("관리자만 공지사항을 등록할 수 있습니다!");
         }
@@ -88,7 +89,7 @@ public class NoticeServiceImpl  implements NoticeService {
                 new PostDTO.Request("관리자",
                         noticeDTO.getTitle(),
                         noticeDTO.getDescription(),
-                        noticeDTO.getCategory()));
+                        "공지사항"));
 
         PostEntity entity = Post.toEntity(post);
 
@@ -115,7 +116,7 @@ public class NoticeServiceImpl  implements NoticeService {
     }
 
 
-//    private NoticeEntity NoticeSaveId(NoticeDTO.Request noticeDTO, String token, String feedUID) {
+//    private NoticeEntity NoticeSaveId(NoticeDTO.Response noticeDTO, String token, String feedUID) {
 //       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
 //    }
     

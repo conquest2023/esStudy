@@ -40,9 +40,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
 
+    private static final String LIKE_NOTIFICATION_KEY = "notifications:like:";
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
 
     private static final String POINT_NOTIFICATION_KEY = "notifications:point:";
+
+
     @Override
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(0L);
@@ -51,6 +54,8 @@ public class NotificationServiceImpl implements NotificationService {
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
+
+        sendPendingNotifications(userId, LIKE_NOTIFICATION_KEY, "like-notification", emitter);
 
         sendPendingNotifications(userId, REPLY_NOTIFICATION_KEY, "reply-notification", emitter);
 
@@ -76,6 +81,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendLikeNotification(String userId, int postId, String message) {
+        sendFeedNotification(userId, postId, LIKE_NOTIFICATION_KEY, "like-notification", message);
+    }
+    @Override
     public void sendCommentNotification(String userId, int postId, String message) {
         sendFeedNotification(userId,postId, COMMENT_NOTIFICATION_KEY, "comment-notification", message);
     }
@@ -99,6 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendReplyNotification(String userId,int postId, String message) {
         sendFeedNotification(userId,postId, REPLY_NOTIFICATION_KEY, "reply-notification", message);
     }
+
     private void sendPendingNotifications(String userId, String redisKeyPrefix, String eventType, SseEmitter emitter) {
         String redisKey = redisKeyPrefix + userId;
         List<String> notifications = redisTemplate.opsForList().range(redisKey, 0, -1);
@@ -136,7 +146,6 @@ public class NotificationServiceImpl implements NotificationService {
             emitter.send(SseEmitter.event()
                     .name(eventType)
                     .data(jsonPayload));
-            log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
         } catch (IOException e) {
             log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
@@ -170,7 +179,6 @@ public class NotificationServiceImpl implements NotificationService {
                             .id(UUID.randomUUID().toString())
                             .name(eventType)
                             .data(jsonPayload));
-            log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
         } catch (IOException e) {
             log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);

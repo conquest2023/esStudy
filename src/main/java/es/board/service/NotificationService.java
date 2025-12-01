@@ -15,6 +15,7 @@ public interface NotificationService {
     void sendTodoNotification(String userId, String message);
     List<String> getUserNotifications(String userId);
 
+    void sendLikeNotification(String userId, int postId, String message);
     List<Notification> getNotificationList(String userId);
     SseEmitter subscribe(String userId);
 }

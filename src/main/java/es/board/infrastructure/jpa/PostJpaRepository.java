@@ -25,6 +25,7 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     Page<PostEntity> findPostPagingList(Pageable pageable);
 
 
+
     @Query("select p.id from PostEntity p")
     Page<Integer> findIds(Pageable pageable);
 

@@ -53,6 +53,7 @@ export function useSSE(token) {
     es.addEventListener('reply-notification', e => handleNotification(e, '↩️'))
     es.addEventListener('notice-notification', e => handleNotification(e, '📢'))
     es.addEventListener('point-notification', e => handleNotification(e, '💰'))
+    es.addEventListener('like-notification', e => handleNotification(e, '💗'))
 
     onBeforeUnmount(() => {
         console.log('[SSE] 🚪 컴포넌트 언마운트 시 연결 종료')
