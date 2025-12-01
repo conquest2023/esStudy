@@ -5,6 +5,7 @@ import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.domain.feed.PostQueryService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.domain.feed.PostService;
 import jakarta.servlet.http.Cookie;
@@ -30,6 +31,8 @@ public class PostController {
     private final JwtTokenProvider provider;
 
     private final PostService postService;
+
+    private final PostQueryService queryService;
 
     @PostMapping("/post")
     public ResponseEntity<?> savePost(@RequestAttribute("userId") String userId,
@@ -63,7 +66,7 @@ public class PostController {
     @GetMapping("/posts/popular/week")
     public ResponseEntity<?> getPopularPostsInLast7Weeks(@RequestParam int page, @RequestParam int size){
 
-        Page<PostEntity> p = postService.findPopularPostsInLast7Weeks(page, size);
+        Page<PostEntity> p = queryService.findPopularPostsInLast7Weeks(page, size);
 
         List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
         return ResponseEntity.ok(
@@ -74,6 +77,40 @@ public class PostController {
                         "totalElements", p.getTotalElements(),
                         "last", p.isLast(),
                             "content",collect));
+    }
+
+
+
+    @GetMapping("/posts/popular/month")
+    public ResponseEntity<?> getPopularMonthPosts(@RequestParam int page, @RequestParam int size){
+
+        Page<PostEntity> p = queryService.findPopularMonthPosts(page, size);
+
+        List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
+        return ResponseEntity.ok(
+                Map.of(
+                        "page", p.getNumber(),
+                        "size", p.getSize(),
+                        "totalPages", p.getTotalPages(),
+                        "totalElements", p.getTotalElements(),
+                        "last", p.isLast(),
+                        "content",collect));
+    }
+
+    @GetMapping("/posts/popular/today")
+    public ResponseEntity<?> getPopularTodayPosts(@RequestParam int page, @RequestParam int size){
+
+        Page<PostEntity> p = queryService.findPopularTodayPosts(page, size);
+
+        List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
+        return ResponseEntity.ok(
+                Map.of(
+                        "page", p.getNumber(),
+                        "size", p.getSize(),
+                        "totalPages", p.getTotalPages(),
+                        "totalElements", p.getTotalElements(),
+                        "last", p.isLast(),
+                        "content",collect));
     }
 
     @PutMapping("/post/{id}")

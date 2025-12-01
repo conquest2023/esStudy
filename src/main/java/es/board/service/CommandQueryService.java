@@ -12,4 +12,5 @@ public interface CommandQueryService {
     List<PostStatsDTO> getPostStats(int page, int size);
 
     List<PostStatsDTO> getPollStats(int page,int size);
+
 }

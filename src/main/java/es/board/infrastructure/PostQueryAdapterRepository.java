@@ -33,6 +33,7 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         return  repository.findIds(pageable);
     }
 
+
     @Override
     public Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays) {
         Pageable pageable = PageRequest.of(page, size);
@@ -46,8 +47,22 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
 
     @Override
     public List<Integer> findBestWeekPostIds(int page, int size, LocalDateTime lastSevenDays) {
+
         return repository.findBestWeekPostIds(page,size,lastSevenDays);
     }
+
+    @Override
+    public Page<PostEntity> findBestMonthPosts(int page, int size, LocalDateTime lastMonth) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findPopularMonthPosts(pageable,lastMonth);
+    }
+
+    @Override
+    public Page<PostEntity> findBestTodayPosts(int page, int size, LocalDateTime today) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findPopularTodayPosts(pageable,today);
+    }
+
 
     @Override
     public Page<PostEntity> findByPagePosts(int page,int size) {

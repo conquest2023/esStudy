@@ -56,6 +56,14 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     @Query("select  p from PostEntity  p where p.createdAt>=:sevenDaysAgo order by p.viewCount DESC ")
     Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable, @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
+
+
+    @Query("select  p from PostEntity  p where p.createdAt>=:lastMonth order by p.viewCount DESC ")
+    Page<PostEntity> findPopularMonthPosts(Pageable pageable, @Param("lastMonth") LocalDateTime lastMonth);
+
+    @Query("select  p from PostEntity  p where p.createdAt>=:today order by p.viewCount DESC ")
+    Page<PostEntity> findPopularTodayPosts(Pageable pageable, @Param("today") LocalDateTime today);
+
     @Modifying
     @Query("update PostEntity p set p.viewCount = p.viewCount + 1 where p.id = :postId")
     void incrementViewCount(@Param("postId") int postId);

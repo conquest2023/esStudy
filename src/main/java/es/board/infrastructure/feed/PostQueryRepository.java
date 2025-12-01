@@ -23,4 +23,8 @@ public interface PostQueryRepository {
     Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays);
 
 
+    Page<PostEntity> findBestTodayPosts(int page, int size, LocalDateTime today);
+
+    Page<PostEntity> findBestMonthPosts(int page, int size, LocalDateTime lastMonth);
+
 }

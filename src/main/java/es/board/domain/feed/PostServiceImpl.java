@@ -59,13 +59,7 @@ public class PostServiceImpl implements PostService {
         postRepository.increaseViewCount(postId);
     }
 
-    @Override
-    public Page<PostEntity> findPopularPostsInLast7Weeks(int page, int size) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastSevenDay = now.minusDays(7);
-        Page<PostEntity> byMyPageUserPosts = queryRepository.findPopularPostsInLast7Week(page,size, lastSevenDay);
-        return byMyPageUserPosts;
-    }
+
 
     @Override
     @Transactional
