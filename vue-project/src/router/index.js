@@ -1,9 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// ✨ 전부 동적 import로 전환 (필요 시 라우트 진입 시 로드)
 const DefaultLayout = () => import('@/layouts/DefaultLayout.vue')
 
-// feed & post
 const FeedList = () => import('@/pages/feed/FeedList.vue')
 const FeedDetail = () => import('@/pages/feed/FeedDetail.vue')
 const PostFeed = () => import('@/pages/feed/PostFeed.vue')

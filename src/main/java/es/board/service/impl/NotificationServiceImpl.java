@@ -50,7 +50,6 @@ public class NotificationServiceImpl implements NotificationService {
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(0L);
         emitters.put(userId, emitter);
-        log.info("[subscribe] userId={} (emitters keys before={})", userId, emitters.keySet());
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
         sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);

@@ -6,26 +6,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Workly - 커리어 커뮤니티</title>
 
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- 네트워크 힌트 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
+    <!-- (선택) LCP 이미지 쓴다면 우선 다운로드 -->
+    <!-- <link rel="preload" as="image" href="/hero.webp" imagesrcset="/hero.webp 1x" imagesizes="100vw"> -->
+
+    <!-- 크리티컬 CSS만 아주 조금 인라인 (접두부/헤더 정도만) -->
+    <style>
+        /* fold 위 영역에 꼭 필요한 최소치만 (예: 헤더 높이, 기본 폰트, 배경) */
+        html{visibility:visible}
+        body{margin:0}
+        /* 헤더/탑바 레이아웃 최소 규칙이 있으면 여기로 */
+    </style>
+
+    <!-- Font Awesome: 비차단 로드 -->
     <link rel="preload"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          as="style"
-          crossorigin
-          onload="this.onload=null;this.rel='stylesheet'">
-<!--    <noscript>-->
-<!--        <link rel="stylesheet"-->
-<!--              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"-->
-<!--              crossorigin>-->
-<!--    </noscript>-->
+          as="style" crossorigin>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          media="print" onload="this.media='all'">
+
+    <!-- (선택) 정말 'bootstrap.min.css'가 필요하면 이렇게 비차단 + preload -->
+    <!--
+    <link rel="preload"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          as="style" crossorigin>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          media="print" onload="this.media='all'">
+    -->
+
+    <!-- (선택) bootstrap-icons를 폰트로 쓸 거면: 체인 끊기(로컬 권장) -->
+    <!-- 가능하면 폰트 아이콘 대신 inline SVG로 대체하는 게 최상 -->
+    <!--
+    <link rel="preload" href="/fonts/bootstrap-icons.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+      @font-face{
+        font-family:'bootstrap-icons';
+        src:url('/fonts/bootstrap-icons.woff2') format('woff2');
+        font-display:swap;
+      }
+    </style>
+    -->
+    <noscript>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+              crossorigin>
+    </noscript>
 </head>
 <body>
 <div id="app"></div>
 
 <script type="module" src="/src/main.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 </html>
