@@ -77,11 +77,11 @@ public class CommonController {
         ZoneId KST = ZoneId.of("Asia/Seoul");
         LocalDateTime now = LocalDateTime.now(KST);
         LocalDate today = now.toLocalDate();
+//        "data", visitService.getStats())
         Long size = redisTemplate.opsForSet().size("visit:unique:" + today);
         return ResponseEntity.ok(Map.of(
                 "activeUsers", activeUsers.size(),
-                "today",size,
-                "data", visitService.getStats()));
+                "today",size));
     }
 
     @GetMapping("/auto/login")

@@ -38,7 +38,7 @@
             <div class="d-flex justify-content-around small text-muted">
               <div><span class="fw-bold">{{ activeUsers }}</span> 접속</div>
               <div><span class="fw-bold">{{ todayUsers }}</span> 오늘</div>
-              <div><span class="fw-bold">{{ totalUsers }}</span> 누적</div>
+<!--              <div><span class="fw-bold">{{ totalUsers }}</span> 누적</div>-->
             </div>
           </div>
         </div>

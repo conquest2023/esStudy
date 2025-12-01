@@ -70,7 +70,7 @@ export const useSidebarStore = defineStore('sidebar', {
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
                         today: ipRes.data.today,
-                        total: ipRes.data.data.totalVisitors
+                        // total: ipRes.data.data.totalVisitors
                     }
                     this.topWriters = writerRes.data.top5 ?? []
                     this.topRecentWriters = recentRes.data.recent ??[]
