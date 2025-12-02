@@ -50,7 +50,6 @@ public class NoticeServiceImpl  implements NoticeService {
     public PostDTO.Response getLatestNotice() {
         String cachedNotices = redisTemplate.opsForValue().get(NOTICE_KEY);
         if (cachedNotices != null) {
-            log.info("캐시 성공!");
             return deserializeNotices(cachedNotices);
         }
         Post post = Post.toDomain(noticeRepository.findNoticeByCreatedAtDESC());

@@ -37,11 +37,9 @@ public class VisitTracker {
         String dailyIpSetKey = "visit:unique:" + today;
         Long addedIp = redisTemplate.opsForSet().add(dailyIpSetKey, ip);
         if (addedIp != null && addedIp == 1L) {
-            visitorService.saveIP(userId, ip, userAgent);
+//            visitorService.saveIP(userId, ip, userAgent);
             redisTemplate.expireAt(dailyIpSetKey, expireAt);
         }
-
-
         // 2) 유저 기준 '오늘 유니크 사용자' 집합 (포인트/마지막 로그인 1회)
         if (userId != null) {
             String dailyUserSetKey = "visit:user:unique:" + today;

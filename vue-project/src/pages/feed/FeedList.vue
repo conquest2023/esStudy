@@ -155,6 +155,12 @@ const itQs = ref([])
 const genQs = ref([])
 const curCat = ref('IT')
 const curIdx = ref(0)
+const loading    = ref(false)
+const page       = ref(0)
+const totalPage  = ref(0)
+const posts      = ref([])
+const notices    = ref([])
+const counts     = ref({})
 const answerInput = ref('')
 const isInterviewOpen = ref(false)
 const curArr = computed(() => (curCat.value === 'IT' ? itQs.value : genQs.value))
@@ -225,7 +231,7 @@ async function submitAnswer() {
   }
 }
 
-/* ▣ 베스트 답변 */
+
 const bestAnswers = ref([])
 const bestIdx = ref(0)
 let modal = null
@@ -243,8 +249,10 @@ async function showBestAnswers() {
 }
 function openBestModal() {
   const ans = bestAnswers.value[bestIdx.value]
-  document.getElementById('bestAnswerModalLabel').innerText = `💬 ${ans.title}`
-  document.getElementById('bestAnswerModalBody').innerHTML = `<p><strong>작성자:</strong> ${ans.username || '익명'}</p><hr><p>${ans.answer}</p>`
+  document.getElementById('bestAnswerModalLabel').innerText =
+      `💬 ${ans.title}`
+  document.getElementById('bestAnswerModalBody').innerHTML =
+      `<p><strong>작성자:</strong> ${ans.username || '익명'}</p><hr><p>${ans.answer}</p>`
   modal ??= new bootstrap.Modal('#bestAnswerModal')
   modal.show()
 }
@@ -281,12 +289,6 @@ const targetPath = computed(() =>
         ? `/notice/detail/${props.post.id}`
         : `/post/${props.post.id}`
 )
-const loading    = ref(false)
-const page       = ref(0)
-const totalPage  = ref(0)
-const posts      = ref([])
-const notices    = ref([])
-const counts     = ref({})
 
 function changeCategory(cat) {
   selectedCategory.value = cat
@@ -326,6 +328,8 @@ async function fetchFeedsAll(newPage = page.value) {
     const zeroBasedPage = Math.max(0, uiPage)
     const params = { page: zeroBasedPage, size: 10 }
     const { data } = await api.get('/posts', { params })
+    // const { test } = await api.get('/ping', {})
+
     const payload    = data?.ok ?? data ?? {}
     const content    = payload.content    ?? payload.data   ?? []
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
@@ -388,7 +392,6 @@ async function fetchFeeds(newPage = page.value) {
   try {
     let listUrl = tab.url
     if (tab.id === 'BEST') {
-      // ✅ BEST는 선택된 카테고리에 따라 엔드포인트 분기
       listUrl = bestListUrl()
     }
 
@@ -397,7 +400,6 @@ async function fetchFeeds(newPage = page.value) {
     const content     = payload.posts ?? payload.content ?? payload.data ?? []
     const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
 
-    // ✅ BEST일 때 통계 API 호출 (너가 준 /post/popular/stats 사용)
     if (tab.id === 'BEST') {
       const { data: statsRes } = await api.get('/post/popular/stats', { params })
       const postStats = statsRes.stats || []
@@ -460,6 +462,9 @@ function goToNextPage() {
   fetchFeeds(nextPage);
 }
 onMounted(() => {
+  pingEmpty()
+
+  pingNormal()
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
 })
@@ -467,6 +472,17 @@ onMounted(() => {
 watch(activeTab, () =>
     fetchFeeds(0)
 )
+async function pingEmpty() {
+  const t = performance.now()
+  await fetch('/api/ping-empty')
+  console.log('[PING-EMPTY]', (performance.now() - t).toFixed(2), 'ms')
+}
+
+async function pingNormal() {
+  const t = performance.now()
+  await fetch('/api/ping')
+  console.log('[PING]', (performance.now() - t).toFixed(2), 'ms')
+}
 </script>
 
 <style scoped>

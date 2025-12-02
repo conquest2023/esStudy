@@ -70,6 +70,17 @@ public class CommonController {
         ));
     }
 
+    @GetMapping("/ping-empty")
+    public ResponseEntity<Void> pingEmpty() {
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/ping")
+    public ResponseEntity<?> test(){
+
+        return ResponseEntity.ok(Map.of("ok","ok"));
+    }
 
     @GetMapping("/get-ip")
     public ResponseEntity<?> getClientIp() {
