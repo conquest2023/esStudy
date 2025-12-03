@@ -75,7 +75,6 @@ public class CommonController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/ping")
     public ResponseEntity<?> test(){
 

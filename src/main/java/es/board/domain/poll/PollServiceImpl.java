@@ -5,6 +5,7 @@ import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollVoteDTO;
 import es.board.controller.model.mapper.PollDomainMapper;
 import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.domain.event.PollCreatedEvent;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.entity.poll.PollOptionEntity;
@@ -15,6 +16,7 @@ import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.poll.PollVoteRepository;
 import es.board.domain.Post;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,19 +38,23 @@ public class PollServiceImpl implements PollService{
     private final PollVoteRepository pollVoteRepository;
 
     private final PollOptionRepository pollOptionRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
+
     @Override
     @Transactional
-    public void createPoll(String username, String userId, PollDto.Request res) {
+    public void createPoll(String username, String userId, PollDto.Request req) {
 
         Post post = PostDomainMapper.toDomain(userId, new PostDTO.Request(
                 username,
-                res.getTitle(),
-                "투표",
-                res.getDescription()));
+                req.getTitle(),
+                req.getDescription(),
+                "투표"));
         PostEntity entity = Post.toEntity(post);
-        PollEntity poll = PollDomainMapper.toEntity(entity, res);
-        postRepository.save(entity);
+        PollEntity poll = PollDomainMapper.toEntity(entity, req);
+        PostEntity postId = postRepository.save(entity);
         pollRepository.save(poll);
+        eventPublisher.publishEvent(new PollCreatedEvent(postId.getId(),userId,req));
     }
 
     @Override

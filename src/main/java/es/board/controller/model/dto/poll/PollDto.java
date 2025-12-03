@@ -21,8 +21,6 @@ public class PollDto {
     @Builder
     public static class Request {
 
-//        private Long pollId;
-//        private int postId;
 
         private String title;
 

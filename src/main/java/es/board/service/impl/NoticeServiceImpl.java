@@ -104,8 +104,7 @@ public class NoticeServiceImpl  implements NoticeService {
 
 
     private void createNotification(NoticeEntity notice) {
-        List<String> userIds = userRepository.findAllUserIds();
-        notificationService.sendNoticeNotification(userIds,Math.toIntExact(notice.getPost().getId()), "📢 새로운 공지사항이 등록되었습니다!");
+        notificationService.sendNoticeNotification(Math.toIntExact(notice.getPost().getId()), "새로운 공지사항이 등록되었습니다!");
     }
 
     private boolean isAdmin(String userId) {

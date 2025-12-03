@@ -546,13 +546,11 @@ const menus = [
   display: block;
 }
 
-/* 애니메이션 */
 @keyframes fadeSlide {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 알림 헤더 */
 .noti-header {
   background: #f9fafb;
 }
@@ -562,7 +560,6 @@ const menus = [
 }
 
 
-/* 개별 알림 */
 .noti-item {
   border-bottom: 1px solid #f1f3f5;
   padding: 12px 14px;
@@ -573,10 +570,6 @@ const menus = [
   background: #f5f7ff;
 }
 
-/* 미확인 알림 시 강조 */
-.noti-unread {
-  background: #edf3ff;
-}
 
 /* 작은 빨간 점 */
 .noti-dot {
@@ -623,35 +616,48 @@ const menus = [
   }
 }
 
+
 @media (max-width: 768px) {
-  .d-flex.align-items-center.ms-auto.gap-3.position-relative {
+  .notification-dropdown {
+    position: fixed;  /* 핵심: absolute → fixed */
+    top: calc(var(--navbar-h) + 8px + env(safe-area-inset-top, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+    left: auto;
+    width: min(420px, calc(100vw - 20px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
+    max-height: min(70vh, 520px);
+    overflow: hidden;
+    z-index: 2000;
+    border-radius: 16px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.18);
   }
 
-  .notification-dropdown {
-    width: 95vw; /* 뷰포트 너비의 95% */
-    max-width: 300px; /* 너무 커지지 않도록 최대 너비는 PC 기준 유지 */
+  .noti-list {
+    max-height: calc(70vh - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 
-    right: -150px;
-
-    left: auto;
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }
-
 @media (max-width: 420px) {
   .notification-dropdown {
-    width: calc(100vw - 20px); /* 좌우 10px씩 여백 확보 */
-    right: 10px;
-    left: 10px;
-    max-width: none; /* 최대 너비 제한 해제 */
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    width: calc(100vw - 16px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px));
+    border-radius: 14px;
   }
 }
 
-/* ⬅️ 💡 토스트 스타일 추가 💡 ➡️ */
+
+
 .toast-wrapper {
   position: fixed;
-  top: 74px; /* 네비게이션 바 아래에 위치 */
+  top: 74px;
   right: 20px;
-  z-index: 3000; /* 네비게이션 바(z-index: 2000) 위에 표시 */
+  z-index: 3000;
   display: flex;
   flex-direction: column;
   gap: 10px;

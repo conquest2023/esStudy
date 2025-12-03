@@ -322,48 +322,56 @@ async function fetchNotice() {
 async function fetchFeedsAll(newPage = page.value) {
   try {
     loading.value = true
-    const uiPage = Number(newPage ?? 1)
+
+    // 페이지 세팅
+    const uiPage = Number(newPage ?? 0)
     page.value = uiPage
-    router.replace({ query: { ...route.query, page: uiPage } })
+    // 히스토리 덜 오염되게 replace 1회만
+    router.replace({ query: { ...route.query, page: uiPage } }).catch(() => {})
+
     const zeroBasedPage = Math.max(0, uiPage)
     const params = { page: zeroBasedPage, size: 10 }
-    const { data } = await api.get('/posts', { params })
-    // const { test } = await api.get('/ping', {})
 
-    const payload    = data?.ok ?? data ?? {}
-    const content    = payload.content    ?? payload.data   ?? []
+    // ★ 병렬 호출
+    const [postsRes, statsRes, noticeRes] = await Promise.all([
+      api.get('/posts',      { params }),
+      api.get('/post/stats', { params }),
+      api.get('/notice'),
+    ])
+
+    // posts 처리
+    const payload    = postsRes.data?.ok ?? postsRes.data ?? {}
+    const content    = payload.content ?? payload.data ?? []
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
-    posts.value     = Array.isArray(content) ? content : []
-    totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
-    const { data: statsRes } = await api.get('/post/stats', { params })
-    const postStats = statsRes.stats || []
+    posts.value      = Array.isArray(content) ? content : []
+    totalPage.value  = Number.isFinite(totalPages) ? totalPages : 0
 
+    // notice 처리
+    notices.value = Array.isArray(noticeRes.data) ? noticeRes.data : (noticeRes.data ?? [])
+
+    // stats 처리
+    const postStats = statsRes.data?.stats || []
     const nextCounts = {}
     const nextLikeCounts = {}
-    fetchNotice()
     for (const stat of postStats) {
-      if (stat.postId && stat.totalCommentCount !== undefined) {
-        nextCounts[stat.postId] = stat.totalCommentCount
-      }
-
-
-      if (stat.postId && stat.likeCount !== undefined) {
-        nextLikeCounts[stat.postId] = stat.likeCount
-      }
+      if (stat.postId && stat.totalCommentCount !== undefined) nextCounts[stat.postId] = stat.totalCommentCount
+      if (stat.postId && stat.likeCount !== undefined)         nextLikeCounts[stat.postId] = stat.likeCount
     }
-
     counts.value = nextCounts
     likeCounts.value = nextLikeCounts
+
   } catch (err) {
     console.error('전체 글 로딩 실패:', err)
     posts.value = []
     counts.value = {}
     likeCounts.value = {}
+    notices.value = []
     totalPage.value = 0
   } finally {
     loading.value = false
   }
 }
+
 
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
@@ -462,9 +470,8 @@ function goToNextPage() {
   fetchFeeds(nextPage);
 }
 onMounted(() => {
-  pingEmpty()
-
-  pingNormal()
+  // pingEmpty()
+  // pingNormal()
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
 })

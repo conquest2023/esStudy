@@ -1,6 +1,9 @@
 package es.board.repository.entity.repository;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import  org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +25,8 @@ public interface UserRepository  extends  JpaRepository<User,Integer> {
     @Query("select u.userId from User u where u.userId = :id")
     String findByUserid(@Param("id") String id);
 
+    @Query("select  u.userId from User  u where u.lastLogin>=:lastMonth")
+    List<String> findMonthActiveUser(@Param("lastMonth") LocalDateTime lastMonth);
 
     @Query("SELECT u.userId FROM User u")
     List<String> findAllUserIds();

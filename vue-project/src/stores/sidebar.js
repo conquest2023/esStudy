@@ -66,7 +66,6 @@ export const useSidebarStore = defineStore('sidebar', {
                         api.get('/points/summary'),
                         api.get('/points/recent')
                     ])
-                    console.log(ipRes)
                     this.visitorStats = {
                         active: ipRes.data.activeUsers,
                         today: ipRes.data.today,

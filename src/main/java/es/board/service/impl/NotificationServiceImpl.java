@@ -3,6 +3,7 @@ package es.board.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.repository.entity.Notification;
 import es.board.repository.entity.repository.NotificationRepository;
+import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    @Qualifier("sseHeartbeatExecutor")
-    private final ScheduledExecutorService heartbeatExecutor;
 
     private final RedisTemplate<String, String> redisTemplate;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -34,6 +34,8 @@ public class NotificationServiceImpl implements NotificationService {
     private  final ObjectMapper objectMapper;
 
     private  final NotificationRepository notificationRepository;
+
+    private final UserRepository userRepository;
 
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
@@ -68,13 +70,6 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("[{}] SSE 연결 오류 - {}", userId, ex.getMessage(), ex);
             removeEmitter(userId, "onError");
         });
-//        heartbeatExecutor.execute(() -> {
-//            try {
-//                emitter.send(SseEmitter.event().name("ping").data("connected"));
-//            } catch (Exception ex) {
-//                emitter.completeWithError(ex);
-//            }
-//        });
 
         return emitter;
     }
@@ -94,7 +89,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendNoticeNotification(List<String> userIds, int postId, String message) {
+    public void sendNoticeNotification(int postId, String message) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastMonth = now.minusMonths(1);
+        List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
         for (String userId : userIds) {
             sendFeedNotification(userId, postId, NOTICE_NOTIFICATION_KEY, "notice-notification", message);
         }
@@ -162,12 +160,12 @@ public class NotificationServiceImpl implements NotificationService {
             payload.put("message", message);
             payload.put("postId", postId);
             String jsonPayload = objectMapper.writeValueAsString(payload);
-//            if (!emitters.containsKey(userId)) {
-                redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-                redisTemplate.opsForList().trim(redisKey, 0, 20);
-                log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
-//                return;
-//            }
+
+            redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
+
+            redisTemplate.opsForList().trim(redisKey, 0, 20);
+            redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
+            log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
 
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {
@@ -189,6 +187,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!emitters.containsKey(userId)) {
             redisTemplate.opsForList().leftPush(redisKey, message);
             redisTemplate.opsForList().trim(redisKey, 0, 49);
+            redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
             log.warn("SSE 구독 없음 - Redis에 저장: {}", message);
             return;
         }
@@ -199,7 +198,9 @@ public class NotificationServiceImpl implements NotificationService {
         }
         try {
             log.info("알림 전송 - userId: {}, 메시지: {}", userId, message);
-            emitter.send(SseEmitter.event().name(eventType).data(message));
+            emitter.send(SseEmitter.event()
+                    .name(eventType)
+                    .data(message));
         } catch (IOException e) {
             log.error("알림 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
