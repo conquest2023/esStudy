@@ -26,7 +26,7 @@ public class ReplyEventListener {
     public void handleReplyCreated(ReplyCreatedEvent event) {
 
         String commentOwnerId = commentRepository.findByUserId(event.getCommentId());
-        if (commentOwnerId != null) {
+        if (commentOwnerId != null && !commentOwnerId.equals(event.getUserId())) {
             notificationService.sendReplyNotification(
                     commentOwnerId,
                     event.getPostId(),

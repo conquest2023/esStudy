@@ -28,9 +28,9 @@ public class CommentAdapterRepository implements CommentRepository {
     }
 
     @Override
-    public void saveComment(CommentEntity comment) {
+    public CommentEntity saveComment(CommentEntity comment) {
 
-        repository.save(comment);
+        return repository.save(comment);
     }
     @Override
     public Optional<CommentEntity> findById(long id){

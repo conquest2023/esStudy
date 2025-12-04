@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface CommentRepository {
 
     List<CommentAggView> countCommentsIn(List<Integer> postIds);
-    void saveComment(CommentEntity post);
+    CommentEntity saveComment(CommentEntity post);
 
     Optional<CommentEntity> findById(long id);
     String findByUserId(long commentId);

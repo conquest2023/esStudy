@@ -11,8 +11,8 @@ import es.board.repository.document.Board;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.repository.PostRepository;
 import es.board.service.CommentIndexService;
-import es.board.infrastructure.mq.FeedEvent;
-import es.board.infrastructure.mq.producer.CommentEventPublisher;
+import es.board.infrastructure.mq.old.FeedEvent;
+import es.board.infrastructure.mq.producer.CommentOldEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class CommentIndexServiceImpl implements CommentIndexService {
 
 //    private  final NotificationService notificationService;
 
-    private  final CommentEventPublisher commentEventPublisher;
+    private  final CommentOldEventPublisher commentEventPublisher;
 
     private final CommentDAO commentDAO;
 

@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface ReplyRepository {
 
 
-    void saveReply(ReplyEntity reply);
+    ReplyEntity saveReply(ReplyEntity reply);
     List<ReplyAggView> countRepliesIn(@Param("postIds") List<Integer> postIds);
 
     Optional<ReplyEntity> findById(long id);

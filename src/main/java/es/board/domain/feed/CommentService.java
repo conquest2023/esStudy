@@ -12,7 +12,6 @@ public interface CommentService {
 
     List<CommentDTO.Request> getComments(String userId, int id);
 
-    void getComment(int id);
 
     CommentDTO.Request updateComment(long id,CommentDTO.Update update);
 

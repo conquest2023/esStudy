@@ -4,7 +4,7 @@ package es.board.controller.model.mapper;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.document.Comment;
 import es.board.repository.entity.Notification;
-import es.board.infrastructure.mq.FeedEvent;
+import es.board.infrastructure.mq.old.FeedEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

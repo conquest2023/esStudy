@@ -1,4 +1,4 @@
-package es.board.infrastructure.mq;
+package es.board.infrastructure.mq.old;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

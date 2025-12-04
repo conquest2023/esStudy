@@ -19,9 +19,9 @@ public class ReplyAdapterRepository implements ReplyRepository {
     private final ReplyJpaRepository repository;
 
     @Override
-    public void saveReply(ReplyEntity reply) {
+    public ReplyEntity saveReply(ReplyEntity reply) {
 
-        repository.save(reply);
+        return repository.save(reply);
     }
 
     @Override

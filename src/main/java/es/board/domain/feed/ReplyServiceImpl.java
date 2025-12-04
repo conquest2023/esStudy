@@ -7,6 +7,7 @@ import es.board.domain.PostRepository;
 import es.board.domain.ReplyRepository;
 import es.board.domain.event.ReplyCreatedEvent;
 import es.board.domain.Reply;
+import es.board.infrastructure.mq.ReplyEventPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +28,16 @@ public class ReplyServiceImpl implements ReplyService {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    private final ReplyEventPublisher replyEventPublisher;
+
     @Override
     public void saveReply(String userId, ReplyDTO.Response response) {
 
         Reply reply = ReplyDomainMapper.toDomain(userId, response);
         ReplyEntity entity = Reply.toEntity(reply);
-        replyRepository.saveReply(entity);
+        ReplyEntity saveReply = replyRepository.saveReply(entity);
         eventPublisher.publishEvent(new ReplyCreatedEvent(response.getPostId(),entity.getUserId(),response.getCommentId(),response));
+        replyEventPublisher.publishReplyCreated(saveReply);
     }
     @Override
     public List<ReplyDTO.Request> getReplys(String userId,int postId) {
@@ -49,11 +53,14 @@ public class ReplyServiceImpl implements ReplyService {
         ReplyEntity replyEntity = replyRepository.isExist(id).orElseThrow(() -> new EntityNotFoundException("Reply not found"));
         replyEntity.applyFrom(update.getContent());
         Reply reply = Reply.toDomain(replyEntity);
+        ReplyEntity updatedEntity = Reply.toEntity(reply);
+        replyEventPublisher.publishReplyUpdated(updatedEntity);
         return ReplyDomainMapper.toUpdateDto(replyEntity.getUserId(),reply);
     }
 
     @Override
     public void deleteReply(long id) {
         replyRepository.deleteReply(id);
+        replyEventPublisher.publishReplyDeleted(id);
     }
 }

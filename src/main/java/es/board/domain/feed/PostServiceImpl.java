@@ -7,7 +7,7 @@ import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
-import es.board.infrastructure.mq.FeedEventPublisher;
+import es.board.infrastructure.mq.PostEventPublisher;
 import es.board.repository.entity.repository.PostImageRepository;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.domain.PostRepository;
@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    private final FeedEventPublisher feedEventPublisher;
+    private final PostEventPublisher postEventPublisher;
 
     private final PollService pollService;
 
@@ -64,15 +64,6 @@ public class PostServiceImpl implements PostService {
 
 
 
-    @Override
-    @Transactional
-    public PostDTO.Response updatePost(int id, String userId, PostDTO.Update update) {
-
-        PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
-        postEntity.applyFrom(update.getTitle(), update.getDescription(), LocalDateTime.now());
-        Post domain = Post.toDomain(postEntity);
-        return PostDomainMapper.toResponse(postEntity.getUserId(), domain);
-    }
 
     @Override
     public void savePost(String userId, PostDTO.Request req) {
@@ -82,7 +73,19 @@ public class PostServiceImpl implements PostService {
         int postId = postEntity.getId();
         imageUploadAndRewriteHtml(req.getDescription(), postId);
         eventPublisher.publishEvent(new PostCreatedEvent(postId,userId,req));
-//        feedEventPublisher.publishFeedCreated(postEntity);
+        postEventPublisher.publishFeedCreated(postEntity);
+    }
+    @Override
+    @Transactional
+    public PostDTO.Response updatePost(int id, String userId, PostDTO.Update update) {
+
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        postEntity.applyFrom(update.getTitle(), update.getDescription(), LocalDateTime.now());
+        Post domain = Post.toDomain(postEntity);
+        PostEntity entity = Post.toEntity(domain);
+        postEventPublisher.publishFeedUpdated(entity);
+        return PostDomainMapper.toResponse(postEntity.getUserId(), domain);
+
     }
 
 
@@ -121,6 +124,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePost(int id) {
         postRepository.deletePost(id);
+
+        postEventPublisher.publishFeedDeleted(id);
     }
 
 
