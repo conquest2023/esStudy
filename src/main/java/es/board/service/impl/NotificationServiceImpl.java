@@ -1,6 +1,7 @@
 package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.Notification;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.repository.entity.repository.UserRepository;
@@ -36,25 +37,29 @@ public class NotificationServiceImpl implements NotificationService {
     private  final NotificationRepository notificationRepository;
 
     private final UserRepository userRepository;
-
     private static final String COMMENT_NOTIFICATION_KEY = "notifications:comment:";
     private static final String TODO_NOTIFICATION_KEY = "notifications:todo:";
-
     private static final String REPLY_NOTIFICATION_KEY = "notifications:reply:";
-
     private static final String LIKE_NOTIFICATION_KEY = "notifications:like:";
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
-
     private static final String POINT_NOTIFICATION_KEY = "notifications:point:";
+    private static final String RANK_TOP3_EVENT = "rank-top3-hourly";
+    private static final String RANK_TOP1_EVENT = "rank-top1-2hour";
+
 
 
     @Override
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(0L);
         emitters.put(userId, emitter);
+
         sendPendingNotifications(userId, COMMENT_NOTIFICATION_KEY, "comment-notification", emitter);
 
-        sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
+        sendPendingNotifications(userId, RANK_TOP3_EVENT, "rank-top3-notification", emitter);
+
+        sendPendingNotifications(userId, RANK_TOP1_EVENT, "rank-top1-notification", emitter);
+
+//        sendPendingNotifications(userId, TODO_NOTIFICATION_KEY, "todo-notification", emitter);
 
         sendPendingNotifications(userId, LIKE_NOTIFICATION_KEY, "like-notification", emitter);
 
@@ -87,7 +92,6 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendPointNotification(String userId,String message) {
         sendPointNotification(userId,POINT_NOTIFICATION_KEY, "point-notification", message);
     }
-
     @Override
     public void sendNoticeNotification(int postId, String message) {
         LocalDateTime now = LocalDateTime.now();
@@ -207,19 +211,65 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public void sendTop3RankingNotification(String userId, List<PostEntity> top3){
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "rank-top3-hourly");
+            payload.put("count", top3.size());
+            List<Map<String, Object>> posts = top3.stream().map(p -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("postId", p.getId());
+                map.put("title", p.getTitle());
+                map.put("username", p.getUsername());
+                return map;
+            }).toList();
+            payload.put("posts", posts);
+            payload.put("message", "오늘의 베스트 게시글 Top 3가 업데이트되었습니다!");
+            String json = objectMapper.writeValueAsString(payload);
+            sendRankingEvent(userId, json, "rank-top3-notification");
+        } catch (Exception e) {
+            log.error("TOP3 랭킹 알림 실패", e);
+        }
+    }
+    private void sendRankingEvent(String userId, String jsonPayload, String eventType) {
+        String redisKey = "notifications:rank:" + userId;
+        redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
+        redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
+        log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
+        SseEmitter emitter = emitters.get(userId);
+        if (emitter == null) {
+            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+            return;
+        }
+        try {
+            emitter.send(SseEmitter.event()
+                    .id(UUID.randomUUID().toString())
+                    .name(eventType)
+                    .data(jsonPayload));
+        } catch (IOException e) {
+            log.error("랭킹 알림 전송 실패", e);
+            emitters.remove(userId);
+        }
+    }
+
+    @Override
+    public void sendTop1RankingNotification(String userId, PostEntity top1){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastMonth = now.minusMonths(1);
+        List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
+        for (String id : userIds) {
+            sendFeedNotification(id, top1.getId(), RANK_TOP1_EVENT,
+                    "rank-top1-notification",
+                   "랭킹 1위님이 글을 작성하셨습니다: "+ top1.getTitle());
+        }
+    }
+
 
     private void removeEmitter(String userId, String reason) {
         log.info("[{}] SSE 연결 종료 - Reason: {}", userId, reason);
         emitters.remove(userId);
     }
-
-    @Override
-    public List<String> getUserNotifications(String userId) {
-        String redisKey = "notifications:" + userId;
-        return redisTemplate.opsForList().range(redisKey, 0, -1);
-
-    }
-
     @Override
     public List<Notification> getNotificationList(String userId) {
         return notificationRepository.findByNotificationList(userId);

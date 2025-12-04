@@ -90,7 +90,6 @@
           :key="c.id + '-' + reloadTrigger"
           class="comment-item d-flex"
       >
-        <!-- 아바타 -->
         <div class="comment-avatar d-none d-sm-flex">
           <span>{{ (c.username || '?').charAt(0).toUpperCase() }}</span>
         </div>
@@ -134,7 +133,6 @@
                 삭제
               </button>
 
-              <!-- 댓글 좋아요 -->
               <button
                   class="btn btn-sm btn-link text-danger p-0 d-inline-flex align-items-center"
                   @click="() => toggleLike('COMMENT', c.id)"
@@ -148,7 +146,6 @@
             </div>
           </div>
 
-          <!-- 댓글 내용/수정폼 -->
           <div class="mt-1 comment-content" v-html="linkify(c.content)"></div>
 
           <div v-if="editingCommentId === c.id" class="mt-2">
@@ -175,7 +172,6 @@
             </div>
           </div>
 
-          <!-- 대댓글 리스트 -->
           <div class="mt-2 reply-list" v-if="replies && replies[c.id]">
             <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item">
               <div class="d-flex justify-content-between align-items-start">
@@ -214,7 +210,6 @@
                     삭제
                   </button>
 
-                  <!-- 대댓글 좋아요 -->
                   <button
                       class="btn btn-link btn-sm text-danger p-0 d-inline-flex align-items-center"
                       @click="() => toggleLike('REPLY', rp.id)"
@@ -541,7 +536,7 @@ async function fetchVoteCounts() {
   }
 }
 
-// 제출 (단일은 /vote, 멀티는 /votes)
+
 async function submitVote() {
   if (!vote.value) return
   const token = localStorage.getItem('token')
@@ -555,6 +550,7 @@ async function submitVote() {
   }
 
   try {
+    const postIdParam = route.params.id || route.query.id
     if (canMulti.value && maxSelectCnt.value > 1) {
       // 멀티
       await api.post('/votes', { pollId: pollId.value, optionIds }, {
@@ -568,8 +564,7 @@ async function submitVote() {
     }
     alert('투표 완료!')
     hasVoted.value = true
-    // 필요 시 즉시 집계 갱신
-    // await fetchVoteCounts()
+    window.location.href = '/post/'+postIdParam
   } catch (e) {
     console.error(e)
     alert('투표 중 오류 발생')

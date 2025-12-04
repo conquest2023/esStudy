@@ -33,6 +33,13 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             "LIMIT 5")
     List<UserPointProjection> sumPointUserTop5();
 
+    @Query( value = "SELECT p.user_id " +
+            "FROM point_history p " +
+            " GROUP BY p.user_id " +
+            " ORDER BY SUM(p.point_change) DESC ",
+            nativeQuery = true)
+    List<String> findTop1PointUser();
+
 
     @Query("SELECT sum(p.pointChange) as totalCount, " +
             "u.username as username " +

@@ -23,14 +23,12 @@ public class CommentEventListener {
     public void handleCommentCreated(CommentCreatedEvent event) {
 
         String postOwnerId = postRepository.findByUserId(event.getPostId());
-        if (postOwnerId != null) {
-
+        if (postOwnerId != null &&!postOwnerId.equals(event.getUserId())) {
             notificationService.sendCommentNotification(
                     postOwnerId,
                     event.getPostId(),
                     event.getResponse().getUsername() + "님이 댓글을 작성하였습니다: " + event.getResponse().getContent()
             );
-
             notificationRepository.save(CommentDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
 
         }

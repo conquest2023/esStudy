@@ -80,13 +80,13 @@ public class PostController {
     }
 
 
-
     @GetMapping("/posts/popular/month")
     public ResponseEntity<?> getPopularMonthPosts(@RequestParam int page, @RequestParam int size){
 
         Page<PostEntity> p = queryService.findPopularMonthPosts(page, size);
 
         List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
+
         return ResponseEntity.ok(
                 Map.of(
                         "page", p.getNumber(),
@@ -103,6 +103,7 @@ public class PostController {
         Page<PostEntity> p = queryService.findPopularTodayPosts(page, size);
 
         List<PostDTO.Response> collect =PostDomainMapper.toResponse(p);
+
         return ResponseEntity.ok(
                 Map.of(
                         "page", p.getNumber(),

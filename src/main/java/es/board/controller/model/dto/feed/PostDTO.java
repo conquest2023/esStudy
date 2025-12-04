@@ -8,10 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import es.board.ex.annotation.ValidCategory;
 import es.board.filter.XssSafeSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -25,6 +22,7 @@ public class PostDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    @ToString
     public static  class Response {
         private int id;
 

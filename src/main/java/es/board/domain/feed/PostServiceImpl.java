@@ -7,6 +7,7 @@ import es.board.controller.model.mapper.PostDomainMapper;
 import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
+import es.board.infrastructure.mq.FeedEventPublisher;
 import es.board.repository.entity.repository.PostImageRepository;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.domain.PostRepository;
@@ -41,6 +42,8 @@ public class PostServiceImpl implements PostService {
 
 
     private final ApplicationEventPublisher eventPublisher;
+
+    private final FeedEventPublisher feedEventPublisher;
 
     private final PollService pollService;
 
@@ -79,7 +82,7 @@ public class PostServiceImpl implements PostService {
         int postId = postEntity.getId();
         imageUploadAndRewriteHtml(req.getDescription(), postId);
         eventPublisher.publishEvent(new PostCreatedEvent(postId,userId,req));
-
+//        feedEventPublisher.publishFeedCreated(postEntity);
     }
 
 

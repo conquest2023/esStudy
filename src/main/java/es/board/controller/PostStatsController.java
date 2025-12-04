@@ -5,10 +5,7 @@ import es.board.service.CommandQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -29,9 +26,9 @@ public class PostStatsController {
                 "stats", postStats));
     }
 
-    @GetMapping("/post/popular/stats")
-    public ResponseEntity<?> getBestPopularPostStats(@RequestParam int page, @RequestParam int size) {
-        List<PostStatsDTO> postStats = commandQueryService.getBestWeekPostStats(page, size);
+    @GetMapping("/post/popular/stats/{day}")
+    public ResponseEntity<?> getBestPopularPostStats(@PathVariable String day, @RequestParam int page, @RequestParam int size) {
+        List<PostStatsDTO> postStats = commandQueryService.getBestPostStats(day,page, size);
         return ResponseEntity.ok(Map.of(
                 "stats", postStats));
     }

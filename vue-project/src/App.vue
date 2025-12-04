@@ -6,6 +6,7 @@
        class="position-fixed top-0 end-0 p-3"
        style="z-index: 2500; pointer-events: none; width: 400px;">
   <ToastContainer />
+    <ToastHost />
   </div>
   <RouterView v-slot="{ Component }">
     <keep-alive include="FeedList">
@@ -18,6 +19,7 @@ import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import NavBar from '@/components/common/Navbar.vue'
 import ToastContainer from "@/components/common/ToastContainer.vue";
+import ToastHost from "@/components/common/ToastHost.vue";
 const route = useRoute()
 const store = useUserStore()
 </script>

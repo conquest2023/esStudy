@@ -40,6 +40,7 @@ public class CommandQueryServiceImpl implements CommandQueryService {
     public List<PostStatsDTO> getPostStats(int page, int size) {
         int safePage = Math.max(1, page + 1);
         int offset = (safePage - 1) * size;
+
         List<Integer> ids = postRepository.findPostIds(offset, size);
 
         List<PostStatsDTO> resultList = getPostStatsDTOS(ids);
@@ -58,16 +59,19 @@ public class CommandQueryServiceImpl implements CommandQueryService {
     }
 
     @Override
-    public List<PostStatsDTO> getBestWeekPostStats(int page, int size) {
+    public List<PostStatsDTO> getBestPostStats(String day, int page, int size) {
         int safePage = Math.max(1, page + 1);
-        int offset = (safePage - 1) * size;
+        int offset   = (safePage - 1) * size;
+
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastSevenDay = now.minusDays(7);
-        List<Integer> ids = postRepository.findBestWeekPostIds(offset, size, lastSevenDay);
-
-        List<PostStatsDTO> resultList = getPostStatsDTOS(ids);
-
-        return resultList;
+        LocalDateTime fromDate = switch (day) {
+            case "today" -> now.minusDays(1);
+            case "week"  -> now.minusDays(7);
+            case "month" -> now.minusMonths(1);
+            default      -> now.minusDays(7);
+        };
+        List<Integer> ids = postRepository.findBestPostIds(offset, size, fromDate);
+        return getPostStatsDTOS(ids);
     }
 
     @NotNull

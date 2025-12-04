@@ -3,15 +3,12 @@ import { toasts } from '@/composables/useToast';
 
 
 const closeToast = (id) => {
-  // 토스트를 닫는 로직. 라우팅 후에도 이 함수를 호출할 수 있습니다.
   toasts.value = toasts.value.filter(t => t.id !== id);
 }
 
 const handleToastClick = (toast) => {
   if (toast.onClick) {
-    // 1. 라우팅 실행
     toast.onClick();
-    // 2. (선택적) 라우팅 후 토스트 닫기
     closeToast(toast.id);
   }
 }
@@ -42,7 +39,6 @@ const handleToastClick = (toast) => {
   pointer-events: auto;
 }
 
-/* 클릭 가능한 토스트에만 마우스 포인터 스타일을 적용 */
 .cursor-pointer {
   cursor: pointer;
 }

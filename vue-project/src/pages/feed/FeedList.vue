@@ -150,7 +150,6 @@ const showSidebar = ref(false)
 //     console.error('추천 글 로딩 실패:', err)
 //   }
 // })
-const likeCounts = ref({})
 const itQs = ref([])
 const genQs = ref([])
 const curCat = ref('IT')
@@ -161,6 +160,7 @@ const totalPage  = ref(0)
 const posts      = ref([])
 const notices    = ref([])
 const counts     = ref({})
+const likeCounts = ref({})
 const answerInput = ref('')
 const isInterviewOpen = ref(false)
 const curArr = computed(() => (curCat.value === 'IT' ? itQs.value : genQs.value))
@@ -171,7 +171,11 @@ const dataCategories  = ['자료', '기술', '취업', '자격증']
 const activeTab       = ref('ALL')
 const bestSelected     = ref('오늘')
 const selectedCategory= ref('자료')
-
+const dayMap = {
+  '오늘': 'today',
+  '이번주': 'week',
+  '이번달': 'month'
+}
 function changeDataCategory(cat) {
   selectedCategory.value = cat
   fetchFeeds(0)
@@ -184,7 +188,6 @@ function bestListUrl() {
     default:       return '/posts/popular/today'
   }
 }
-// BEST 전용
 function setBestCat(cat) {
   if (bestSelected.value !== cat) {
     bestSelected.value = cat
@@ -354,8 +357,10 @@ async function fetchFeedsAll(newPage = page.value) {
     const nextCounts = {}
     const nextLikeCounts = {}
     for (const stat of postStats) {
-      if (stat.postId && stat.totalCommentCount !== undefined) nextCounts[stat.postId] = stat.totalCommentCount
-      if (stat.postId && stat.likeCount !== undefined)         nextLikeCounts[stat.postId] = stat.likeCount
+      if (stat.postId && stat.totalCommentCount !== undefined)
+        nextCounts[stat.postId] = stat.totalCommentCount
+      if (stat.postId && stat.likeCount !== undefined)
+        nextLikeCounts[stat.postId] = stat.likeCount
     }
     counts.value = nextCounts
     likeCounts.value = nextLikeCounts
@@ -391,8 +396,7 @@ async function fetchFeeds(newPage = page.value) {
   const uiPageForUrl = zeroBasedPage + 1
   router.replace({ query: { ...route.query, page: uiPageForUrl } })
 
-  const params = { page: zeroBasedPage, size: 10 }
-
+  const params = { page: zeroBasedPage , size: 10 }
   if (tab.category) params.category = tab.category
   if (tab.id === 'DATA') params.category = selectedCategory.value
   if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') params.sort = curSort.value
@@ -409,30 +413,29 @@ async function fetchFeeds(newPage = page.value) {
     const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
 
     if (tab.id === 'BEST') {
-      const { data: statsRes } = await api.get('/post/popular/stats', { params })
+      const raw =bestSelected.value || '오늘'
+      const day = dayMap[raw] || 'today'
+      const { data: statsRes } = await api.get(`/post/popular/stats/${day}`, { params })
       const postStats = statsRes.stats || []
       const nextCounts = {}
       const nextLikeCounts = {}
-
       for (const stat of postStats) {
         if (stat.postId && stat.totalCommentCount !== undefined) {
-          nextCounts[stat.postId] = stat.totalCommentCount
+           nextCounts[stat.postId] = stat.totalCommentCount
         }
         if (stat.postId && stat.likeCount !== undefined) {
           nextLikeCounts[stat.postId] = stat.likeCount
         }
       }
-
       counts.value = nextCounts
       likeCounts.value = nextLikeCounts
-    }
 
+    }
     if (tab.id === 'VOTE') {
       const { data: statsRes } = await api.get('/poll/stats', { params })
       const postStats = statsRes.stats || []
       const nextCounts = {}
       const nextLikeCounts = {}
-
       for (const stat of postStats) {
         if (stat.postId && stat.totalCommentCount !== undefined) {
           nextCounts[stat.postId] = stat.totalCommentCount
@@ -447,8 +450,9 @@ async function fetchFeeds(newPage = page.value) {
 
     if (tab.id === 'NOTICE') {
       notices.value = Array.isArray(content) ? content : []
-    } else {
-      posts.value   = Array.isArray(content) ? content : []
+    }
+    else {
+      posts.value  = Array.isArray(content) ? content : []
       if (payload.count) counts.value = payload.count
     }
 

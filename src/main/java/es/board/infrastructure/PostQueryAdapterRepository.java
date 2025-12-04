@@ -3,7 +3,9 @@ package es.board.infrastructure;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.infrastructure.jpa.PostJpaRepository;
+import es.board.repository.entity.repository.PointHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,13 +16,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class PostQueryAdapterRepository implements PostQueryRepository {
 
     private final PostJpaRepository repository;
 
-
+    private final PointHistoryRepository pointHistoryRepository;
     @Override
     public Page<PostEntity> findByMyPageUserPosts(int page,int size, String userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -32,8 +35,6 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return  repository.findIds(pageable);
     }
-
-
     @Override
     public Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays) {
         Pageable pageable = PageRequest.of(page, size);
@@ -46,9 +47,20 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
-    public List<Integer> findBestWeekPostIds(int page, int size, LocalDateTime lastSevenDays) {
+    public List<PostEntity> findTodayTop3(LocalDateTime today) {
+        return repository.findTodayTop3Native(today);
+    }
 
-        return repository.findBestWeekPostIds(page,size,lastSevenDays);
+    @Override
+    public  Optional<PostEntity> findUserTopToday(LocalDateTime lastDay) {
+        List<String> topUser = pointHistoryRepository.findTop1PointUser();
+        return repository.findUserTopToday(topUser.get(2),lastDay);
+    }
+
+    @Override
+    public List<Integer> findBestPostIds(int page, int size, LocalDateTime lastSevenDays) {
+
+        return repository.findBestPostIds(page,size,lastSevenDays);
     }
 
     @Override
