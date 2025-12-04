@@ -30,6 +30,7 @@ public class ReplyEventPublisher {
         p.put("docType", "reply");
         p.put("id", String.valueOf(reply.getId()));
         p.put("parentId", String.valueOf(reply.getPostId()));
+        p.put("username",reply.getUsername());
         p.put("content", reply.getContent());
         p.put("authorId", reply.getUserId());
         p.put("createdAt", reply.getCreatedAt().atOffset(ZoneOffset.UTC).toString());
@@ -48,7 +49,9 @@ public class ReplyEventPublisher {
         Map<String, Object> p = new HashMap<>();
         p.put("docType", "reply");
         p.put("id", String.valueOf(reply.getId()));
+        p.put("username",reply.getUsername());
         p.put("parentId", String.valueOf(reply.getPostId()));
+
         p.put("content", reply.getContent());
         p.put("authorId", reply.getUserId());
         p.put("createdAt", reply.getCreatedAt().atOffset(ZoneOffset.UTC).toString());

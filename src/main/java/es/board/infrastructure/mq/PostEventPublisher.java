@@ -28,11 +28,12 @@ public class PostEventPublisher {
         Map<String, Object> p = new HashMap<>();
         p.put("docType", "feed");
         p.put("id", String.valueOf(post.getId()));
-        p.put("parentId", null);
+        p.put("parentId", String.valueOf(post.getId()));
         p.put("category", post.getCategory());        // 있으면
         p.put("title", post.getTitle());
         p.put("content", post.getDescription());
         p.put("authorId", post.getUserId());
+        p.put("username", post.getUsername());
         p.put("createdAt", post.getCreatedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("updatedAt", null);
         p.put("eventVersion", 1);
@@ -53,11 +54,12 @@ public class PostEventPublisher {
         Map<String, Object> p = new HashMap<>();
         p.put("docType", "feed");
         p.put("id", String.valueOf(post.getId()));
-        p.put("parentId", null);
+        p.put("parentId", String.valueOf(post.getId()));
         p.put("category", post.getCategory());        // 있으면
         p.put("title", post.getTitle());
         p.put("content", post.getDescription());
         p.put("authorId", post.getUserId());
+        p.put("username", post.getUsername());
         p.put("createdAt", post.getCreatedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("updatedAt", post.getModifiedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("eventVersion", 1);

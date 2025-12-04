@@ -30,6 +30,7 @@ public class CommentEventPublisher {
         p.put("parentId", String.valueOf(c.getPostId())); // 상위 피드
         p.put("content", c.getContent());
         p.put("authorId", c.getUserId());
+        p.put("username",c.getUsername());
         p.put("createdAt", c.getCreatedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("updatedAt", null);
         p.put("eventVersion", 1);
@@ -51,6 +52,7 @@ public class CommentEventPublisher {
         p.put("parentId", String.valueOf(c.getPostId()));
         p.put("content", c.getContent());
         p.put("authorId", c.getUserId());
+        p.put("username",c.getUsername());
         p.put("createdAt", c.getCreatedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("updatedAt", c.getUpdatedAt().atOffset(ZoneOffset.UTC).toString());
         p.put("eventVersion", 2);
