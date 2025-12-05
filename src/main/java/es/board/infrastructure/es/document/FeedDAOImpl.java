@@ -14,9 +14,50 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class FeedDAOImpl implements FeedDAO{
+public class FeedDAOImpl implements FeedDAO {
 
     private final ElasticsearchClient client;
+
+    @Override
+    public List<Feed> findSearchContent(String content) {
+        try {
+
+            SearchResponse<Feed> response = client.search(s -> s
+                            .index("content_read")
+                            .size(10000)
+                            .query(
+                                    q -> q.match(m -> m
+                                            .field("content")
+                                            .query(content)))
+                    , Feed.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            log.error("Error searching documents by text: {}", e.getMessage(), e);
+            throw new IndexException("Failed to search feed by text", e);
+        }
+    }
+
+    @Override
+    public List<Feed> findSearchTitle(String title) {
+        try {
+        SearchResponse<Feed> response = client.search(s -> s
+                        .index("content_read")
+                        .size(10000)
+                        .query(
+                                q -> q.match(m -> m
+                                        .field("title")
+                                        .query(title)))
+                , Feed.class);
+            return response.hits().hits().stream()
+                    .map(hit -> hit.source())
+                    .collect(Collectors.toList());
+        }catch(IOException e){
+            log.error("Error searching documents by text: {}", e.getMessage(), e);
+            throw new IndexException("Failed to search feed by text", e);
+        }
+    }
 
     @Override
     public List<Feed> findSearchPost(String text) {
@@ -42,6 +83,7 @@ public class FeedDAOImpl implements FeedDAO{
             throw new IndexException("Failed to search feed by text", e);
         }
     }
+
 
     @Override
     public List<Feed> findSearchUserPost(String username) {

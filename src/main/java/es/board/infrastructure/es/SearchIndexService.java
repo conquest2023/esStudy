@@ -8,9 +8,13 @@ public interface SearchIndexService {
 
 
 
-    List<PostDTO.Response> getSearchTitle();
 
-    List<PostDTO.Response> getSearchContent(String text);
+    List<PostDTO.Response> getSearchPost(String text);
+
+
+    List<PostDTO.Response> getSearchTitle(String title);
+
+    List<PostDTO.Response> getSearchContent(String content);
 
 
     List<PostDTO.Response> getSearchComment();

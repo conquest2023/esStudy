@@ -111,10 +111,10 @@ const store   = useUserStore()
 const MAX_IMAGES = 3
 const pendingFiles = ref([])
 function toast(msg){ alert(msg) }
-const categories       = ['자유', '자격증', '문제', '기술', '취업', 'Q/A', '자료']
+const categories       = ['자유', '자격증', '문제', '기술', '취업', 'Q/A', '자료','고민']
 const showPlaceholder  = ref(true)
 const editor           = ref(null)
-const isSubmitting     = ref(false) // 중복 제출 방지
+const isSubmitting     = ref(false)
 
 const applyFormat = type => {
   if (type === 'link') {

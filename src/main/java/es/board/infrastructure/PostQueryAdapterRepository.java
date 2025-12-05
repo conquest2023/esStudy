@@ -31,6 +31,12 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
+    public Page<PostEntity> findByCategoryPosts(String category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return  repository.findCategoryPosts(category,pageable);
+    }
+
+    @Override
     public Page<Integer> findIds(int page,int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return  repository.findIds(pageable);

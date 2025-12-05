@@ -119,7 +119,11 @@ const pagesToShow = computed(() => {
   return arr
 })
 
-const typeLabel = computed(() => (type.value === 'user' ? '이름 검색' : '제목+내용 검색'))
+const typeLabel = computed(() => {
+  const map = { title: '제목', content: '내용', post: '제목+내용', user: '유저' }
+  return map[type.value] || '제목+내용'
+})
+
 
 onMounted(fetchSearch)
 watch(
@@ -136,12 +140,19 @@ async function fetchSearch() {
   if (!keyword.value) return
   loading.value = true
   try {
-    let resp
-    if (type.value === 'user') {
-      resp = await api.get(`/search/user/${encodeURIComponent(keyword.value)}`)
-    } else {
-      resp = await api.get(`/search/${encodeURIComponent(keyword.value)}`)
-    }
+    const key = encodeURIComponent(keyword.value)
+    // 모드 -> 백엔드 엔드포인트 맵
+    const endpoint = (() => {
+      switch (type.value) {
+        case 'title':   return `/search/title/${key}`
+        case 'content': return `/search/content/${key}`
+        case 'post':    return `/search/post/${key}`      // 제목+내용
+        case 'user':    return `/search/user/${key}`
+        default:        return `/search/post/${key}`
+      }
+    })()
+
+    const resp = await api.get(endpoint)
     const list = resp.data?.content ?? resp.data?.data ?? []
     allResults.value = Array.isArray(list) ? list : []
   } catch (e) {

@@ -21,6 +21,9 @@ public interface PostQueryRepository {
 
     Page<PostEntity> findByMyPageUserPosts(int page,int size, String userId);
 
+
+    Page<PostEntity> findByCategoryPosts(String category,int page,int size);
+
     Page<PostEntity> findByPagePosts(int page,int size);
 
     Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays);

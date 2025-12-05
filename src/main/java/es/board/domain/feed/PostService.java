@@ -17,6 +17,7 @@ public interface PostService {
 
     Page<Integer> findIds(int page ,int size);
 
+    Page<PostEntity> findCategoryPost(String category, int page, int size);
 
     void deletePost(int id);
 

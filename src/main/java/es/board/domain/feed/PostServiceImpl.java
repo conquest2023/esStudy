@@ -59,6 +59,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void incrementViewCount(int postId) {
+
         postRepository.increaseViewCount(postId);
     }
 
@@ -92,6 +93,12 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<Integer> findIds(int page, int size) {
         return queryRepository.findIds(page,size);
+    }
+
+    @Override
+    public Page<PostEntity> findCategoryPost(String category, int page, int size) {
+
+        return  queryRepository.findByCategoryPosts(category,page,size);
     }
 
     @Override

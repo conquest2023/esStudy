@@ -29,12 +29,22 @@ public class SearchIndexController {
 //
 //    }
 
-    @GetMapping("/search/{content}")
+    @GetMapping("/search/post/{content}")
+    public ResponseEntity<?> getSearchPostIndex(@PathVariable String  content){
+        List<PostDTO.Response> searchContent = searchIndexService.getSearchPost(content);
+        return ResponseEntity.ok(Map.of("content",searchContent));
+    }
+
+    @GetMapping("/search/content/{content}")
     public ResponseEntity<?> getSearchContentIndex(@PathVariable String  content){
         List<PostDTO.Response> searchContent = searchIndexService.getSearchContent(content);
         return ResponseEntity.ok(Map.of("content",searchContent));
     }
-
+    @GetMapping("/search/title/{title}")
+    public ResponseEntity<?> getSearchTitleIndex(@PathVariable String title){
+        List<PostDTO.Response> searchContent = searchIndexService.getSearchTitle(title);
+        return ResponseEntity.ok(Map.of("content",searchContent));
+    }
 
     @GetMapping("/search/user/{username}")
     public ResponseEntity<?> getSearchUsername(@PathVariable String username){

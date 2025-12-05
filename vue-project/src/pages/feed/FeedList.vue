@@ -70,10 +70,8 @@
             </div>
           </div>
 
-          <!-- DATA 카테고리 바 (함수명 변경) -->
           <div v-if="activeTab === 'DATA'" class="category-bar">
             <div class="segmented-tabs">
-
             <button
                 v-for="cat in dataCategories"
                 :key="cat"
@@ -391,58 +389,56 @@ async function fetchFeeds(newPage = page.value) {
   }
 
   loading.value = true
-  const zeroBasedPage = Number(newPage) || 0
-  page.value = zeroBasedPage
-  const uiPageForUrl = zeroBasedPage + 1
-  router.replace({ query: { ...route.query, page: uiPageForUrl } })
-
-  const params = { page: zeroBasedPage , size: 10 }
-  if (tab.category) params.category = tab.category
-  if (tab.id === 'DATA') params.category = selectedCategory.value
-  if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') params.sort = curSort.value
-
   try {
+    const zeroBasedPage = Number(newPage) || 0
+    page.value = zeroBasedPage
+    const uiPageForUrl = zeroBasedPage + 1
+    router.replace({ query: { ...route.query, page: uiPageForUrl } })
+
+    const params = { page: zeroBasedPage, size: 10 }
+    if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') {
+      params.sort = curSort.value
+    }
+
     let listUrl = tab.url
     if (tab.id === 'BEST') {
-      listUrl = bestListUrl()
+      listUrl = bestListUrl() // 기존 로직 유지
+    } else if (tab.id === 'DATA') {
+      listUrl = `/post/category/${encodeURIComponent(selectedCategory.value)}`
+    } else if (tab.category) {
+      // 탭 자체가 고정 카테고리를 갖는 경우
+      listUrl = `/post/category/${encodeURIComponent(tab.category)}`
     }
 
     const { data } = await api.get(listUrl, { params })
+
     const payload     = data?.ok ?? data ?? {}
     const content     = payload.posts ?? payload.content ?? payload.data ?? []
     const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
 
     if (tab.id === 'BEST') {
-      const raw =bestSelected.value || '오늘'
+      const raw = bestSelected.value || '오늘'
       const day = dayMap[raw] || 'today'
       const { data: statsRes } = await api.get(`/post/popular/stats/${day}`, { params })
       const postStats = statsRes.stats || []
       const nextCounts = {}
       const nextLikeCounts = {}
       for (const stat of postStats) {
-        if (stat.postId && stat.totalCommentCount !== undefined) {
-           nextCounts[stat.postId] = stat.totalCommentCount
-        }
-        if (stat.postId && stat.likeCount !== undefined) {
-          nextLikeCounts[stat.postId] = stat.likeCount
-        }
+        if (stat.postId && stat.totalCommentCount !== undefined) nextCounts[stat.postId] = stat.totalCommentCount
+        if (stat.postId && stat.likeCount !== undefined)          nextLikeCounts[stat.postId] = stat.likeCount
       }
       counts.value = nextCounts
       likeCounts.value = nextLikeCounts
-
     }
+
     if (tab.id === 'VOTE') {
       const { data: statsRes } = await api.get('/poll/stats', { params })
       const postStats = statsRes.stats || []
       const nextCounts = {}
       const nextLikeCounts = {}
       for (const stat of postStats) {
-        if (stat.postId && stat.totalCommentCount !== undefined) {
-          nextCounts[stat.postId] = stat.totalCommentCount
-        }
-        if (stat.postId && stat.likeCount !== undefined) {
-          nextLikeCounts[stat.postId] = stat.likeCount
-        }
+        if (stat.postId && stat.totalCommentCount !== undefined) nextCounts[stat.postId] = stat.totalCommentCount
+        if (stat.postId && stat.likeCount !== undefined)          nextLikeCounts[stat.postId] = stat.likeCount
       }
       counts.value = nextCounts
       likeCounts.value = nextLikeCounts
@@ -450,15 +446,14 @@ async function fetchFeeds(newPage = page.value) {
 
     if (tab.id === 'NOTICE') {
       notices.value = Array.isArray(content) ? content : []
-    }
-    else {
-      posts.value  = Array.isArray(content) ? content : []
+    } else {
+      posts.value = Array.isArray(content) ? content : []
       if (payload.count) counts.value = payload.count
     }
 
     totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
   } catch (err) {
-    console.error(`${tab.label} 로딩 실패`, err)
+    console.error(`${tab?.label ?? ''} 로딩 실패`, err)
     posts.value = []
     notices.value = []
     counts.value = {}
