@@ -9,6 +9,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -54,7 +55,11 @@ public class ElasticConfig {
     }
     @Bean
     public ElasticsearchTransport elasticsearchTransport(RestClient restClient) {
-        return new RestClientTransport(restClient, new JacksonJsonpMapper());
+        ObjectMapper om = new ObjectMapper()
+                 .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ISO-8601로
+
+        return   new RestClientTransport(restClient, new JacksonJsonpMapper(om));
     }
 
     @Bean

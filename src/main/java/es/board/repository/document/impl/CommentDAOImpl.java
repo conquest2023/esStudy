@@ -9,7 +9,7 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.ex.IndexException;
 import es.board.repository.CommentDAO;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.repository.document.Comment;
 //import es.board.repository.entity.entityrepository.CommentRepository;
 import lombok.RequiredArgsConstructor;

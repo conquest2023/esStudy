@@ -1,9 +1,9 @@
-package es.board.controller.model.mapper;
+package es.board.controller.model.mapper.document;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
 import es.board.infrastructure.entity.feed.NoticeEntity;
@@ -12,12 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 @Component
 @Slf4j
-public class FeedMapper {
+public class FeedDocumentMapper {
     public PostEntity toPostEntity(PostDTO.Request feedSaveDTO) {
         return PostEntity.builder()
 //                .userId(feedSaveDTO.getUserId())
@@ -32,18 +33,19 @@ public class FeedMapper {
     public Feed toBoardDocument(PostDTO.Request response, int id , String feedUID) {
         return Feed.builder()
 //                .feedUID(feedUID)
-                .id(id)
+//                .id(id)
 //                .userId(response.getUserId())
                 .username(response.getUsername())
                 .title(response.getTitle())
 //                .description(response.getDescription().replace("\\n", "\n"))
                 .category(response.getCategory())
 //                .viewCount(response.getViewCount())
-                .createdAt(LocalDateTime.now())
+//                .createdAt(LocalDateTime.now())
                 .build();
     }
 
     public List<PostDTO.Request> fromBoardDtoList(List<Feed> boards) {
+        ZoneId KST = ZoneId.of("Asia/Seoul");
         return boards.stream()
                 .map(board -> PostDTO.Request.builder()
 //                        .feedUID(board.getFeedUID())
@@ -54,10 +56,30 @@ public class FeedMapper {
 //                        .likeCount(board.getLikeCount())
                         .category(board.getCategory())
 //                        .viewCount(board.getViewCount())
-                        .createdAt(board.getCreatedAt())
+                        .createdAt(board.getCreatedAt().atZone(KST).toLocalDateTime())
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+
+    public static List<PostDTO.Response> fromPostDtoList(List<Feed> boards) {
+        ZoneId KST = ZoneId.of("Asia/Seoul");
+        return boards.stream()
+                .map(board -> PostDTO.Response.builder()
+                        .id(Integer.parseInt(board.getId()))
+                        .username(board.getUsername())
+                        .title(board.getTitle())
+                        .description(board.getContent())
+                        .category(board.getCategory())
+                        .createdAt(board.getCreatedAt() == null
+                                ? null
+                                : board.getCreatedAt().atZone(KST).toLocalDateTime()
+                        )
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
     public PostDTO.Request fromBoardDto(Feed board) {
         return PostDTO.Request.builder()
@@ -70,7 +92,7 @@ public class FeedMapper {
                 .category(board.getCategory())
 //                .viewCount(board.getViewCount())
 //                .likeCount(board.getLikeCount())
-                .createdAt(board.getCreatedAt())
+//                .createdAt(board.getCreatedAt())
                 .build();
     }
 

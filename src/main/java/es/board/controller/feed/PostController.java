@@ -4,7 +4,7 @@ package es.board.controller.feed;
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.domain.feed.PostQueryService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.domain.feed.PostService;

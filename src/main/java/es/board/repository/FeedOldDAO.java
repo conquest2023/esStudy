@@ -4,7 +4,7 @@ package es.board.repository;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface FeedDAO {
+public interface FeedOldDAO {
 
     List<String> findPagingIds(int page,int size);
 

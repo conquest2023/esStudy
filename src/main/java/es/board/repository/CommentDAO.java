@@ -2,7 +2,7 @@ package es.board.repository;
 
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 

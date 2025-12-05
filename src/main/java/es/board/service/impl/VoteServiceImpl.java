@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 
-import es.board.controller.model.mapper.FeedMapper;
+import es.board.controller.model.mapper.document.FeedDocumentMapper;
 import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.repository.VoteDAO;
 import es.board.repository.document.VoteDocument;
@@ -32,7 +32,7 @@ public class VoteServiceImpl implements VoteService {
 
     private  final VoteUserRepository voteUserRepository;
 
-    private final FeedMapper feedMapper;
+    private final FeedDocumentMapper feedMapper;
 
     @Override
     public CompletableFuture<Void> createdFeedVote(VoteDTO.Request vote, String  username, String userId) {

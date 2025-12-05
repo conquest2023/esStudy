@@ -3,7 +3,7 @@ package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.projection.MyCommentProjection;

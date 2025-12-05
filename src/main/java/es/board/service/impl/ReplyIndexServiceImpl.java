@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.slack.SlackNotifier;
-import es.board.controller.model.mapper.FeedMapper;
+import es.board.controller.model.mapper.document.FeedDocumentMapper;
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.CommentDAO;
 import es.board.repository.ReplyDAO;
@@ -31,7 +31,7 @@ public class ReplyIndexServiceImpl implements ReplyIndexService {
 
     private  final CommentDAO commentDAO;
 
-    private  final FeedMapper feedMapper;
+    private  final FeedDocumentMapper feedMapper;
 
     private  final NotificationService notificationService;
 

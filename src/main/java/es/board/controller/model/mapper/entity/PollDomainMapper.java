@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.controller.model.mapper.entity;
 
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollOptionDTO;

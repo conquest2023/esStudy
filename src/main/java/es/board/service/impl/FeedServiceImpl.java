@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.config.jwt.JwtTokenProvider;
 //import es.board.config.s3.S3Uploader;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.mapper.FeedMapper;
+import es.board.controller.model.mapper.document.FeedDocumentMapper;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.repository.FeedDAO;
+import es.board.repository.FeedOldDAO;
 import es.board.repository.LikeDAO;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.infrastructure.entity.feed.PostEntity;
@@ -45,7 +45,7 @@ public class FeedServiceImpl implements FeedService {
     private final EntityManager entityManager;
 
 
-    private final FeedMapper feedMapper;
+    private final FeedDocumentMapper feedMapper;
 
     private  final PostImageRepository feedImageRepository;
 
@@ -60,7 +60,7 @@ public class FeedServiceImpl implements FeedService {
 
     private final PostRepository postRepository;
 
-    private final FeedDAO feedDAO;
+    private final FeedOldDAO feedDAO;
 
     private final AsyncService asyncService;
 
@@ -352,7 +352,7 @@ public class FeedServiceImpl implements FeedService {
                     .title(dto.getTitle())
 //                    .description(dto.getDescription())
 //                    .likeCount(dto.getLikeCount())
-                    .createdAt(LocalDateTime.now())
+//                    .createdAt(LocalDateTime.now())
                     .build();
             boards.add(feed);
         }

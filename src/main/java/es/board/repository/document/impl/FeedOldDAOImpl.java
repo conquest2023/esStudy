@@ -11,8 +11,8 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.ex.IndexException;
-import es.board.repository.FeedDAO;
-import es.board.repository.document.Feed;
+import es.board.repository.FeedOldDAO;
+import es.board.infrastructure.es.document.Feed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class FeedDAOImpl implements FeedDAO {
+public class FeedOldDAOImpl implements FeedOldDAO {
 
     private final ElasticsearchClient client;
     private final int increment = 1;

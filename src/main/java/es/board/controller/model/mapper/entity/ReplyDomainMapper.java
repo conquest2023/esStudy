@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.controller.model.mapper.entity;
 
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.entity.Notification;

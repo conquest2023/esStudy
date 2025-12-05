@@ -2,7 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.infrastructure.entity.feed.PostImage;
 import org.springframework.stereotype.Service;
 

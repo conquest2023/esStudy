@@ -6,12 +6,12 @@
 //
 //import es.board.config.jwt.JwtTokenProvider;
 //import es.board.controller.model.mapper.CommentMapper;
-//import es.board.controller.model.mapper.FeedMapper;
+//import es.board.controller.model.mapper.document.FeedDocumentMapper;
 //import es.board.controller.model.dto.feed.PostDTO;
 //import es.board.controller.model.dto.feed.VoteDTO;
 //import es.board.controller.model.dto.feed.CommentDTO;
 //import es.board.ex.TokenValidator;
-//import es.board.repository.document.Feed;
+//import es.board.infrastructure.es.document.Feed;
 //import es.board.repository.document.Comment;
 //import es.board.service.*;
 //import jakarta.servlet.http.Cookie;
@@ -65,7 +65,7 @@
 //
 //    private  final VoteService voteService;
 //
-//    private  final FeedMapper feedMapper;
+//    private  final FeedDocumentMapper feedMapper;
 //
 //
 //    @PostMapping("/increaseViewCount")

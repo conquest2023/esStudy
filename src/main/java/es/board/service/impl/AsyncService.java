@@ -5,7 +5,7 @@ import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.*;
-import es.board.repository.document.Feed;
+import es.board.infrastructure.es.document.Feed;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
 import es.board.infrastructure.entity.user.User;
@@ -46,7 +46,7 @@ public class AsyncService {
 
     private final LikeDAO likeDAO;
 
-    private final FeedDAO feedDAO;
+    private final FeedOldDAO feedDAO;
 
     private  final  TistoryPostRepository tistoryPostRepository;
 

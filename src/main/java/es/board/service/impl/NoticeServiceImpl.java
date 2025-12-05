@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
-import es.board.controller.model.mapper.PostDomainMapper;
+import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.NoticeEntity;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.NoticeJpaRepository;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Service

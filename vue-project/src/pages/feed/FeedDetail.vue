@@ -821,7 +821,6 @@ async function loadLikeDetail(postId) {
       headers: { Authorization: `Bearer ${token}` }
     })
     const list = Array.isArray(data?.likes) ? data.likes : []
-    console.log(list)
     list.forEach(item => {
       const targetType =
           item.targetType ?? item.target_type ?? item.type
