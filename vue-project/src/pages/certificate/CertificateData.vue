@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import { useUserStore } from '@/stores/user'
 const store = useUserStore()
 const page = ref(0)
@@ -68,6 +68,10 @@ function prevPage() {
 function nextPage() {
   if (!isLastPage.value) page.value++
 }
+onMounted(() => {
+  alert('아직 준비중인 기능입니다!')
+  window.location.href ="/"
+})
 </script>
 
 <style scoped>

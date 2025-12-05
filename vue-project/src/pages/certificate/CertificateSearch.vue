@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import debounce from 'lodash.debounce'
 import rison from 'rison'
 
@@ -74,7 +74,10 @@ if (!token) {
   alert('로그인이 필요합니다.')
   window.location.href = '/login'
 }
-
+onMounted(() => {
+  alert('아직 준비중인 기능입니다!')
+  window.location.href ="/"
+})
 fetch('/api/certificate/top5', {
   headers: { Authorization: `Bearer ${token}` }
 })

@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import axios from 'axios'
 
 const step = ref('cert')
@@ -159,7 +159,10 @@ async function loadQuestions(sessionNum) {
     alert('문제를 불러오지 못했습니다.')
   }
 }
-
+onMounted(() => {
+  alert('아직 준비중인 기능입니다!')
+  window.location.href ="/"
+})
 async function loadTagQuestions(tagId) {
   const token = localStorage.getItem('token')
   try {

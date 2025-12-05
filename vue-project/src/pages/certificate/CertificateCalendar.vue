@@ -36,6 +36,10 @@ let calendar = null
 function openTips() {
   showTipPanel.value = true
 }
+onMounted(() => {
+  alert('아직 준비중인 기능입니다!')
+  window.location.href ="/"
+})
 function closeTips() {
   showTipPanel.value = false
 }
