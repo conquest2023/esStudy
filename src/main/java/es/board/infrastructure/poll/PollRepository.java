@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ public interface PollRepository {
 
     void save(PollEntity poll);
 
+    List<PollEntity> findBy3DaysAgoPoll(LocalDateTime day);
     List<Integer> findPollIds(int offset,int size);
     Optional<PostEntity> findByPost(long pollId);
     Page<PostEntity> findPollPagingList(Pageable pageable);

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,12 @@ public class PollAdapterRepository implements PollRepository {
     public void save(PollEntity poll) {
 
         pollJpaRepository.save(poll);
+    }
+
+    @Override
+    public List<PollEntity> findBy3DaysAgoPoll(LocalDateTime day) {
+        LocalDateTime dateTime = day.minusDays(3);
+        return pollJpaRepository.findBy3DaysAgoPoll(dateTime);
     }
 
     @Override

@@ -48,6 +48,10 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     List<Integer> findBestPostIds(@Param("offset") int offset,
                                   @Param("size") int size,
                                   @Param("day") LocalDateTime day);
+
+    @Query("select p from PostEntity p where p.id in :ids")
+    List<PostEntity> findPostAndPoll(List<Integer> ids);
+
     @Query("select p from PostEntity p where p.userId=:userId")
     Page<PostEntity> findByMyPageUserPosts(Pageable pageable,String userId);
 

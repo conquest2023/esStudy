@@ -43,6 +43,29 @@ export function useSSE(token) {
             onItemClick: (p) => router.push(`/post/${p.postId}`),
         })
     }
+    const handlePollMissing = (e) => {
+        let parsed
+        try { parsed = JSON.parse(e.data) } catch {
+            return
+        }
+
+        const posts = Array.isArray(parsed.posts) ? parsed.posts.slice(0, 5) : []
+
+        if (posts.length === 0)
+            return
+
+        push({
+            type: 'poll-missing',
+            title: '아직 안 한 투표가 있어요',
+            message: parsed.message || `아직 참여하지 않은 투표가 ${parsed.count ?? posts.length}개 있습니다.`,
+            posts, // [{ postId, title }]
+            duration: 10000,
+            label: '보러가기',
+            onClick: () => router.push('/poll'),
+            onItemClick: (p) =>
+                router.push(`/post/${p.postId}`),
+        })
+    }
 
     const handleNotification = (e, emoji) => {
         let parsed
@@ -84,6 +107,8 @@ export function useSSE(token) {
 
     es.addEventListener('rank-top1-notification', e => handleRankTop1(e))
     es.addEventListener('rank-top3-notification', e => handleRankTop3(e))
+
+    es.addEventListener('poll-notification', e => handlePollMissing(e))
 
     onBeforeUnmount(() => {
         console.log('[SSE] 🚪 컴포넌트 언마운트 시 연결 종료')

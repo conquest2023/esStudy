@@ -95,4 +95,9 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         return post.get();
     }
 
+    @Override
+    public List<PostEntity> findPostAndPollEntity(List<Integer> ids) {
+        return repository.findPostAndPoll(ids);
+    }
+
 }

@@ -19,6 +19,8 @@ public interface PostQueryRepository {
     List<Integer> findBestPostIds(int page, int size, LocalDateTime lastSevenDays);
     PostEntity findPostDetail(int id);
 
+    List<PostEntity> findPostAndPollEntity(List<Integer> ids);
+
     Page<PostEntity> findByMyPageUserPosts(int page,int size, String userId);
 
 

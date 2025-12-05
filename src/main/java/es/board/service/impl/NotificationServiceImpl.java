@@ -1,6 +1,7 @@
 package es.board.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.board.controller.record.MissingPollPayload;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.Notification;
 import es.board.repository.entity.repository.NotificationRepository;
@@ -43,6 +44,8 @@ public class NotificationServiceImpl implements NotificationService {
     private static final String LIKE_NOTIFICATION_KEY = "notifications:like:";
     private static final String NOTICE_NOTIFICATION_KEY = "notifications:notice:";
     private static final String POINT_NOTIFICATION_KEY = "notifications:point:";
+
+    private static final String POLL_NOTIFICATION_KEY = "notifications:poll:";
     private static final String RANK_TOP3_EVENT = "rank-top3-hourly";
     private static final String RANK_TOP1_EVENT = "rank-top1-2hour";
 
@@ -69,6 +72,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         sendPendingNotifications(userId, POINT_NOTIFICATION_KEY, "point-notification", emitter);
 
+        sendPendingNotifications(userId,POLL_NOTIFICATION_KEY,"poll-notification",emitter);
         emitter.onCompletion(() -> removeEmitter(userId, "onCompletion"));
         emitter.onTimeout(() -> removeEmitter(userId, "onTimeout"));
         emitter.onError(ex -> {
@@ -232,6 +236,69 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("TOP3 랭킹 알림 실패", e);
         }
     }
+    @Override
+    public void sendTop1RankingNotification(String userId, PostEntity top1){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastMonth = now.minusMonths(1);
+        List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
+        for (String id : userIds) {
+            sendFeedNotification(id, top1.getId(), RANK_TOP1_EVENT,
+                    "rank-top1-notification",
+                   "랭킹 1위님이 글을 작성하셨습니다: "+ top1.getTitle());
+        }
+    }
+
+    @Override
+    public void sendMissingPollNotification(String userId, MissingPollPayload pollPayload) {
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "notifications:poll");
+            payload.put("count", pollPayload.count());
+            List<Map<String, Object>> posts = pollPayload.items().stream().map(p -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("postId", p.postId());
+                map.put("title", p.title());
+                return map;
+            }).toList();
+            payload.put("posts", posts);
+            payload.put("message", "아직 투표 안한게" + pollPayload.count() +" 개 있습니다.");
+            String json = objectMapper.writeValueAsString(payload);
+            sendPollEvent(userId, json, "poll-notification");
+        } catch (Exception e) {
+            log.error("TOP3 랭킹 알림 실패", e);
+        }
+    }
+
+
+    private void removeEmitter(String userId, String reason) {
+        log.info("[{}] SSE 연결 종료 - Reason: {}", userId, reason);
+        emitters.remove(userId);
+    }
+    @Override
+    public List<Notification> getNotificationList(String userId) {
+        return notificationRepository.findByNotificationList(userId);
+    }
+
+    private void sendPollEvent(String userId, String jsonPayload, String eventType) {
+        String redisKey = POLL_NOTIFICATION_KEY + userId;
+        redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
+        redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
+        log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
+        SseEmitter emitter = emitters.get(userId);
+        if (emitter == null) {
+            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+            return;
+        }
+        try {
+            emitter.send(SseEmitter.event()
+                    .id(UUID.randomUUID().toString())
+                    .name(eventType)
+                    .data(jsonPayload));
+        } catch (IOException e) {
+            log.error("랭킹 알림 전송 실패", e);
+            emitters.remove(userId);
+        }
+    }
     private void sendRankingEvent(String userId, String jsonPayload, String eventType) {
         String redisKey = "notifications:rank:" + userId;
         redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
@@ -253,26 +320,5 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    @Override
-    public void sendTop1RankingNotification(String userId, PostEntity top1){
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastMonth = now.minusMonths(1);
-        List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
-        for (String id : userIds) {
-            sendFeedNotification(id, top1.getId(), RANK_TOP1_EVENT,
-                    "rank-top1-notification",
-                   "랭킹 1위님이 글을 작성하셨습니다: "+ top1.getTitle());
-        }
-    }
-
-
-    private void removeEmitter(String userId, String reason) {
-        log.info("[{}] SSE 연결 종료 - Reason: {}", userId, reason);
-        emitters.remove(userId);
-    }
-    @Override
-    public List<Notification> getNotificationList(String userId) {
-        return notificationRepository.findByNotificationList(userId);
-    }
 
 }

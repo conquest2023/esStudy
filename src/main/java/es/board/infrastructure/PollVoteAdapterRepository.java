@@ -1,5 +1,6 @@
 package es.board.infrastructure;
 
+import es.board.infrastructure.projection.PollAnswerRow;
 import es.board.infrastructure.projection.VoteOptionProjection;
 import es.board.infrastructure.entity.poll.PollVoteEntity;
 import es.board.infrastructure.jpa.PollVoteJpaRepository;
@@ -21,6 +22,12 @@ public class PollVoteAdapterRepository implements PollVoteRepository {
     public List<VoteOptionProjection> getVoteDetail(long postId) {
         return null;
     }
+
+    @Override
+    public List<PollAnswerRow> findAllByPollIdIn(List<Long> pollIds) {
+        return pollVoteRepository.findAllByPollIdIn(pollIds);
+    }
+
     @Override
     public void vote(PollVoteEntity vote) {
 

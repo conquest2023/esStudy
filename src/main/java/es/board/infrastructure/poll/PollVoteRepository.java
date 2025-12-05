@@ -1,5 +1,6 @@
 package es.board.infrastructure.poll;
 
+import es.board.infrastructure.projection.PollAnswerRow;
 import es.board.infrastructure.projection.VoteOptionProjection;
 import es.board.infrastructure.entity.poll.PollVoteEntity;
 
@@ -10,7 +11,7 @@ public interface PollVoteRepository {
 
     List<VoteOptionProjection> getVoteDetail(long pollId);
 
-
+    List<PollAnswerRow> findAllByPollIdIn(List<Long> pollIds);
     void vote(PollVoteEntity vote);
 
     void voteAll(List<PollVoteEntity> votes);
