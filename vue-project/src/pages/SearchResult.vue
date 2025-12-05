@@ -30,11 +30,11 @@
     <div v-else-if="displayed.length" class="result-list">
       <article
           v-for="item in displayed"
-          :key="item.feedUID ?? item.id"
+          :key="item.id ?? item.id"
           class="feed-card"
-          @click="goDetail(item.feedUID ?? item.id)"
+          @click="goDetail(item.id ?? item.id)"
           tabindex="0"
-          @keyup.enter="goDetail(item.feedUID ?? item.id)"
+          @keyup.enter="goDetail(item.id ?? item.id)"
           role="button"
           aria-label="검색 결과 항목">
         <div class="feed-card__main">
@@ -158,7 +158,7 @@ function move(next) {
 }
 
 function goDetail(id) {
-  router.push({ name: 'feed-detail', params: { id } })
+  router.push({ name: 'PostDetail', params: { id } })
 }
 
 function formatTime(dateStr) {

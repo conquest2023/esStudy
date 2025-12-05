@@ -11,7 +11,7 @@
       </button>
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="#" @click.prevent="setMode('content')">제목+내용</a></li>
-        <li><a class="dropdown-item" href="#" @click.prevent="setMode('user')">유저네임</a></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="setMode('user')">유저</a></li>
       </ul>
     </div>
 
@@ -34,7 +34,7 @@ const keyword = ref('')
 const mode = ref('content') // 'content' | 'user'
 const router = useRouter()
 
-const searchLabel = computed(() => (mode.value === 'user' ? '유저네임' : '제목+내용'))
+const searchLabel = computed(() => (mode.value === 'user' ? '유저' : '제목+내용'))
 
 function setMode(m) {
   mode.value = m
