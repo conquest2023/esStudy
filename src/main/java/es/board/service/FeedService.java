@@ -2,7 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.infrastructure.entity.feed.PostImage;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +71,7 @@ public interface FeedService {
 
     List<PostDTO.Request> getLikeCount();
 
-    List<Board> getSearchBoard(String text);
+    List<Feed> getSearchBoard(String text);
 
     List<PostDTO.Request> getPagingFeed(int page, int size);
 

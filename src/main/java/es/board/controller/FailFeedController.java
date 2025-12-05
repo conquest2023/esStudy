@@ -11,7 +11,7 @@
 //import es.board.controller.model.dto.feed.VoteDTO;
 //import es.board.controller.model.dto.feed.CommentDTO;
 //import es.board.ex.TokenValidator;
-//import es.board.repository.document.Board;
+//import es.board.repository.document.Feed;
 //import es.board.repository.document.Comment;
 //import es.board.service.*;
 //import jakarta.servlet.http.Cookie;
@@ -118,7 +118,7 @@
 //            return ResponseEntity.ok(Map.of(
 //                    "data", feedService.getRangeTimeFeed(startDate, endDate)));
 //        } else {
-//            List<Board> boards =  feedService.getSearchBoard(text);
+//            List<Feed> boards =  feedService.getSearchBoard(text);
 //            return ResponseEntity.ok(Map.of(
 //                    "data", boards,
 //                    "url", "/search/view/content"
@@ -165,7 +165,7 @@
 //            ,@RequestParam String  category) {
 //        Map<String, Object> results= feedService.getDataFeed(page,size,category);
 //        @SuppressWarnings("unchecked")
-//        List<Board> boardList = (List<Board>) results.get("data");
+//        List<Feed> boardList = (List<Feed>) results.get("data");
 //        return ResponseEntity.ok(Map.of(
 //                "data", feedMapper.fromBoardDtoList(boardList),
 //                "totalPage", results.get("total")));
@@ -184,7 +184,7 @@
 //        Map<String, Object> result = feedService.getNoticeFeed(page, size);
 //
 //        @SuppressWarnings("unchecked")
-//        List<Board> boardList = (List<Board>) result.get("data");
+//        List<Feed> boardList = (List<Feed>) result.get("data");
 //        return ResponseEntity.ok(Map.of(
 //                "data", feedMapper.fromBoardDtoList(boardList),
 //                "totalPage", result.get("total")));

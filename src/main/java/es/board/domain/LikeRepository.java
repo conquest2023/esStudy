@@ -18,7 +18,7 @@ public interface LikeRepository {
 
     Optional<LikeEntity> findById(long id);
     void delete(long id);
-    Optional<LikeEntity> existsByUserIdAndPostLike(String userId, int postId,TargetType targetType);
+    Optional<LikeEntity> existsByUserIdAndPostLike(String userId, int postId,long id);
 
     List<LikeAggView> findPagingLikes(List<Integer> ids);
 

@@ -42,8 +42,8 @@ public class LikeAdapterRepository implements LikeRepository {
     }
 
     @Override
-    public Optional<LikeEntity> existsByUserIdAndPostLike(String userId, int postId,TargetType targetType) {
-         return likeRepository.countByUserIdAndPostId(userId, postId,targetType);
+    public Optional<LikeEntity> existsByUserIdAndPostLike(String userId, int postId,long targetId) {
+         return likeRepository.countByUserIdAndPostId(userId, postId,targetId);
     }
 
     @Override

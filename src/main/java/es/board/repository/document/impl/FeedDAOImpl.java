@@ -12,7 +12,7 @@ import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.ex.IndexException;
 import es.board.repository.FeedDAO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -45,12 +45,12 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
     @Override
-    public List<Board> findUserRangeTimeFeed(String userId) {
+    public List<Feed> findUserRangeTimeFeed(String userId) {
 
         String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .bool(b -> b
@@ -60,7 +60,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             r.date(v ->
                                                     v.gte(start).lte(end).field("createdAt"))))
                             )
-                    ).sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))).size(5), Board.class);
+                    ).sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc))).size(5), Feed.class);
             return response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
@@ -70,12 +70,12 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
     @Override
-    public List<Board> saveBulkFeed(List<Board> pages) {
+    public List<Feed> saveBulkFeed(List<Feed> pages) {
         return null;
     }
 
     @Override
-    public Board indexSaveFeed(Board board, int postId) {
+    public Feed indexSaveFeed(Feed board, int postId) {
         try {
             IndexResponse response = client.index(i -> i
                     .index("board")
@@ -104,19 +104,19 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Feed> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endDate) {
 
         String start = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .range(r -> r
                                     .date(v -> v
                                             .gte(start)
                                             .lte(end)
-                                            .field("createdAt")))), Board.class);
+                                            .field("createdAt")))), Feed.class);
             return response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
@@ -128,10 +128,10 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findLikeCount() {
+    public List<Feed> findLikeCount() {
 
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q.matchAll(t -> t))
                             .sort(sort ->
@@ -139,7 +139,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field("likeCount")
                                     .order(SortOrder.Desc)
                             )),
-                    Board.class);
+                    Feed.class);
 
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -154,7 +154,7 @@ public class FeedDAOImpl implements FeedDAO {
     public Integer findUserLikeCount(String userId) {
 
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q
                                     .bool(
@@ -169,7 +169,7 @@ public class FeedDAOImpl implements FeedDAO {
                             .aggregations("like_count", a -> a
                                     .sum(d -> d
                                             .field("likeCount"))),
-                    Board.class);
+                    Feed.class);
             return (int) response.aggregations()
                     .get("like_count")
                     .sum()
@@ -186,7 +186,7 @@ public class FeedDAOImpl implements FeedDAO {
 
         try {
 
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(page * size)
                             .size(size)
@@ -198,8 +198,8 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field(f -> f
                                             .field("createdAt")
                                             .order(SortOrder.Desc))),
-                    Board.class);
-            List<Board> boardList = response.hits().hits().stream()
+                    Feed.class);
+            List<Feed> boardList = response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
 
@@ -216,9 +216,9 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findPagingMainFeed(int page, int size) {
+    public List<Feed> findPagingMainFeed(int page, int size) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(page * size)
                             .size(size)
@@ -226,7 +226,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
                             )),
-                    Board.class);
+                    Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -239,7 +239,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public Map<String, Object> findUserMyPageLikeAndFeedCount(String userId) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .size(0)
                             .query(q -> q
@@ -250,7 +250,7 @@ public class FeedDAOImpl implements FeedDAO {
                                                             .value(userId)))))
                             .aggregations("totalLikes", a -> a
                                     .sum(sum -> sum.field("likeCount"))),
-                    Board.class);
+                    Feed.class);
             long totalBoards = response.hits().total().value();
             double totalLikes = response.aggregations().get("totalLikes").sum().value();
 
@@ -266,15 +266,15 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findMostViewFeed(int page, int size) {
+    public List<Feed> findMostViewFeed(int page, int size) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(page * size)
                             .size(size)
                             .sort(sort -> sort.field(f -> f
                                     .field("viewCount")
-                                    .order(SortOrder.Desc))), Board.class);
+                                    .order(SortOrder.Desc))), Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -308,9 +308,9 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
     @Override
-    public List<Board> findSearchBoard(String text) {
+    public List<Feed> findSearchBoard(String text) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q
                                     .bool(b -> b
@@ -322,7 +322,7 @@ public class FeedDAOImpl implements FeedDAO {
                                                     t -> t.match(m -> m
                                                             .field("description")
                                                             .query(text))))),
-                    Board.class);
+                    Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -332,16 +332,16 @@ public class FeedDAOImpl implements FeedDAO {
         }
     }
     @Override
-    public List<Board> findCategoryAndContent(String category) {
+    public List<Feed> findCategoryAndContent(String category) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q
                                     .bool(b -> b
                                             .must(m -> m.term(t ->
                                                     t.field("category").value(category)))
                                             .should(t -> t.match(m -> m.field("description").query(category))))),
-                    Board.class);
+                    Feed.class);
 
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -353,9 +353,9 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findRecommendFeed() {
+    public List<Feed> findRecommendFeed() {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .sort(sort -> sort.field(f -> f
                                     .field("createdAt")
@@ -365,7 +365,7 @@ public class FeedDAOImpl implements FeedDAO {
                                             .filter(m ->
                                                     m.term(t -> t.field("category").value("추천")))))
                             .size(3),
-                    Board.class);
+                    Feed.class);
 
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -379,12 +379,12 @@ public class FeedDAOImpl implements FeedDAO {
     public double findSumLikeByPageOne(int page, int size) {
         try {
 
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(size)
                             .size(size)
                             .aggregations("totalLikes", a -> a.sum(sum -> sum.field("likeCount"))),
-                    Board.class);
+                    Feed.class);
             return response.aggregations()
                     .get("totalLikes")
                     .sum()
@@ -397,13 +397,13 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public Map<String, Object> fetchTotalFeedStats() {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .size(0)
                             .aggregations("totalFeedCount",
                                     a -> a.valueCount(vc -> vc.field("feedUID.keyword")))
                             .trackTotalHits(t -> t.enabled(true)),
-                    Board.class);
+                    Feed.class);
             long totalFeedCount = (long) response.aggregations().get("totalFeedCount").valueCount().value();
 
             return Map.of(
@@ -418,17 +418,17 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public List<Board> findMonthPopularFeed() {
+    public List<Feed> findMonthPopularFeed() {
         try {
             int monthPage = 5;
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .sort(sort -> sort.field(f -> f
                                     .field("likeCount")
                                     .order(SortOrder.Desc)))
                             .size(monthPage)
                             .query(q -> q.matchAll(t -> t)),
-                    Board.class);
+                    Feed.class);
 
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -440,16 +440,16 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findPopularFeedDESC(int page, int size) {
+    public List<Feed> findPopularFeedDESC(int page, int size) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .size(size)
                             .sort(sort -> sort.field(f -> f
                                     .field("likeCount")
                                     .order(SortOrder.Desc)))
                             .query(q -> q.matchAll(t -> t))
-                    , Board.class);
+                    , Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -460,17 +460,17 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findRecentFeed() {
+    public List<Feed> findRecentFeed() {
 
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q.matchAll(t -> t))
                             .sort(sort -> sort.field(f -> f
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
                             )),
-                    Board.class);
+                    Feed.class);
 
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -482,14 +482,14 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findWeekBestFeed(int page, int size) {
+    public List<Feed> findWeekBestFeed(int page, int size) {
         String start = LocalDateTime.now()
                 .minusDays(7)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(page * size)
                             .size(size)
@@ -504,7 +504,7 @@ public class FeedDAOImpl implements FeedDAO {
                                                             .field("createdAt")
                                                             .gte(start)
                                                             .lte(end))))))
-                    , Board.class);
+                    , Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -516,9 +516,9 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public List<Board> findViewDESC(int page, int size) {
+    public List<Feed> findViewDESC(int page, int size) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .from(page * size)
                             .size(size)
@@ -526,7 +526,7 @@ public class FeedDAOImpl implements FeedDAO {
                                     .field("viewCount")
                                     .order(SortOrder.Desc)
                             ))
-                    , Board.class);
+                    , Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -537,7 +537,7 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public List<Board> findCountComment(int page, int size) {
+    public List<Feed> findCountComment(int page, int size) {
         try {
             SearchResponse<Void> response = client.search(s -> s
                             .index("comment")
@@ -564,13 +564,13 @@ public class FeedDAOImpl implements FeedDAO {
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
 
-            SearchResponse<Board> res = client.search(s -> s
+            SearchResponse<Feed> res = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .terms(t -> t
                                     .field("feedUID.keyword")
                                     .terms(tf -> tf.value(fieldValues))
-                            )), Board.class);
+                            )), Feed.class);
             return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -585,7 +585,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<String> findPagingIds(int page, int size) {
             try {
-                SearchResponse<Board> response = client.search(s -> s
+                SearchResponse<Feed> response = client.search(s -> s
                                 .index("board")
                                 .from(page * size)
                                 .size(size)
@@ -595,10 +595,8 @@ public class FeedDAOImpl implements FeedDAO {
                                 )).source(src -> src
                                         .filter(f -> f.includes("feedUID"))
                                 ),
-                        Board.class);
-                return response.hits().hits().stream()
-                        .map(hit -> hit.source().getFeedUID())
-                        .collect(Collectors.toList());
+                        Feed.class);
+                return null;
             } catch (IOException e) {
                 log.error("Error fetching paging feed: {}", e.getMessage(), e);
                 throw new IndexException("Failed to fetch paging feed", e);
@@ -607,7 +605,7 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public List<Board> findReplyCount(int page, int size) {
+    public List<Feed> findReplyCount(int page, int size) {
         try {
             SearchResponse<Void> response = client.search(s -> s
                             .index("reply")
@@ -634,13 +632,13 @@ public class FeedDAOImpl implements FeedDAO {
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
 
-            SearchResponse<Board> res = client.search(s -> s
+            SearchResponse<Feed> res = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .terms(t -> t
                                     .field("feedUID.keyword")
                                     .terms(tf -> tf.value(fieldValues))
-                            )), Board.class);
+                            )), Feed.class);
             return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -655,7 +653,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public Map<String, Object> findDataFeed(int page, int size, String category) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                     .index("board")
                     .from(page * size)
                     .sort(sort -> sort.field(f -> f
@@ -668,8 +666,8 @@ public class FeedDAOImpl implements FeedDAO {
                                     .filter(
                                             st -> st.term(t -> t
                                                     .field("category")
-                                                    .value(category))))), Board.class);
-                List<Board> datas = response.hits().hits().stream()
+                                                    .value(category))))), Feed.class);
+                List<Feed> datas = response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
             long totalCount = response.hits().total().value();
@@ -685,7 +683,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public Map<String, Object> findNoticeFeed(int page, int size) {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .query(q -> q
                                     .term(t -> t
@@ -699,9 +697,9 @@ public class FeedDAOImpl implements FeedDAO {
                             .from(page * size)
                             .size(size)
                             .trackTotalHits(t -> t.enabled(true)),
-                    Board.class
+                    Feed.class
             );
-            List<Board> notices = response.hits().hits().stream()
+            List<Feed> notices = response.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
             long totalCount = response.hits().total().value();
@@ -716,16 +714,16 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Board findFeedDetail(String id) {
+    public Feed findFeedDetail(String id) {
         try {
-            SearchResponse<Board> response = client.search(g -> g
+            SearchResponse<Feed> response = client.search(g -> g
                     .index("board")
                     .query(q -> q
                             .bool(b -> b
                                     .filter(
                                             s -> s.term(t -> t
                                                     .field("feedUID.keyword")
-                                                    .value(id))))), Board.class);
+                                                    .value(id))))), Feed.class);
             if (response.hits().hits().isEmpty()) {
                 log.warn("Document not found for ID: {}", id);
                 return null;
@@ -810,17 +808,17 @@ public class FeedDAOImpl implements FeedDAO {
 
 
     @Override
-    public Board findPopularFeedOne() {
+    public Feed findPopularFeedOne() {
         try {
 
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .query(q -> q.matchAll(t -> t))
                             .index("board")
                             .aggregations("totalLikes", a -> a
                                     .max(max -> max.field("likeCount")))
                             .query(q -> q.match(t -> t.field("likeCount")
                                     .query("totalLikes"))),
-                    Board.class);
+                    Feed.class);
 
 
             double maxLikes = response.aggregations()
@@ -839,14 +837,14 @@ public class FeedDAOImpl implements FeedDAO {
     public double findUserFeedCount(String userId) {
         try {
 
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .aggregations("feedCount", a -> a
                                     .filter(f -> f
                                             .term(t -> t
                                                     .field("userId")
                                                     .value(userId)))),
-                    Board.class);
+                    Feed.class);
             return response.aggregations()
                     .get("feedCount")
                     .filter()
@@ -858,16 +856,16 @@ public class FeedDAOImpl implements FeedDAO {
     }
 
     @Override
-    public Board modifyFeed(String id, PostDTO.Update eq) {
+    public Feed modifyFeed(String id, PostDTO.Update eq) {
         try {
-            SearchResponse<Board> searchResponse = client.search(s -> s
+            SearchResponse<Feed> searchResponse = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .term(t -> t
                                     .field("feedUID.keyword")
                                     .value(id)
                             )
-                    ), Board.class);
+                    ), Feed.class);
 
             if (searchResponse.hits().hits().isEmpty()) {
                 throw new IndexException("게시물을 찾을 수 없습니다. feedUID: " + id);
@@ -875,14 +873,14 @@ public class FeedDAOImpl implements FeedDAO {
 
             String documentId = searchResponse.hits().hits().get(0).id();
 
-            UpdateResponse<Board> response = client.update(u -> u
+            UpdateResponse<Feed> response = client.update(u -> u
                     .index("board")
                     .id(documentId)
-                    .doc(eq), Board.class);
+                    .doc(eq), Feed.class);
 
-            GetResponse<Board> getResponse = client.get(g -> g
+            GetResponse<Feed> getResponse = client.get(g -> g
                     .index("board")
-                    .id(documentId), Board.class);
+                    .id(documentId), Feed.class);
 
             if (getResponse.found()) {
                 return getResponse.source();
@@ -898,13 +896,13 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public int findAllViewCount() {
         try {
-            SearchResponse<Board> searchResponse = client.search(s -> s
+            SearchResponse<Feed> searchResponse = client.search(s -> s
                             .index("board")
                             .size(0)
                             .aggregations("totalViews",
                                     a -> a.sum(sum ->
                                             sum.field("viewCount"))),
-                    Board.class);
+                    Feed.class);
             return (int) searchResponse.aggregations()
                     .get("totalViews")
                     .sum()
@@ -918,7 +916,7 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<TopWriter> findTopWriters() {
         try {
-            SearchResponse<Board> response = client.search(s -> s
+            SearchResponse<Feed> response = client.search(s -> s
                             .index("board")
                             .size(0)
                             .query(q -> q
@@ -938,7 +936,7 @@ public class FeedDAOImpl implements FeedDAO {
                                                             .field(f -> f
                                                                     .field("total_views")
                                                                     .order(SortOrder.Desc)))
-                                                    .size(15)))), Board.class);
+                                                    .size(15)))), Feed.class);
             List<StringTermsBucket> buckets = response.aggregations()
                     .get("top_writers")
                     .sterms()

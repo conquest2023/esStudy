@@ -9,7 +9,7 @@ import es.board.controller.model.dto.feed.TopWriter;
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.ex.IndexException;
 import es.board.repository.CommentDAO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.repository.document.Comment;
 //import es.board.repository.entity.entityrepository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class CommentDAOImpl implements CommentDAO {
 
 
     @Override
-    public List<Board> findManyComment() {
+    public List<Feed> findManyComment() {
         try {
 
             SearchResponse<Comment> response = client.search(s -> s
@@ -52,13 +52,13 @@ public class CommentDAOImpl implements CommentDAO {
             List<FieldValue> fieldValues = feedUIDs.stream()
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
-            SearchResponse<Board> res = client.search(s -> s
+            SearchResponse<Feed> res = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .terms(t -> t
                                     .field("feedUID.keyword")
                                     .terms(tf -> tf.value(fieldValues))
-                            )), Board.class);
+                            )), Feed.class);
             return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -331,10 +331,10 @@ public class CommentDAOImpl implements CommentDAO {
             String documentId = searchResponse.hits().hits().get(0).id();
 
             // 게시물 업데이트
-            UpdateResponse<Board> response = client.update(u -> u
+            UpdateResponse<Feed> response = client.update(u -> u
                     .index("comment")
                     .id(documentId)
-                    .doc(eq), Board.class);
+                    .doc(eq), Feed.class);
 
             // 응답이 null인 경우 예외 처리
             GetResponse<Comment> getResponse = client.get(g -> g
@@ -354,7 +354,7 @@ public class CommentDAOImpl implements CommentDAO {
         }
     }
     @Override
-    public List<Board> findFeedAndCommentMypage(String userId,int page ,int size){
+    public List<Feed> findFeedAndCommentMypage(String userId, int page , int size){
         try {
             SearchResponse<Comment> response = client.search(s -> s
                             .index("comment")
@@ -382,7 +382,7 @@ public class CommentDAOImpl implements CommentDAO {
             List<FieldValue> fieldValues = feedUIDs.stream()
                     .map(FieldValue::of)
                     .collect(Collectors.toList());
-            SearchResponse<Board> res = client.search(s -> s
+            SearchResponse<Feed> res = client.search(s -> s
                     .index("board")
                     .query(q -> q
                             .terms(t -> t
@@ -395,7 +395,7 @@ public class CommentDAOImpl implements CommentDAO {
                                     .field("createdAt")
                                     .order(SortOrder.Desc)
                             )
-                    ), Board.class);
+                    ), Feed.class);
             return res.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -494,17 +494,19 @@ public class CommentDAOImpl implements CommentDAO {
         String start = LocalDateTime.now().minusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
-            SearchResponse<Board> boardResponse = client.search(s -> s
+            SearchResponse<Feed> boardResponse = client.search(s -> s
                             .index("board")
                             .query(q -> q.bool(b -> b
                                     .filter(f -> f.range(r -> r.date(v -> v.gte(start).lte(end).field("createdAt")))) // 날짜 범위 필터
                                     .must(m -> m.term(t -> t.field("userId").value(userId)))
                             ))
                             .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc)))
-                    .source(a -> a.filter(f -> f.includes("feedUID"))),Board.class);
-            List<String> feedUIDs = boardResponse.hits().hits().stream()
-                    .map(hit -> hit.source().getFeedUID())
-                    .collect(Collectors.toList());
+                    .source(a -> a.filter(f -> f.includes("feedUID"))), Feed.class);
+            List<String> feedUIDs = new ArrayList<>();
+
+//                    boardResponse.hits().hits().stream()
+//                    .map(hit -> hit.source().getFeedUID())
+//                    .collect(Collectors.toList());
             if (feedUIDs.isEmpty()) {
                 return Collections.emptyList();
             }

@@ -5,7 +5,7 @@ import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
 import es.board.controller.model.dto.feed.SignUpDTO;
 import es.board.repository.*;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.repository.document.Schedule;
 import es.board.repository.entity.TistoryPost;
 import es.board.infrastructure.entity.user.User;
@@ -177,7 +177,7 @@ public class AsyncService {
 
 
     @Async("taskExecutor")
-    public CompletableFuture<Void> savePostAsync(Board board, int postId) {
+    public CompletableFuture<Void> savePostAsync(Feed board, int postId) {
         log.info("비동기 Elasticsearch 저장 시작 - 스레드: {}", Thread.currentThread().getName());
         try {
             feedDAO.indexSaveFeed(board,postId);

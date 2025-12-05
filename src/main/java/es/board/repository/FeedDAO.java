@@ -4,7 +4,7 @@ package es.board.repository;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -16,56 +16,56 @@ public interface FeedDAO {
 
     List<String> findPagingIds(int page,int size);
 
-    List<Board> findReplyCount(int page, int size);
+    List<Feed> findReplyCount(int page, int size);
 
-    List<Board> findCountComment(int page, int size);
-    List<Board> findViewDESC(int page, int size);
+    List<Feed> findCountComment(int page, int size);
+    List<Feed> findViewDESC(int page, int size);
     Map<String, Object> findNoticeFeed(int page, int size);
 
     Map<String, Object> findDataFeed(int page, int size,String category);
     Map<String, Double> findDayAggregation();
-    List<Board> findWeekBestFeed(int page, int size);
+    List<Feed> findWeekBestFeed(int page, int size);
     Map<String, Object> findUserMyPageLikeAndFeedCount(String userId);
-    List<Board> findRecommendFeed();
+    List<Feed> findRecommendFeed();
     List<TopWriter> findTopWriters();
     void saveNoticeFeed(NoticeDTO.Request dto, Long id);
-    List<Board> findUserRangeTimeFeed(String userId);
+    List<Feed> findUserRangeTimeFeed(String userId);
     String saveFeed(String index, PostDTO.Request dto) ;
 
-    List<Board> saveBulkFeed(List<Board> pages) ;
+    List<Feed> saveBulkFeed(List<Feed> pages) ;
 
-    Board indexSaveFeed(Board board,int postId) ;
-
-
-    List<Board> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;
+    Feed indexSaveFeed(Feed board, int postId) ;
 
 
-    List<Board> findLikeCount();
+    List<Feed> findRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) ;
 
 
-    List<Board> findPagingMainFeed(int page, int size) ;
+    List<Feed> findLikeCount();
 
-    List<Board> findRecentFeed();
 
-    List<Board> findCategoryAndContent(String category);
-    Board modifyFeed(String id, PostDTO.Update eq);
-    Board findFeedDetail(String id);
-    List<Board> findSearchBoard(String text);
+    List<Feed> findPagingMainFeed(int page, int size) ;
+
+    List<Feed> findRecentFeed();
+
+    List<Feed> findCategoryAndContent(String category);
+    Feed modifyFeed(String id, PostDTO.Update eq);
+    Feed findFeedDetail(String id);
+    List<Feed> findSearchBoard(String text);
 
      double findSumLikeByPageOne(int page, int size);
-      Board findPopularFeedOne();
+      Feed findPopularFeedOne();
     Integer findUserLikeCount(String userId);
 
     Map<String, Object> findMypageUserList(String userId,int page,int size);
 
     double findUserFeedCount(String userId);
     void saveViewCounts(String id) ;
-     List<Board> findMonthPopularFeed();
+     List<Feed> findMonthPopularFeed();
 
     int findAllViewCount();
-    List<Board> findPopularFeedDESC(int page,int size);
+    List<Feed> findPopularFeedDESC(int page, int size);
 
-    List<Board> findMostViewFeed(int page, int size) ;
+    List<Feed> findMostViewFeed(int page, int size) ;
     Map<String, Object> fetchTotalFeedStats();
 
     void deleteFeed(String id);

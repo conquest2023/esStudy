@@ -33,7 +33,7 @@ public class LikeMapper {
                 .map(LikeMapper::toDomain)   // Entity → Domain
                 .toList();
     }
-    public static List<LikeDto.Response> toRequestList(List<Like> domains, String userId) {
+    public static List<LikeDto.Response> toResponseList(List<Like> domains, String userId) {
         if (domains == null) return Collections.emptyList();
 
         return domains.stream()

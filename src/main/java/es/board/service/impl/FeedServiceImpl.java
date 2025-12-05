@@ -8,7 +8,7 @@ import es.board.controller.model.mapper.FeedMapper;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.FeedDAO;
 import es.board.repository.LikeDAO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.infrastructure.entity.feed.PostEntity;
@@ -66,7 +66,6 @@ public class FeedServiceImpl implements FeedService {
 
     private final LikeDAO likeDAO;
 
-//    private final LikeRepository likeRepository;
 
 //    private  final SlackNotifier slackNotifier;
 
@@ -215,7 +214,7 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public List<Board> getSearchBoard(String text) {
+    public List<Feed> getSearchBoard(String text) {
         return feedDAO.findSearchBoard(text);
     }
 
@@ -345,13 +344,13 @@ public class FeedServiceImpl implements FeedService {
     }
 
 
-    public List<Board> bulkToEntity(List<PostDTO.Request> res) {
-        List<Board> boards = new ArrayList<>();
+    public List<Feed> bulkToEntity(List<PostDTO.Request> res) {
+        List<Feed> boards = new ArrayList<>();
         for (PostDTO.Request dto : res) {
-            Board feed = Board.builder()
+            Feed feed = Feed.builder()
 //                    .feedUID(dto.getFeedUID())
                     .title(dto.getTitle())
-                    .description(dto.getDescription())
+//                    .description(dto.getDescription())
 //                    .likeCount(dto.getLikeCount())
                     .createdAt(LocalDateTime.now())
                     .build();

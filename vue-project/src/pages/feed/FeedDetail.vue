@@ -571,6 +571,7 @@ async function loadComments(postId) {
       (Array.isArray(data?.comments) && data.comments) ||
       (Array.isArray(data?.data?.comments) && data.data.comments) ||
       []
+
 }
 function linkify(text = '') {
   const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -743,7 +744,6 @@ async function toggleLike(targetType, targetId) {
   // 낙관적 업데이트
   state.liked = !prevLiked
   state.count = prevCount + (prevLiked ? -1 : 1)
-
   try {
     await api.post('/like', {
       postId,
@@ -814,14 +814,14 @@ async function loadLikeCounts(postId) {
 
 async function loadLikeDetail(postId) {
   const token = localStorage.getItem('token')
-  if (!token) return // 비로그인: isOwner 정보 없음, 그냥 개수만 사용
+  if (!token) return
 
   try {
     const { data } = await api.get(`/like/detail/${postId}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     const list = Array.isArray(data?.likes) ? data.likes : []
-
+    console.log(list)
     list.forEach(item => {
       const targetType =
           item.targetType ?? item.target_type ?? item.type

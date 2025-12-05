@@ -3,7 +3,6 @@ package es.board.domain.feed;
 import es.board.controller.model.dto.feed.LikeDto;
 import es.board.controller.model.mapper.LikeMapper;
 import es.board.domain.event.LikeCreatedEvent;
-import es.board.domain.event.ReplyCreatedEvent;
 import es.board.infrastructure.entity.feed.LikeEntity;
 import es.board.domain.LikeRepository;
 import es.board.infrastructure.projection.LikeCountProjection;
@@ -39,7 +38,7 @@ public class LikeServiceImpl implements LikeService{
     @Override
     @Transactional
     public void toggleLike(String userId, LikeDto.Request like) {
-        Optional<LikeEntity> likeEntity = likeRepository.existsByUserIdAndPostLike(userId, like.getPostId(),like.getTargetType());
+        Optional<LikeEntity> likeEntity = likeRepository.existsByUserIdAndPostLike(userId, like.getPostId(),like.getTargetId());
         if(likeEntity.isPresent()) {
             likeRepository.delete(likeEntity.get().getId());
             log.info("좋아요가 삭제 되었습니다={}",likeEntity.get().getUserId());
@@ -56,7 +55,7 @@ public class LikeServiceImpl implements LikeService{
 
         List<LikeEntity> likes = likeRepository.findLikeFeedDetail(id);
         List<Like> domainList = LikeMapper.toDomainList(likes);
-        return  LikeMapper.toRequestList(domainList,userId);
+        return  LikeMapper.toResponseList(domainList,userId);
     }
 
     @Override

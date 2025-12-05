@@ -3,7 +3,7 @@ package es.board.controller.model.mapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
 import es.board.controller.model.dto.feed.VoteDTO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.repository.document.VoteDocument;
 import es.board.repository.entity.*;
 import es.board.infrastructure.entity.feed.NoticeEntity;
@@ -29,46 +29,46 @@ public class FeedMapper {
                 .build();
     }
 
-    public Board toBoardDocument(PostDTO.Request response, int id , String feedUID) {
-        return Board.builder()
-                .feedUID(feedUID)
+    public Feed toBoardDocument(PostDTO.Request response, int id , String feedUID) {
+        return Feed.builder()
+//                .feedUID(feedUID)
                 .id(id)
 //                .userId(response.getUserId())
                 .username(response.getUsername())
                 .title(response.getTitle())
-                .description(response.getDescription().replace("\\n", "\n"))
+//                .description(response.getDescription().replace("\\n", "\n"))
                 .category(response.getCategory())
-                .viewCount(response.getViewCount())
+//                .viewCount(response.getViewCount())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public List<PostDTO.Request> fromBoardDtoList(List<Board> boards) {
+    public List<PostDTO.Request> fromBoardDtoList(List<Feed> boards) {
         return boards.stream()
                 .map(board -> PostDTO.Request.builder()
 //                        .feedUID(board.getFeedUID())
 //                        .id(board.getId())
                         .username(board.getUsername())
                         .title(board.getTitle())
-                        .description(board.getDescription())
+//                        .description(board.getDescription())
 //                        .likeCount(board.getLikeCount())
                         .category(board.getCategory())
-                        .viewCount(board.getViewCount())
+//                        .viewCount(board.getViewCount())
                         .createdAt(board.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
 
-    public PostDTO.Request fromBoardDto(Board board) {
+    public PostDTO.Request fromBoardDto(Feed board) {
         return PostDTO.Request.builder()
 //                .feedUID(board.getFeedUID())
 //                .id(board.getId())
 //                .userId(board.getUserId())
                 .username(board.getUsername())
                 .title(board.getTitle())
-                .description(board.getDescription())
+//                .description(board.getDescription())
                 .category(board.getCategory())
-                .viewCount(board.getViewCount())
+//                .viewCount(board.getViewCount())
 //                .likeCount(board.getLikeCount())
                 .createdAt(board.getCreatedAt())
                 .build();

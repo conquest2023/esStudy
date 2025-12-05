@@ -24,7 +24,6 @@ public class JwtUserResolverFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest req) {
         String uri = req.getRequestURI();
-        // 정적/헬스체크는 제외해서 로그 노이즈 줄이기
         return uri.startsWith("/assets")
                 || uri.startsWith("/static")
                 || uri.startsWith("/actuator/health");

@@ -2,7 +2,7 @@ package es.board.repository;
 
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 @Repository
 public interface CommentDAO {
 
-    List<Board> findManyComment();
+    List<Feed> findManyComment();
 
     List<Comment> findMostCommentCount();
     List<TopWriter> findTopCommentWriters();
@@ -24,7 +24,7 @@ public interface CommentDAO {
     Map<String, Object> findUserComments(String userId);
     List<Comment> findUserRangeActive(String userId);
 
-    List<Board> findFeedAndCommentMypage(String userId,int page ,int size);
+    List<Feed> findFeedAndCommentMypage(String userId, int page , int size);
 
     double findUserCommentCount(String userId);
 

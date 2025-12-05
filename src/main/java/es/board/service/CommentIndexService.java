@@ -2,7 +2,7 @@ package es.board.service;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.repository.document.Board;
+import es.board.repository.document.Feed;
 import es.board.repository.document.Comment;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 public interface CommentIndexService {
 
 
-    List<Board> getMantComment();
+    List<Feed> getMantComment();
     Map<String,Long> getTodayCommentAggregation();
     Map<String, Object> getUserComments(String userId);
     List<CommentDTO.Request> getUserRangeTimeActive(String userId);

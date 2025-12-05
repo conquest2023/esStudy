@@ -42,7 +42,6 @@ public class LikeController {
                                                @RequestAttribute(value = "userId",required = false) String userId){
         List<LikeDto.Response> likeFeedDetail = likeService.findLikeFeedDetail(id,userId);
 
-        log.info(likeFeedDetail.toString());
         return ResponseEntity.ok(Map.of("likes",likeFeedDetail));
     }
     @GetMapping("/like/count/{id}")

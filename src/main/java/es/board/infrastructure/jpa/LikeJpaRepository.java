@@ -29,8 +29,8 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
                         @Param("targetType") TargetType targetType);
 
     @Query("SELECT l FROM LikeEntity l WHERE l.userId = :userId" +
-            " AND l.postId = :postId AND l.targetType=:targetType")
-    Optional<LikeEntity> countByUserIdAndPostId(String userId, int postId , TargetType targetType);
+            " AND l.postId = :postId AND l.targetId=:targetId")
+    Optional<LikeEntity> countByUserIdAndPostId(String userId, int postId , long targetId);
     @Modifying
     @Query("delete from LikeEntity l where  l.id=:id")
     void deleteById(long id);

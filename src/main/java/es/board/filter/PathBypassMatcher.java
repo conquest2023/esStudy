@@ -11,7 +11,8 @@ public class PathBypassMatcher {
     private static final List<String> PATTERNS = List.of(
             "/error/**", "/api/auth/status", "/api/feeds/**",
             "/api/notice/**","/api/points/summary/**","/api/points/recent/**",
-            "/api/likes/**", "/api/like/**", "/api/comments/**",
+             "/api/comments/**",
+//            "/api/likes/**", "/api/like/**"
             "/api/notifications/recent/**",
             "/api/replys/**", "/api/post/stats", "/api/post/**",
             "/api/subscribe/**", "/api/notifications/all",
