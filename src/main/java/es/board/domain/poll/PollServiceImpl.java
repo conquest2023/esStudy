@@ -6,6 +6,7 @@ import es.board.controller.model.dto.poll.PollVoteDTO;
 import es.board.controller.model.mapper.entity.PollDomainMapper;
 import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.domain.event.PollCreatedEvent;
+import es.board.domain.event.VoteCreatedEvent;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.entity.poll.PollOptionEntity;
@@ -85,6 +86,7 @@ public class PollServiceImpl implements PollService{
                 .orElseThrow(() -> new IllegalArgumentException("해당 투표에 없는 옵션입니다."));
         PollVoteEntity vote = PollDomainMapper.toVoteRequest(request,userId, poll, option);
         pollVoteRepository.vote(vote);
+        eventPublisher.publishEvent(new VoteCreatedEvent(userId,request));
     }
 
     @Override

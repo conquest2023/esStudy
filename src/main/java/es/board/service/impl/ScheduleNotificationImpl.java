@@ -29,7 +29,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
     private final PostQueryRepository postQueryRepository;
     @Override
-    @Scheduled(cron = "5 0 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0/2 * * *", zone = "Asia/Seoul")
     public void sendTop3Hourly() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
@@ -41,7 +41,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         }
     }
     @Override
-    @Scheduled(cron = "5 0 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0/3 * * *", zone = "Asia/Seoul")
     public void sendRank1stEvery2h() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);

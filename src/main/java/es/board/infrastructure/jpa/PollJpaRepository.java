@@ -26,6 +26,10 @@ public interface PollJpaRepository extends JpaRepository<PollEntity,Integer> {
     List<Integer> findPollIds(@Param("offset") int offset,
                               @Param("size") int size);
 
+    @Query("select po from PollEntity p " +
+            " inner join PostEntity po on p.post.id=po.id" +
+            " where p.id=:pollId")
+    Optional<PostEntity> findByPost(@Param("pollId") long pollId);
 
     @Query("select p from PollEntity p where p.post.id=:postId")
     Optional<PollEntity> findByPostId(@Param("postId") int postId);
@@ -45,4 +49,5 @@ public interface PollJpaRepository extends JpaRepository<PollEntity,Integer> {
     """)
     PollEntity findPollDetail(@Param("postId") int postId);
 
+ㅊㅊㅇ .
 }

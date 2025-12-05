@@ -29,7 +29,7 @@ public class PollEventListener {
 
         String postOwnerId = entity.get().getUserId();
         String username = entity.get().getUsername();
-        if (postOwnerId != null) {
+        if (postOwnerId != null && postOwnerId.equals(event.getUserId())) {
             notificationService.sendNoticeNotification(
                     event.getPostId(),
                     username + "님이 투표를 게시했습니다: " + event.getRequest().getTitle()
