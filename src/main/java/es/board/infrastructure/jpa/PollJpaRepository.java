@@ -49,5 +49,5 @@ public interface PollJpaRepository extends JpaRepository<PollEntity,Integer> {
     """)
     PollEntity findPollDetail(@Param("postId") int postId);
 
-ㅊㅊㅇ .
+
 }
