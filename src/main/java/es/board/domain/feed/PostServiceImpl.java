@@ -8,6 +8,7 @@ import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.mq.PostEventPublisher;
+import es.board.infrastructure.mq.ViewEventPublisher;
 import es.board.repository.entity.repository.PostImageRepository;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.domain.PostRepository;
@@ -45,6 +46,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostEventPublisher postEventPublisher;
 
+    private final ViewEventPublisher viewEventPublisher;
     private final PollService pollService;
 
     private final PostImageRepository imageRepository;
@@ -61,6 +63,10 @@ public class PostServiceImpl implements PostService {
     public void incrementViewCount(int postId) {
 
         postRepository.increaseViewCount(postId);
+
+        Optional<PostEntity> entity = postRepository.findById(postId);
+        viewEventPublisher.publishFeedViewed(entity.get());
+
     }
 
 
