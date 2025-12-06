@@ -2,6 +2,7 @@ package es.board.infrastructure.feed;
 
 import es.board.infrastructure.entity.feed.PostEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +15,8 @@ public interface PostQueryRepository {
     List<Integer> findPostIds(int page,int size);
 
     List<PostEntity> findTodayTop3(LocalDateTime today);
+
+    Page<PostEntity> findByPostViewCount(int page ,int size);
 
     Optional<PostEntity> findUserTopToday(LocalDateTime lastDay);
     List<Integer> findBestPostIds(int page, int size, LocalDateTime lastSevenDays);

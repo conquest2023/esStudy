@@ -1,7 +1,7 @@
 package es.board.infrastructure.poll;
 
-import es.board.infrastructure.projection.PollAnswerRow;
-import es.board.infrastructure.projection.VoteOptionProjection;
+import es.board.infrastructure.jpa.projection.PollAnswerRow;
+import es.board.infrastructure.jpa.projection.VoteOptionProjection;
 import es.board.infrastructure.entity.poll.PollVoteEntity;
 
 import java.util.List;

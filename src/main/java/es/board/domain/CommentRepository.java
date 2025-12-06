@@ -2,10 +2,10 @@ package es.board.domain;
 
 import es.board.infrastructure.entity.feed.CommentEntity;
 import es.board.infrastructure.feed.CommentAggView;
-import es.board.infrastructure.projection.MyCommentProjection;
-import es.board.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.jpa.projection.MyCommentProjection;
+import es.board.infrastructure.jpa.projection.PostWithCommentCount;
+import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +22,8 @@ public interface CommentRepository {
     List<CommentEntity> findByComments(int id);
 
     Optional<CommentEntity> isExist(long id);
+
+    Page<PostWithCommentCount> findPostWithCommentCount(int page ,int size);
     Page<MyCommentProjection> findUserMyPageComments(int page,int size, String userId);
 
     Page<PostsAndCommentsProjection> findMyPagePostsAndComments(int page,int size,String userId);

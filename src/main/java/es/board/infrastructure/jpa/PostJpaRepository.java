@@ -34,6 +34,10 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     @Query("select p.id from PostEntity p")
     Page<Integer> findIds(Pageable pageable);
 
+
+    @Query("select p from PostEntity p order by p.viewCount desc")
+    Page<PostEntity> findByPostViewCountDESC(Pageable pageable);
+
     @Query( value = "select p.id from post p " +
                     " where not exists (select 1 from notice n where n.post_id = p.id)" +
                     " order by p.created_at desc limit :size offset :offset",

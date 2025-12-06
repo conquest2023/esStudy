@@ -1,7 +1,7 @@
 package es.board.infrastructure.jpa;
 
-import es.board.infrastructure.projection.PollAnswerRow;
-import es.board.infrastructure.projection.VoteOptionProjection;
+import es.board.infrastructure.jpa.projection.PollAnswerRow;
+import es.board.infrastructure.jpa.projection.VoteOptionProjection;
 import es.board.infrastructure.entity.poll.PollVoteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

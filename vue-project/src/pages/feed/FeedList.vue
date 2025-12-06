@@ -174,6 +174,26 @@ const dayMap = {
   '이번주': 'week',
   '이번달': 'month'
 }
+const SORT_ENDPOINTS = {
+  COMMENT: '/post/comment',
+  REPLY:   '/post/reply',
+  LIKE:    '/post/like',
+  VIEW:    '/post/view',
+}
+const sorts = [
+  { id: 'COMMENT', label: '댓글순' },
+  { id: 'REPLY',   label: '답글순' },
+  { id: 'LIKE',    label: '좋아요순' },
+  { id: 'VIEW',    label: '조회순' },
+]
+const TABS = [
+  { id: 'ALL',    label: '전체 글',        url: '/posts' },
+  { id: 'BEST',   label: '인기글 모음',  url: '/posts/popular/week' },
+  { id: 'VOTE',   label: '투표',          url: '/polls' },
+  { id: 'DATA',   label: '학습 자료',      url: '/data/feed', requiresCategory: true },
+  { id: 'NOTICE', label: '공지사항',       url: '/notices', category: '공지사항' },
+  { id: 'QNA',    label: 'Q&A',           url: '/data/feed', category: 'Q/A' },
+]
 function changeDataCategory(cat) {
   selectedCategory.value = cat
   fetchFeeds(0)
@@ -261,13 +281,6 @@ function nextBest() {
   bestIdx.value = (bestIdx.value + 1) % bestAnswers.value.length
   openBestModal()
 }
-
-const sorts = [
-  { id: 'COMMENT', label: '댓글순' },
-  { id: 'REPLY',   label: '답글순' },
-  { id: 'VIEW',    label: '조회순' },
-]
-
 const curSort = ref('ALL')
 const sortLabel = computed(() => sorts.find(s => s.id === curSort.value)?.label ?? '정렬')
 function changeSort(id) {
@@ -277,14 +290,6 @@ function changeSort(id) {
   }
 }
 
-const TABS = [
-  { id: 'ALL',    label: '전체 글',        url: '/posts' },
-  { id: 'BEST',   label: '인기글 모음',  url: '/posts/popular/week' },
-  { id: 'VOTE',   label: '투표',          url: '/polls' },
-  { id: 'DATA',   label: '학습 자료',      url: '/data/feed', requiresCategory: true },
-  { id: 'NOTICE', label: '공지사항',       url: '/notices', category: '공지사항' },
-  { id: 'QNA',    label: 'Q&A',           url: '/data/feed', category: 'Q/A' },
-]
 const targetPath = computed(() =>
     props.notice
         ? `/notice/detail/${props.post.id}`
@@ -295,74 +300,73 @@ function changeCategory(cat) {
   selectedCategory.value = cat
   fetchFeeds(0)
 }
-onMounted(async () => {
-  try {
-    const res = await api.get('/auto/login', { withCredentials: true })
-
-    const accessToken = res.headers['authorization']?.replace('Bearer ', '')
-    if (accessToken) {
-      localStorage.setItem('token', accessToken)
-    }
-  } catch (err) {
-    console.log('자동 로그인 실패')
+function extractList(payload) {
+  let list = payload?.content ?? payload?.data ?? []
+  if (list && !Array.isArray(list) && Array.isArray(list.content)) {
+    list = list.content       // Page<T> 대응
   }
+  return Array.isArray(list) ? list : []
+}
 
-  const p = parseInt(route.query.page) || 0
-})
-
-
-async function fetchNotice() {
+async function fetchStatsForCurrentList(list) {
+  const ids = list.map(p => p.id).filter(Boolean)
+  if (!ids.length) {
+    counts.value = {}
+    likeCounts.value = {}
+    return
+  }
   try {
-    const { data } = await api.get('/notice')
-    notices.value = data ?? []
-  } catch (err) {
-    console.error('공지사항 로딩 실패:', err)
+    const { data } = await api.post('/post/stats/by-ids', ids)
+    const stats = data?.stats || []
+    const nextCounts = {}
+    const nextLikeCounts = {}
+    for (const s of stats) {
+      if (s.postId != null && s.totalCommentCount !== undefined) {
+        nextCounts[s.postId] = (s.totalCommentCount ?? 0) + (s.replyCount ?? 0)
+        nextLikeCounts[s.postId] = s.likeCount ?? 0
+      }
+    }
+    counts.value = nextCounts
+    likeCounts.value = nextLikeCounts
+  } catch (e) {
+    console.error('[by-ids stats] 실패', e)
+    counts.value = {}
+    likeCounts.value = {}
   }
 }
+
 
 async function fetchFeedsAll(newPage = page.value) {
   try {
     loading.value = true
 
-    // 페이지 세팅
     const uiPage = Number(newPage ?? 0)
     page.value = uiPage
-    // 히스토리 덜 오염되게 replace 1회만
     router.replace({ query: { ...route.query, page: uiPage } }).catch(() => {})
 
     const zeroBasedPage = Math.max(0, uiPage)
     const params = { page: zeroBasedPage, size: 10 }
 
-    // ★ 병렬 호출
-    const [postsRes, statsRes, noticeRes] = await Promise.all([
-      api.get('/posts',      { params }),
-      api.get('/post/stats', { params }),
+    const isSorted = curSort.value !== 'ALL'
+    const listUrl = isSorted ? (SORT_ENDPOINTS[curSort.value] || '/posts') : '/posts'
+
+    const [postsRes, noticeRes] = await Promise.all([
+      api.get(listUrl, { params }),
       api.get('/notice'),
     ])
-
-    // posts 처리
     const payload    = postsRes.data?.ok ?? postsRes.data ?? {}
-    const content    = payload.content ?? payload.data ?? []
+    const list       = extractList(payload)
     const totalPages = payload.totalPages ?? payload.totalPage ?? 0
-    posts.value      = Array.isArray(content) ? content : []
-    totalPage.value  = Number.isFinite(totalPages) ? totalPages : 0
 
-    // notice 처리
-    notices.value = Array.isArray(noticeRes.data) ? noticeRes.data : (noticeRes.data ?? [])
+    posts.value     = list
+    totalPage.value = Number.isFinite(totalPages) ? totalPages : 0
+    notices.value   = Array.isArray(noticeRes.data) ? noticeRes.data : (noticeRes.data ?? [])
 
-    // stats 처리
-    const postStats = statsRes.data?.stats || []
-    const nextCounts = {}
-    const nextLikeCounts = {}
-    for (const stat of postStats) {
-      if (stat.postId && stat.totalCommentCount !== undefined)
-        nextCounts[stat.postId] = stat.totalCommentCount
-      if (stat.postId && stat.likeCount !== undefined)
-        nextLikeCounts[stat.postId] = stat.likeCount
+    if (!isSorted) {
+      await fetchPostStats(params)
+    } else {
+      await fetchStatsForCurrentList(posts.value)
     }
-    counts.value = nextCounts
-    likeCounts.value = nextLikeCounts
-
   } catch (err) {
     console.error('전체 글 로딩 실패:', err)
     posts.value = []
@@ -375,6 +379,26 @@ async function fetchFeedsAll(newPage = page.value) {
   }
 }
 
+async function fetchPostStats(params) {
+  try {
+    const { data } = await api.get('/post/stats', { params })
+    const postStats = data?.stats || []
+    const nextCounts = {}
+    const nextLikeCounts = {}
+    for (const stat of postStats) {
+      if (stat.postId && stat.totalCommentCount !== undefined)
+        nextCounts[stat.postId] = stat.totalCommentCount
+      if (stat.postId && stat.likeCount !== undefined)
+        nextLikeCounts[stat.postId] = stat.likeCount
+    }
+    counts.value = nextCounts
+    likeCounts.value = nextLikeCounts
+  } catch (err) {
+    console.error('[stats] 로딩 실패:', err)
+    counts.value = {}
+    likeCounts.value = {}
+  }
+}
 
 async function fetchFeeds(newPage = page.value) {
   const tab = TABS.find(t => t.id === activeTab.value)
@@ -396,26 +420,22 @@ async function fetchFeeds(newPage = page.value) {
     router.replace({ query: { ...route.query, page: uiPageForUrl } })
 
     const params = { page: zeroBasedPage, size: 10 }
-    if (tab.id !== 'NOTICE' && curSort.value !== 'ALL') {
-      params.sort = curSort.value
-    }
 
     let listUrl = tab.url
     if (tab.id === 'BEST') {
-      listUrl = bestListUrl() // 기존 로직 유지
+      listUrl = bestListUrl()
     } else if (tab.id === 'DATA') {
       listUrl = `/post/category/${encodeURIComponent(selectedCategory.value)}`
     } else if (tab.category) {
-      // 탭 자체가 고정 카테고리를 갖는 경우
       listUrl = `/post/category/${encodeURIComponent(tab.category)}`
     }
 
     const { data } = await api.get(listUrl, { params })
-
     const payload     = data?.ok ?? data ?? {}
     const content     = payload.posts ?? payload.content ?? payload.data ?? []
     const totalPages  = payload.totalPages ?? payload.totalPage ?? 0
 
+    // stats: BEST/VOTE는 전용 통계 API, 그 외에는 공통 /post/stats
     if (tab.id === 'BEST') {
       const raw = bestSelected.value || '오늘'
       const day = dayMap[raw] || 'today'
@@ -429,9 +449,7 @@ async function fetchFeeds(newPage = page.value) {
       }
       counts.value = nextCounts
       likeCounts.value = nextLikeCounts
-    }
-
-    if (tab.id === 'VOTE') {
+    } else if (tab.id === 'VOTE') {
       const { data: statsRes } = await api.get('/poll/stats', { params })
       const postStats = statsRes.stats || []
       const nextCounts = {}
@@ -442,6 +460,9 @@ async function fetchFeeds(newPage = page.value) {
       }
       counts.value = nextCounts
       likeCounts.value = nextLikeCounts
+    } else {
+      // 그 외 탭도 항상 /post/stats 호출해서 댓글/좋아요 숫자 채움
+      await fetchPostStats(params)
     }
 
     if (tab.id === 'NOTICE') {
@@ -464,6 +485,7 @@ async function fetchFeeds(newPage = page.value) {
   }
 }
 
+
 function goToNextPage() {
   const nextPage = page.value + 1;
   fetchFeeds(nextPage);
@@ -475,9 +497,14 @@ onMounted(() => {
   fetchFeeds(p)
 })
 
-watch(activeTab, () =>
-    fetchFeeds(0)
-)
+watch(activeTab, (id) => {
+  // 전체 글 탭으로 오면 정렬을 'ALL'로 리셋
+  if (id === 'ALL' && curSort.value !== 'ALL') {
+    curSort.value = 'ALL'
+  }
+  // 페이지도 0으로 초기화해서 깔끔하게
+  fetchFeeds(0)
+})
 async function pingEmpty() {
   const t = performance.now()
   await fetch('/api/ping-empty')
@@ -489,6 +516,20 @@ async function pingNormal() {
   await fetch('/api/ping')
   console.log('[PING]', (performance.now() - t).toFixed(2), 'ms')
 }
+onMounted(async () => {
+  try {
+    const res = await api.get('/auto/login', { withCredentials: true })
+
+    const accessToken = res.headers['authorization']?.replace('Bearer ', '')
+    if (accessToken) {
+      localStorage.setItem('token', accessToken)
+    }
+  } catch (err) {
+    console.log('자동 로그인 실패')
+  }
+
+  const p = parseInt(route.query.page) || 0
+})
 </script>
 
 <style scoped>

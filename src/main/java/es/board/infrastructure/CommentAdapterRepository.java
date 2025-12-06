@@ -4,8 +4,9 @@ import es.board.infrastructure.feed.CommentAggView;
 import es.board.infrastructure.entity.feed.CommentEntity;
 import es.board.domain.CommentRepository;
 import es.board.infrastructure.jpa.CommentJpaRepository;
-import es.board.infrastructure.projection.MyCommentProjection;
-import es.board.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.jpa.projection.MyCommentProjection;
+import es.board.infrastructure.jpa.projection.PostWithCommentCount;
+import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,6 +50,14 @@ public class CommentAdapterRepository implements CommentRepository {
     public Optional<CommentEntity> isExist(long id) {
 
         return repository.findById(id);
+    }
+
+    @Override
+    public Page<PostWithCommentCount> findPostWithCommentCount(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return repository.findByCommentCountDESC(pageable);
     }
 
     @Override

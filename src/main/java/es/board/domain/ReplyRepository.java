@@ -2,6 +2,8 @@ package es.board.domain;
 
 import es.board.infrastructure.entity.feed.ReplyEntity;
 import es.board.infrastructure.feed.ReplyAggView;
+import es.board.infrastructure.jpa.projection.PostWithCommentCount;
+import es.board.infrastructure.jpa.projection.PostWithReplyCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +24,9 @@ public interface ReplyRepository {
     List<ReplyEntity> findByReplys(int id);
 
     Optional<ReplyEntity> isExist(long id);
+
+    Page<PostWithReplyCount> findPostWithReplyCount(int page , int size);
+
 
     Page<ReplyEntity> findByPageReplys(Pageable pageable);
 

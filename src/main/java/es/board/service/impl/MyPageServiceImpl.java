@@ -3,15 +3,12 @@ import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.domain.CommentRepository;
 import es.board.infrastructure.feed.PostQueryRepository;
-import es.board.infrastructure.projection.MyCommentProjection;
-import es.board.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.jpa.projection.MyCommentProjection;
+import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
 import es.board.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Slf4j

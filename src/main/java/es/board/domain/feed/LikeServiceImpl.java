@@ -5,7 +5,7 @@ import es.board.controller.model.mapper.LikeMapper;
 import es.board.domain.event.LikeCreatedEvent;
 import es.board.infrastructure.entity.feed.LikeEntity;
 import es.board.domain.LikeRepository;
-import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.Like;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

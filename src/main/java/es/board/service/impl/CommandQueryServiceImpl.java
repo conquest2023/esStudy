@@ -1,10 +1,14 @@
 package es.board.service.impl;
 
 import es.board.controller.model.dto.stats.PostStatsDTO;
+import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.feed.CommentAggView;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.infrastructure.feed.ReplyAggView;
+import es.board.infrastructure.jpa.projection.PostWithCommentCount;
+import es.board.infrastructure.jpa.projection.PostWithLikeCount;
+import es.board.infrastructure.jpa.projection.PostWithReplyCount;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.service.CommandQueryService;
 import es.board.domain.CommentRepository;
@@ -13,6 +17,7 @@ import es.board.domain.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -72,6 +77,31 @@ public class CommandQueryServiceImpl implements CommandQueryService {
         };
         List<Integer> ids = postRepository.findBestPostIds(offset, size, fromDate);
         return getPostStatsDTOS(ids);
+    }
+
+    @Override
+    public List<PostStatsDTO> getPostStatsByIds(List<Integer> postIds) {
+        return getPostStatsDTOS(postIds);
+    }
+
+    @Override
+    public Page<PostWithReplyCount> getPostWithReplyCount(int page, int size) {
+        return replyRepository.findPostWithReplyCount(page,size);
+    }
+
+    @Override
+    public Page<PostWithLikeCount> findByPostWithLikeCount(int page, int size) {
+        return likeRepository.findByPostWithLikeCountDESC(page,size);
+    }
+
+    @Override
+    public Page<PostWithCommentCount> getPostWithCommentCount(int page, int size) {
+       return commentRepository.findPostWithCommentCount(page,size);
+    }
+
+    @Override
+    public Page<PostEntity> getPostViewCount(int page ,int size){
+        return postRepository.findByPostViewCount(page,size);
     }
 
     @NotNull

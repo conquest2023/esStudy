@@ -1,12 +1,22 @@
+<!-- PollDetail.vue -->
 <template>
   <div class="poll-page container my-4">
     <div class="poll-card mb-5">
       <div v-if="vote">
         <div class="poll-title mb-2" id="poll-title">{{ vote.title }}</div>
-        <div class="text-muted mb-3">
-          {{ badge }} {{ vote.username }} · {{ formatDate(vote.createdAt) }}
+
+        <!-- 상단 메타: 작성자 · 작성일 · 게시글 좋아요(POST) · 삭제 -->
+        <div class="text-muted mb-3 d-flex align-items-center flex-wrap gap-2">
+          <span>{{ badge }} {{ vote.username }} · {{ formatDate(vote.createdAt) }}</span>
+          <span class="text-muted">·</span>
+          <!-- ⬇️ 게시글 좋아요 표시 (POST) -->
+          <span v-if="feedId" class="d-inline-flex align-items-center">
+            <i :class="['bi', isLiked('POST', feedId) ? 'bi-heart-fill text-like' : 'bi-heart']" class="me-1"></i>
+            <span>{{ likeCountOf('POST', feedId) }}</span>
+          </span>
           <button v-if="vote.Owner" class="btn btn-sm btn-danger ms-2" @click="deleteVote">삭제</button>
         </div>
+
         <p class="mb-3" v-if="vote.description" style="white-space:pre-wrap">{{ vote.description }}</p>
 
         <!-- 투표 영역 -->
@@ -68,7 +78,23 @@
             </template>
           </div>
         </div>
+
+        <!-- 본문 하단 액션: 댓글 수 / 게시글 좋아요 버튼 -->
+        <footer class="post-actions d-flex justify-content-between align-items-center mt-3">
+          <div class="text-muted small">
+            <i class="bi bi-chat-dots me-1"></i> 댓글 {{ comments.length }}
+          </div>
+          <button
+              v-if="feedId"
+              class="btn btn-sm btn-outline-danger like-btn d-inline-flex align-items-center"
+              @click="() => toggleLike('POST', feedId)"
+          >
+            <i :class="['bi', isLiked('POST', feedId) ? 'bi-heart-fill text-like' : 'bi-heart']" class="me-1"></i>
+            <span>{{ likeCountOf('POST', feedId) }}</span>
+          </button>
+        </footer>
       </div>
+
       <div v-else class="text-center py-5">투표 정보를 불러오지 못했습니다.</div>
     </div>
 
@@ -523,7 +549,7 @@ async function checkAlreadyVoted(token) {
   }
 }
 
-// 선택지 집계 (기존 API 쓰는 경우)
+// 선택지 집계 (기존 API 쓰는 경우 - 필요시 사용)
 async function fetchVoteCounts() {
   const id = route.query.id || route.params.id
   try {
@@ -535,7 +561,6 @@ async function fetchVoteCounts() {
     console.error('vote count 로드 실패', e)
   }
 }
-
 
 async function submitVote() {
   if (!vote.value) return
@@ -552,12 +577,10 @@ async function submitVote() {
   try {
     const postIdParam = route.params.id || route.query.id
     if (canMulti.value && maxSelectCnt.value > 1) {
-      // 멀티
       await api.post('/votes', { pollId: pollId.value, optionIds }, {
         headers: { Authorization: `Bearer ${token}` }
       })
     } else {
-      // 단일
       await api.post('/vote', { pollId: pollId.value, optionId: optionIds[0] }, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -594,7 +617,7 @@ async function submitComment() {
   try {
     await api.post('/comment', {
       content: commentText.value,
-      username: store.username,   // 서버가 토큰에서 꺼내면 제거 가능
+      username: store.username,
       postId: feedId.value,
     }, {
       headers: { Authorization: `Bearer ${token}` }
@@ -788,6 +811,7 @@ async function toggleLike(targetType, targetId) {
     state.count = prevCount
   }
 }
+
 async function loadLikeCounts(postId) {
   try {
     const { data } = await api.get(`/like/count/${postId}`)
@@ -805,9 +829,9 @@ async function loadLikeCounts(postId) {
       if (!Number.isFinite(targetId)) return
 
       let targetType = null
-      if (commentIdSet.has(targetId)) targetType = 'COMMENT'
+      if (feedId.value && targetId === Number(feedId.value)) targetType = 'POST'
+      else if (commentIdSet.has(targetId)) targetType = 'COMMENT'
       else if (replyIdSet.has(targetId)) targetType = 'REPLY'
-      else if (feedId.value && targetId === Number(feedId.value)) targetType = 'POST'
 
       const key  = likeKey(targetType, targetId)
       const prev = likeStates.value[key] || { liked: false, count: 0 }
@@ -817,6 +841,7 @@ async function loadLikeCounts(postId) {
     console.error('like count 로드 실패', e)
   }
 }
+
 async function loadLikeDetail(postId) {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -843,7 +868,6 @@ async function deleteVote() {
   if (!vote.value) return
   try {
     const token = localStorage.getItem('token')
-
     await api.delete(`/post/${vote.value.postId}`, {
       headers: token ? {Authorization: `Bearer ${token}`} : {}
     })
@@ -885,10 +909,14 @@ async function deleteVote() {
 .post-author-link{color:#2563eb;}
 .post-author-link:hover{text-decoration:underline;}
 .post-meta-row .dot{color:#d1d5db;font-size:0.8rem;}
+
 .post-content{margin-top:1rem;line-height:1.7;font-size:0.96rem;color:#111827;}
 .post-content img{max-width:100%;height:auto;}
+
 .post-actions{border-top:1px solid #f1f3f5;padding-top:0.75rem;margin-top:1.25rem;}
 .like-btn{min-width:80px;}
+.text-like{color:#ef4444 !important;}
+
 .comments-section{margin-top:1.5rem;}
 .comment-item{padding:0.75rem 0;border-bottom:1px solid #f3f4f6;gap:10px;}
 .comment-avatar{width:32px;height:32px;border-radius:999px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;color:#374151;margin-right:8px;}
@@ -901,9 +929,10 @@ async function deleteVote() {
 .reply-meta{font-weight:500;}
 .reply-content{margin-top:2px;}
 .comment-write-card{border-radius:12px;}
-.text-like{color:#ef4444 !important;}
+
 .post-detail-loading .spin{animation:spin 1s linear infinite;}
 @keyframes spin{100%{transform:rotate(360deg)}}
+
 @media (max-width: 576px){
   .post-title{font-size:1.3rem;}
   .post-content{font-size:0.94rem;}

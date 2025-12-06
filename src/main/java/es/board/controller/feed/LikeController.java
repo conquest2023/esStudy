@@ -2,7 +2,7 @@ package es.board.controller.feed;
 
 
 import es.board.controller.model.dto.feed.LikeDto;
-import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.feed.LikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

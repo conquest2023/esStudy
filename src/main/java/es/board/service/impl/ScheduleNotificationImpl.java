@@ -7,18 +7,15 @@ import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.poll.PollVoteRepository;
-import es.board.infrastructure.projection.PollAnswerRow;
+import es.board.infrastructure.jpa.projection.PollAnswerRow;
 import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NotificationService;
 import es.board.service.ScheduleNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,7 +88,9 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         // 2) Post 한 번에 로딩하여 postId -> title 맵 구성
         List<PostEntity> posts = postQueryRepository.findPostAndPollEntity(new ArrayList<>(postIds));
         Map<Integer, String> postIdToTitle = posts.stream()
-                .collect(Collectors.toMap(PostEntity::getId, PostEntity::getTitle));
+                .collect(Collectors.toMap(
+                        PostEntity::getId,
+                        PostEntity::getTitle));
 
         List<String> userIds = userRepository.findMonthActiveUser(now.minusDays(30));
         if (userIds == null || userIds.isEmpty())
@@ -110,7 +109,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
             Set<Long> participated = participatedByUser.getOrDefault(userId, Collections.emptySet());
 
             List<Long> missingPollIds = pollIds.stream()
-                    .filter(id -> !participated.contains(id))
+                    .filter(id -> ! participated.contains(id))
                     .toList();
 
             if (missingPollIds.isEmpty())
@@ -120,7 +119,8 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
             List<MissingPollItem> items = missingPollIds.stream()
                     .map(pollId -> {
                         Integer postId = pollIdToPostId.get(pollId);
-                        if (postId == null) return null;
+                        if (postId == null)
+                            return null;
                         String title = postIdToTitle.getOrDefault(postId, "(제목 없음)");
 
                         return new MissingPollItem(postId, title);

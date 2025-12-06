@@ -3,8 +3,12 @@ package es.board.infrastructure.jpa;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.entity.feed.LikeEntity;
-import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.enum_type.TargetType;
+import es.board.infrastructure.jpa.projection.PostWithLikeCount;
+import es.board.infrastructure.jpa.projection.PostWithReplyCount;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -44,5 +48,19 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
            count(l) as count
     from LikeEntity l  where l.postId = :id group by l.targetId""")
     List<LikeCountProjection> countByPostGroupByTargetType(@Param("id") int id);
+
+
+    @Query("SELECT p.id as id, " +
+            "p.title as title, " +
+            "p.username as username, " +
+            "p.description as description, " +
+            "p.viewCount as viewCount, " +
+            "p.createdAt as createdAt, " +
+            "count(c.postId) as likeCount " + // 필드 이름 일치 중요
+            "FROM PostEntity p " +
+            "LEFT JOIN LikeEntity c ON p.id = c.postId " +
+            "GROUP BY p.id, p.title, p.username, p.description, p.viewCount, p.createdAt " +
+            "ORDER BY likeCount DESC")
+    Page<PostWithLikeCount> findByLikeCountDESC(Pageable pageable);
 
 }

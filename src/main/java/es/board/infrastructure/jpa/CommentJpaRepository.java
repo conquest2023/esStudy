@@ -1,9 +1,10 @@
 package es.board.infrastructure.jpa;
 
 import es.board.infrastructure.feed.CommentAggView;
-import es.board.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.jpa.projection.PostWithCommentCount;
+import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
 import es.board.infrastructure.entity.feed.CommentEntity;
-import es.board.infrastructure.projection.MyCommentProjection;
+import es.board.infrastructure.jpa.projection.MyCommentProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,4 +54,18 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity,Long> 
 
 
 
+
+
+    @Query("SELECT p.id as id, " +
+            "p.title as title, " +
+            "p.username as username, " +
+            "p.description as description, " +
+            "p.viewCount as viewCount, " +
+            "p.createdAt as createdAt, " +
+            "count(c.postId) as commentCount " + // 필드 이름 일치 중요
+            "FROM PostEntity p " +
+            "LEFT JOIN CommentEntity c ON p.id = c.postId " +
+            "GROUP BY p.id, p.title, p.username, p.description, p.viewCount, p.createdAt " +
+            "ORDER BY commentCount DESC")
+    Page<PostWithCommentCount> findByCommentCountDESC(Pageable pageable);
 }

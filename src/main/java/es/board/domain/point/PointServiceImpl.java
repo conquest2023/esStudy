@@ -3,7 +3,7 @@ package es.board.domain.point;
 import es.board.controller.model.dto.feed.TopWriter;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
-import es.board.infrastructure.projection.UserPointProjection;
+import es.board.infrastructure.jpa.projection.UserPointProjection;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package es.board.repository.entity.repository;
 
 import es.board.repository.entity.PointHistoryEntity;
-import es.board.infrastructure.projection.UserPointProjection;
+import es.board.infrastructure.jpa.projection.UserPointProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

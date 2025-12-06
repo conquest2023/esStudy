@@ -1,4 +1,4 @@
-package es.board.infrastructure.projection;
+package es.board.infrastructure.jpa.projection;
 
 public interface PollAnswerRow {
 

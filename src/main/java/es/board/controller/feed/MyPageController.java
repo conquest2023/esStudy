@@ -1,11 +1,10 @@
 package es.board.controller.feed;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.dto.feed.PostDTO;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
-import es.board.infrastructure.projection.MyCommentProjection;
-import es.board.infrastructure.projection.PostsAndCommentsProjection;
+import es.board.infrastructure.jpa.projection.MyCommentProjection;
+import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
 import es.board.service.AuthService;
 import es.board.service.MyPageService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

@@ -4,11 +4,15 @@ import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.jpa.LikeJpaRepository;
 import es.board.infrastructure.entity.feed.LikeEntity;
-import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.LikeRepository;
 import es.board.domain.enum_type.TargetType;
+import es.board.infrastructure.jpa.projection.PostWithLikeCount;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,4 +65,10 @@ public class LikeAdapterRepository implements LikeRepository {
     public List<LikeCountProjection> findLikeFeedDetailCount(int id) {
         return  likeRepository.countByPostGroupByTargetType(id);
     }
+    @Override
+    public Page<PostWithLikeCount> findByPostWithLikeCountDESC(int page , int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return likeRepository.findByLikeCountDESC(pageable);
+    }
+
 }

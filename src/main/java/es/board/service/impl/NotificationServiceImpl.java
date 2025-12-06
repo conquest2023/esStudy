@@ -265,7 +265,7 @@ public class NotificationServiceImpl implements NotificationService {
             String json = objectMapper.writeValueAsString(payload);
             sendPollEvent(userId, json, "poll-notification");
         } catch (Exception e) {
-            log.error("TOP3 랭킹 알림 실패", e);
+            log.error("미 투표 알림 실패", e);
         }
     }
 

@@ -1,7 +1,7 @@
 package es.board.domain.feed;
 
 import es.board.controller.model.dto.feed.LikeDto;
-import es.board.infrastructure.projection.LikeCountProjection;
+import es.board.infrastructure.jpa.projection.LikeCountProjection;
 
 import java.util.List;
 import java.util.Map;

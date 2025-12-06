@@ -58,6 +58,12 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
+    public Page<PostEntity> findByPostViewCount(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByPostViewCountDESC(pageable);
+    }
+
+    @Override
     public  Optional<PostEntity> findUserTopToday(LocalDateTime lastDay) {
         List<String> topUser = pointHistoryRepository.findTop1PointUser();
         return repository.findUserTopToday(topUser.get(2),lastDay);
