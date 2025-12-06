@@ -618,13 +618,24 @@ async function loadFeedDetail(postId) {
         post: data.ok.post,
         poll: data.ok.poll,
       })
-   try{
-      fetch('/api/view/count', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify({id})
-      }).catch(e => console.error('조회수 증가 실패', e))
+      try {
+        const token = localStorage.getItem('token');
+
+        fetch('/api/view/count', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` })
+          },
+          credentials: 'include',
+          body: JSON.stringify({ id: postId })
+        })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+            })
+            .catch(e => console.error('조회수 증가 실패:', e));
     } catch (e)
     {
       console.error(e)
@@ -677,12 +688,23 @@ async function loadFeedDetail(postId) {
     // likeCount.value= data.data.likeCount || 0
     liked.value    = data.isLiked
     loaded.value   = true
-    fetch('/api/view/count', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ id })
-    }).catch(e => console.error('조회수 증가 실패', e))
+      const token = localStorage.getItem('token');
+
+      fetch('/api/view/count', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
+        credentials: 'include',
+        body: JSON.stringify({ id: postId })
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+          })
+          .catch(e => console.error('조회수 증가 실패:', e));
   } catch (e) {
     console.error(e)
     router.replace('/')
@@ -690,8 +712,6 @@ async function loadFeedDetail(postId) {
 }
 onMounted(
     () => loadFeedDetail(route.params.id)
-
-
 )
 const likeKey = (targetType, targetId) => `${targetType}-${targetId}`
 

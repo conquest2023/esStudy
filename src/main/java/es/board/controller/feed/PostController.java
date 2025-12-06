@@ -161,11 +161,12 @@ public class PostController {
 
     @PostMapping("/view/count")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request,
+                                               @RequestAttribute(value = "userId",required = false) String userId,
                                                HttpServletResponse response,
                                                @CookieValue(value = "viewedFeeds", defaultValue = "") String viewedFeeds) {
         String id = (request.get("id"));
         if (!viewedFeeds.contains(id)) {
-            postService.incrementViewCount(Integer.parseInt(id));
+            postService.incrementViewCount(Integer.parseInt(id),userId);
             String updatedFeeds = viewedFeeds.isEmpty() ? id : viewedFeeds + ";" + id;
             String encodedValue = URLEncoder.encode(updatedFeeds, StandardCharsets.UTF_8);
             Cookie cookie = new Cookie("viewedFeeds", encodedValue);

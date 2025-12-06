@@ -7,6 +7,7 @@ import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
+import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.mq.PostEventPublisher;
 import es.board.infrastructure.mq.ViewEventPublisher;
 import es.board.repository.entity.repository.PostImageRepository;
@@ -16,6 +17,7 @@ import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.domain.Post;
 import es.board.domain.poll.PollService;
+import es.board.repository.entity.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +49,11 @@ public class PostServiceImpl implements PostService {
     private final PostEventPublisher postEventPublisher;
 
     private final ViewEventPublisher viewEventPublisher;
+
+
     private final PollService pollService;
+
+    private final UserRepository userRepository;
 
     private final PostImageRepository imageRepository;
 
@@ -60,13 +66,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void incrementViewCount(int postId) {
+    public void incrementViewCount(int postId,String userId) {
 
         postRepository.increaseViewCount(postId);
 
-        Optional<PostEntity> entity = postRepository.findById(postId);
-        viewEventPublisher.publishFeedViewed(entity.get());
-
+        Optional<User> user = userRepository.findByUserId(userId);
+        if (user.isPresent()) {
+            Optional<PostEntity> entity = postRepository.findById(postId);
+            viewEventPublisher.publishFeedViewed(entity.get(), user.get());
+        }
     }
 
 

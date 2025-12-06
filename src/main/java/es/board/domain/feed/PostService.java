@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 public interface PostService {
 
 
-    void incrementViewCount(int postId);
+    void incrementViewCount(int postId,String userId);
 
 
     PostDTO.Response updatePost(int id, String userId, PostDTO.Update update);
