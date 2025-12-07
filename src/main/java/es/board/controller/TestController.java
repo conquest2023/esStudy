@@ -42,11 +42,6 @@ public class TestController {
 //    }
 
 
-    @GetMapping("/view/test")
-    public ResponseEntity<?> test() {
-        List<View> view = viewEventService.getUserDailyViewHistory("rlatjdals", LocalDateTime.now());
-        return ResponseEntity.ok(Map.of("hi", view));
-    }
 
 
 
