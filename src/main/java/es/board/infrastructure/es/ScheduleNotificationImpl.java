@@ -1,16 +1,19 @@
-package es.board.service.impl;
+package es.board.infrastructure.es;
 
 import es.board.controller.record.MissingPollItem;
 import es.board.controller.record.MissingPollPayload;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
+import es.board.infrastructure.es.document.View;
+import es.board.infrastructure.es.document.ViewDAO;
 import es.board.infrastructure.feed.PostQueryRepository;
+import es.board.infrastructure.gemini.GeminiService;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.poll.PollVoteRepository;
 import es.board.infrastructure.jpa.projection.PollAnswerRow;
 import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NotificationService;
-import es.board.service.ScheduleNotificationService;
+import es.board.infrastructure.es.ScheduleNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +30,10 @@ import java.util.stream.Collectors;
 public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
     private final NotificationService notificationService;
+
+    private final ViewDAO viewDAO;
+
+    private final GeminiService geminiService;
 
     private final UserRepository userRepository;
 
@@ -48,8 +55,8 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         }
     }
     @Override
-    @Scheduled(cron = "0 0 0/3 * * *", zone = "Asia/Seoul")
-    public void sendRank1stEvery2h() {
+    @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
+    public void sendRank1stEvery4h() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
         Optional<PostEntity> userTopToday = postQueryRepository.findUserTopToday(lastDay);
@@ -115,7 +122,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
             if (missingPollIds.isEmpty())
                 continue;
 
-            //여기서 pollId -> postId -> title 순으로 조회해야 함!
+            //여기서 pollId -> postId -> title 순으로 조회해야 함
             List<MissingPollItem> items = missingPollIds.stream()
                     .map(pollId -> {
                         Integer postId = pollIdToPostId.get(pollId);
@@ -134,6 +141,34 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
             MissingPollPayload payload = new MissingPollPayload(items.size(), items);
 
             notificationService.sendMissingPollNotification(userId, payload); // 실제 발송
+        }
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
+    public void sendAnalysisUserHistory() {
+
+        LocalDateTime now=LocalDateTime.now();
+        LocalDateTime oneMonthAgo = now.minusMonths(1);
+        List<String> userIds = userRepository.findMonthActiveUser(oneMonthAgo);
+
+        List<View> usersDailyViewHistorys = viewDAO.findUsersDailyViewHistorys(userIds,now);
+        Map<String, List<View>> map = usersDailyViewHistorys.stream()
+                .collect(Collectors.groupingBy(View::getViewerId));
+        for (Map.Entry<String, List<View>> entry : map.entrySet()) {
+            if (entry.getValue().size() >= 3) {
+                try {
+                    List<String> analysis = geminiService.getAnalysis(entry.getValue());
+                    notificationService.sendAnalysisNotification(entry.getKey(), analysis);
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("분석 작업 중 인터럽트 발생: {}", e.getMessage());
+                    break;
+                } catch (Exception e) {
+                    log.error("사용자 {} 분석 실패: {}", entry.getKey(), e.getMessage());
+                }
+            }
         }
     }
 }

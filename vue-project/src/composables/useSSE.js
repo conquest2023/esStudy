@@ -4,10 +4,47 @@ import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
-// 🔒 모듈 스코프 싱글턴들
+// 🔒 싱글턴
 let esRef = null
 let subscribed = false
 let reconnectTimer = null
+
+// 🔁 단기 중복 방지(같은 이벤트가 재전송될 때 차단)
+const seen = new Map() // key -> expireAt(ms)
+const SEEN_TTL = 15_000
+
+function dedup(key) {
+    if (!key) return false
+    const now = Date.now()
+    // 가끔 청소
+    for (const [k, exp] of seen) if (exp < now) seen.delete(k)
+    const exp = seen.get(key)
+    if (exp && exp > now) return true
+    seen.set(key, now + SEEN_TTL)
+    return false
+}
+
+// 안정적 키 생성기(서버가 id 내려주면 그걸 최우선)
+function stableKeyFromParsed(type, parsed, fallback) {
+    if (parsed?.id) return String(parsed.id)
+    if (fallback) return String(fallback)
+
+    // 포인트 알림은 트랜잭션/유저/금액/생성시각 조합 추천
+    if (type === 'point') {
+        const tx = parsed.pointTxId || parsed.txId || parsed.eventId || parsed.userId || 'anon'
+        const amt = parsed.amount ?? parsed.points ?? '0'
+        const at = parsed.createdAt || parsed.time || ''
+        return `point:${tx}:${amt}:${at}`
+    }
+
+    // 게시글 기반 일반 알림
+    if (parsed?.postId) {
+        return `${parsed.type || 'notif'}:${parsed.postId}`
+    }
+
+    // 마지막 수단
+    return `ev:${type}:${Date.now()}`
+}
 
 export function useSSE(token) {
     if (!token) {
@@ -19,14 +56,35 @@ export function useSSE(token) {
     const { push } = useToast()
     const store = useUserStore()
 
-    // ─────────────────────────────────────────
-    // 핸들러들 (항상 동일 참조 유지)
-    // ─────────────────────────────────────────
+    const handleAnalysisNotification = (e) => {
+        let parsed; try { parsed = JSON.parse(e.data) } catch { return }
+        const listItems = Array.isArray(parsed.analysis) ? parsed.analysis : []
+
+        const key = stableKeyFromParsed('analysis', parsed, e.lastEventId)
+        if (dedup(key)) return
+
+        push({
+            id: key,
+            type: 'analysis',
+            title: parsed.message || '오늘의 하루 분석 결과',
+            analysis: listItems,
+            duration: 10000,
+            isCenter: true,
+            onClick: () => router.push('/analysis-detail'),
+        })
+    }
+
     const handleRankTop1 = (e) => {
         let parsed; try { parsed = JSON.parse(e.data) } catch { return }
+        const key = stableKeyFromParsed('rank-top1', parsed, e.lastEventId)
+        if (dedup(key)) return
+
         const msg = `👑 ${parsed.message || '랭킹 1위 게시글'}`
-        if (parsed.postId) push(msg, `/post/${parsed.postId}`)
-        else push(msg, '/trending/top3')
+        if (parsed.postId) {
+            push({ id: key, msg, routePath: `/post/${parsed.postId}`, duration: 5000 })
+        } else {
+            push({ id: key, msg, routePath: '/trending/top3', duration: 5000 })
+        }
     }
 
     const handleRankTop3 = (e) => {
@@ -34,11 +92,11 @@ export function useSSE(token) {
         const posts = Array.isArray(parsed.posts) ? parsed.posts.slice(0, 3) : []
         if (!posts.length) return
 
-        // 동일 이벤트 합치기 위한 id 키 (서버에서 id 주면 그걸 쓰는 게 최고)
         const idem = parsed.id || `top3:${posts.map(p => p.postId).join(',')}`
+        if (dedup(idem)) return
 
         push({
-            id: idem,  // 같은 id면 덮어쓰기
+            id: idem,
             type: 'top3',
             title: '오늘의 베스트 Top 3',
             message: parsed.message || '업데이트 되었습니다!',
@@ -54,15 +112,15 @@ export function useSSE(token) {
         const posts = Array.isArray(parsed.posts) ? parsed.posts.slice(0, 5) : []
         if (!posts.length) return
 
-        // idem 키: 서버 payload에 id가 있으면 그걸 쓰고, 없으면 조합
         const idem = parsed.id || `poll-missing:${parsed.count}:${posts.map(p => p.postId).join(',')}`
+        if (dedup(idem)) return
 
         push({
-            id: idem, // 같은 id면 덮어쓰기
+            id: idem,
             type: 'poll-missing',
             title: '아직 안 한 투표가 있어요',
             message: parsed.message || `아직 참여하지 않은 투표가 ${parsed.count ?? posts.length}개 있습니다.`,
-            posts, // [{ postId, title }]
+            posts,
             duration: 10000,
             label: '보러가기',
             onClick: () => router.push('/poll'),
@@ -70,43 +128,35 @@ export function useSSE(token) {
         })
     }
 
-    const handleNotification = (e, emoji) => {
+    const handleNotification = (e, emoji, typeAlias) => {
         let parsed
         try { parsed = JSON.parse(e.data) } catch (error) {
             return console.error('[SSE] 알림 JSON 파싱 실패:', e.data, error)
         }
-        const n = store.addNotification(parsed)
+
+        // ★ 포인트 알림은 강력한 안정키
+        const kind = typeAlias === 'point' ? 'point' : (parsed.type || typeAlias || 'generic')
+        const key = stableKeyFromParsed(kind, parsed, e.lastEventId)
+        if (dedup(key)) return
+
+        const n = store.addNotification?.(parsed) ?? parsed
         const msg = `${emoji} ${n.message ?? '새 알림이 도착했습니다'}`
 
-        // 일반 알림은 중복 덮어쓰기 id 지정 (postId 기준)
-        const idem = parsed.id || (n.postId ? `notif:${n.type || 'generic'}:${n.postId}` : undefined)
-
         if (n.postId) {
-            push({ id: idem, msg, routePath: `/post/${n.postId}` })
+            push({ id: key, msg, routePath: `/post/${n.postId}`, duration: 5000 })
         } else {
-            push({ id: idem, msg, routePath: '/notifications' })
+            push({ id: key, msg, routePath: '/notifications', duration: 5000 })
         }
     }
 
-    // ─────────────────────────────────────────
-    // 실제 연결 함수 (중복 방지 + 재연결)
-    // ─────────────────────────────────────────
     const connect = () => {
-        if (esRef) {
-            // 이미 연결되어 있으면 재사용
-            return
-        }
-
+        if (esRef) return
         esRef = new EventSource(`/api/subscribe?token=${encodeURIComponent(token)}`)
 
         esRef.onopen = () => {
-            console.log('[SSE] 연결 성공 및 스트리밍 시작')
-            if (reconnectTimer) {
-                clearTimeout(reconnectTimer)
-                reconnectTimer = null
-            }
+            console.log('[SSE] 연결 성공')
+            if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
         }
-
         esRef.onerror = (error) => {
             console.warn('[SSE] 오류/끊김 → 20초 후 재연결', error)
             try { esRef.close() } catch {}
@@ -119,18 +169,17 @@ export function useSSE(token) {
             }
         }
 
-        // 리스너는 최초 1회만 바인딩
         if (!subscribed) {
-            esRef.addEventListener('comment-notification', e => handleNotification(e, '💬'))
-            esRef.addEventListener('todo-notification',    e => handleNotification(e, '📝'))
-            esRef.addEventListener('reply-notification',   e => handleNotification(e, '↩️'))
-            esRef.addEventListener('notice-notification',  e => handleNotification(e, '📢'))
-            esRef.addEventListener('point-notification',   e => handleNotification(e, '💰'))
-            esRef.addEventListener('like-notification',    e => handleNotification(e, '💗'))
+            esRef.addEventListener('comment-notification', e => handleNotification(e, '💬', 'comment'))
+            esRef.addEventListener('todo-notification',    e => handleNotification(e, '📝', 'todo'))
+            esRef.addEventListener('reply-notification',   e => handleNotification(e, '↩️', 'reply'))
+            esRef.addEventListener('notice-notification',  e => handleNotification(e, '📢', 'notice'))
+            esRef.addEventListener('point-notification',   e => handleNotification(e, '💰', 'point'))
+            esRef.addEventListener('like-notification',    e => handleNotification(e, '💗', 'like'))
 
+            esRef.addEventListener('analysis-notification', handleAnalysisNotification)
             esRef.addEventListener('rank-top1-notification', handleRankTop1)
             esRef.addEventListener('rank-top3-notification', handleRankTop3)
-
             esRef.addEventListener('poll-notification', handlePollMissing)
 
             subscribed = true
@@ -139,15 +188,10 @@ export function useSSE(token) {
 
     connect()
 
-    // 레이아웃(App/DefaultLayout)에서 1회만 쓰는 것을 권장
     onBeforeUnmount(() => {
-        // 화면 전환으로 이 훅이 파괴되어도 싱글턴을 유지하고 싶으면 닫지 말고 유지
-        // 완전 종료 원하면 아래 주석 해제
-        // try { esRef?.close() } catch {}
-        // esRef = null
+        // 필요 시 닫기 로직 추가
     })
 
-    // HMR 중복 방지
     if (import.meta?.hot) {
         import.meta.hot.dispose(() => {
             try { esRef?.close() } catch {}

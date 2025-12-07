@@ -1,6 +1,7 @@
 package es.board.infrastructure.es.document;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import es.board.ex.IndexException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,11 @@ public class FeedDAOImpl implements FeedDAO {
                                     q -> q.match(m -> m
                                             .field("content")
                                             .query(content)))
+                            .sort(sort ->
+                                    sort.field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc)
+                                    ))
                     , Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -49,6 +55,11 @@ public class FeedDAOImpl implements FeedDAO {
                                 q -> q.match(m -> m
                                         .field("title")
                                         .query(title)))
+                        .sort(sort ->
+                                sort.field(f -> f
+                                        .field("createdAt")
+                                        .order(SortOrder.Desc)
+                                ))
                 , Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -73,7 +84,12 @@ public class FeedDAOImpl implements FeedDAO {
                                             .should(
                                                     t -> t.match(m -> m
                                                             .field("content")
-                                                            .query(text))))),
+                                                            .query(text)))))
+                            .sort(sort ->
+                                    sort.field(f -> f
+                                            .field("createdAt")
+                                            .order(SortOrder.Desc)
+                                    )),
                     Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
@@ -101,7 +117,11 @@ public class FeedDAOImpl implements FeedDAO {
                                         t -> t.match(m -> m
                                         .field("username")
                                         .query(username)))))
-
+                        .sort(sort ->
+                                sort.field(f -> f
+                                        .field("createdAt")
+                                        .order(SortOrder.Desc)
+                                ))
                 ,Feed.class);
 
             return response.hits().hits().stream()

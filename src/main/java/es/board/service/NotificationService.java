@@ -18,6 +18,7 @@ public interface NotificationService {
     void sendCommentNotification(String userId, int postId, String message);
     void sendTodoNotification(String userId, String message);
 
+    void sendAnalysisNotification(String userId, List<String> message);
     void sendTop3RankingNotification(String userId, List<PostEntity> top3);
     void sendTop1RankingNotification(String userId, PostEntity top1);
 

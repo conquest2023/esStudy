@@ -1,5 +1,7 @@
 package es.board.infrastructure.mq;
 
+import es.board.controller.record.NormalizedContent;
+import es.board.domain.NormalizeService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,8 +19,9 @@ public class PostEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
+    private final NormalizeService normalizeService;
     public void publishFeedCreated(PostEntity post) {
-
+        NormalizedContent normalize = normalizeService.normalize(post.getDescription(), post.getTitle());
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", UUID.randomUUID().toString());
         event.put("type", "feed.created");
@@ -29,9 +32,9 @@ public class PostEventPublisher {
         p.put("docType", "feed");
         p.put("id", String.valueOf(post.getId()));
         p.put("parentId", String.valueOf(post.getId()));
-        p.put("category", post.getCategory());        // 있으면
+        p.put("category", post.getCategory());
         p.put("title", post.getTitle());
-        p.put("content", post.getDescription());
+        p.put("content", normalize.contentText());
         p.put("authorId", post.getUserId());
         p.put("username", post.getUsername());
         p.put("createdAt", post.getCreatedAt().atOffset(ZoneOffset.UTC).toString());

@@ -22,13 +22,6 @@ public class SearchIndexController {
 
     private final SearchIndexService searchIndexService;
 
-//    @GetMapping("/index/{title}")
-//    public ResponseEntity<?> getSearchTitleIndex(){
-//
-//        return  null;
-//
-//    }
-
     @GetMapping("/search/post/{content}")
     public ResponseEntity<?> getSearchPostIndex(@PathVariable String  content){
         List<PostDTO.Response> searchContent = searchIndexService.getSearchPost(content);

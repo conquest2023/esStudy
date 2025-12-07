@@ -19,7 +19,8 @@ public class NormalizeService {
         String text = doc.text().replaceAll("\\s+", " ").trim();
 
         var links = doc.select("a[href]").stream()
-                .map(e -> e.attr("abs:href").isBlank() ? e.attr("href") : e.attr("abs:href"))
+                .map(e -> e.attr("abs:href").isBlank()
+                        ? e.attr("href") : e.attr("abs:href"))
                 .distinct().limit(100).toList();
 
         int len = text.length();
