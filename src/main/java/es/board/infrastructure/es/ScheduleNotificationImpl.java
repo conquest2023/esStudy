@@ -145,7 +145,8 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
+    @Scheduled(fixedRate = 30000)
+//    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
     public void sendAnalysisUserHistory() {
 
         LocalDateTime now=LocalDateTime.now();

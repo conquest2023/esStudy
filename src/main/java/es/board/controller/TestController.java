@@ -28,11 +28,7 @@ public class TestController {
 
     private final ViewEventService viewEventService;
 
-    @PostMapping(value="/normal/test", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<?> test(@RequestParam String text, @RequestParam String title) {
-        NormalizedContent normalize = normalizeService.normalize(text, title);
-        return ResponseEntity.ok(Map.of("hi", normalize));
-    }
+
 
 
 //    @GetMapping("/gemini/test")

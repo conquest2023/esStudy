@@ -68,7 +68,7 @@ export function useSSE(token) {
             type: 'analysis',
             title: parsed.message || '오늘의 하루 분석 결과',
             analysis: listItems,
-            duration: 10000,
+            duration: 1000000,
             isCenter: true,
             onClick: () => router.push('/analysis-detail'),
         })
