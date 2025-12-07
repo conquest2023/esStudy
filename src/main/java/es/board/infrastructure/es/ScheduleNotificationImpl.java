@@ -146,13 +146,14 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
     @Override
     @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
+//    @Scheduled(fixedRate = 30000)
     public void sendAnalysisUserHistory() {
 
         LocalDateTime now=LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
         List<String> userIds = userRepository.findMonthActiveUser(oneMonthAgo);
 
-        List<View> usersDailyViewHistorys = viewDAO.findUsersDailyViewHistorys(userIds,now);
+        List<View> usersDailyViewHistorys = viewDAO.findUsersDailyViewHistorys(userIds, now);
         Map<String, List<View>> map = usersDailyViewHistorys.stream()
                 .collect(Collectors.groupingBy(View::getViewerId));
         for (Map.Entry<String, List<View>> entry : map.entrySet()) {

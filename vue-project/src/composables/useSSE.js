@@ -101,7 +101,7 @@ export function useSSE(token) {
             title: '오늘의 베스트 Top 3',
             message: parsed.message || '업데이트 되었습니다!',
             posts,
-            duration: 7000,
+            duration: 100000,
             onClick: () => router.push('/trending/top3'),
             onItemClick: (p) => router.push(`/post/${p.postId}`),
         })
@@ -121,7 +121,7 @@ export function useSSE(token) {
             title: '아직 안 한 투표가 있어요',
             message: parsed.message || `아직 참여하지 않은 투표가 ${parsed.count ?? posts.length}개 있습니다.`,
             posts,
-            duration: 10000,
+            duration: 100000,
             label: '보러가기',
             onClick: () => router.push('/poll'),
             onItemClick: (p) => router.push(`/post/${p.postId}`),
@@ -143,9 +143,9 @@ export function useSSE(token) {
         const msg = `${emoji} ${n.message ?? '새 알림이 도착했습니다'}`
 
         if (n.postId) {
-            push({ id: key, msg, routePath: `/post/${n.postId}`, duration: 5000 })
+            push({ id: key, msg, routePath: `/post/${n.postId}`, duration: 100000 })
         } else {
-            push({ id: key, msg, routePath: '/notifications', duration: 5000 })
+            push({ id: key, msg, routePath: '/notifications', duration: 100000 })
         }
     }
 

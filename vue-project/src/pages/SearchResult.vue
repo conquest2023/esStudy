@@ -1,7 +1,7 @@
 <template>
   <section class="search-result-wrap">
 
-    <!-- 헤더 -->
+
     <div class="result-header">
       <div class="result-title">
         <i class="fas fa-search"></i>
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <!-- 로딩 스켈레톤 -->
+
     <div v-if="loading" class="skeleton-list">
       <div v-for="n in 4" :key="n" class="skeleton-card">
         <div class="sk-title shimmer"></div>
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <!-- 결과 리스트 -->
+
     <div v-else-if="displayed.length" class="result-list">
       <article
           v-for="item in displayed"

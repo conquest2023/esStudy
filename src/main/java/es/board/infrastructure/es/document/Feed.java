@@ -22,6 +22,7 @@ import java.util.List;
 @Slf4j
 @Data
 @Builder
+@ToString
 public class Feed {
 
     @Id

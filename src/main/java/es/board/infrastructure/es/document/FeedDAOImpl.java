@@ -25,7 +25,7 @@ public class FeedDAOImpl implements FeedDAO {
 
             SearchResponse<Feed> response = client.search(s -> s
                             .index("content_read")
-                            .size(10000)
+                            .size(1000)
                             .query(
                                     q -> q.match(m -> m
                                             .field("content")
@@ -48,19 +48,17 @@ public class FeedDAOImpl implements FeedDAO {
     @Override
     public List<Feed> findSearchTitle(String title) {
         try {
-        SearchResponse<Feed> response = client.search(s -> s
-                        .index("content_read")
-                        .size(10000)
-                        .query(
-                                q -> q.match(m -> m
-                                        .field("title")
-                                        .query(title)))
-                        .sort(sort ->
-                                sort.field(f -> f
-                                        .field("createdAt")
-                                        .order(SortOrder.Desc)
-                                ))
-                , Feed.class);
+            SearchResponse<Feed> response = client.search(s -> s
+                            .index("content_read")
+                            .size(1000)
+                            .query(q -> q
+                                    .bool(b -> b
+                                            .filter(f -> f.term(t -> t.field("docType").value("feed")))
+                                            .must(m -> m.match(sh -> sh.field("title").query(title)))
+                                    )
+                            )
+                            .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
+                    Feed.class);
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -75,22 +73,23 @@ public class FeedDAOImpl implements FeedDAO {
         try {
             SearchResponse<Feed> response = client.search(s -> s
                             .index("content_read")
+                            .size(1000)
                             .query(q -> q
                                     .bool(b -> b
-                                            .should(
-                                                    a -> a.match(t -> t
-                                                            .field("title")
-                                                            .query(text)))
-                                            .should(
-                                                    t -> t.match(m -> m
-                                                            .field("content")
-                                                            .query(text)))))
-                            .sort(sort ->
-                                    sort.field(f -> f
-                                            .field("createdAt")
-                                            .order(SortOrder.Desc)
-                                    )),
+                                            // 1. 반드시(MUST) docType은 feed여야 함
+                                            .filter(f -> f.term(t -> t.field("docType").value("feed")))
+
+                                            // 2. 제목이나 내용 중 하나는 반드시 포함되어야 함
+                                            .must(m -> m.bool(sb -> sb
+                                                    .should(sh -> sh.match(t -> t.field("title").query(text)))
+                                                    .should(sh -> sh.match(t -> t.field("content").query(text)))
+                                                    .minimumShouldMatch("1") // should 중 최소 1개 일치 강제
+                                            ))
+                                    )
+                            )
+                            .sort(sort -> sort.field(f -> f.field("createdAt").order(SortOrder.Desc))),
                     Feed.class);
+
             return response.hits().hits().stream()
                     .map(hit -> hit.source())
                     .collect(Collectors.toList());
@@ -106,7 +105,7 @@ public class FeedDAOImpl implements FeedDAO {
         try {
         SearchResponse<Feed> response = client.search(s -> s
                 .index("content_read")
-                        .size(10000)
+                        .size(1000)
                         .query(q -> q
                         .bool(b -> b
                                 .filter(
