@@ -53,6 +53,11 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
     }
 
     @Override
+    public List<PostEntity> findRecommendPost(List<Integer> ids) {
+        return repository.findRecommendPost(ids);
+    }
+
+    @Override
     public List<PostEntity> findTodayTop3(LocalDateTime today) {
         return repository.findTodayTop3Native(today);
     }
@@ -81,11 +86,11 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         return repository.findPopularMonthPosts(pageable,lastMonth);
     }
 
-    @Override
-    public Page<PostEntity> findBestTodayPosts(int page, int size, LocalDateTime today) {
-        Pageable pageable = PageRequest.of(page, size);
-        return repository.findPopularTodayPosts(pageable,today);
-    }
+//    @Override
+//    public Page<PostEntity> findBestTodayPosts(int page, int size, LocalDateTime today) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return repository.findPopularTodayPosts(pageable,today);
+//    }
 
 
     @Override

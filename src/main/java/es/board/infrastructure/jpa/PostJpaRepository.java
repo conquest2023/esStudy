@@ -35,6 +35,9 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     Page<Integer> findIds(Pageable pageable);
 
 
+    @Query("select p from PostEntity p where p.id in :ids")
+    List<PostEntity> findRecommendPost(List<Integer> ids);
+
     @Query("select p from PostEntity p order by p.viewCount desc")
     Page<PostEntity> findByPostViewCountDESC(Pageable pageable);
 
@@ -64,11 +67,13 @@ public interface PostJpaRepository  extends JpaRepository<PostEntity,Integer> {
     String findByUserId(@Param("postId") int postId);
 
     @Query("select  p from PostEntity  p where p.createdAt>=:sevenDaysAgo order by p.viewCount DESC , p.id ASC ")
-    Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable, @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
+    Page<PostEntity> findPopularPostsInLast7Week(Pageable pageable,
+                                                 @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
 
 
-    @Query("select  p from PostEntity  p where p.createdAt>=:lastMonth order by p.viewCount DESC , p.id ASC ")
+    @Query("select  p from PostEntity  p where p.createdAt>=:lastMonth " +
+            " order by p.viewCount DESC , p.id ASC ")
     Page<PostEntity> findPopularMonthPosts(Pageable pageable, @Param("lastMonth") LocalDateTime lastMonth);
 
     @Query("select  p from PostEntity  p " +

@@ -5,8 +5,11 @@ import es.board.controller.model.dto.feed.PostDTO;
 import es.board.infrastructure.entity.feed.PostEntity;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface PostService {
 
+    List<PostDTO.Response> getRecommendPost(List<Integer> ids);
 
     void incrementViewCount(int postId,String userId);
 

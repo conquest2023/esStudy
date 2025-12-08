@@ -63,6 +63,13 @@ public class PostServiceImpl implements PostService {
 
     private final PostQueryRepository queryRepository;
 
+    @Override
+    public List<PostDTO.Response> getRecommendPost(List<Integer> ids) {
+
+
+        List<PostEntity> recommendPost = queryRepository.findRecommendPost(ids);
+        return PostDomainMapper.toResponse(recommendPost);
+    }
 
     @Override
     @Transactional

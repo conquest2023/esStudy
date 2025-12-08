@@ -14,6 +14,8 @@ public interface PostQueryRepository {
     Page<Integer> findIds(int page,int size);
     List<Integer> findPostIds(int page,int size);
 
+    List<PostEntity> findRecommendPost(List<Integer> ids);
+
     List<PostEntity> findTodayTop3(LocalDateTime today);
 
     Page<PostEntity> findByPostViewCount(int page ,int size);
@@ -34,7 +36,6 @@ public interface PostQueryRepository {
     Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays);
 
 
-    Page<PostEntity> findBestTodayPosts(int page, int size, LocalDateTime today);
 
     Page<PostEntity> findBestMonthPosts(int page, int size, LocalDateTime lastMonth);
 

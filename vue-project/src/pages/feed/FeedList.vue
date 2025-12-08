@@ -53,6 +53,7 @@
 
         <div class="board-wrap">
           <SearchBar class="mb-4" />
+          <RecommendedPosts :items="recommend" class="mb-4" />
 
           <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-3" />
           <div v-if="activeTab === 'BEST'" class="category-bar">
@@ -134,6 +135,7 @@ import BoardTabs from '@/components/BoardTabs.vue'
 import FeedCard from '@/pages/feed/FeedCard.vue'
 import Spinner from '@/components/Spinner.vue'
 import {useRankIcon} from "@/composables/useRankIcon.js";
+import RecommendedPosts from "@/pages/feed/RecommendedPosts.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -164,6 +166,7 @@ const isInterviewOpen = ref(false)
 const curArr = computed(() => (curCat.value === 'IT' ? itQs.value : genQs.value))
 const curQuestion = computed(() => curArr.value[curIdx.value] ?? null)
 const { rankIcon } = useRankIcon()
+const recommend = ref([])
 const bestCategories  = ['오늘', '이번주', '이번달']
 const dataCategories  = ['자료', '기술', '취업', '자격증']
 const activeTab       = ref('ALL')
@@ -230,7 +233,7 @@ async function loadInterviewQs() {
     console.error('면접 질문 로드 실패', e)
   }
 }
-onMounted(loadInterviewQs)
+// onMounted(loadInterviewQs)
 
 async function submitAnswer() {
   const txt = answerInput.value.trim()
@@ -495,8 +498,18 @@ onMounted(() => {
   // pingNormal()
   const p = parseInt(route.query.page) || 0
   fetchFeeds(p)
-})
 
+})
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/post/recommend')
+    // 서버 응답: { post: [...] }
+    recommend.value = Array.isArray(data?.post) ? data.post : []
+  } catch (e) {
+    console.error('추천 글 로딩 실패:', e)
+    recommend.value = []
+  }
+})
 watch(activeTab, (id) => {
   // 전체 글 탭으로 오면 정렬을 'ALL'로 리셋
   if (id === 'ALL' && curSort.value !== 'ALL') {
@@ -516,20 +529,20 @@ async function pingNormal() {
   await fetch('/api/ping')
   console.log('[PING]', (performance.now() - t).toFixed(2), 'ms')
 }
-onMounted(async () => {
-  try {
-    const res = await api.get('/auto/login', { withCredentials: true })
-
-    const accessToken = res.headers['authorization']?.replace('Bearer ', '')
-    if (accessToken) {
-      localStorage.setItem('token', accessToken)
-    }
-  } catch (err) {
-    console.log('자동 로그인 실패')
-  }
-
-  const p = parseInt(route.query.page) || 0
-})
+// onMounted(async () => {
+//   try {
+//     const res = await api.get('/auto/login', { withCredentials: true })
+//
+//     const accessToken = res.headers['authorization']?.replace('Bearer ', '')
+//     if (accessToken) {
+//       localStorage.setItem('token', accessToken)
+//     }
+//   } catch (err) {
+//     console.log('자동 로그인 실패')
+//   }
+//
+//   const p = parseInt(route.query.page) || 0
+// })
 </script>
 
 <style scoped>

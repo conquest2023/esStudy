@@ -44,6 +44,21 @@ public class PostController {
         ));
     }
 
+
+    @GetMapping("/post/recommend")
+    public ResponseEntity<?> getRecommendPost(){
+
+
+        List<PostDTO.Response> recommendPost = postService.getRecommendPost(List.of(
+                60103,
+                60117,
+                60102
+        ));
+        return ResponseEntity.ok(Map.of(
+               "post", recommendPost
+        ));
+    }
+
     @GetMapping("/post/category/{category}")
     public ResponseEntity<?> getCategoryPost(@PathVariable String category,
                                              @RequestParam int page,
@@ -151,6 +166,8 @@ public class PostController {
                 "last", p.isLast()
         ));
     }
+
+
     @DeleteMapping("/post/{id}")
     public ResponseEntity<?> deletePost(@PathVariable int id){
         postService.deletePost(id);
@@ -158,6 +175,7 @@ public class PostController {
                                         "message","게시글이 삭제 되었습니다"
         ));
     }
+
 
     @PostMapping("/view/count")
     public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, String> request,

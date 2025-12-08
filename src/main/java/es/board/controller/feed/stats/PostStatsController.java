@@ -1,4 +1,4 @@
-package es.board.controller;
+package es.board.controller.feed.stats;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.stats.PostStatsDTO;

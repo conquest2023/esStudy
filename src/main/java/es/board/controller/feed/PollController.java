@@ -1,4 +1,4 @@
-package es.board.controller;
+package es.board.controller.feed;
 
 
 import es.board.config.jwt.JwtTokenProvider;

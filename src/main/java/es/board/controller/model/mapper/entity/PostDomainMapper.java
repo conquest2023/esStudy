@@ -83,6 +83,13 @@ public class PostDomainMapper {
                 .collect(Collectors.toList());
     }
 
+
+    public static List<PostDTO.Response> toResponse(List<PostEntity> p) {
+        return p.stream()
+                .map(PostDomainMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public static PostDTO.Response toResponse(PostEntity entity) {
         return new PostDTO.Response(
                 entity.getId(),
