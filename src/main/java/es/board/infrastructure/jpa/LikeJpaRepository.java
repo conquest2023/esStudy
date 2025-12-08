@@ -3,6 +3,7 @@ package es.board.infrastructure.jpa;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.entity.feed.LikeEntity;
+import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.enum_type.TargetType;
 import es.board.infrastructure.jpa.projection.PostWithLikeCount;
@@ -50,6 +51,9 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
     List<LikeCountProjection> countByPostGroupByTargetType(@Param("id") int id);
 
 
+
+
+
     @Query("SELECT p.id as id, " +
             "p.title as title, " +
             "p.username as username, " +
@@ -63,4 +67,8 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
             "ORDER BY likeCount DESC")
     Page<PostWithLikeCount> findByLikeCountDESC(Pageable pageable);
 
+
+
 }
+
+

@@ -4,6 +4,7 @@ import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
 import es.board.infrastructure.jpa.LikeJpaRepository;
 import es.board.infrastructure.entity.feed.LikeEntity;
+import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.LikeRepository;
 import es.board.domain.enum_type.TargetType;
@@ -35,6 +36,7 @@ public class LikeAdapterRepository implements LikeRepository {
         return likeRepository.findByLikeUser(userId,type);
     }
 
+
     @Override
     public Optional<LikeEntity> findById(long id) {
         return likeRepository.findById((int) id);
@@ -44,6 +46,7 @@ public class LikeAdapterRepository implements LikeRepository {
     public void delete(long id) {
         likeRepository.deleteById(id);
     }
+
 
     @Override
     public Optional<LikeEntity> existsByUserIdAndPostLike(String userId, int postId,long targetId) {

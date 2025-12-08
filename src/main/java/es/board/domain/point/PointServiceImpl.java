@@ -1,6 +1,7 @@
 package es.board.domain.point;
 
 import es.board.controller.model.dto.feed.TopWriter;
+import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.infrastructure.jpa.projection.UserPointProjection;
@@ -15,15 +16,17 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PointServiceImpl implements PointService {
 
-    private final PointHistoryRepository repository;
 
     private final NotificationService notificationService;
 
@@ -31,7 +34,9 @@ public class PointServiceImpl implements PointService {
 
     private  final RedisTemplate redisTemplate;
 
-    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEY";
+    private final PointHistoryRepository repository;
+
+    private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
 
     private  static  final String RECENT_USER_KEY= "TOP_RECENT_KEY";
 
@@ -105,9 +110,23 @@ public class PointServiceImpl implements PointService {
     }
 
     private List<TopWriter> getWriters() {
-        List<UserPointProjection> pointHistories = repository.sumPointUserTop5();
-        List<TopWriter> list = pointHistories.stream().map(p -> new TopWriter(p.getUsername(),
-                p.getTotalCount())).toList();
-        return list;
+        List<UserPointProjection> pointHistories = repository.sumPointUser();
+        List<LikeCountPostProjection> likeCountPostProjections = repository.countByLikePost();
+        List<TopWriter> totalList = Stream.concat(
+                        pointHistories.stream().map
+                                (p -> new TopWriter(p.getUsername(), p.getTotalCount())),
+                        likeCountPostProjections.stream().map(
+                                l -> new TopWriter(l.getUsername(), l.getCount()))
+                ).collect(Collectors.toMap(
+                        TopWriter::getUsername,
+                        TopWriter::getTotalCount,
+                        (oldValue, newValue) -> oldValue + newValue
+                ))
+                .entrySet().stream()
+                .map(entry -> new TopWriter(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(TopWriter::getTotalCount).reversed())
+                .limit(5)
+                .toList();
+        return totalList;
     }
 }

@@ -13,7 +13,6 @@ import es.board.infrastructure.poll.PollVoteRepository;
 import es.board.infrastructure.jpa.projection.PollAnswerRow;
 import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NotificationService;
-import es.board.infrastructure.es.ScheduleNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -107,8 +107,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         Map<String, Set<Long>> participatedByUser = new HashMap<>();
         for (PollAnswerRow r : rows) {
             participatedByUser
-                    .computeIfAbsent(r.getVoterId(), k -> new HashSet<>())
-                    .add(r.getPollId());
+                    .computeIfAbsent(r.getVoterId(), k -> new HashSet<>()).add(r.getPollId());
         }
 
         // 5) 유저별 미참여 poll 계산 → (pollId, postId, title)로 패킹
@@ -140,7 +139,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
             MissingPollPayload payload = new MissingPollPayload(items.size(), items);
 
-            notificationService.sendMissingPollNotification(userId, payload); // 실제 발송
+            notificationService.sendMissingPollNotification(userId, payload);
         }
     }
 
@@ -155,7 +154,8 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
         List<View> usersDailyViewHistorys = viewDAO.findUsersDailyViewHistorys(userIds, now);
         Map<String, List<View>> map = usersDailyViewHistorys.stream()
-                .collect(Collectors.groupingBy(View::getViewerId));
+                .collect(Collectors.groupingBy
+                        (View::getViewerId));
         for (Map.Entry<String, List<View>> entry : map.entrySet()) {
             if (entry.getValue().size() >= 3) {
                 try {

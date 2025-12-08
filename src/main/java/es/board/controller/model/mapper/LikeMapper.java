@@ -63,6 +63,7 @@ public class LikeMapper {
         if (targetType.toString().equals("답글")){
             type="답글";
         }
+
         return Notification.builder()
                 .username(username)
                 .userId(info.ownerId())

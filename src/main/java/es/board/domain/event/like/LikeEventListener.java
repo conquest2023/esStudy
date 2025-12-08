@@ -59,7 +59,11 @@ public class LikeEventListener {
 
         notificationService.sendLikeNotification(info.ownerId(), info.postId(), msg);
 
-        notificationRepository.save(LikeMapper.toEntity(likerName,t,info,msg));
+        notificationRepository.save(LikeMapper.toEntity(
+                likerName,
+                t,
+                info,
+                msg));
     }
 
     private LikeTargetInfo loadTargetInfo(TargetType t, int postId, long targetId) {

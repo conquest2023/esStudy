@@ -1,5 +1,6 @@
 package es.board.repository.entity.repository;
 
+import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.infrastructure.jpa.projection.UserPointProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,9 +30,8 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             " inner join User  u on p.userId = u.userId " +
             " WHERE u.username NOT IN ('asd', 'hoeng') " +
             "GROUP BY u.username " +
-            "ORDER BY totalCount DESC " +
-            "LIMIT 5")
-    List<UserPointProjection> sumPointUserTop5();
+            "ORDER BY totalCount DESC ")
+    List<UserPointProjection> sumPointUser();
 
     @Query( value = "SELECT p.user_id " +
             "FROM point_history p " +
@@ -40,7 +40,15 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             nativeQuery = true)
     List<String> findTop1PointUser();
 
-
+    @Query("""
+    select p.username as username,
+           (count(l.targetId) * 10) as count
+            from LikeEntity l 
+            inner join PostEntity p on l.postId = p.id
+            group by p.username
+            order by count(l) * 10 desc 
+            """)
+    List<LikeCountPostProjection> countByLikePost();
     @Query("SELECT sum(p.pointChange) as totalCount, " +
             "u.username as username " +
             "FROM PointHistoryEntity p " +

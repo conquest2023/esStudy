@@ -3,6 +3,7 @@ package es.board.domain;
 import es.board.infrastructure.entity.feed.LikeEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.feed.LikeAggView;
+import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.infrastructure.jpa.projection.LikeCountProjection;
 import es.board.domain.enum_type.TargetType;
 import es.board.infrastructure.jpa.projection.PostWithLikeCount;

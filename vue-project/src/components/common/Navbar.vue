@@ -357,8 +357,14 @@ const menus = [
                     <div class="d-flex align-items-center mb-1">
                       <span class="noti-dot me-2" v-if="!n.isCheck"></span>
                       <span class="fw-semibold text-dark text-truncate">
-                        {{ n.username }}님이 "{{ n.message }}" 작성하셨습니다
-                      </span>
+                      <template v-if="n.message.includes('좋아요')">
+                        {{ n.message }}
+                      </template>
+
+                    <template v-else>
+                      {{ n.username }}님이 "{{ n.message }}" 라고 작성하셨습니다
+                    </template>
+                  </span>
                     </div>
                     <div class="small text-muted">{{ formatDate(n.createdAt) }}</div>
                   </router-link>
