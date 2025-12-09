@@ -1,6 +1,7 @@
 package es.board.controller.feed;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.UserPoint;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.jpa.projection.MyCommentProjection;
@@ -51,9 +52,9 @@ public class MyPageController {
     }
 
     @GetMapping("/mypage/point")
-    public ResponseEntity<?> getSumMyPagePoint(HttpServletRequest request, @RequestAttribute("userId") String userId) {
-        int point = myPageService.getSumPointUser(userId);
-        return ResponseEntity.ok(Map.of("point", point));
+    public ResponseEntity<?> getSumMyPagePoint(@RequestAttribute("userId") String userId) {
+        UserPoint userPoint = myPageService.getSumPointUser(userId);
+        return ResponseEntity.ok(Map.of("point", userPoint));
     }
 
     @GetMapping("/mypage/post/paging")

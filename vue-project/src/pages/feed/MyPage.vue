@@ -19,7 +19,6 @@
         </div>
       </div>
 
-      <!-- 탭 -->
       <div class="post-list mt-5">
         <ul class="nav nav-tabs">
           <li class="nav-item" v-for="tab in tabs" :key="tab.id">
@@ -117,18 +116,18 @@ async function fetchUserInformation() {
 
 async function fetchPoint() {
   const { data } = await api.get('/mypage/point', auth())
-  point.value = data.point
+  point.value = data.point.userPoint
+  stats.value[2].value = data.point.likeCount
 }
 
-async function fetchStats() {
-  const { data } = await api.get('/mypage', auth())
-  stats.value[0].value = data.feedCount
-  stats.value[1].value = data.commentCount
-  stats.value[2].value = data.like
-  stats.value[3].value = data.visitCount
-}
+// async function fetchStats() {
+//   const { data } = await api.get('/mypage', auth())
+//   stats.value[0].value = data.feedCount
+//   stats.value[1].value = data.commentCount
+//   stats.value[2].value = data.like
+//   stats.value[3].value = data.visitCount
+// }
 
-/* 각 탭별 데이터 로딩 */
 async function loadPage() {
   if (activeTab.value === 'posts') await loadPosts()
   else if (activeTab.value === 'comments') await loadComments()
@@ -159,11 +158,10 @@ async function loadCommentedPosts() {
   totalPages.value = data.totalPages ?? 1
 }
 
-async function loadLikedPosts() {
-  const { data } = await api.get(`/mypage/feed/like/paging?page=${page.value}&size=${size.value}`, auth())
-  likedPosts.value = data.likedFeedList
-  totalPages.value = data.totalPages ?? 1
-}
+// async function loadLikedPosts() {
+//   const { data } = await api.get(`/mypage/feed/like/paging?page=${page.value}&size=${size.value}`, auth())
+//   totalPages.value = data.totalPages ?? 1
+// }
 
 async function loadBookmarks() {
   const { data } = await api.get(`/get/daily/bookmark?page=${page.value}&size=${size.value}`, auth())
@@ -189,7 +187,7 @@ onMounted(async () => {
   await fetchUserInformation()
   await fetchPoint()
   await loadPosts()
-  await fetchStats()
+  // await fetchStats()
 })
 </script>
 

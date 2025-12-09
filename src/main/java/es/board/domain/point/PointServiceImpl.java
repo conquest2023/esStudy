@@ -38,7 +38,7 @@ public class PointServiceImpl implements PointService {
 
     private  static  final String TOP5_USER_KEY= "TOP_USER5_KEYS";
 
-    private  static  final String RECENT_USER_KEY= "TOP_RECENT_KEY";
+    private  static  final String RECENT_USER_KEY= "TOP_RECENT_KEYS";
 
 
     @Override

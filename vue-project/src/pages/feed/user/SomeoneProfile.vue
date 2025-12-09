@@ -57,9 +57,9 @@ async function fetchProfilePoint() {
   const headers = { Authorization: `Bearer ${token}` };
   const username = route.params.username;
   const pointData = await fetchSomeoneData('/someone/point', headers, username, null, null);
-
   if (pointData && pointData.point !== undefined) {
-    user.value.point = pointData.point;
+    user.value.point = pointData.point.userPoint;
+    stats.value[2].value = pointData.point.likeCount
   }
   user.value.value = username;
 }

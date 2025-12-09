@@ -2,6 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.UserPoint;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.PostEntity;
@@ -45,8 +46,8 @@ public class SomeoneProfileController {
             token = token.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
                 User user = userService.findByUser(username);
-                int point = myPageService.getSumPointUser(user.getUserId());
-                return ResponseEntity.ok(Map.of("point",point));
+                UserPoint userPoint = myPageService.getSumPointUser(user.getUserId());
+                return ResponseEntity.ok(Map.of("point",userPoint));
 
             }
         }

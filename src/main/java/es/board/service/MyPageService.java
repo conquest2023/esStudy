@@ -1,5 +1,6 @@
 package es.board.service;
 
+import es.board.controller.model.dto.UserPoint;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.jpa.projection.MyCommentProjection;
 import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Page;
 public interface MyPageService {
 
 
-    int getSumPointUser(String userId);
+    UserPoint getSumPointUser(String userId);
 
 
     Page<PostEntity> getMyPageFeedList(int page, int size, String userId);

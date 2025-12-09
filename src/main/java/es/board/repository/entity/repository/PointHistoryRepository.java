@@ -19,7 +19,13 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
     @Query("UPDATE PointHistoryEntity u SET u.pointChange = u.pointChange + :amount WHERE u.userId = :userId")
     void incrementPoint(@Param("userId") String userId, @Param("amount") int amount);
 
-
+    @Query("""
+    select  (count(l.targetId)) as count
+            from LikeEntity l 
+            inner join PostEntity p on l.postId = p.id
+            where p.userId=:userId 
+            """)
+    int countUserLikes(@Param("userId") String userId);
 
     @Query("select sum(p.pointChange) from PointHistoryEntity p where p.userId=:userId")
     int sumPointUser(@Param("userId") String userId);
@@ -53,7 +59,7 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             "u.username as username " +
             "FROM PointHistoryEntity p " +
             " inner join User  u on p.userId = u.userId " +
-            " WHERE u.username NOT IN ('asd', 'hoeng' ,'호문무권신','잠수브로','머신는자','하이','공시준비') and p.createdAt >=:sevenDaysAgo" +
+            " WHERE u.username NOT IN ('asd', 'hoeng' ,'호문무권신','잠수브로','머신는자','하이','공시준비','방관','강구라') and p.createdAt >=:sevenDaysAgo" +
             " GROUP BY u.username " +
             "ORDER BY totalCount DESC " +
             "LIMIT 5")
