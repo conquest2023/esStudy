@@ -59,7 +59,7 @@ public interface PointHistoryRepository extends JpaRepository<PointHistoryEntity
             "u.username as username " +
             "FROM PointHistoryEntity p " +
             " inner join User  u on p.userId = u.userId " +
-            " WHERE u.username NOT IN ('asd', 'hoeng' ,'호문무권신','잠수브로','머신는자','하이','공시준비','방관','강구라') and p.createdAt >=:sevenDaysAgo" +
+            " WHERE u.username NOT IN ('asd', 'hoeng','육성지','호문무권신','잠수브로','머신는자','하이','공시준비','방관','강구라') and p.createdAt >=:sevenDaysAgo" +
             " GROUP BY u.username " +
             "ORDER BY totalCount DESC " +
             "LIMIT 5")
