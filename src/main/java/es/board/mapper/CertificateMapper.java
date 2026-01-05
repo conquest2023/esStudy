@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.mapper;
 
 
 import es.board.controller.model.dto.certificate.QuestionPracticalDTO;
@@ -53,21 +53,21 @@ public class CertificateMapper {
 
 
 
-    public List<TodoDTO.Request> EntityToTodo(List<TodoEntity> todo) {
-        return todo.stream()
-                .map(todo1 -> TodoDTO.Request.builder()
-                        .todo_id(todo1.getTodoId())
-//                        .userId(todo1.getUserId())
-                        .title(todo1.getTitle())
-                        .description(todo1.getDescription())
-                        .category(todo1.getCategory())
-                        .priority(todo1.getPriority())
-                        .status(todo1.getStatus())
-                        .dueDate(todo1.getDueDate())
-                        .createdAt(todo1.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-    }
+//    public List<TodoDTO.Response> EntityToTodo(List<TodoEntity> todo) {
+//        return todo.stream()
+//                .map(todo1 -> TodoDTO.Response.builder()
+//                        .todo_id(todo1.getTodoId())
+////                        .userId(todo1.getUserId())
+//                        .title(todo1.getTitle())
+//                        .description(todo1.getDescription())
+//                        .category(todo1.getCategory())
+//                        .priority(todo1.getPriority())
+//                        .status(todo1.getStatus())
+//                        .dueDate(todo1.getDueDate())
+//                        .createdAt(todo1.getCreatedAt())
+//                        .build())
+//                .collect(Collectors.toList());
+//    }
 
 
     public  List<ScheduleDTO> fromSchedule(List<Schedule> schedule) {

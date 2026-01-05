@@ -1,7 +1,7 @@
 package es.board.domain.feed;
 
 import es.board.controller.model.dto.feed.ReplyDTO;
-import es.board.controller.model.mapper.entity.ReplyDomainMapper;
+import es.board.mapper.entity.ReplyDomainMapper;
 import es.board.infrastructure.entity.feed.ReplyEntity;
 import es.board.domain.PostRepository;
 import es.board.domain.ReplyRepository;

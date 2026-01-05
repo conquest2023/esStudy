@@ -131,7 +131,9 @@
 
           <div class="card-bottom">
             <div class="hintline">
-              <span class="hintchip">⏰ {{ todo.dueAt ? formatDue(todo.dueAt) : '마감 없음' }}</span>
+              <span class="hintchip" :data-due="dueTag(todo.dueAt).tone">
+                ⏰ {{ dueTag(todo.dueAt).label }}
+              </span>
               <span class="hintchip">🔁 {{ todo.repeat ? repeatLabel(todo.repeat) : '반복 없음' }}</span>
             </div>
 
@@ -210,7 +212,7 @@ import { ref, onMounted, computed } from 'vue'
 import api from '@/utils/api'
 
 const todos = ref([])
-const completedCount = ref(0)
+// const completedCount = ref(0)
 const palette = ['#fff8b8', '#dff3f9', '#ffe0e4', '#ffe8d1', '#d1f7e1']
 
 // UI state
@@ -231,6 +233,10 @@ const todayLabel = computed(() => {
   return `${mm}.${dd}`
 })
 
+const completedCount = computed(() =>
+    todos.value.filter(t => t.status === 'DONE').length
+)
+
 const inProgressCount = computed(() =>
     todos.value.filter(t => t.status === 'IN_PROGRESS').length
 )
@@ -244,18 +250,17 @@ const categoryOptions = computed(() => {
   return Array.from(set)
 })
 
-// fetch
 async function fetchTodos () {
   loading.value = true
   errorMsg.value = ''
   try {
     const token = localStorage.getItem('token')
-    const { data } = await api.get('/search/todo', {
+    const { data } = await api.get('/todos', {
       headers: { Authorization: 'Bearer ' + token }
     })
-
     todos.value = (data.todos ?? []).map(t => ({
       ...t,
+      dueAt: t.dueDate,
       _color : palette[Math.floor(Math.random() * palette.length)],
       _rotate: (Math.random() * 4 - 2).toFixed(2)
     }))
@@ -266,14 +271,32 @@ async function fetchTodos () {
     loading.value = false
   }
 }
+function dueTag (iso) {
+  if (!iso) return { label: '마감 없음', tone: 'none' }
 
-// styles
+  const due = new Date(iso)
+  const now = new Date()
+
+  // 날짜만 비교(시간 제거)
+  const dueDateOnly = new Date(due.getFullYear(), due.getMonth(), due.getDate())
+  const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+  const diffMs = dueDateOnly - nowDateOnly
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+
+  const mm = String(due.getMonth() + 1).padStart(2,'0')
+  const dd = String(due.getDate()).padStart(2,'0')
+
+  if (diffDays < 0) return { label: `${mm}/${dd} · D+${Math.abs(diffDays)} (지남)`, tone: 'over' }
+  if (diffDays === 0) return { label: `${mm}/${dd} · D-DAY`, tone: 'today' }
+  return { label: `${mm}/${dd} · D-${diffDays}`, tone: diffDays <= 3 ? 'soon' : 'ok' }
+}
+
 const noteStyle = todo => ({
   background: todo._color,
   transform : `rotate(${todo._rotate}deg)`
 })
 
-// computed list
 const filteredTodos = computed(() => {
   let arr = [...todos.value]
 
@@ -306,7 +329,6 @@ const filteredTodos = computed(() => {
   return arr
 })
 
-// due/repeat helper
 function formatDue (iso) {
   const d = new Date(iso)
   const mm = String(d.getMonth() + 1).padStart(2,'0')
@@ -346,17 +368,11 @@ function removeBusy (id) {
   busyIds.value = next
 }
 
-/**
- * ✅ 완료 처리
- * - 권장: PATCH /todo/{id}/complete
- * - 대안: PATCH /todo/{id} body { status: 'DONE' }
- * - 완료 후: 화면 optimistic update + completedCount 갱신
- */
+
 async function completeTodo (todo) {
   const id = todo.todo_id
   if (!id || todo.status !== 'IN_PROGRESS') return
 
-  // optimistic update
   const prevStatus = todo.status
   todo.status = 'DONE'
 
@@ -365,17 +381,10 @@ async function completeTodo (todo) {
   try {
     const token = localStorage.getItem('token')
 
-    // ✅ 1) 권장 엔드포인트
-    await api.patch(`/todo/${id}/complete`, null, {
+    await api.put(`/todo/${id}/complete`, null, {
       headers: { Authorization: 'Bearer ' + token }
     })
 
-    // ✅ 2) 만약 위가 아니면 이걸로 바꾸면 됨:
-    // await api.patch(`/todo/${id}`, { status: 'DONE' }, {
-    //   headers: { Authorization: 'Bearer ' + token }
-    // })
-
-    // completedCount 갱신(서버가 완성 카운트를 안 주면 프론트에서 보정)
     completedCount.value = todos.value.filter(t => t.status === 'DONE').length
   } catch (err) {
     // rollback
@@ -386,11 +395,6 @@ async function completeTodo (todo) {
   }
 }
 
-/**
- * ✅ 삭제 처리
- * - 권장: DELETE /todo/{id}
- * - 대안: DELETE /delete/todo/{id} 등
- */
 async function deleteTodo (id) {
   if (!id) return
   const ok = confirm('정말 삭제할까요?')
@@ -398,24 +402,19 @@ async function deleteTodo (id) {
 
   addBusy(id)
 
-  // optimistic remove
   const snapshot = [...todos.value]
   todos.value = todos.value.filter(t => t.todo_id !== id)
 
   try {
     const token = localStorage.getItem('token')
 
-    // ✅ 1) 권장 엔드포인트
     await api.delete(`/todo/${id}`, {
       headers: { Authorization: 'Bearer ' + token }
     })
 
-    // ✅ 2) 만약 기존 경로면 이렇게:
-    // await api.delete(`/delete/todo/${id}`, { headers: { Authorization: 'Bearer ' + token } })
 
     completedCount.value = todos.value.filter(t => t.status === 'DONE').length
   } catch (err) {
-    // rollback
     todos.value = snapshot
     alert('삭제 실패: ' + normalizeErr(err))
   } finally {
@@ -471,10 +470,39 @@ onMounted(fetchTodos)
   padding: 12px 14px;
   border-radius: 16px;
 }
-.progress-top { display: flex; justify-content: space-between; font-weight: 900; }
+
+.progress-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.pct {
+  font-variant-numeric: tabular-nums;
+}
 .progress-top span { color: rgba(0,0,0,.55); }
-.bar-outer { margin-top: 8px; height: 8px; border-radius: 999px; background: rgba(0,0,0,.08); overflow: hidden; }
-.bar-inner { height: 100%; border-radius: 999px; background: #2563eb; transition: width .25s ease; }
+.progress-top strong { color: rgba(0,0,0,.85); }
+
+.bar-outer {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.10);
+  overflow: hidden;
+  line-height: 0;
+  font-size: 0;
+}
+
+.bar-inner {
+  height: 100%;
+  border-radius: 999px;
+  background: #2563eb;
+  width: 0%;
+  transition: width .25s ease;
+}
+
 
 /* buttons */
 .btn-primary {
@@ -619,6 +647,12 @@ onMounted(fetchTodos)
   background: rgba(0,0,0,.12);
   color: rgba(0,0,0,.78);
 }
+.hintchip[data-due="over"]   { border-color: rgba(239,68,68,.35); }
+.hintchip[data-due="today"]  { border-color: rgba(245,158,11,.40); }
+.hintchip[data-due="soon"]   { border-color: rgba(245,158,11,.25); }
+.hintchip[data-due="ok"]     { border-color: rgba(34,197,94,.22); }
+.hintchip[data-due="none"]   { opacity: .9; }
+
 .pill.cat { background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.10); }
 .pill.pri[data-pri="1"] { background: rgba(239,68,68,.18); }
 .pill.pri[data-pri="2"] { background: rgba(245,158,11,.18); }
@@ -678,7 +712,7 @@ onMounted(fetchTodos)
   box-shadow: 0 2px 10px rgba(0,0,0,.25);
 }
 
-/* add card */
+
 .card.add {
   border: 2px dashed rgba(0,0,0,.20);
   background: rgba(255,255,255,.6);
@@ -695,7 +729,7 @@ onMounted(fetchTodos)
 }
 .card.add:hover { background: rgba(255,255,255,.82); }
 
-/* === List === */
+
 .list { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
 .row {
   display: flex;
@@ -723,7 +757,7 @@ onMounted(fetchTodos)
 .btn-small:disabled { opacity: .45; cursor: not-allowed; }
 .btn-small.danger { border-color: rgba(239,68,68,.22); }
 
-/* === responsive === */
+
 @media (max-width: 980px) {
   .controls { grid-template-columns: 1fr; }
   .filters { justify-content: flex-start; }

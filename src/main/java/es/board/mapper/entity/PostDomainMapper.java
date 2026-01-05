@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper.entity;
+package es.board.mapper.entity;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.domain.Post;
@@ -102,7 +102,7 @@ public class PostDomainMapper {
                 entity.getModifiedAt()
         );
     }
-//    public static List<PostDTO.Response> toRequestList(List<Post> posts) {
+//    public static List<PostDTO.Request> toRequestList(List<Post> posts) {
 //        if (posts == null || posts.isEmpty()) return List.of();
 //        return posts.stream()
 //                .map(PostDomainMapper::toRequest)

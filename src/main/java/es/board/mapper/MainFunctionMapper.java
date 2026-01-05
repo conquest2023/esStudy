@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.mapper;
 
 
 import es.board.controller.model.dto.interview.InterviewAnswerDTO;
@@ -46,34 +46,6 @@ public class MainFunctionMapper {
                 .answer(dto.getAnswer())
                 .createdAt(LocalDateTime.now())
                 .build();
-    }
-
-    public TodoEntity TodoToEntity(String userId, TodoDTO.Response todoResponse) {
-        return TodoEntity.builder()
-                .userId(userId)
-                .title(todoResponse.getTitle())
-                .priority(todoResponse.getPriority())
-                .category(todoResponse.getCategory())
-                .status(TodoStatus.IN_PROGRESS)
-                .project(todoResponse.getProject())
-                .description(todoResponse.getDescription())
-                .createdAt(LocalDateTime.now())
-                .end(todoResponse.getEnd() != null ? todoResponse.getEnd() : LocalDate.now())
-                .build();
-    }
-
-    public List<TodoDTO.Request> EntityToTodo(List<TodoEntity> todo) {
-        return todo.stream()
-                .map(todo1 -> TodoDTO.Request.builder()
-                        .todo_id(todo1.getTodoId())
-                        .title(todo1.getTitle())
-                        .description(todo1.getDescription())
-                        .category(todo1.getCategory())
-                        .priority(todo1.getPriority())
-                        .status(todo1.getStatus())
-                        .end(todo1.getEnd())
-                        .build())
-                .collect(Collectors.toList());
     }
 
 
@@ -170,7 +142,7 @@ public class MainFunctionMapper {
     }
 
 
-    public   D_Day toEntityD_Day(String userId, D_DayDTO dto) {
+    public  static  D_Day toEntityDDay(String userId, D_DayDTO dto) {
         return D_Day.builder()
                 .id(dto.getId())
                 .userId(userId)

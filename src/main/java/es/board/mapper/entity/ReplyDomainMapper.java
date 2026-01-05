@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper.entity;
+package es.board.mapper.entity;
 
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.entity.Notification;
@@ -31,7 +31,7 @@ public class ReplyDomainMapper {
         );
     }
 
-    // Response DTO -> Domain
+    // Request DTO -> Domain
 
     public static ReplyDTO.Request toRequestDto(String userId,String postOwnerId, Reply d) {
         if (d == null) return null;

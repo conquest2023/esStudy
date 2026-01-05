@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper.document;
+package es.board.mapper.document;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
@@ -104,9 +104,9 @@ public class FeedDocumentMapper {
 //                .build();
 //    }
 
-//    public  List<NoticeDTO.Response> fromNoticeList(List<NoticeEntity> notice) {
+//    public  List<NoticeDTO.Request> fromNoticeList(List<NoticeEntity> notice) {
 //        return notice.stream()
-//                .map(notice1 -> NoticeDTO.Response.builder()
+//                .map(notice1 -> NoticeDTO.Request.builder()
 //                        .id(notice1.getId())
 ////                        .feedUID(notice1.getFeedUID())
 //                        .username(notice1.getUsername())
@@ -144,8 +144,8 @@ public class FeedDocumentMapper {
 //                .build();
     }
 
-//    public NoticeDTO.Response fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
-//        return NoticeDTO.Response.builder()
+//    public NoticeDTO.Request fromNoticeDocument(NoticeEntity notice, String userId, String feedUID) {
+//        return NoticeDTO.Request.builder()
 //                .id(notice.getId())
 //                .username("관리자")
 //                .feedUID(feedUID)
@@ -282,9 +282,9 @@ public class FeedDocumentMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-//    public List<ReplyDTO.Response> fromReplyDtoList(List<Reply> reply) {
+//    public List<ReplyDTO.Request> fromReplyDtoList(List<Reply> reply) {
 //        return reply.stream()
-//                .map(reply1 -> ReplyDTO.Response.builder()
+//                .map(reply1 -> ReplyDTO.Request.builder()
 //                        .feedUID(reply1.getFeedUID())
 //                        .commentUID(reply1.getCommentUID())
 //                        .username(reply1.getUsername())

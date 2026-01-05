@@ -20,8 +20,6 @@ public class VisitTracker {
 
     private final StringRedisTemplate redisTemplate;
 
-    private final VisitorService visitorService;
-
     private final PointService pointService;
 
     private final AuthService authService;

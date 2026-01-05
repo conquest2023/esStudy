@@ -1,7 +1,7 @@
 package es.board.service.impl;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.MainFunctionMapper;
+import es.board.mapper.MainFunctionMapper;
 import es.board.controller.model.dto.todo.ScheduleDTO;
 import es.board.repository.ScheduleDAO;
 import es.board.repository.entity.PointHistoryEntity;

@@ -31,7 +31,7 @@
 //
 //    @PostMapping("/save/vote")
 //    @ResponseBody
-//    public ResponseEntity<?> saveVote(@RequestBody VoteDTO.Response vote, @RequestHeader(value = "Authorization", required = false) String token) {
+//    public ResponseEntity<?> saveVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization", required = false) String token) {
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {
 //            return tokenCheckResponse;
@@ -45,7 +45,7 @@
 //
 //    @PostMapping("/save/user/vote")
 //    @ResponseBody
-//    public ResponseEntity<?> saveUserVote(@RequestBody VoteDTO.Response vote, @RequestHeader(value = "Authorization") String token) {
+//    public ResponseEntity<?> saveUserVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization") String token) {
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {
 //            return tokenCheckResponse;
@@ -59,7 +59,7 @@
 //
 //    @PostMapping("/save/ticket/vote")
 //    @ResponseBody
-//    public ResponseEntity<?> saveFeedVote(@RequestBody VoteDTO.Response vote, @RequestHeader(value = "Authorization") String token) {
+//    public ResponseEntity<?> saveFeedVote(@RequestBody VoteDTO.Request vote, @RequestHeader(value = "Authorization") String token) {
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {
 //            return tokenCheckResponse;
@@ -70,7 +70,7 @@
 //        return ResponseEntity.ok(response);
 //    }
 //    @PostMapping("/save/aggregation/vote")
-//    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteDTO.Response vote,
+//    public ResponseEntity<?> saveAggregationVote(@RequestBody VoteDTO.Request vote,
 //                                                 @RequestHeader(value = "Authorization", required = false) String token) {
 //        ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
 //        if (tokenCheckResponse == null) {

@@ -225,7 +225,6 @@ const priorities = [
   { value: 5, label: '아주 낮음' },
 ]
 
-// ✅ 마감기한 프리셋
 const duePresets = [
   { value: 'NONE',  label: '없음' },
   { value: 'TODAY', label: '오늘' },
@@ -265,7 +264,6 @@ function endOfMonth(d) {
 
 function setDuePreset(p) {
   duePreset.value = p
-  // 사용자 지정 선택 시 기본 날짜 세팅(선택사항)
   if (p === 'CUSTOM' && !customDate.value) {
     const today = new Date()
     customDate.value = today.toISOString().slice(0,10)
@@ -273,7 +271,6 @@ function setDuePreset(p) {
   }
 }
 
-// ✅ 프리셋에 따라 dueAt 계산 (ISO string)
 const dueAt = computed(() => {
   const now = new Date()
   if (duePreset.value === 'NONE') return null
@@ -310,7 +307,6 @@ const dueBadge = computed(() => {
   return map[duePreset.value] || '마감'
 })
 
-// ✅ 반복
 const repeatOptions = [
   { value: 'NONE', label: '없음' },
   { value: 'DAILY', label: '매일' },
@@ -373,11 +369,11 @@ const submitTodo = async () => {
       priority: priority.value,
       category: category.value,
       status: 'IN_PROGRESS',
-      dueAt: dueAt.value,     // ✅ ISO string or null
-      repeat: repeat.value,   // ✅ {type, weekdays?} or null
+      dueDate: dueAt.value,
+      // repeat: repeat.value,
     }
 
-    await api.post('/save/todo', payload, {
+    await api.post('/todo', payload, {
       headers: { Authorization: 'Bearer ' + token },
     })
 

@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.mapper;
 
 
 import es.board.controller.model.dto.feed.CommentDTO;

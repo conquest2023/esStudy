@@ -1,7 +1,7 @@
 package es.board.infrastructure.mq.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
-import es.board.controller.model.mapper.CommentMapper;
+import es.board.mapper.CommentMapper;
 import es.board.infrastructure.mq.old.FeedEvent;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;

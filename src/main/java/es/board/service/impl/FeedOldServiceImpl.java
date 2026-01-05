@@ -84,13 +84,13 @@
 //    }
 //
 //    @Override
-//    public   List<PostDTO.Request> findWeekBestFeed(int page, int size) {
+//    public   List<PostDTO.Response> findWeekBestFeed(int page, int size) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findWeekBestFeed(page,size));
 //    }
 //
 //
 //    @Override
-//    public   List<PostDTO.Request> findCommentDESC(int page, int size) {
+//    public   List<PostDTO.Response> findCommentDESC(int page, int size) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findCountComment(page,size));
 //    }
 //
@@ -100,13 +100,13 @@
 //    }
 //
 //    @Override
-//    public   List<PostDTO.Request> findReplyDESC(int page, int size) {
+//    public   List<PostDTO.Response> findReplyDESC(int page, int size) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findReplyCount(page,size));
 //    }
 //
 //
 //    @Override
-//    public   List<PostDTO.Request> findViewDESC(int page, int size) {
+//    public   List<PostDTO.Response> findViewDESC(int page, int size) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findViewDESC(page,size));
 //    }
 //
@@ -131,7 +131,7 @@
 //    }
 //
 //    @Override
-//    public CompletableFuture<PostDTO.Request> saveFeed(PostDTO.Request res) {
+//    public CompletableFuture<PostDTO.Response> saveFeed(PostDTO.Response res) {
 //        return CompletableFuture.supplyAsync(() -> {
 //            checkValueFeed(res);
 //            Map<String,Object> Ids = savePost(res);
@@ -154,61 +154,61 @@
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getRecommendFeed() {
+//    public List<PostDTO.Response> getRecommendFeed() {
 //
-//        ValueOperations<String, List<PostDTO.Request>> valueOps = redisTemplate.opsForValue();
+//        ValueOperations<String, List<PostDTO.Response>> valueOps = redisTemplate.opsForValue();
 //
-//        List<PostDTO.Request> cachedData = valueOps.get(RECOMMEND_KEY);
+//        List<PostDTO.Response> cachedData = valueOps.get(RECOMMEND_KEY);
 //
 //        if (cachedData != null) {
 //            return cachedData;
 //        }
-//        List<PostDTO.Request> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
+//        List<PostDTO.Response> feedRequests = feedMapper.fromBoardDtoList(feedDAO.findRecommendFeed());
 //
 //        valueOps.set(RECOMMEND_KEY, feedRequests, 6, TimeUnit.HOURS);
 //        return feedRequests;
 //    }
 //
 //    @Override
-//    public List<String> getfeedUIDList(List<PostDTO.Request> requests) {
+//    public List<String> getfeedUIDList(List<PostDTO.Response> requests) {
 //
 //        return null;
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getCategoryFeed(String category) {
+//    public List<PostDTO.Response> getCategoryFeed(String category) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findCategoryAndContent(category));
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getMonthPopularFeed() {
+//    public List<PostDTO.Response> getMonthPopularFeed() {
 //
 //        return feedMapper.fromBoardDtoList(feedDAO.findMonthPopularFeed());
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getPopularFeedDESC(int page, int size) {
+//    public List<PostDTO.Response> getPopularFeedDESC(int page, int size) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findPopularFeedDESC(page, size));
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
+//    public List<PostDTO.Response> getRangeTimeFeed(LocalDateTime startDate, LocalDateTime endTime) {
 //        return feedMapper.fromBoardDtoList(feedDAO.findRangeTimeFeed(startDate, endTime));
 //    }
 //    @Override
-//    public PostDTO.Request getPopularFeedOne() {
+//    public PostDTO.Response getPopularFeedOne() {
 //
 //        return feedMapper.fromBoardDto(feedDAO.findPopularFeedOne());
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getRecentFeed() {
+//    public List<PostDTO.Response> getRecentFeed() {
 //
 //        return feedMapper.fromBoardDtoList(feedDAO.findRecentFeed());
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> createBulkFeed(List<PostDTO.Request> feeds) {
+//    public List<PostDTO.Response> createBulkFeed(List<PostDTO.Response> feeds) {
 //        feedDAO.saveBulkFeed(bulkToEntity(feeds));
 //        return feeds;
 //    }
@@ -249,19 +249,19 @@
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getLikeCount() {
+//    public List<PostDTO.Response> getLikeCount() {
 //
 //        return feedMapper.fromBoardDtoList(feedDAO.findLikeCount());
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getPagingFeed(int page, int size) {
+//    public List<PostDTO.Response> getPagingFeed(int page, int size) {
 //
 //        return feedMapper.fromBoardDtoList(feedDAO.findPagingMainFeed(page, size));
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getMostViewFeed(int page, int size) {
+//    public List<PostDTO.Response> getMostViewFeed(int page, int size) {
 //
 //        return feedMapper.fromBoardDtoList(feedDAO.findMostViewFeed(page, size));
 //    }
@@ -318,7 +318,7 @@
 //
 //
 //    @Override
-//    public PostDTO.Request getFeedDetail(String id) {
+//    public PostDTO.Response getFeedDetail(String id) {
 //
 //        return feedMapper.fromBoardDto(feedDAO.findFeedDetail(id));
 //    }
@@ -344,9 +344,9 @@
 //    }
 //
 //
-//    public List<Feed> bulkToEntity(List<PostDTO.Request> res) {
+//    public List<Feed> bulkToEntity(List<PostDTO.Response> res) {
 //        List<Feed> boards = new ArrayList<>();
-//        for (PostDTO.Request dto : res) {
+//        for (PostDTO.Response dto : res) {
 //            Feed feed = Feed.builder()
 ////                    .feedUID(dto.getFeedUID())
 //                    .title(dto.getTitle())
@@ -367,7 +367,7 @@
 //        return urls;
 //    }
 //
-//    private Map<String,Object>  savePost(PostDTO.Request feedSaveDTO) {
+//    private Map<String,Object>  savePost(PostDTO.Response feedSaveDTO) {
 //        Map<String,Object> Ids=new HashMap<>();
 //        PostEntity savedPost = postRepository.save(feedMapper.toPostEntity(feedSaveDTO));
 //        Ids.put("postId",savedPost.getId());
@@ -376,13 +376,13 @@
 //    }
 //
 //
-////    private List<String> extractFeedUID(List<PostDTO.Response> requests) {
+////    private List<String> extractFeedUID(List<PostDTO.Request> requests) {
 ////        List<String> feedUIDs = requests.stream()
-////                .map(PostDTO.Response::getFeedUID)
+////                .map(PostDTO.Request::getFeedUID)
 ////                .collect(Collectors.toList());
 ////        return feedUIDs;
 ////    }
-//    private static void checkValueFeed(PostDTO.Request feedSaveDTO) {
+//    private static void checkValueFeed(PostDTO.Response feedSaveDTO) {
 //        if (isEmpty(feedSaveDTO.getTitle()) || isEmpty(feedSaveDTO.getDescription()) || isEmpty(feedSaveDTO.getCategory())) {
 //            throw new IllegalArgumentException("제목, 본문, 카테고리는 필수 입력값입니다.");
 //        }

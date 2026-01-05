@@ -2,7 +2,7 @@ package es.board.controller.feed.stats;
 
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.stats.PostStatsDTO;
-import es.board.controller.model.mapper.entity.PostDomainMapper;
+import es.board.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.jpa.projection.PostWithCommentCount;
 import es.board.infrastructure.jpa.projection.PostWithLikeCount;

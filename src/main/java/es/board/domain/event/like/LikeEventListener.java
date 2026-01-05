@@ -1,13 +1,10 @@
 package es.board.domain.event.like;
 
-import es.board.controller.model.mapper.LikeMapper;
+import es.board.mapper.LikeMapper;
 import es.board.controller.record.LikeTargetInfo;
 import es.board.domain.*;
 import es.board.domain.enum_type.TargetType;
 import es.board.domain.event.LikeCreatedEvent;
-import es.board.infrastructure.entity.feed.CommentEntity;
-import es.board.infrastructure.entity.feed.PostEntity;
-import es.board.infrastructure.entity.feed.ReplyEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;
@@ -17,7 +14,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Component

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 
 public class TodoDTO {
@@ -21,9 +22,8 @@ public class TodoDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public  static class Response {
+    public  static class Request {
 
-        private String userId;
 
         private String title;
 
@@ -32,18 +32,23 @@ public class TodoDTO {
         private String category;
 
         @Temporal(TemporalType.TIMESTAMP)
-        private Date dueDate;
+        private LocalDateTime dueDate;
 
         @Enumerated(EnumType.STRING)
         private TodoStatus status;
 
         private Integer priority;
 
-        private Boolean project;
+        private RepeatType repeatType;
+
+        private List<DayOfWeekType> repeatDays;
+
+        // 반복 종료일 (없으면 무한 반복)
+        private LocalDate repeatEndDate;
 
         private LocalDateTime createdAt;
 
-        private LocalDate end;
+//        private LocalDate end;
 
     }
 
@@ -51,7 +56,7 @@ public class TodoDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public  static class Request{
+    public  static class Response {
 
 
         private Long todo_id;
@@ -61,7 +66,7 @@ public class TodoDTO {
         private String description;
 
         @Temporal(TemporalType.TIMESTAMP)
-        private LocalDate dueDate;
+        private LocalDateTime dueDate;
 
         @Enumerated(EnumType.STRING)
         private TodoStatus status;
@@ -72,7 +77,7 @@ public class TodoDTO {
 
         private LocalDateTime createdAt;
 
-        private LocalDate end;
+        private LocalDateTime end;
 
         private LocalDateTime updatedAt;
     }

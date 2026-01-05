@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
-import es.board.controller.model.mapper.entity.PostDomainMapper;
+import es.board.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.NoticeEntity;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.NoticeJpaRepository;
@@ -113,7 +113,7 @@ public class NoticeServiceImpl  implements NoticeService {
     }
 
 
-//    private NoticeEntity NoticeSaveId(NoticeDTO.Response noticeDTO, String token, String feedUID) {
+//    private NoticeEntity NoticeSaveId(NoticeDTO.Request noticeDTO, String token, String feedUID) {
 //       return noticeRepository.save(feedMapper.toNotice(noticeDTO, jwtTokenProvider.getUserId(token),feedUID));
 //    }
     

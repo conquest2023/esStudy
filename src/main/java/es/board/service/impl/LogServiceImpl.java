@@ -1,6 +1,6 @@
 package es.board.service.impl;
 
-import es.board.controller.model.mapper.MainFunctionMapper;
+import es.board.mapper.MainFunctionMapper;
 import es.board.controller.model.dto.job.JobSiteLogDTO;
 import es.board.repository.LogDAO;
 import es.board.repository.document.JobSiteLog;

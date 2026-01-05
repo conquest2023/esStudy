@@ -1,10 +1,9 @@
 package es.board.controller.feed;
 
 
-import es.board.config.jwt.JwtTokenProvider;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.mapper.entity.PostDomainMapper;
+import es.board.mapper.entity.PostDomainMapper;
 import es.board.domain.feed.PostQueryService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.domain.feed.PostService;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

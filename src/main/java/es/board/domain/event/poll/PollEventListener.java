@@ -1,11 +1,8 @@
 package es.board.domain.event.poll;
 
-import es.board.controller.model.mapper.CommentDomainMapper;
 import es.board.domain.PostRepository;
-import es.board.domain.event.CommentCreatedEvent;
 import es.board.domain.event.PollCreatedEvent;
 import es.board.infrastructure.entity.feed.PostEntity;
-import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

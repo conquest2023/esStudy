@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper.entity;
+package es.board.mapper.entity;
 
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.controller.model.dto.poll.PollOptionDTO;
@@ -22,7 +22,7 @@ public final class PollDomainMapper {
     }
 
     // =========================================================
-    // Poll: DTO.Response -> Entity
+    // Poll: DTO.Request -> Entity
     // =========================================================
     public static PollEntity toEntity(PostEntity post, PollDto.Request dto) {
 
@@ -45,7 +45,7 @@ public final class PollDomainMapper {
 
 
     // =========================================================
-    // Poll: Entity -> DTO.Response
+    // Poll: Entity -> DTO.Request
     // =========================================================
     public static PollDto.Response toPollRequest(PollEntity poll) {
 
@@ -152,7 +152,7 @@ public final class PollDomainMapper {
                 .build();
     }
 
-//    public static List<PollOptionDTO.Response> toOptionResponses(List<PollOptionEntity> options) {
+//    public static List<PollOptionDTO.Request> toOptionResponses(List<PollOptionEntity> options) {
 //        if (options == null || options.isEmpty()) {
 //            return Collections.emptyList();
 //        }
@@ -163,7 +163,7 @@ public final class PollDomainMapper {
 //    }
 
     // =========================================================
-    // PollVote: DTO.Response -> Entity
+    // PollVote: DTO.Request -> Entity
     // (주의: Poll, PollOption 주입은 Service 레벨에서)
     // =========================================================
     public static PollVoteEntity toVoteEntity(PollVoteDTO.Response dto, PollEntity poll, PollOptionEntity option) {
@@ -179,7 +179,7 @@ public final class PollDomainMapper {
     }
 
     // =========================================================
-    // PollVote: Entity -> DTO.Response
+    // PollVote: Entity -> DTO.Request
     // =========================================================
     public static PollVoteEntity toVoteRequest(PollVoteDTO.Request request,String userId,PollEntity poll,PollOptionEntity option) {
 
@@ -217,7 +217,7 @@ public final class PollDomainMapper {
     }
 
 
-//    public static List<PollVoteDTO.Response> toVoteResponses(List<PollVoteEntity> votes) {
+//    public static List<PollVoteDTO.Request> toVoteResponses(List<PollVoteEntity> votes) {
 //        if (votes == null || votes.isEmpty()) {
 //            return Collections.emptyList();
 //        }

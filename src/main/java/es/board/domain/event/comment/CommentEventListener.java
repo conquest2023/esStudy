@@ -1,6 +1,6 @@
 package es.board.domain.event.comment;
 
-import es.board.controller.model.mapper.CommentDomainMapper;
+import es.board.mapper.CommentDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.domain.PostRepository;
 import es.board.service.NotificationService;

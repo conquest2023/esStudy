@@ -2,7 +2,7 @@ package es.board.controller;
 
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.controller.model.mapper.MainFunctionMapper;
+import es.board.mapper.MainFunctionMapper;
 import es.board.controller.model.dto.job.JobSiteLogDTO;
 import es.board.service.LogService;
 import lombok.RequiredArgsConstructor;

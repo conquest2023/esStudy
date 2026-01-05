@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.mapper;
 
 import es.board.controller.model.dto.feed.LikeDto;
 import es.board.controller.record.LikeTargetInfo;
@@ -99,12 +99,12 @@ public class LikeMapper {
     }
 
 
-//    public static LikeDto.Response toResponse(Like like) {
+//    public static LikeDto.Request toResponse(Like like) {
 //        if (like == null) return null;
 //
 ////        int id = like.getId() == null ? 0 : like.getId().intValue();
 //
-//        return new LikeDto.Response(
+//        return new LikeDto.Request(
 //                like.getPostId(),
 //                like.getUserId(),
 //                like.getTargetId(),
@@ -113,13 +113,13 @@ public class LikeMapper {
 //        );
 //    }
 
-    // Entity 바로 → DTO(Response) (편의용)
-//    public static LikeDto.Response toResponse(LikeEntity entity) {
+    // Entity 바로 → DTO(Request) (편의용)
+//    public static LikeDto.Request toResponse(LikeEntity entity) {
 //        if (entity == null) return null;
 //
 //        int id = entity.getId() == null ? 0 : entity.getId().intValue();
 //
-//        return new LikeDto.Response(
+//        return new LikeDto.Request(
 //                id,
 //                entity.getUserId(),
 //                entity.getTargetId(),

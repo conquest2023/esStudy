@@ -22,10 +22,9 @@ public interface TodoRepository  extends JpaRepository<TodoEntity,Long> {
     List<TodoEntity> findTodosByUserId(@Param("userId") String userId);
 
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE TodoEntity u SET u.status = :status WHERE u.todoId = :todo_id")
-    void updateStatus(@Param("status") TodoStatus status, @Param("todo_id") Long todo_id);
+
+    @Query("UPDATE TodoEntity u SET u.status = :status WHERE u.todoId = :todoId")
+    void updateStatus(@Param("todoId") Long todoId, @Param("status") TodoStatus status);
 
     @Query("SELECT count(*) FROM TodoEntity t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.status = 'DONE'" )
     Long countByUserIdClearTodo(@Param("userId") String userId, @Param("today") LocalDate today);

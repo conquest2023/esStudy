@@ -1,6 +1,6 @@
 package es.board.domain.event.reply;
 
-import es.board.controller.model.mapper.entity.ReplyDomainMapper;
+import es.board.mapper.entity.ReplyDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.domain.CommentRepository;
 import es.board.service.NotificationService;

@@ -1,7 +1,7 @@
 package es.board.infrastructure.es;
 
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.controller.model.mapper.document.FeedDocumentMapper;
+import es.board.mapper.document.FeedDocumentMapper;
 import es.board.infrastructure.es.document.Feed;
 import es.board.infrastructure.es.document.FeedDAO;
 import lombok.RequiredArgsConstructor;

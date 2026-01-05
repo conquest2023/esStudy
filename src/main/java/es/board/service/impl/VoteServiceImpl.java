@@ -35,7 +35,7 @@
 //    private final FeedDocumentMapper feedMapper;
 //
 //    @Override
-//    public CompletableFuture<Void> createdFeedVote(VoteDTO.Request vote, String  username, String userId) {
+//    public CompletableFuture<Void> createdFeedVote(VoteDTO.Response vote, String  username, String userId) {
 //        return CompletableFuture.supplyAsync(() -> {
 //            Vote savedVoteId = getSavedVoteId(vote,username, userId);
 //            asyncService.saveVoteAsync(feedMapper.changeVoteDtoToDocument(vote,savedVoteId.getFeedId(),username,userId,savedVoteId.getId()), savedVoteId.getId());
@@ -43,7 +43,7 @@
 //        });
 //    }
 //    @Override
-//    public CompletableFuture<Void> saveVote(VoteDTO.Request vote, String  username, String userId) {
+//    public CompletableFuture<Void> saveVote(VoteDTO.Response vote, String  username, String userId) {
 //        return CompletableFuture.supplyAsync(() -> {
 //            Vote savedVoteId = getSavedVoteId(vote,username, userId);
 //            asyncService.saveVoteAsync(feedMapper.fromVoteDto(savedVoteId,username,userId), savedVoteId.getId());
@@ -51,7 +51,7 @@
 //        });
 //    }
 //    @Override
-//    public CompletableFuture<Void> saveAgreeVote(VoteDTO.Request vote, String  username, String userId) {
+//    public CompletableFuture<Void> saveAgreeVote(VoteDTO.Response vote, String  username, String userId) {
 //        return CompletableFuture.supplyAsync(() -> {
 //            UserVote savedUserVoteId = getSavedAggregationVoteId(vote,username, userId);
 //            asyncService.saveAggregationVoteAsync(feedMapper.fromUserVoteDTO(savedUserVoteId,username,userId), savedUserVoteId.getId());
@@ -64,7 +64,7 @@
 //         voteDAO.deleteVoteFeed(id);
 //    }
 //    @Override
-//    public CompletableFuture<Void> saveFeedTicket(VoteDTO.Request vote, String  username, String userId) {
+//    public CompletableFuture<Void> saveFeedTicket(VoteDTO.Response vote, String  username, String userId) {
 //        return CompletableFuture.supplyAsync(() -> {
 ////            UserVote savedVoteId = getSavedAggregationVoteId(vote,username, userId);
 //            asyncService.saveVoteTicketAsync(feedMapper.changeVoteDTOToAnalytics(vote,username,userId));
@@ -72,8 +72,8 @@
 //        });
 //    }
 //    @Override
-//    public List<VoteDTO.Request> getVotePageFeed(int page, int size) {
-//        List<VoteDTO.Request> votes= feedMapper.fromVoteDTOList(voteDAO.findVotePageFeed(page,size));
+//    public List<VoteDTO.Response> getVotePageFeed(int page, int size) {
+//        List<VoteDTO.Response> votes= feedMapper.fromVoteDTOList(voteDAO.findVotePageFeed(page,size));
 //        if (votes == null || votes.isEmpty()) {
 //            votes = new ArrayList<>();
 //        }
@@ -83,14 +83,14 @@
 //    @Override
 //    public Map<String, Object>  getVotePageMainFeed(int page, int size) {
 //        Map<String,Object> voteResult= voteDAO.findFeedPagingVote(page,size);
-//        List<VoteDTO.Request> voteRequests = feedMapper.fromVoteDTOList((List<VoteDocument>) voteResult.get("data"));
+//        List<VoteDTO.Response> voteRequests = feedMapper.fromVoteDTOList((List<VoteDocument>) voteResult.get("data"));
 //        return Map.of(
 //                "totalPage", voteResult.get("totalPage"),
 //                "data", voteRequests
 //        );
 //    }
 //    @Override
-//    public List<VoteDTO.Request> getVoteUserAll() {
+//    public List<VoteDTO.Response> getVoteUserAll() {
 //        return feedMapper.fromVoteDTOList(voteDAO.findFeedVoteAll());
 //    }
 //
@@ -100,7 +100,7 @@
 //    }
 //
 //    @Override
-//    public List<VoteDTO.Request> getVoteFeedDetail(String feedUID) {
+//    public List<VoteDTO.Response> getVoteFeedDetail(String feedUID) {
 //        return null;
 //    }
 //
@@ -110,27 +110,27 @@
 //    }
 //
 //    @Override
-//    public VoteDTO.Request getVoteContent() {
+//    public VoteDTO.Response getVoteContent() {
 //
 //        return feedMapper.fromVoteDTO(voteRepository.findLatestVote());
 //    }
 //
 //    @Override
-//    public VoteDTO.Request getVoteDetail(String feedUID) {
+//    public VoteDTO.Response getVoteDetail(String feedUID) {
 //        return feedMapper.fromDocumentVoteDTO(voteDAO.findVoteFeedDetail(feedUID));
 //    }
 //
 //    @Override
-//    public List<VoteDTO.Request> getVoteAll(){
+//    public List<VoteDTO.Response> getVoteAll(){
 //
 //        return  feedMapper.voteToDTOMainList(voteRepository.findAll());
 //    }
 //
-//    private Vote getSavedVoteId(VoteDTO.Request vote, String username, String userId) {
+//    private Vote getSavedVoteId(VoteDTO.Response vote, String username, String userId) {
 //        return voteRepository.save(feedMapper.toVoteEntity(vote,username, userId));
 //    }
 //
-//    private UserVote getSavedAggregationVoteId(VoteDTO.Request vote, String username, String userId) {
+//    private UserVote getSavedAggregationVoteId(VoteDTO.Response vote, String username, String userId) {
 //        return voteUserRepository.save(feedMapper.userVoteToEntity(vote,username, userId));
 //    }
 //}

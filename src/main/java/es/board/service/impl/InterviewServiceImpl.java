@@ -2,8 +2,8 @@ package es.board.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.board.controller.model.mapper.InterviewLogFactory;
-import es.board.controller.model.mapper.MainFunctionMapper;
+import es.board.mapper.InterviewLogFactory;
+import es.board.mapper.MainFunctionMapper;
 
 import es.board.controller.model.dto.interview.InterviewQuestionDTO;
 

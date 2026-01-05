@@ -47,7 +47,7 @@
 //        return replyDAO.findPartialReply(id);
 //    }
 //    @Override
-//    public  void  saveReply(ReplyDTO.Response response){
+//    public  void  saveReply(ReplyDTO.Request response){
 //        checkValueReply(response);
 ////        String userId=commentDAO.findCommentUID(response.getCommentUID()).getUserId();
 ////        replyDAO.saveReply(response);
@@ -63,14 +63,14 @@
 ////        notificationService.sendPointNotification(response.getUserId(),response.getPostId(),"답글 작성 포인트를 발급 받으셨습니디");
 //
 //    }
-//    public Map<String, List<ReplyDTO.Request>> getRepliesGroupedByComment(String feedId) {
+//    public Map<String, List<ReplyDTO.Response>> getRepliesGroupedByComment(String feedId) {
 //        return  null;
-////        List<ReplyDTO.Response> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
+////        List<ReplyDTO.Request> replies =feedMapper.fromReplyDtoList((List<es.board.repository.document.Reply>) getPartialReply(feedId).get("replyList"));
 ////        return replies.stream()
-////                .collect(Collectors.groupingBy(ReplyDTO.Response::getCommentUID));
+////                .collect(Collectors.groupingBy(ReplyDTO.Request::getCommentUID));
 //    }
 //
-//    private static void checkValueReply(ReplyDTO.Response response) {
+//    private static void checkValueReply(ReplyDTO.Request response) {
 //
 //        if (isEmpty(response.getContent())) {
 //            throw new IllegalArgumentException("답글은 필수 입력값입니다.");

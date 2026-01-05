@@ -62,13 +62,13 @@
 //        return commentDAO.findManyComment();
 //    }
 //    @Override
-//    public List<CommentDTO.Request> getUserRangeTimeActive(String userId) {
+//    public List<CommentDTO.Response> getUserRangeTimeActive(String userId) {
 //
 //      return  commentMapper.changeCommentListDTO(commentDAO.findUserRangeActive(userId));
 //    }
 //
 //    @Override
-//    public List<PostDTO.Request> getFeedAndCommentMyPage(String userId, int page , int size) {
+//    public List<PostDTO.Response> getFeedAndCommentMyPage(String userId, int page , int size) {
 //
 //        return  feedMapper.fromBoardDtoList(commentDAO.findFeedAndCommentMypage(userId,page,size));
 //    }
@@ -89,13 +89,13 @@
 //    }
 //
 //    @Override
-//    public List<CommentDTO.Request> getRecentComment() {
+//    public List<CommentDTO.Response> getRecentComment() {
 //
 //        return commentMapper.changeCommentListDTO(commentDAO.findRecentComment());
 //    }
 //
 //    @Override
-//    public void saveComment(CommentDTO.Response dto) {
+//    public void saveComment(CommentDTO.Request dto) {
 //        checkValueComment(dto);
 //        commentDAO.saveCommentIndex(dto);
 //
@@ -132,7 +132,7 @@
 //    }
 //
 //    @Override
-//    public List<CommentDTO.Response> saveBulkComment(List<CommentDTO.Response> comments) {
+//    public List<CommentDTO.Request> saveBulkComment(List<CommentDTO.Request> comments) {
 //        commentDAO.CreateManyComment(BulkToEntity(comments));
 //        return comments;
 //    }
@@ -142,7 +142,7 @@
 //        return commentDAO.findCommentsWithCount(feedUID);
 //    }
 //    @Override
-//    public List<CommentDTO.Request> getLikeCount() {
+//    public List<CommentDTO.Response> getLikeCount() {
 //
 //        return commentMapper.changeCommentListDTO(commentDAO.findLikeCount());
 //    }
@@ -159,7 +159,7 @@
 //
 //
 //    @Override
-//    public List<CommentDTO.Request> getCommentOne(String commentUID){
+//    public List<CommentDTO.Response> getCommentOne(String commentUID){
 //
 //        return  commentMapper.changeCommentListDTO(commentDAO.findCommentId(commentUID));
 //    }
@@ -178,9 +178,9 @@
 //
 //
 //
-//    public List<Comment> BulkToEntity(List<CommentDTO.Response> res) {
+//    public List<Comment> BulkToEntity(List<CommentDTO.Request> res) {
 //        List<Comment> comments = new ArrayList<>();
-//        for (CommentDTO.Response dto : res) {
+//        for (CommentDTO.Request dto : res) {
 //            Comment comment = Comment.builder()
 ////                    .commentUID(dto.getCommentUID())
 //                    .username(dto.getUsername())
@@ -192,7 +192,7 @@
 //        return comments;
 //    }
 //
-//    private static void checkValueComment(CommentDTO.Response commentCreate) {
+//    private static void checkValueComment(CommentDTO.Request commentCreate) {
 //        if (isEmpty(commentCreate.getContent())) {
 //            throw new IllegalArgumentException("내용은 필수 입력값입니다.");
 //        }

@@ -1,9 +1,8 @@
 package es.board.domain.feed;
 
 import es.board.controller.model.dto.feed.CommentDTO;
-import es.board.controller.model.mapper.CommentDomainMapper;
+import es.board.mapper.CommentDomainMapper;
 //import es.board.domain.event.Events;
-import es.board.domain.event.comment.CommentEventListener;
 import es.board.infrastructure.entity.feed.CommentEntity;
 import es.board.domain.CommentRepository;
 import es.board.domain.PostRepository;

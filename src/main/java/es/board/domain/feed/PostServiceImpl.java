@@ -3,7 +3,7 @@ package es.board.domain.feed;
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
-import es.board.controller.model.mapper.entity.PostDomainMapper;
+import es.board.mapper.entity.PostDomainMapper;
 import es.board.domain.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;

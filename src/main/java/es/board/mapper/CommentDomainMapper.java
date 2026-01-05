@@ -1,4 +1,4 @@
-package es.board.controller.model.mapper;
+package es.board.mapper;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.entity.Notification;
@@ -44,7 +44,7 @@ public class CommentDomainMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
-    // Response DTO -> Domain (작성 시 사용)
+    // Request DTO -> Domain (작성 시 사용)
 
     public static CommentDTO.Request toRequestDto(String userId,String postOwnerId, Comment domain) {
         if (domain == null) return null;
