@@ -61,7 +61,7 @@ public class TodoDTO {
         private String description;
 
         @Temporal(TemporalType.TIMESTAMP)
-        private Date dueDate;
+        private LocalDate dueDate;
 
         @Enumerated(EnumType.STRING)
         private TodoStatus status;

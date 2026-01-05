@@ -1,7 +1,7 @@
 //package es.board;
 //
 //import es.board.repository.ToDoDAO;
-//import es.board.repository.document.Todo;
+//import es.board.repository.document.TodoEntity;
 //import es.board.repository.entity.entityrepository.TodoRepository;
 //import es.board.service.ToDoService;
 //import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@
 //    @Autowired private ToDoDAO toDoDAO;
 //    @Test
 //    public void findAllUser() {
-//        System.out.println("🚀 Todo 완료율 계산 시작...");
+//        System.out.println("🚀 TodoEntity 완료율 계산 시작...");
 //
 //        Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now().minusDays(1));
 //
@@ -34,13 +34,13 @@
 //
 //    @Test
 //    public void calculateCompletionRates() {
-//        System.out.println("🚀 Todo 완료율 계산 시작...");
+//        System.out.println("🚀 TodoEntity 완료율 계산 시작...");
 //
 //        Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now().minusDays(1));
 //
 //        System.out.println("userIds = " + userIds);
 //
-//        List<Todo> completionRates = new ArrayList<>();
+//        List<TodoEntity> completionRates = new ArrayList<>();
 //
 //        for (String userId : userIds) {
 //            long totalTodos = todoRepository.countGraphByUserAllId(userId, LocalDate.now().minusDays(1));
@@ -52,7 +52,7 @@
 //            System.out.println("completionRate = " + completionRate);
 //            System.out.println(" 전체= " +todoRepository.countGraphByUserAllId(userId, LocalDate.now()));
 //            System.out.println("클리어 = " + todoRepository.countByUserIdClearToDo(userId,LocalDate.now()));
-//            Todo rate = new Todo(userId, completionRate, LocalDateTime.now());
+//            TodoEntity rate = new TodoEntity(userId, completionRate, LocalDateTime.now());
 //            completionRates.add(rate);
 //        }
 //        toDoDAO.savePercentTodo(completionRates);
@@ -60,18 +60,18 @@
 //    }
 //    @Test
 //    public void calculateAndStoreCompletionRates() {
-//        System.out.println("🚀 Todo 완료율 계산 시작...");
+//        System.out.println("🚀 TodoEntity 완료율 계산 시작...");
 //
 //        List<String> userIds = todoRepository.findAllTodoUserTodayIds(LocalDate.now().minusDays(1));
 //
-//        List<Todo> completionRates = new ArrayList<>();
+//        List<TodoEntity> completionRates = new ArrayList<>();
 //
 //        for (String userId : userIds) {
 //            long totalTodos = todoRepository.countGraphByUserAllId(userId, LocalDate.now());
 //            long completedTodos = todoRepository.countByUserIdClearToDo(userId,LocalDate.now());
 //            double completionRate = totalTodos > 0 ? (double) completedTodos / totalTodos * 100 : 0;
 //
-//            Todo rate = new Todo(userId, completionRate, LocalDateTime.now());
+//            TodoEntity rate = new TodoEntity(userId, completionRate, LocalDateTime.now());
 //            completionRates.add(rate);
 //        }
 //        // ✅ Elasticsearch에 저장

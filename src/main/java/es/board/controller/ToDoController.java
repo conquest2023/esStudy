@@ -43,7 +43,7 @@ public class ToDoController {
 //        Long completedCount = toDoService.getDoneTodo(jwtTokenProvider.getUserId(token));
 //        log.info("asdas");
 //
-//        // ✅ JSON 형식으로 반환 (Todo 목록 + 완료 개수)
+//        // ✅ JSON 형식으로 반환 (TodoEntity 목록 + 완료 개수)
 //        Map<String, Object> response = new HashMap<>();
 //        response.put("todos", todos);
 //        response.put("completedCount", completedCount);
@@ -136,7 +136,7 @@ public class ToDoController {
             return tokenCheckResponse;
         }
         toDoService.completeTodo(token.substring(7), id);
-        return ResponseEntity.ok(Map.of("message", "Todo 상태가 DONE으로 변경되었습니다."));
+        return ResponseEntity.ok(Map.of("message", "TodoEntity 상태가 DONE으로 변경되었습니다."));
     }
 
     @PostMapping("/save/project/todo")

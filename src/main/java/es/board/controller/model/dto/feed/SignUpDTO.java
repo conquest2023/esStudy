@@ -2,7 +2,7 @@ package es.board.controller.model.dto.feed;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import es.board.filter.XssSafeSerializer;
+import es.board.filter.annotation.XssSafeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

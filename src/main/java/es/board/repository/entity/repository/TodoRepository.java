@@ -1,6 +1,6 @@
 package es.board.repository.entity.repository;
 
-import es.board.repository.entity.Todo;
+import es.board.infrastructure.entity.todo.TodoEntity;
 import es.board.repository.entity.TodoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,45 +15,45 @@ import java.util.Set;
 
 
 @Repository
-public interface TodoRepository  extends JpaRepository<Todo,Long> {
+public interface TodoRepository  extends JpaRepository<TodoEntity,Long> {
 
 
-    @Query(" select p from Todo  p where p.userId=:userId")
-    List<Todo> findTodosByUserId(@Param("userId") String userId);
+    @Query(" select p from TodoEntity  p where p.userId=:userId")
+    List<TodoEntity> findTodosByUserId(@Param("userId") String userId);
 
 
     @Modifying
     @Transactional
-    @Query("UPDATE Todo u SET u.status = :status WHERE u.todo_id = :todo_id")
+    @Query("UPDATE TodoEntity u SET u.status = :status WHERE u.todoId = :todo_id")
     void updateStatus(@Param("status") TodoStatus status, @Param("todo_id") Long todo_id);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.status = 'DONE'" )
+    @Query("SELECT count(*) FROM TodoEntity t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.status = 'DONE'" )
     Long countByUserIdClearTodo(@Param("userId") String userId, @Param("today") LocalDate today);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today")
+    @Query("SELECT count(*) FROM TodoEntity t WHERE t.userId = :userId AND DATE(t.end) = :today")
     Long countGraphByUserAllId(@Param("userId") String userId, @Param("today") LocalDate today);
 
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.project IS NULL ")
-    List<Todo> findTodayTodos(@Param("userId") String userId, @Param("today") LocalDate today);
+    @Query("SELECT t FROM TodoEntity t WHERE t.userId = :userId AND DATE(t.end) = :today AND t.project IS NULL ")
+    List<TodoEntity> findTodayTodos(@Param("userId") String userId, @Param("today") LocalDate today);
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId")
-    List<Todo> findAllByTodos(@Param("userId") String userId);
+    @Query("SELECT t FROM TodoEntity t WHERE t.userId = :userId")
+    List<TodoEntity> findAllByTodos(@Param("userId") String userId);
 
 
-    @Query("SELECT t FROM Todo t WHERE t.userId = :userId AND t.project =true")
-    List<Todo> findProjectTodo(@Param("userId") String userId);
+    @Query("SELECT t FROM TodoEntity t WHERE t.userId = :userId AND t.project =true")
+    List<TodoEntity> findProjectTodo(@Param("userId") String userId);
 
-    @Query("SELECT count(*) FROM Todo t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS' AND DATE(t.end) = :today")
+    @Query("SELECT count(*) FROM TodoEntity t WHERE t.userId = :userId AND t.status = 'IN_PROGRESS' AND DATE(t.end) = :today")
     Long countByUserIdAndStatusYetTodo(@Param("userId") String userId, LocalDate today);
 
 
-    @Query("SELECT t.userId FROM  Todo t  WHERE  t.status= 'IN_PROGRESS'" )
+    @Query("SELECT t.userId FROM  TodoEntity t  WHERE  t.status= 'IN_PROGRESS'" )
     List<String> findAllUserIds();
 
-    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.createdAt) = :today")
+    @Query("SELECT t.userId FROM  TodoEntity t WHERE DATE(t.createdAt) = :today")
     List<String> findAllTodoUserTodayIds(LocalDate today);
 
-    @Query("SELECT t.userId FROM  Todo t WHERE DATE(t.end) = :today")
+    @Query("SELECT t.userId FROM  TodoEntity t WHERE DATE(t.end) = :today")
     Set<String> findSETAllTodoUserTodayIds(LocalDate today);
 }

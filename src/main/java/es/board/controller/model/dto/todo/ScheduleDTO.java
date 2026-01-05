@@ -2,7 +2,7 @@ package es.board.controller.model.dto.todo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import es.board.filter.XssSafeSerializer;
+import es.board.filter.annotation.XssSafeSerializer;
 import lombok.*;
 
 import java.time.LocalDateTime;

@@ -1,13 +1,12 @@
 package es.board.controller.model.dto.feed;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import es.board.filter.XssSafeDeserializer;
-import es.board.filter.XssSafeSerializer;
+import es.board.filter.annotation.XssSafeDeserializer;
+import es.board.filter.annotation.XssSafeSerializer;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,8 +14,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.UUID;
 
 
 public class CommentDTO {

@@ -101,7 +101,7 @@ public class ToDoServiceImpl implements ToDoService {
         Long remainingCount = todoRepository.countByUserIdAndStatusYetTodo(userId,LocalDate.now());
         if(remainingCount>0) {
             redisTemplate.opsForValue().set(redisKey, remainingCount, Duration.ofSeconds(60));
-            notificationService.sendTodoNotification(userId, " 남은 Todo: " + remainingCount + "개");
+            notificationService.sendTodoNotification(userId, " 남은 TodoEntity: " + remainingCount + "개");
         }
         return remainingCount;
     }
@@ -127,7 +127,7 @@ public class ToDoServiceImpl implements ToDoService {
         redisTemplate.opsForValue().decrement(redisKey);
         updateTodoCache(jwtTokenProvider.getUserId(token));
         Object remainingCount = redisTemplate.opsForValue().get(redisKey);
-        notificationService.sendTodoNotification(jwtTokenProvider.getUserId(token), "Todo 완료! 남은 Todo: " + remainingCount + "개");
+        notificationService.sendTodoNotification(jwtTokenProvider.getUserId(token), "TodoEntity 완료! 남은 TodoEntity: " + remainingCount + "개");
     }
 
     @Override
@@ -157,7 +157,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
         @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")
         public void calculateAndStoreCompletionRates() {
-            log.info("Todo 완료율 계산 시작");
+            log.info("TodoEntity 완료율 계산 시작");
 
             Set<String> userIds = todoRepository.findSETAllTodoUserTodayIds(LocalDate.now()); // 모든 사용자 ID 조회
             List<Todo> completionRates = new ArrayList<>();
@@ -172,7 +172,7 @@ public class ToDoServiceImpl implements ToDoService {
             }
 
             toDoDAO.savePercentTodo(completionRates);
-            log.info("Todo 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
+            log.info("TodoEntity 완료율 저장 완료! 저장된 개수: {}", completionRates.size());
         }
 
         public void grantTodoPoint(String userId,String username) {
@@ -183,11 +183,11 @@ public class ToDoServiceImpl implements ToDoService {
                 stringRedisTemplate.expire(key, Duration.ofDays(1));
             }
             if (currentCount > 3) {
-                log.info("{}님은 오늘 Todo 작성 포인트 한도를 초과했습니다.", userId);
+                log.info("{}님은 오늘 TodoEntity 작성 포인트 한도를 초과했습니다.", userId);
                 return;
             }
             createPointHistory(userId);
-            log.info("Todo 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
+            log.info("TodoEntity 작성 포인트 지급 완료! 현재 작성 횟수: {}", currentCount);
         }
 
         public void createPointHistory(String userId) {
@@ -195,7 +195,7 @@ public class ToDoServiceImpl implements ToDoService {
                     .userId(userId)
 //                    .username(username)
                     .pointChange(5)
-                    .reason("Todo")
+                    .reason("TodoEntity")
                     .createdAt(LocalDateTime.now())
                     .build();
             pointHistoryRepository.save(history);

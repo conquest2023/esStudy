@@ -98,7 +98,7 @@
         </div>
     </div>
 
-    <!-- Todo 목록 -->
+    <!-- TodoEntity 목록 -->
     <div class="card shadow-sm">
         <div class="card-header bg-white"><strong>오늘의 할일</strong></div>
         <div class="card-body p-0">
@@ -469,7 +469,7 @@
                 headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
             })
                 .then(response => {
-                    // if (!response.ok) throw new Error("Todo 데이터를 불러오는 데 실패했습니다.");
+                    // if (!response.ok) throw new Error("TodoEntity 데이터를 불러오는 데 실패했습니다.");
                     return response.json();
                 })
                 .then(data => {
@@ -630,7 +630,7 @@
                 })
                 .catch(error => {
                     console.error("Todo 데이터 불러오기 실패:", error);
-                    // alert("Todo 데이터를 불러올 수 없습니다.");
+                    // alert("TodoEntity 데이터를 불러올 수 없습니다.");
                     window.location.href = "/todo";
 
 

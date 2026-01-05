@@ -28,30 +28,12 @@ import java.util.*;
 public class CommonController {
 
 
-    private  final VisitorService visitService;
-
-
     private final JwtTokenProvider jwtTokenProvider;
-
-
-    private  final StringRedisTemplate redis;
 
 
     private  final RedisTemplate<String, Object> redisTemplate;
 
-    @PostMapping("/authlogout")
-    @ResponseBody
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            jwtTokenProvider.addToBlacklist(token);
-            log.info("[DEBUG] 블랙리스트에 추가된 토큰: " + token);
-        }
-        return ResponseEntity.ok(Map.of(
-                "message", "로그아웃되었습니다.",
-                "isLoggedIn", false));
-    }
+
     @GetMapping("/info")
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
@@ -94,18 +76,5 @@ public class CommonController {
                 "today",size));
     }
 
-    @GetMapping("/auto/login")
-    public ResponseEntity<?> autoLogin(
-            @CookieValue(value = "refreshToken", required = false) String refreshToken) {
-        if (refreshToken != null) {
-            String userId = jwtTokenProvider.getUserId(refreshToken);
-            String storedRefresh = redis.opsForValue().get("RT:" + userId);
-            if (storedRefresh != null && storedRefresh.equals(refreshToken)) {
-                String newAccessToken = jwtTokenProvider.generateAccessToken("user", jwtTokenProvider.getUsername(refreshToken), userId);
-                return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).body("자동 로그인 성공!");
-            }
-        }
-        return ResponseEntity.status(401).body("다시 로그인 필요");
-    }
 
 }

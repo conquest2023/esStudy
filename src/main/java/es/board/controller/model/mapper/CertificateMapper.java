@@ -6,7 +6,7 @@ import es.board.controller.model.dto.todo.ScheduleDTO;
 import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.repository.entity.QuestionPractical;
 import es.board.repository.entity.Schedule;
-import es.board.repository.entity.Todo;
+import es.board.infrastructure.entity.todo.TodoEntity;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -53,10 +53,10 @@ public class CertificateMapper {
 
 
 
-    public List<TodoDTO.Request> EntityToTodo(List<Todo> todo) {
+    public List<TodoDTO.Request> EntityToTodo(List<TodoEntity> todo) {
         return todo.stream()
                 .map(todo1 -> TodoDTO.Request.builder()
-                        .todo_id(todo1.getTodo_id())
+                        .todo_id(todo1.getTodoId())
 //                        .userId(todo1.getUserId())
                         .title(todo1.getTitle())
                         .description(todo1.getDescription())

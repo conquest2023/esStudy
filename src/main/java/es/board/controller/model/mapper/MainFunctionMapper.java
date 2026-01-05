@@ -7,6 +7,7 @@ import es.board.controller.model.dto.todo.D_DayDTO;
 import es.board.controller.model.dto.todo.ScheduleDTO;
 import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.controller.model.dto.job.SiteMeta;
+import es.board.infrastructure.entity.todo.TodoEntity;
 import es.board.repository.document.JobSiteLog;
 import es.board.repository.entity.*;
 import lombok.Data;
@@ -47,8 +48,8 @@ public class MainFunctionMapper {
                 .build();
     }
 
-    public Todo TodoToEntity(String userId, TodoDTO.Response todoResponse) {
-        return Todo.builder()
+    public TodoEntity TodoToEntity(String userId, TodoDTO.Response todoResponse) {
+        return TodoEntity.builder()
                 .userId(userId)
                 .title(todoResponse.getTitle())
                 .priority(todoResponse.getPriority())
@@ -61,10 +62,10 @@ public class MainFunctionMapper {
                 .build();
     }
 
-    public List<TodoDTO.Request> EntityToTodo(List<Todo> todo) {
+    public List<TodoDTO.Request> EntityToTodo(List<TodoEntity> todo) {
         return todo.stream()
                 .map(todo1 -> TodoDTO.Request.builder()
-                        .todo_id(todo1.getTodo_id())
+                        .todo_id(todo1.getTodoId())
                         .title(todo1.getTitle())
                         .description(todo1.getDescription())
                         .category(todo1.getCategory())

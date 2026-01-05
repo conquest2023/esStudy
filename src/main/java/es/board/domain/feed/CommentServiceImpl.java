@@ -55,7 +55,8 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDTO.Request updateComment(long id,CommentDTO.Update update) {
 
-        CommentEntity commentEntity = commentRepository.isExist(id).orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+        CommentEntity commentEntity = commentRepository.isExist(id).orElseThrow(
+                () -> new EntityNotFoundException("Comment not found"));
         commentEntity.applyFrom(update.getContent());
         Comment comment = Comment.toDomain(commentEntity);
         CommentEntity updateEntity = Comment.toEntity(comment);

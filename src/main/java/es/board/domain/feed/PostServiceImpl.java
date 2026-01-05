@@ -50,7 +50,6 @@ public class PostServiceImpl implements PostService {
 
     private final ViewEventPublisher viewEventPublisher;
 
-
     private final PollService pollService;
 
     private final UserRepository userRepository;
@@ -101,7 +100,8 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostDTO.Response updatePost(int id, String userId, PostDTO.Update update) {
 
-        PostEntity postEntity = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Post not found"));
         postEntity.applyFrom(update.getTitle(), update.getDescription(), LocalDateTime.now());
         Post domain = Post.toDomain(postEntity);
         PostEntity entity = Post.toEntity(domain);
@@ -152,7 +152,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePost(int id) {
         postRepository.deletePost(id);
-
         postEventPublisher.publishFeedDeleted(id);
     }
 

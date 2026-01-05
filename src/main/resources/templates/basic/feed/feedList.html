@@ -1834,7 +1834,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">
-<!--                    <i class="fas fa-chart-line text-success me-2"></i>내 D-Day & Todo 실시간 현황-->
+<!--                    <i class="fas fa-chart-line text-success me-2"></i>내 D-Day & TodoEntity 실시간 현황-->
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
             </div>
@@ -3320,7 +3320,7 @@
     //                 document.getElementById("todo-alert").innerText = `📌 오늘 해야 할 일이 ${data.remainingCount}개 남았습니다!`;
     //             }
     //         })
-    //         .catch(error => console.error("Todo 개수 불러오기 실패:", error));
+    //         .catch(error => console.error("TodoEntity 개수 불러오기 실패:", error));
     // });
     function openAllNotificationsModal() {
         const token = localStorage.getItem("token");
@@ -3622,7 +3622,7 @@
     //                 list.innerHTML += item;
     //             });
     //         })
-    //         .catch(err => console.error("Todo 불러오기 실패:", err));
+    //         .catch(err => console.error("TodoEntity 불러오기 실패:", err));
     // }
 
     function isMobile() {
@@ -3751,7 +3751,7 @@
         //     list.innerHTML = "";
         //
         //     if (data.length === 0) {
-        //         list.innerHTML = `<li class="list-group-item text-muted">Todo 일정이 없습니다.</li>`;
+        //         list.innerHTML = `<li class="list-group-item text-muted">TodoEntity 일정이 없습니다.</li>`;
         //         progressBar.style.width = "0%";
         //         progressBar.textContent = "0%";
         //         return;
