@@ -23,18 +23,18 @@ public class TodoRecurrenceEntity {
     @Column(name = "recurrence_id")
     private Long recurrenceId;
 
-    // ✅ Todo 1개당 recurrence 0..1 (todo_id UNIQUE는 DB에서 잡는 걸 권장)
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "todo_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_recurrence_todo"))
-    @Setter // attachRecurrence에서 역방향 세팅 필요
+    @Setter
     private TodoEntity todo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "repeat_type", nullable = false, length = 20)
     private RepeatType repeatType;
 
-    // 1이면 매주/매달, 2면 격주/격달
+
     @Column(name = "interval_value", nullable = false)
     private Integer intervalValue;
 
@@ -47,7 +47,7 @@ public class TodoRecurrenceEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ✅ WEEKLY일 때만 값 존재 (MON/WED/FRI...)
+
     @OneToMany(mappedBy = "recurrence", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

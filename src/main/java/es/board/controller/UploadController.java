@@ -30,15 +30,10 @@ public class UploadController {
     ) {
         try {
             String url;
-            log.info("[UPLOAD] name={}, size={}, ct={}",
-                    file.getOriginalFilename(), file.getSize(), file.getContentType());
             if (width != null && height != null && width > 0 && height > 0) {
                 url = s3Uploader.uploadResized(file, Math.max(width, 1), Math.max(height, 1), 0.82f);
-                log.info("resize={}",url);
             } else {
                 url = s3Uploader.upload(file);
-                log.info("noResize={}",url);
-
             }
             return ResponseEntity.ok(Map.of("url", url));
         } catch (Exception e) {

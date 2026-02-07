@@ -1,10 +1,10 @@
-package es.board.domain.event.reply;
+package es.board.domain.feed.event.reply;
 
 import es.board.mapper.entity.ReplyDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.domain.CommentRepository;
 import es.board.service.NotificationService;
-import es.board.domain.event.ReplyCreatedEvent;
+import es.board.domain.feed.event.ReplyCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

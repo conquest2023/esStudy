@@ -1,7 +1,7 @@
-package es.board.domain.event.poll;
+package es.board.domain.feed.event.poll;
 
 import es.board.domain.PostRepository;
-import es.board.domain.event.PollCreatedEvent;
+import es.board.domain.feed.event.PollCreatedEvent;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;

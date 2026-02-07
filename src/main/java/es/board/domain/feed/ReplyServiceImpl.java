@@ -5,7 +5,7 @@ import es.board.mapper.entity.ReplyDomainMapper;
 import es.board.infrastructure.entity.feed.ReplyEntity;
 import es.board.domain.PostRepository;
 import es.board.domain.ReplyRepository;
-import es.board.domain.event.ReplyCreatedEvent;
+import es.board.domain.feed.event.ReplyCreatedEvent;
 import es.board.domain.Reply;
 import es.board.infrastructure.mq.ReplyEventPublisher;
 import jakarta.persistence.EntityNotFoundException;

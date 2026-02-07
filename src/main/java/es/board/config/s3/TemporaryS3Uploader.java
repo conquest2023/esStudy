@@ -30,14 +30,11 @@ public class TemporaryS3Uploader {
         String key = "feeds/raw/" + UUID.randomUUID() + "_" + safe(file.getOriginalFilename());
 
         try (InputStream in = file.getInputStream()) {
-            // contentType / cacheControl 등 메타 설정
             PutObjectRequest put = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
                     .contentType(file.getContentType() != null ? file.getContentType() : "application/octet-stream")
                     .cacheControl("public, max-age=31536000, immutable")
-                    // ⚠ 버킷이 ObjectOwnership=BucketOwnerEnforced면 ACL 필드 넣으면 오류납니다.
-                    // .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
 
             long size = file.getSize();
@@ -54,7 +51,7 @@ public class TemporaryS3Uploader {
         }
     }
 
-    // === 리사이즈 업로드 (jpg로 변환) ===
+
     public String uploadResized(MultipartFile file, int maxW, int maxH, float quality) {
         String key = "feeds/resized/" + UUID.randomUUID() + ".jpg";
 

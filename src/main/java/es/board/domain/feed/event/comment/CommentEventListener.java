@@ -1,10 +1,10 @@
-package es.board.domain.event.comment;
+package es.board.domain.feed.event.comment;
 
 import es.board.mapper.CommentDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.domain.PostRepository;
 import es.board.service.NotificationService;
-import es.board.domain.event.CommentCreatedEvent;
+import es.board.domain.feed.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

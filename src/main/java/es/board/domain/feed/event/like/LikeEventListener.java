@@ -1,10 +1,10 @@
-package es.board.domain.event.like;
+package es.board.domain.feed.event.like;
 
+import es.board.domain.feed.event.LikeCreatedEvent;
 import es.board.mapper.LikeMapper;
 import es.board.controller.record.LikeTargetInfo;
 import es.board.domain.*;
 import es.board.domain.enum_type.TargetType;
-import es.board.domain.event.LikeCreatedEvent;
 import es.board.infrastructure.entity.user.User;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.service.NotificationService;

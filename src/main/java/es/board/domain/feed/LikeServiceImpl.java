@@ -2,7 +2,7 @@ package es.board.domain.feed;
 
 import es.board.controller.model.dto.feed.LikeDto;
 import es.board.mapper.LikeMapper;
-import es.board.domain.event.LikeCreatedEvent;
+import es.board.domain.feed.event.LikeCreatedEvent;
 import es.board.infrastructure.entity.feed.LikeEntity;
 import es.board.domain.LikeRepository;
 import es.board.infrastructure.jpa.projection.LikeCountProjection;

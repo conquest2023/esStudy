@@ -1,6 +1,6 @@
-package es.board.domain.event.reply;
+package es.board.domain.feed.event.reply;
 
-import es.board.domain.event.ReplyCreatedEvent;
+import es.board.domain.feed.event.ReplyCreatedEvent;
 import es.board.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

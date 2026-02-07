@@ -1,8 +1,7 @@
-package es.board.domain.event.post;
+package es.board.domain.feed.event.post;
 
-import es.board.domain.event.PostCreatedEvent;
+import es.board.domain.feed.event.PostCreatedEvent;
 import es.board.domain.point.PointService;
-import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

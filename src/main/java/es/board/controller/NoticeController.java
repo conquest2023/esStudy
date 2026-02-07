@@ -24,13 +24,9 @@ import java.util.Map;
 
 public class NoticeController {
 
-    private final JwtTokenProvider jwtTokenProvider;
 
     private final NoticeService noticeService;
-
-
-
-
+    
     @GetMapping("/notice")
     public ResponseEntity<?> getNotices() {
         PostDTO.Response latestNotice = noticeService.getLatestNotice();

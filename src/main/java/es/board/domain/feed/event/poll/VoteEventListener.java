@@ -1,10 +1,7 @@
-package es.board.domain.event.poll;
+package es.board.domain.feed.event.poll;
 
-import es.board.domain.PostRepository;
-import es.board.domain.event.PollCreatedEvent;
-import es.board.domain.event.VoteCreatedEvent;
+import es.board.domain.feed.event.VoteCreatedEvent;
 import es.board.infrastructure.entity.feed.PostEntity;
-import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.repository.entity.repository.UserRepository;
@@ -24,6 +21,7 @@ public class VoteEventListener {
     private final NotificationService notificationService;
 
     private final UserRepository userRepository;
+
     private final PollRepository pollRepository;
     @EventListener(VoteCreatedEvent.class)
     public void handleVoteCreated(VoteCreatedEvent event) {
@@ -36,7 +34,7 @@ public class VoteEventListener {
             notificationService.sendCommentNotification(
                     postOwnerId,
                     entity.get().getId(),
-                    username + "님이 투표를 했습니다:" +entity.get().getTitle());
+                    username + "님이 투표를 했습니다:"+entity.get().getTitle());
         }
     }
 }

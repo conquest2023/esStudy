@@ -4,7 +4,7 @@ import es.board.controller.model.dto.PostDetailResponse;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.poll.PollDto;
 import es.board.mapper.entity.PostDomainMapper;
-import es.board.domain.event.PostCreatedEvent;
+import es.board.domain.feed.event.PostCreatedEvent;
 import es.board.infrastructure.entity.feed.PostImage;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.entity.user.User;
@@ -82,9 +82,6 @@ public class PostServiceImpl implements PostService {
             viewEventPublisher.publishFeedViewed(entity.get(), user.get());
         }
     }
-
-
-
 
     @Override
     public void savePost(String userId, PostDTO.Request req) {

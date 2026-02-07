@@ -1,7 +1,6 @@
-package es.board.domain.event.poll;
+package es.board.domain.feed.event.poll;
 
-import es.board.domain.event.PollCreatedEvent;
-import es.board.domain.event.PostCreatedEvent;
+import es.board.domain.feed.event.PollCreatedEvent;
 import es.board.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

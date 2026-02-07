@@ -43,7 +43,7 @@ public class TodoDTO {
 
         private List<DayOfWeekType> repeatDays;
 
-        // 반복 종료일 (없으면 무한 반복)
+
         private LocalDate repeatEndDate;
 
         private LocalDateTime createdAt;

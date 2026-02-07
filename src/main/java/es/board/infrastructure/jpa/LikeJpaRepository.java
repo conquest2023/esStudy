@@ -52,15 +52,13 @@ public interface LikeJpaRepository extends JpaRepository<LikeEntity,Integer> {
 
 
 
-
-
     @Query("SELECT p.id as id, " +
             "p.title as title, " +
             "p.username as username, " +
             "p.description as description, " +
             "p.viewCount as viewCount, " +
             "p.createdAt as createdAt, " +
-            "count(c.postId) as likeCount " + // 필드 이름 일치 중요
+            "count(c.postId) as likeCount " +
             "FROM PostEntity p " +
             "LEFT JOIN LikeEntity c ON p.id = c.postId " +
             "GROUP BY p.id, p.title, p.username, p.description, p.viewCount, p.createdAt " +

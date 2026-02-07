@@ -49,7 +49,9 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public void addTodo(String userId, TodoDTO.Request request) {
-        todoRepository.save(TodoMapper.toEntity(userId , request));
+//        TodoEntity entity = TodoMapper.toEntity(userId, request);
+//
+//        todoRepository.save();
 //        String redisKey = REDIS_TODO_COUNT_KEY +userId;
 //        redisTemplate.opsForValue().increment(redisKey);
 //        updateTodoCache(userId);

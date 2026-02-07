@@ -272,23 +272,37 @@ function setDuePreset(p) {
 }
 
 const dueAt = computed(() => {
-  const now = new Date()
   if (duePreset.value === 'NONE') return null
 
-  if (duePreset.value === 'TODAY') return endOfDay(now).toISOString()
-  if (duePreset.value === 'WEEK') return endOfWeek(now).toISOString()
-  if (duePreset.value === 'MONTH') return endOfMonth(now).toISOString()
 
-  // CUSTOM
-  if (duePreset.value === 'CUSTOM') {
-    // 날짜를 비워두면 마감 없음 처리
+  const getKstDate = (date = new Date()) => {
+
+    return date;
+  }
+
+  const now = new Date()
+
+  let targetDate;
+
+  if (duePreset.value === 'TODAY') {
+    targetDate = endOfDay(now)
+  } else if (duePreset.value === 'WEEK') {
+    targetDate = endOfWeek(now)
+  } else if (duePreset.value === 'MONTH') {
+    targetDate = endOfMonth(now)
+  } else if (duePreset.value === 'CUSTOM') {
     if (!customDate.value) return null
     const [hh, mm] = (customTime.value || '23:59').split(':').map(Number)
-    const d = new Date(customDate.value)
-    d.setHours(hh, mm, 0, 0)
-    return d.toISOString()
+    targetDate = new Date(customDate.value)
+    targetDate.setHours(hh, mm, 0, 0)
+  } else {
+    return null
   }
-  return null
+
+  const offset = targetDate.getTimezoneOffset() * 60000;
+  const kstDate = new Date(targetDate.getTime() - offset);
+
+  return kstDate.toISOString()
 })
 
 const duePreview = computed(() => {

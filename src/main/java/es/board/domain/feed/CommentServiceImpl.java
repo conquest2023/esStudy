@@ -7,7 +7,7 @@ import es.board.infrastructure.entity.feed.CommentEntity;
 import es.board.domain.CommentRepository;
 import es.board.domain.PostRepository;
 import es.board.domain.Comment;
-import es.board.domain.event.CommentCreatedEvent;
+import es.board.domain.feed.event.CommentCreatedEvent;
 import es.board.infrastructure.mq.CommentEventPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

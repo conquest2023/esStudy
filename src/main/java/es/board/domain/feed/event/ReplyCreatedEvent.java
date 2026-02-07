@@ -1,4 +1,4 @@
-package es.board.domain.event;
+package es.board.domain.feed.event;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.controller.model.dto.feed.ReplyDTO;

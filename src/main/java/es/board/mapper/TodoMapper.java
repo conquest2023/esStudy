@@ -25,19 +25,19 @@ public class TodoMapper {
                 .build();
     }
 
-    public static Todo fromTodo(TodoEntity entity) {
-        return Todo.builder()
-                .userId(entity.getUserId())
-                .title(entity.getTitle())
-                .priority(entity.getPriority())
-                .category(entity.getCategory())
-                .status(entity.getStatus())
-                .dueDate(entity.getCreatedAt().toLocalDate().plusDays(1))
-                .description(entity.getDescription())
-                .createdAt(LocalDateTime.now())
-//                .end(entity.getEnd() != null ? entity.getEnd() : LocalDate.now())
-                .build();
-    }
+//    public static Todo fromTodo(TodoEntity entity) {
+//        return Todo.builder()
+//                .userId(entity.getUserId())
+//                .title(entity.getTitle())
+//                .priority(entity.getPriority())
+//                .category(entity.getCategory())
+//                .status(entity.getStatus())
+//                .dueDate(entity.getCreatedAt().toLocalDate().plusDays(1))
+//                .description(entity.getDescription())
+//                .createdAt(LocalDateTime.now())
+////                .end(entity.getEnd() != null ? entity.getEnd() : LocalDate.now())
+//                .build();
+//    }
 
     public static List<TodoDTO.Response> toTodoList(List<TodoEntity> entities) {
         return entities.stream()

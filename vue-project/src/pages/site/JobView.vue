@@ -3,7 +3,7 @@
   <div class="container my-4">
 
     <section class="section">
-      <div class="section-title">🔥 점핏 채용 공고</div>
+      <div class="section-title"> 점핏 채용 공고</div>
       <div class="job-list">
         <template v-if="jumpitJobs.length > 0">
           <a
@@ -26,28 +26,28 @@
     </section>
 
     <!-- 프로그래머스 섹션 -->
-    <section class="section">
-      <div class="section-title">🚀 프로그래머스 채용 공고</div>
-      <div class="job-list">
-        <template v-if="programmersJobs.length > 0">
-          <a
-              v-for="job in programmersJobs"
-              :key="job.url"
-              :href="job.url"
-              target="_blank"
-              class="card"
-          >
-            <h3 class="job-title">{{ job.title }}</h3>
-            <p class="company-name">{{ job.companyName }}</p>
-            <p class="location">📍 {{ job.location }}</p>
-            <div class="tech-stack">
-              <span v-for="stack in job.techStacks" :key="stack" class="tech-tag">{{ stack }}</span>
-            </div>
-          </a>
-        </template>
-        <p v-else class="no-data">채용 공고가 없습니다.</p>
-      </div>
-    </section>
+<!--    <section class="section">-->
+<!--      <div class="section-title">🚀 프로그래머스 채용 공고</div>-->
+<!--      <div class="job-list">-->
+<!--        <template v-if="programmersJobs.length > 0">-->
+<!--          <a-->
+<!--              v-for="job in programmersJobs"-->
+<!--              :key="job.url"-->
+<!--              :href="job.url"-->
+<!--              target="_blank"-->
+<!--              class="card"-->
+<!--          >-->
+<!--            <h3 class="job-title">{{ job.title }}</h3>-->
+<!--            <p class="company-name">{{ job.companyName }}</p>-->
+<!--            <p class="location">📍 {{ job.location }}</p>-->
+<!--            <div class="tech-stack">-->
+<!--              <span v-for="stack in job.techStacks" :key="stack" class="tech-tag">{{ stack }}</span>-->
+<!--            </div>-->
+<!--          </a>-->
+<!--        </template>-->
+<!--        <p v-else class="no-data">채용 공고가 없습니다.</p>-->
+<!--      </div>-->
+<!--    </section>-->
   </div>
 </template>
 

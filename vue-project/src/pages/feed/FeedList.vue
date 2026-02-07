@@ -32,7 +32,7 @@
                 style="z-index: 1060; width: 80%; max-width: 300px;"
             >
               <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                <h5 class="fw-bold text-primary">추천 글</h5>
+<!--                <h5 class="fw-bold text-primary">추천 글</h5>-->
                 <button class="btn-close" @click="showSidebar = false"></button>
               </div>
               <ul class="list-unstyled small">
@@ -271,6 +271,7 @@ async function showBestAnswers() {
     alert('데이터 오류')
   }
 }
+
 function openBestModal() {
   const ans = bestAnswers.value[bestIdx.value]
   document.getElementById('bestAnswerModalLabel').innerText =

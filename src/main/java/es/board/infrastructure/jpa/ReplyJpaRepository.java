@@ -35,7 +35,7 @@ public interface ReplyJpaRepository extends JpaRepository<ReplyEntity,Long> {
             "p.description as description, " +
             "p.viewCount as viewCount, " +
             "p.createdAt as createdAt, " +
-            "count(c.postId) as replyCount " + // 필드 이름 일치 중요
+            "count(c.postId) as replyCount " +
             "FROM PostEntity p " +
             "LEFT JOIN ReplyEntity c ON p.id = c.postId " +
             "GROUP BY p.id, p.title, p.username, p.description, p.viewCount, p.createdAt " +

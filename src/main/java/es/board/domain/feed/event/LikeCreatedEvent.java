@@ -1,20 +1,19 @@
-package es.board.domain.event;
+package es.board.domain.feed.event;
 
 import es.board.controller.model.dto.feed.LikeDto;
-import es.board.controller.model.dto.poll.PollDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PollCreatedEvent {
+public class LikeCreatedEvent {
 
 
     private final int postId;
 
     private final String userId;
 
-    private final PollDto.Request request;
+    private final LikeDto.Request request;
 
 
 
