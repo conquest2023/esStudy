@@ -27,12 +27,9 @@ const navItems = [
     ]
   },
   {
-    icon:'fas fa-certificate fa-lg', label:'자격증',
+    icon:'fas fa-certificate fa-lg', label:'영어',
     children:[
-      { path:'/search/view/question', label:'문제 은행' },
-      { path:'/certificate/data',   label:'자격증 자료' },
-      { path:'/certificate/list',   label:'자격증 분석' },
-      { path:'/certificate/calendar', label:'자격증 일정' }
+      { path:'/practice', label:'영어 문제' },
     ]
   },
   {
