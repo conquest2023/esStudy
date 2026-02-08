@@ -29,7 +29,7 @@ public class SearchIndexController {
     }
 
     @GetMapping("/search/content/{content}")
-    public ResponseEntity<?> getSearchContentIndex(@PathVariable String  content){
+    public ResponseEntity<?> getSearchContentIndex(@PathVariable String content){
         List<PostDTO.Response> searchContent = searchIndexService.getSearchContent(content);
         return ResponseEntity.ok(Map.of("content",searchContent));
     }

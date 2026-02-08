@@ -217,35 +217,35 @@ const menus = [
       }
     ]
   },
-  // {
-  //   label: '자격증',
-  //   items: [
-  //     {
-  //       href: '/search/view/question',
-  //       icon: 'fas fa-file-alt text-primary',
-  //       title: '문제은행',
-  //       desc: '기출/모의 문제로 실전 연습!'
-  //     },
-  //     {
-  //       href: '/certificate/data',
-  //       icon: 'fas fa-book text-info',
-  //       title: '자격증 자료',
-  //       desc: '시험과목, 기출요약, 공부법 가이드'
-  //     },
-  //     {
-  //       href: '/certificate/list',
-  //       icon: 'fas fa-chart-bar text-success',
-  //       title: '자격증 분석',
-  //       desc: '합격률/응시율 기반 자격증 추천'
-  //     },
-  //     {
-  //       href: '/certificate/calendar',
-  //       icon: 'fas fa-calendar-alt text-warning',
-  //       title: '자격증 캘린더',
-  //       desc: 'D-DAY & 원서접수 일정 한눈에!'
-  //     }
-  //   ]
-  // },
+  {
+    label: '영어',
+    items: [
+      {
+        href: '/practice',
+        icon: 'fas fa-file-alt text-primary',
+        title: '영어문제',
+        desc: '기출/모의 문제로 실전 연습!'
+      },
+      // {
+      //   href: '/certificate/data',
+      //   icon: 'fas fa-book text-info',
+      //   title: '자격증 자료',
+      //   desc: '시험과목, 기출요약, 공부법 가이드'
+      // },
+      // {
+      //   href: '/certificate/list',
+      //   icon: 'fas fa-chart-bar text-success',
+      //   title: '자격증 분석',
+      //   desc: '합격률/응시율 기반 자격증 추천'
+      // },
+      // {
+      //   href: '/certificate/calendar',
+      //   icon: 'fas fa-calendar-alt text-warning',
+      //   title: '자격증 캘린더',
+      //   desc: 'D-DAY & 원서접수 일정 한눈에!'
+      // }
+    ]
+  },
   {
     label: '면접',
     items: [

@@ -49,16 +49,30 @@ const routes = [
         component: DefaultLayout,
         children: [
             { path: '', component: FeedList },
+            {
+                path: '/practice',
+                component: () => import('@/pages/english/PracticeHome.vue')
+            },
+            {
+                path: '/practice/rc',
+                component: () => import('@/pages/english/PracticeSession.vue')
+            },
+            {
+                path: "/practice/vocab",
+                component: () => import("@/pages/english/PracticeVocabSession.vue"),
+            },
+            // {
+            //     path: '/wrong-notes',
+            //     component: () => import('@/pages/WrongNotes.vue')
+            // },
 
-            // site / jobs
             { path: 'search/view/feed/list/job', name: 'job-view', component: JobView },
             { path: 'site', name: 'job-sites', component: JobSiteList },
 
-            // todo
+
             { path: 'todo', name: 'todo', component: Todo },
             { path: 'todo/new', name: 'NewTodo', component: NewTodo },
 
-            // calendar
             { path: 'calendar', name: 'calendar', component: CalendarPage },
 
             // feed

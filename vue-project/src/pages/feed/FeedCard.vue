@@ -187,38 +187,43 @@ function goToDetail () {
 }
 
 .feed-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.05rem; /* 살짝 키움 */
+  font-weight: 500;
+  color: #191f28; /* 완전 검은색보다 깊은 회색 */
+  line-height: 1.4;
 }
 
 
 .feed-badge-comment {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.4rem;
-  padding: 0 0.25rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
+  background: transparent;
+  color: #ef4444; /* 배경 없이 텍스트 컬러로만 포인트 */
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+.feed-badge-comment::before {
+  content: '[';
+}
+.feed-badge-comment::after {
+  content: ']';
 }
 
 .feed-meta {
-  margin-top: 0.15rem;
-  font-size: 0.78rem;
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.15rem;
+  margin-top: 0.4rem;
+  color: #8b95a1; /* 차분한 회색 */
+  gap: 0.5rem;
 }
 
+.feed-meta__dot {
+  color: #e5e8eb;
+}
 .feed-meta__item {
   display: inline-flex;
   align-items: center;
+}
+.feed-meta__item i {
+  font-size: 0.75rem;
+  margin-right: 2px;
+  vertical-align: middle;
 }
 .feed-badge-new {
   display: inline-flex;
@@ -232,9 +237,6 @@ function goToDetail () {
   color: #dc2626;
   box-sizing: border-box;
   flex-shrink: 0;
-}
-.feed-meta__dot {
-  color: #d1d5db;
 }
 
 .text-like {

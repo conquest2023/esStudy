@@ -43,7 +43,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
     private final PollVoteRepository pollVoteRepository;
     @Override
-    @Scheduled(cron = "0 0 0/2 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
     public void sendTop3Hourly() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
@@ -55,7 +55,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         }
     }
     @Override
-    @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
     public void sendRank1stEvery4h() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
@@ -144,16 +144,15 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
-//    @Scheduled(fixedRate = 30000)
+    @Scheduled(cron = "0 0 0/12 * * *", zone = "Asia/Seoul")
     public void sendAnalysisUserHistory() {
 
         LocalDateTime now=LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
         List<String> userIds = userRepository.findMonthActiveUser(oneMonthAgo);
 
-        List<View> usersDailyViewHistorys = viewDAO.findUsersDailyViewHistorys(userIds, now);
-        Map<String, List<View>> map = usersDailyViewHistorys.stream()
+        List<View> usersDailyViewHistories = viewDAO.findUsersDailyViewHistorys(userIds, now);
+        Map<String, List<View>> map = usersDailyViewHistories.stream()
                 .collect(Collectors.groupingBy
                         (View::getViewerId));
         for (Map.Entry<String, List<View>> entry : map.entrySet()) {
