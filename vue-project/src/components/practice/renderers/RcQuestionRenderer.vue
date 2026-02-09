@@ -169,7 +169,7 @@ async function saveWrong() {
     level: props.question.level
   }
   try {
-    await api.post('/english/log', payload, {
+    await api.post('/wrongnote', payload, {
       headers: {
         Authorization: `Bearer ${token}`
       }

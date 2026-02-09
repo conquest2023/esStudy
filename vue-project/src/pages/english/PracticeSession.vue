@@ -213,10 +213,45 @@ function onSelect(i) {
 
 function onGrade() {
   if (selectedIndex.value === null) return;
+
   const correctIndex = current.value.content.questions[0].correctIndex;
   const isCorrect = selectedIndex.value === correctIndex;
-  result.value = {isCorrect, correctIndex};
+
+  result.value = { isCorrect, correctIndex };
+
+  saveEnglishLog(isCorrect);
+
   if (!isCorrect) showExplanation.value = true;
+}
+async function saveEnglishLog(isCorrect) {
+  const q = current.value;
+  const chosenAnswer = String.fromCharCode(65 + selectedIndex.value);
+
+  const payload = {
+    objectId: q._id || q.id,
+    chosenAnswer: chosenAnswer,
+    isCorrect: isCorrect,
+    category: q.type,
+    part: q.part,
+    level: q.level
+  };
+
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/english/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok)
+      throw new Error("로그 저장 실패");
+  } catch (err) {
+    console.error("Save Log Error:", err);
+  }
 }
 
 function onNext() {
@@ -268,7 +303,6 @@ async function onSaveWrong() {
 </script>
 
 <style scoped>
-/* 로딩/비어있는 상태 */
 .we-loading-state, .we-empty-state {
   display: flex;
   flex-direction: column;
@@ -285,7 +319,6 @@ async function onSaveWrong() {
   color: #2563eb;
 }
 
-/* 완료 화면 스타일 */
 .we-complete-state {
   display: flex;
   flex-direction: column;

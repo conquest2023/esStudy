@@ -1,5 +1,6 @@
 package es.board.infrastructure.english.entity;
 
+import es.board.controller.model.dto.english.EnglishProblemAttemptDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +35,7 @@ public class EnglishProblemAttempt {
     private String chosenAnswer;
 
     @Column(name = "is_correct", nullable = false)
-    private Boolean isCorrect; // TINYINT(1) <-> Boolean
+    private Boolean isCorrect;
 
     @Column(name = "category", length = 50, nullable = false)
     private String category;
@@ -49,8 +50,33 @@ public class EnglishProblemAttempt {
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+
     public enum Level {
         BRONZE, SILVER, GOLD
+    }
+
+
+    public EnglishProblemAttempt(String userId, String objectId, String chosenAnswer, Boolean isCorrect, String category, Integer part, Level level, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.objectId = objectId;
+        this.chosenAnswer = chosenAnswer;
+        this.isCorrect = isCorrect;
+        this.category = category;
+        this.part = part;
+        this.level = level;
+        this.createdAt = createdAt;
+    }
+
+    public  static EnglishProblemAttempt toEntity(String userId, EnglishProblemAttemptDto.Request request) {
+        return  new EnglishProblemAttempt(
+                userId,
+                request.getObjectId(),
+                request.getChosenAnswer(),
+                request.getIsCorrect(),
+                request.getCategory(),
+                request.getPart(),
+                request.getLevel(),
+                LocalDateTime.now());
     }
 }
 

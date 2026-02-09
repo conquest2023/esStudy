@@ -3,6 +3,7 @@ package es.board.domain.english;
 
 import es.board.controller.model.dto.english.EnglishProblemAttemptDto;
 import es.board.controller.model.dto.english.WrongNoteDto;
+import es.board.infrastructure.english.entity.EnglishProblemAttempt;
 import es.board.infrastructure.english.entity.EnglishProblemAttemptRepository;
 import es.board.infrastructure.english.entity.WrongNoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,13 @@ public class EnglishLogService {
                     request.getPart(),
                     request.getLevel().name()
             );
+    }
+
+    @Transactional
+    public void saveEnglishLog(String userId, EnglishProblemAttemptDto.Request request) {
+
+        EnglishProblemAttempt entity = EnglishProblemAttempt.toEntity(userId, request);
+
+        attemptRepository.save(entity);
     }
 }

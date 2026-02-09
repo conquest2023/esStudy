@@ -23,17 +23,6 @@ public class EnglishProblemAttemptDto {
         private Integer part;
         private EnglishProblemAttempt.Level level;
 
-        public EnglishProblemAttempt toEntity() {
-            return EnglishProblemAttempt.builder()
-                    .userId(userId)
-                    .objectId(objectId)
-                    .chosenAnswer(chosenAnswer)
-                    .isCorrect(isCorrect)
-                    .category(category)
-                    .part(part)
-                    .level(level)
-                    .build();
-        }
     }
 
     @Getter

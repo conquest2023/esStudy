@@ -146,14 +146,14 @@
         </div>
       </section>
 
-      <!-- TIP -->
-      <section class="we-tip">
-        <i class="fa-solid fa-lightbulb"></i>
-        <b>TIP</b>
-        <span>
-          오답노트에서 <b>“오답만 재풀이”</b> 루틴 만들면 점수 빨리 오른다 아시겠어열~??
-        </span>
-      </section>
+<!--      &lt;!&ndash; TIP &ndash;&gt;-->
+<!--      <section class="we-tip">-->
+<!--        <i class="fa-solid fa-lightbulb"></i>-->
+<!--        <b>TIP</b>-->
+<!--        <span>-->
+<!--          오답노트에서 <b>“오답만 재풀이”</b> 루틴 만들면 점수 빨리 오른다 아시겠어열~??-->
+<!--        </span>-->
+<!--      </section>-->
 
       <!-- (Optional) Secondary info: mission/progress (아래로 강등) -->
       <section class="we-section we-section--secondary">
