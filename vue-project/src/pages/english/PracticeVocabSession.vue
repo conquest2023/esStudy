@@ -76,8 +76,8 @@
             @grade="onGrade"
             @toggle-explain="showExplanation = !showExplanation"
             @next="onNext"
-            @click="saveWrong"
             @toggle-star="starred = !starred"
+            @save-wrong="saveWrong"
         />
       </div>
 
@@ -119,7 +119,14 @@ const go = (p) => {
   if (router.currentRoute.value.path === p) return;
   router.push(p);
 };
-
+const props = defineProps({
+  question: {type: Object, required: true},
+  selectedIndex: {type: Number, default: null},
+  result: {type: Object, default: null}, // {isCorrect, correctIndex}
+  showExplanation: {type: Boolean, default: false},
+  timerText: {type: String, default: "00:00"},
+  starred: {type: Boolean, default: false},
+});
 // 상태 관리
 const vocabList = ref([]);
 const loading = ref(false);
@@ -142,13 +149,11 @@ const mapAnswerToIndex = (ans) => {
   return { 'A': 0, 'B': 1, 'C': 2, 'D': 3 }[ans.toUpperCase().trim()] ?? 0;
 };
 
-// VOCA 데이터 호출
 async function fetchVocab(targetId = null) {
   loading.value = true;
   isBatchComplete.value = false;
   try {
     const size = 10;
-    // 제공된 API: /api/vocab
     const url = `/api/vocab?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error("단어 데이터를 불러오지 못했습니다.");
@@ -272,39 +277,54 @@ function onNext() {
   t = 84;
 }
 
-// 오답노트 저장 API 호출 (수동)
 async function saveWrong() {
-  if (!props.result || props.result.isCorrect) return
-  if (!props.question) return
+  // 1. props가 아니라 로컬 ref인 result.value 확인
+  if (!result.value) {
+    alert('문제를 먼저 풀어주세요.');
+    return;
+  }
 
-  if (!confirm('오답노트에 저장하시겠습니까?'))
-    return
+  // 2. 현재 문제 데이터 확인
+  if (!current.value) return;
 
-  const token = localStorage.getItem('token')
+  if (!confirm('오답노트에 저장하시겠습니까?')) return;
+
+  const token = localStorage.getItem('token');
   if (!token) {
-    alert('로그인이 필요합니다.')
-    router.push('/login')
-    return
+    alert('로그인이 필요합니다.');
+    router.push('/login');
+    return;
   }
 
+  // 3. 페이로드 구성 (current.value 참조)
+  const q = current.value;
   const payload = {
-    objectId: props.question.id,
-    category: props.question.type,
-    part: props.question.part,
-    level: props.question.level
-  }
-  try {
-    await api.post('/wrongnote', payload, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
+    objectId: q._id || q.id, // 몽고DB ID 우선 참조
+    category: q.type,       // "VOCA"
+    part: q.part || 0,
+    level: q.level
+  };
 
-    console.log('오답노트 저장 완료')
-    alert('오답노트에 저장되었습니다.')
+  try {
+    // 4. api.post 대신 fetch 사용 (또는 axios 임포트 확인)
+    const res = await fetch('/api/wrongnote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert('오답노트에 저장되었습니다.');
+    } else {
+      const errData = await res.json();
+      throw new Error(errData.message || '저장 실패');
+    }
   } catch (e) {
-    console.error('오답노트 저장 실패', e)
-    alert('오답노트 저장에 실패했습니다.')
+    console.error('오답노트 저장 실패', e);
+    alert('오답노트 저장에 실패했습니다.');
   }
 }
 </script>

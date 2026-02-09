@@ -13,8 +13,15 @@ public interface WrongNoteRepository
 
     Optional<WrongNote> findByUserIdAndObjectId(String userId, String objectId);
 
+
+
+    @Query("SELECT wn FROM WrongNote wn " +
+            "WHERE wn.userId = :userId " +
+            "AND wn.category = :category " +
+            "AND wn.resolved = false")
     Page<WrongNote> findByUserIdAndResolvedFalseOrderByLastWrongAtDesc(
-            String userId,
+            @Param("userId") String userId,
+            @Param("category") String category,
             Pageable pageable
     );
 

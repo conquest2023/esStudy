@@ -1,7 +1,7 @@
 package es.board.domain.english;
 
 import es.board.infrastructure.english.collcetion.English_Vocab;
-import es.board.infrastructure.english.collcetion.ProblemRepository;
+import es.board.infrastructure.english.collcetion.RcCollectionRepository;
 import es.board.infrastructure.english.collcetion.English_RC;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ public class EnglishService {
 
     private final MongoTemplate mongoTemplate;
 
-    private final ProblemRepository problemRepository;
+    private final RcCollectionRepository problemRepository;
 
 
     public List<English_RC> findProblemList(){

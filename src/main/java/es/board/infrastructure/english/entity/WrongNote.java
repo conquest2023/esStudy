@@ -63,7 +63,6 @@ public class WrongNote {
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 
-    // 편의 메서드(선택)
     public void markResolved() {
         this.resolved = true;
         this.resolvedAt = LocalDateTime.now();

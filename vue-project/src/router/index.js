@@ -58,6 +58,10 @@ const routes = [
                 component: () => import('@/pages/english/PracticeSession.vue')
             },
             {
+                path: '/wrong-notes',
+                component: () => import('@/pages/english/WrongNoteDashBoard.vue')
+            },
+            {
                 path: "/practice/vocab",
                 component: () => import("@/pages/english/PracticeVocabSession.vue"),
             },
