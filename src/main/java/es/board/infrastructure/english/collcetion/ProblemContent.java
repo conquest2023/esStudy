@@ -1,4 +1,4 @@
-package es.board.infrastructure.collcetion.english;
+package es.board.infrastructure.english.collcetion;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

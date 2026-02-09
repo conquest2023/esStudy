@@ -74,7 +74,7 @@
           <button
               class="we-actionBtn we-actionBtn--ghost"
               :disabled="!result || result?.isCorrect"
-              @click="$emit('save-wrong')"
+              @click="saveWrong"
           >
             <i class="fa-solid fa-bookmark"></i>
             저장
@@ -109,7 +109,10 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { computed } from 'vue';
+import {useRouter} from "vue-router";
+import api from "@/utils/api.js";
 
 const props = defineProps({
   question: { type: Object, required: true },
@@ -118,10 +121,11 @@ const props = defineProps({
   showExplanation: { type: Boolean, default: false },
   timerText: { type: String, default: "00:00" },
 });
-
-defineEmits(["select", "grade", "toggle-explain", "next", "save-wrong"]);
-
-const options = computed(() => props.question.content.questions[0].options);
+defineEmits(["select", "grade", "toggle-explain", "next"]);
+const router = useRouter()
+const options = computed(() => {
+  return props.question?.content?.questions?.[0]?.options || [];
+});
 const explanation = computed(() => props.question.content.questions[0].explanation);
 
 function alpha(i) {
@@ -135,7 +139,8 @@ function highlightBlank(text) {
 
 function optionClass(i) {
   const base = [];
-  if (props.selectedIndex === i) base.push("is-selected");
+  if (props.selectedIndex === i)
+    base.push("is-selected");
 
   if (props.result) {
     if (i === props.result.correctIndex) base.push("is-correct");
@@ -143,10 +148,43 @@ function optionClass(i) {
   }
   return base.join(" ");
 }
+async function saveWrong() {
+  if (!props.result || props.result.isCorrect) return
+  if (!props.question) return
+
+  if (!confirm('오답노트에 저장하시겠습니까?'))
+    return
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  const payload = {
+    objectId: props.question.id,
+    category: props.question.type,
+    part: props.question.part,
+    level: props.question.level
+  }
+  try {
+    await api.post('/english/log', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    console.log('오답노트 저장 완료')
+    alert('오답노트에 저장되었습니다.')
+  } catch (e) {
+    console.error('오답노트 저장 실패', e)
+    alert('오답노트 저장에 실패했습니다.')
+  }
+}
 </script>
 
 <style scoped>
-/* 모바일 최적화를 위한 추가/보완 스타일 */
 .we-rcGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -184,19 +222,18 @@ function optionClass(i) {
   font-size: 12px;
 }
 
-/* 모바일 대응 (Max-width 768px) */
 @media (max-width: 768px) {
   .we-rcGrid {
-    grid-template-columns: 1fr; /* 1단으로 변경 */
+    grid-template-columns: 1fr;
     gap: 16px;
   }
 
   .we-pane--passage {
-    max-height: 250px; /* 지문 높이 제한 */
+    max-height: 250px;
   }
 
   .we-passage {
-    font-size: 15px; /* 모바일 가독성 */
+    font-size: 15px;
   }
 
   .we-qTitle {
@@ -212,7 +249,7 @@ function optionClass(i) {
 
   .we-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2x2 버튼 배치 */
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-top: 20px;
   }
@@ -225,7 +262,6 @@ function optionClass(i) {
   }
 }
 
-/* 아주 작은 화면 대응 */
 @media (max-width: 480px) {
   .we-paneHead {
     padding: 12px;

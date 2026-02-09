@@ -1,4 +1,4 @@
-package es.board.infrastructure.collcetion.english;
+package es.board.infrastructure.english.collcetion;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import java.util.List;
 public class Question {
 
 //    private int qIndex;
-    private String questionText;
+    private String text;
     private List<String> options;
-    private String correctAnswer;
+    private String answer;
     private String explanation;
 }

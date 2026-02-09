@@ -2,7 +2,7 @@ package es.board.controller;
 
 
 import es.board.domain.english.EnglishService;
-import es.board.infrastructure.collcetion.english.EnglishProblem;
+import es.board.infrastructure.english.collcetion.EnglishProblem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class EnglishController {
+public class EnglishProblemController {
 
     private final EnglishService englishService;
 

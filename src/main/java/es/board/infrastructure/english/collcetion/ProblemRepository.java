@@ -1,7 +1,5 @@
-package es.board.infrastructure.collcetion;
+package es.board.infrastructure.english.collcetion;
 
-import es.board.infrastructure.collcetion.english.EnglishProblem;
-import org.springframework.beans.factory.parsing.Problem;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
