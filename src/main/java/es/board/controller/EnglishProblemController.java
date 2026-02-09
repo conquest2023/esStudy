@@ -2,7 +2,8 @@ package es.board.controller;
 
 
 import es.board.domain.english.EnglishService;
-import es.board.infrastructure.english.collcetion.EnglishProblem;
+import es.board.infrastructure.english.collcetion.English_RC;
+import es.board.infrastructure.english.collcetion.English_Vocab;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +29,19 @@ public class EnglishProblemController {
             @RequestParam(required = false) String lastId,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<EnglishProblem> problems = englishService.getRandomProblems(size);
+        List<English_RC> problems = englishService.getRandomProblems(size);
 
+        return ResponseEntity.ok(
+                Map.of("ok",problems));
+    }
+
+
+    @GetMapping("/vocab")
+    public ResponseEntity<?> getVocab(
+            @RequestParam(required = false) String lastId,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<English_Vocab> problems = englishService.getRandomVocab(size);
         return ResponseEntity.ok(
                 Map.of("ok",problems));
     }

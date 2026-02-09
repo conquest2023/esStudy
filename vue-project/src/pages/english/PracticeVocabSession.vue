@@ -19,45 +19,74 @@
     </header>
 
     <main class="we-container we-session">
-      <div class="we-sessionHead">
-        <div>
-          <h1 class="we-sessionTitle">단어 학습</h1>
-          <div class="we-sessionSub">뜻/용법 객관식 · 예문 기반</div>
+      <div v-if="loading && vocabList.length === 0" class="we-loading-state">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> 단어 데이터를 불러오는 중입니다...
+      </div>
 
-          <div class="we-chipRow" style="margin-top:10px;">
-            <div class="we-chip"><i class="fa-solid fa-layer-group"></i> VOCA</div>
-            <div class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</div>
-            <div class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</div>
-          </div>
-        </div>
+      <div v-else-if="isBatchComplete" class="we-complete-state">
+        <div class="we-complete-icon">🎉</div>
+        <h2 class="we-complete-title">단어 학습 완료!</h2>
+        <p class="we-complete-sub">한 세트(10단어)를 모두 정복하셨습니다.</p>
 
-        <div style="min-width:260px; width: 320px; max-width: 45vw;">
-          <div class="we-progressTop">
-            <div class="we-progressTop__row">
-              <div class="we-progressTop__label">Progress</div>
-              <div class="we-progressTop__value">{{ index + 1 }} / {{ total }}</div>
-            </div>
-            <div class="we-progressTop__bar">
-              <div class="we-progressTop__fill" :style="{ width: progress + '%' }"></div>
-            </div>
-          </div>
+        <div class="we-complete-actions">
+          <button @click="handleLoadMore" class="we-btn we-btn--primary">
+            <i class="fa-solid fa-rotate-right"></i> 10문제 더 풀기
+          </button>
+          <button @click="go('/wrong-notes')" class="we-btn we-btn--outline">
+            <i class="fa-solid fa-book"></i> 오답노트 확인
+          </button>
         </div>
       </div>
 
-      <VocabQuestionRenderer
-          :question="current"
-          :selected-index="selectedIndex"
-          :result="result"
-          :show-explanation="showExplanation"
-          :timer-text="timerText"
-          :starred="starred"
-          @select="onSelect"
-          @grade="onGrade"
-          @toggle-explain="showExplanation = !showExplanation"
-          @next="onNext"
-          @save-wrong="onSaveWrong"
-          @toggle-star="starred = !starred"
-      />
+      <div v-else-if="vocabList.length > 0">
+        <div class="we-sessionHead">
+          <div>
+            <h1 class="we-sessionTitle">단어 학습</h1>
+            <div class="we-sessionSub">뜻/용법 객관식 · 예문 기반</div>
+
+            <div class="we-chipRow" style="margin-top:10px;">
+              <div class="we-chip"><i class="fa-solid fa-layer-group"></i> VOCA</div>
+              <div class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</div>
+              <div class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</div>
+            </div>
+          </div>
+
+          <div style="min-width:260px; width: 320px; max-width: 45vw;">
+            <div class="we-progressTop">
+              <div class="we-progressTop__row">
+                <div class="we-progressTop__label">Progress</div>
+                <div class="we-progressTop__value">{{ index + 1 }} / {{ total }}</div>
+              </div>
+              <div class="we-progressTop__bar">
+                <div class="we-progressTop__fill" :style="{ width: progress + '%' }"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <VocabQuestionRenderer
+            v-if="current"
+            :question="current"
+            :selected-index="selectedIndex"
+            :result="result"
+            :show-explanation="showExplanation"
+            :timer-text="timerText"
+            :starred="starred"
+            @select="onSelect"
+            @grade="onGrade"
+            @toggle-explain="showExplanation = !showExplanation"
+            @next="onNext"
+            @click="saveWrong"
+            @toggle-star="starred = !starred"
+        />
+      </div>
+
+      <div v-else class="we-empty-state">
+        <p>학습할 단어가 없습니다.</p>
+        <button @click="fetchVocab(null)" class="we-btn we-btn--primary" style="margin-top:20px;">
+          처음부터 다시 시작
+        </button>
+      </div>
 
       <div class="we-bottomTabs">
         <div class="we-bottomTabs__inner">
@@ -80,7 +109,8 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import "@/assets/workly-english.css";
+import { computed, onMounted, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import VocabQuestionRenderer from "@/components/practice/renderers/VocabQuestionRenderer.vue";
 
@@ -90,71 +120,76 @@ const go = (p) => {
   router.push(p);
 };
 
-const vocabList = ref([
-  {
-    id: "mock-vocab-001",
-    type: "VOCA",
-    part: 0,
-    level: "SILVER",
-    tags: ["it", "refactoring"],
-    content: {
-      word: "Refactoring",
-      pronunciation: "/ˌriːˈfæk.tər.ɪŋ/",
-      example: "We refactored the service layer to improve maintainability.",
-      questions: [
-        {
-          options: ["코드 구조 개선", "기능 전면 수정", "데이터베이스 삭제", "성능 테스트"],
-          correctIndex: 0,
-          explanation: "refactoring은 기능 변경 없이 코드 구조를 개선하는 것을 의미합니다.",
-        },
-      ],
-    },
-  },
-  {
-    id: "mock-vocab-002",
-    type: "VOCA",
-    part: 0,
-    level: "GOLD",
-    tags: ["infra", "scalability"],
-    content: {
-      word: "Scalability",
-      pronunciation: "/ˌskeɪ.ləˈbɪl.ə.ti/",
-      example: "Scalability is critical when traffic spikes unexpectedly.",
-      questions: [
-        {
-          options: ["확장성", "신뢰성", "가용성", "보안성"],
-          correctIndex: 0,
-          explanation: "scalability는 트래픽 증가에 따라 시스템이 확장 가능한 성질입니다.",
-        },
-      ],
-    },
-  },
-]);
-
+// 상태 관리
+const vocabList = ref([]);
+const loading = ref(false);
+const isBatchComplete = ref(false);
+const lastId = ref(null);
 const index = ref(0);
 const selectedIndex = ref(null);
 const result = ref(null);
 const showExplanation = ref(false);
 const starred = ref(false);
 
-const total = computed(() => vocabList.value.length);
-const current = computed(() => vocabList.value[index.value]);
-
-const level = computed(() => current.value?.level ?? "—");
-const tags = computed(() => current.value?.tags ?? []);
-const progress = computed(() => Math.round(((index.value + 1) / total.value) * 100));
-
+// 타이머 관리
 const timerText = ref("01:24");
 let t = 84;
-let timer = null;
+let timerInterval = null;
 
-function resetTimer() {
-  t = 84;
-  timerText.value = "01:24";
+// 정답 문자('A','B'..)를 인덱스(0,1..)로 변환
+const mapAnswerToIndex = (ans) => {
+  if (!ans) return 0;
+  return { 'A': 0, 'B': 1, 'C': 2, 'D': 3 }[ans.toUpperCase().trim()] ?? 0;
+};
+
+// VOCA 데이터 호출
+async function fetchVocab(targetId = null) {
+  loading.value = true;
+  isBatchComplete.value = false;
+  try {
+    const size = 10;
+    // 제공된 API: /api/vocab
+    const url = `/api/vocab?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("단어 데이터를 불러오지 못했습니다.");
+
+    const data = await response.json();
+    const list = data?.ok;
+
+    if (Array.isArray(list) && list.length > 0) {
+      vocabList.value = list.map(v => {
+        // 단어 문제는 content.questions[0] 구조를 유지한다고 가정
+        const subQuestions = v.content?.questions || [];
+        return {
+          ...v,
+          content: {
+            ...v.content,
+            questions: subQuestions.map(subQ => ({
+              ...subQ,
+              correctIndex: mapAnswerToIndex(subQ.answer)
+            }))
+          }
+        };
+      });
+      lastId.value = list[list.length - 1]._id || list[list.length - 1].id;
+      index.value = 0;
+    } else {
+      if (targetId) alert("더 이상 불러올 단어가 없습니다.");
+    }
+  } catch (error) {
+    console.error("Fetch Error:", error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+function handleLoadMore() {
+  fetchVocab(lastId.value);
 }
 
 onMounted(() => {
-  timer = setInterval(() => {
+  fetchVocab(null);
+  timerInterval = setInterval(() => {
     t = Math.max(0, t - 1);
     const mm = String(Math.floor(t / 60)).padStart(2, "0");
     const ss = String(t % 60).padStart(2, "0");
@@ -162,10 +197,21 @@ onMounted(() => {
   }, 1000);
 });
 
-onBeforeUnmount(() => {
-  if (timer) clearInterval(timer);
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval);
 });
 
+// Computed 속성
+const current = computed(() => vocabList.value[index.value]);
+const total = computed(() => vocabList.value.length);
+const level = computed(() => current.value?.level ?? "—");
+const tags = computed(() => current.value?.tags ?? []);
+const progress = computed(() => {
+  if (total.value === 0) return 0;
+  return Math.round(((index.value + 1) / total.value) * 100);
+});
+
+// 액션 함수
 function onSelect(i) {
   if (result.value) return;
   selectedIndex.value = i;
@@ -173,16 +219,49 @@ function onSelect(i) {
 
 function onGrade() {
   if (selectedIndex.value === null) return;
-  const cq = current.value.content.questions[0];
-  const correctIndex = cq.correctIndex;
+  const correctIndex = current.value.content.questions[0].correctIndex;
   const isCorrect = selectedIndex.value === correctIndex;
   result.value = { isCorrect, correctIndex };
+
+  // 로그 저장 (자동)
+  saveEnglishLog(isCorrect);
+
   if (!isCorrect) showExplanation.value = true;
+}
+
+// 학습 로그 저장 API 호출
+async function saveEnglishLog(isCorrect) {
+  const q = current.value;
+  const chosenAnswer = String.fromCharCode(65 + selectedIndex.value);
+  const token = localStorage.getItem('token');
+
+  const payload = {
+    objectId: q._id || q.id,
+    chosenAnswer: chosenAnswer,
+    isCorrect: isCorrect,
+    category: q.type, // "VOCA"
+    part: q.part || 0,
+    level: q.level
+  };
+
+  try {
+    await fetch('/api/english/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.error("Log Save Error:", err);
+  }
 }
 
 function onNext() {
   if (index.value >= total.value - 1) {
-    go("/practice");
+    vocabList.value = [];
+    isBatchComplete.value = true;
     return;
   }
   index.value += 1;
@@ -190,25 +269,96 @@ function onNext() {
   result.value = null;
   showExplanation.value = false;
   starred.value = false;
-  resetTimer();
+  t = 84;
 }
 
-function onSaveWrong() {
-  if (!result.value) return;
-  const q = current.value;
-  const cq = q.content.questions[0];
+// 오답노트 저장 API 호출 (수동)
+async function saveWrong() {
+  if (!props.result || props.result.isCorrect) return
+  if (!props.question) return
 
-  console.log("SAVE WRONG (VOCA):", {
-    questionId: q.id,
-    type: q.type,
-    level: q.level,
-    tags: q.tags,
-    word: q.content.word,
-    example: q.content.example,
-    options: cq.options,
-    selectedIndex: selectedIndex.value,
-    correctIndex: result.value.correctIndex,
-    explanation: cq.explanation,
-  });
+  if (!confirm('오답노트에 저장하시겠습니까?'))
+    return
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('로그인이 필요합니다.')
+    router.push('/login')
+    return
+  }
+
+  const payload = {
+    objectId: props.question.id,
+    category: props.question.type,
+    part: props.question.part,
+    level: props.question.level
+  }
+  try {
+    await api.post('/wrongnote', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    console.log('오답노트 저장 완료')
+    alert('오답노트에 저장되었습니다.')
+  } catch (e) {
+    console.error('오답노트 저장 실패', e)
+    alert('오답노트 저장에 실패했습니다.')
+  }
 }
 </script>
+
+<style scoped>
+/* RC와 동일한 스타일 가이드 사용 */
+.we-loading-state, .we-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #64748b;
+  font-weight: 800;
+}
+.we-loading-state i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #2563eb;
+}
+.we-complete-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  margin-top: 40px;
+}
+.we-complete-icon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: complete-bounce 1.5s infinite ease-in-out;
+}
+@keyframes complete-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.we-complete-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+.we-complete-sub {
+  font-size: 16px;
+  color: #64748b;
+  margin-bottom: 32px;
+}
+.we-complete-actions {
+  display: flex;
+  gap: 14px;
+}
+</style>

@@ -5,20 +5,20 @@
 <!--        <div class="card shadow-sm p-3">-->
 <!--&lt;!&ndash;          <h6 class="fw-bold mb-3">🌟 추천 글</h6>&ndash;&gt;-->
 <!--        </div>-->
-        <div class="card shadow-sm p-3 mt-3">
-          <DailyQuestions />
-        </div>
+<!--        <div class="card shadow-sm p-3 mt-3">-->
+<!--&lt;!&ndash;          <DailyQuestions />&ndash;&gt;-->
+<!--        </div>-->
       </aside>
 
       <main class="col-lg-6">
-        <div class="d-block d-lg-none">
-          <div class="mb-3">
-            <DailyQuestions />
-          </div>
-<!--          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">-->
-<!--            <i class="fas fa-list me-1"></i> 추천 글 보기-->
-<!--          </button>-->
-        </div>
+<!--        <div class="d-block d-lg-none">-->
+<!--          <div class="mb-3">-->
+<!--&lt;!&ndash;            <DailyQuestions />&ndash;&gt;-->
+<!--          </div>-->
+<!--&lt;!&ndash;          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">&ndash;&gt;-->
+<!--&lt;!&ndash;            <i class="fas fa-list me-1"></i> 추천 글 보기&ndash;&gt;-->
+<!--&lt;!&ndash;          </button>&ndash;&gt;-->
+<!--        </div>-->
 
         <transition name="slide">
           <div
@@ -54,7 +54,6 @@
         <div class="board-wrap">
           <SearchBar class="mb-4" />
           <RecommendedPosts :items="recommend" class="mb-4" />
-
           <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-3" />
           <div v-if="activeTab === 'BEST'" class="category-bar">
             <div class="segmented-tabs">

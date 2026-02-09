@@ -9,11 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
-@Document(collection = "problems")
+
+@Document(collection = "problems_vocab")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnglishProblem {
+public class English_Vocab {
 
     @Id
     private String id;
