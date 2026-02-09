@@ -1,6 +1,5 @@
 <template>
   <div class="we-page">
-    <!-- reuse topbar from home? 간단 버전 -->
     <header class="we-topbar">
       <div class="we-container we-topbar__inner">
         <div class="we-brand" @click="go('/practice')">
@@ -20,46 +19,58 @@
     </header>
 
     <main class="we-container we-session">
-      <div class="we-sessionHead">
-        <div>
-          <h1 class="we-sessionTitle">RC 문제풀이</h1>
-          <div class="we-sessionSub">Part 5 · 문법/어휘 빈칸 채우기</div>
-
-          <div class="we-chipRow" style="margin-top:10px;">
-            <div class="we-chip"><i class="fa-solid fa-layer-group"></i> RC</div>
-            <div class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</div>
-            <div class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</div>
-          </div>
-        </div>
-
-        <div style="min-width:260px; width: 320px; max-width: 45vw;">
-          <div class="we-progressTop">
-            <div class="we-progressTop__row">
-              <div class="we-progressTop__label">Progress</div>
-              <div class="we-progressTop__value">{{ index + 1 }} / {{ total }}</div>
-            </div>
-            <div class="we-progressTop__bar">
-              <div class="we-progressTop__fill" :style="{ width: progress + '%' }"></div>
-            </div>
-          </div>
-        </div>
+      <div v-if="loading && questions.length === 0" class="we-loading-state">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> 문제를 불러오는 중입니다...
       </div>
 
-      <!-- RC Renderer -->
-      <RcQuestionRenderer
-          :question="current"
-          :selected-index="selectedIndex"
-          :result="result"
-          :show-explanation="showExplanation"
-          :timer-text="timerText"
-          @select="onSelect"
-          @grade="onGrade"
-          @toggle-explain="showExplanation = !showExplanation"
-          @next="onNext"
-          @save-wrong="onSaveWrong"
-      />
+      <div v-else-if="questions.length > 0">
+        <div class="we-sessionHead">
+          <div>
+            <h1 class="we-sessionTitle">RC 문제풀이</h1>
+            <div class="we-sessionSub">Part 5 · 문법/어휘 빈칸 채우기</div>
 
-      <!-- Bottom Tabs (fixed) -->
+            <div class="we-chipRow" style="margin-top:10px;">
+              <div class="we-chip"><i class="fa-solid fa-layer-group"></i> RC</div>
+              <div class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</div>
+              <div class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</div>
+            </div>
+          </div>
+
+          <div class="we-sessionHead__right">
+          <div class="we-progressTop">
+              <div class="we-progressTop__row">
+                <div class="we-progressTop__label">Current Batch Progress</div>
+                <div class="we-progressTop__value">{{ index + 1 }} / {{ questions.length }}</div>
+              </div>
+              <div class="we-progressTop__bar">
+                <div class="we-progressTop__fill" :style="{ width: progress + '%' }"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <RcQuestionRenderer
+            v-if="current"
+            :question="current"
+            :selected-index="selectedIndex"
+            :result="result"
+            :show-explanation="showExplanation"
+            :timer-text="timerText"
+            @select="onSelect"
+            @grade="onGrade"
+            @toggle-explain="showExplanation = !showExplanation"
+            @next="onNext"
+            @save-wrong="onSaveWrong"
+        />
+      </div>
+
+      <div v-else class="we-empty-state">
+        <p>풀어볼 문제가 없습니다.</p>
+        <button @click="fetchQuestions(null)" class="we-btn we-btn--primary" style="margin-top:20px;">
+          처음부터 다시 시작
+        </button>
+      </div>
+
       <div class="we-bottomTabs">
         <div class="we-bottomTabs__inner">
           <button class="we-tabBtn is-active" @click="go('/practice/rc')">
@@ -81,6 +92,7 @@
 </template>
 
 <script setup>
+import "@/assets/workly-english.css";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RcQuestionRenderer from "@/components/practice/renderers/RcQuestionRenderer.vue";
@@ -88,68 +100,56 @@ import RcQuestionRenderer from "@/components/practice/renderers/RcQuestionRender
 const router = useRouter();
 const go = (p) => router.push(p);
 
-/**
- * 지금은 네가 준 샘플 JSON 기반 “프론트 더미”.
- * 나중에 store + API로 교체하면 됨.
- */
-const questions = ref([
-  {
-    id: "6986d1d732a8d47778dd0fb9",
-    type: "RC",
-    part: 5,
-    level: "BRONZE",
-    tags: ["grammar", "adverb", "it-performance"],
-    content: {
-      passage: "The new backend server is ------- more efficient than the previous one.",
-      questions: [
-        {
-          options: ["signify", "significant", "significantly", "significance"],
-          correctIndex: 2,
-          explanation: "형용사 more efficient를 수식하는 부사 significantly가 정답입니다.",
-        },
-      ],
-    },
-  },
-  {
-    id: "6986d1d732a8d47778dd0fba",
-    type: "RC",
-    part: 5,
-    level: "SILVER",
-    tags: ["grammar", "adverb", "refactoring"],
-    content: {
-      passage: "The developer ------- finalized the code refactoring before the deadline.",
-      questions: [
-        {
-          options: ["successful", "success", "successfully", "succeed"],
-          correctIndex: 2,
-          explanation: "동사 finalized를 수식하는 부사 successfully가 적절합니다.",
-        },
-      ],
-    },
-  },
-]);
+const questions = ref([]);
+const loading = ref(false);
+const lastId = ref(null);
 
 const index = ref(0);
 const selectedIndex = ref(null);
-
-// result: null | { isCorrect: boolean, correctIndex: number }
 const result = ref(null);
 const showExplanation = ref(false);
 
-const total = computed(() => questions.value.length);
-const current = computed(() => questions.value[index.value]);
-
-const level = computed(() => current.value?.level ?? "—");
-const tags = computed(() => current.value?.tags ?? []);
-
-const progress = computed(() => Math.round(((index.value + 1) / total.value) * 100));
-
-// Timer (UI용 더미)
 const timerText = ref("01:24");
 let t = 84;
-let timer = null;
+let timerInterval = null;
+
+const mapAnswerToIndex = (ans) => ({ 'A': 0, 'B': 1, 'C': 2, 'D': 3 }[ans] ?? 0);
+
+async function fetchQuestions(targetId = null) {
+  loading.value = true;
+  try {
+    const size = 10;
+    const url = `/api/english?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.ok && data.ok.length > 0) {
+      const formatted = data.ok.map(q => ({
+        ...q,
+        content: {
+          ...q.content,
+          questions: q.content.questions.map(subQ => ({
+            ...subQ,
+            correctIndex: mapAnswerToIndex(subQ.answer)
+          }))
+        }
+      }));
+      questions.value = formatted;
+      lastId.value = data[data.length - 1].id;
+      index.value = 0;
+    } else {
+      if (targetId) alert("더 이상 불러올 문제가 없습니다.");
+    }
+  } catch (error) {
+    console.error("Fetch Error:", error);
+  } finally {
+    loading.value = false;
+  }
+}
+
 onMounted(() => {
-  timer = setInterval(() => {
+  fetchQuestions(null);
+
+  timerInterval = setInterval(() => {
     t = Math.max(0, t - 1);
     const mm = String(Math.floor(t / 60)).padStart(2, "0");
     const ss = String(t % 60).padStart(2, "0");
@@ -157,8 +157,17 @@ onMounted(() => {
   }, 1000);
 });
 
+const current = computed(() => questions.value[index.value]);
+const total = computed(() => questions.value.length);
+const level = computed(() => current.value?.level ?? "—");
+const tags = computed(() => current.value?.tags ?? []);
+const progress = computed(() => {
+  if (total.value === 0) return 0;
+  return Math.round(((index.value + 1) / total.value) * 100);
+});
+
 function onSelect(i) {
-  if (result.value) return; // 채점 후에는 선택 잠금
+  if (result.value) return;
   selectedIndex.value = i;
 }
 
@@ -170,33 +179,29 @@ function onGrade() {
 
   result.value = { isCorrect, correctIndex };
 
-  // 오답이면 해설 바로 열어도 됨 (원하면 정책 바꿔)
   if (!isCorrect) showExplanation.value = true;
 }
 
 function onNext() {
   if (index.value >= total.value - 1) {
-    // 마지막이면 홈으로 보내거나 결과 페이지 만들면 됨
-    go("/practice");
+    fetchQuestions(lastId.value);
     return;
   }
+
   index.value += 1;
   selectedIndex.value = null;
   result.value = null;
   showExplanation.value = false;
-
-  // 타이머 리셋(더미)
   t = 84;
 }
 
-
-function onSaveWrong() {
+async function onSaveWrong() {
   if (!result.value) return;
 
   const q = current.value;
   const cq = q.content.questions[0];
 
-  onSaveWrong({
+  const payload = {
     questionId: q.id,
     type: q.type,
     part: q.part,
@@ -207,10 +212,36 @@ function onSaveWrong() {
     selectedIndex: selectedIndex.value,
     correctIndex: result.value.correctIndex,
     explanation: cq.explanation,
-  });
-}
+    solvedAt: new Date().toISOString()
+  };
 
+  try {
+    const res = await fetch('/api/v1/learning-logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) alert("오답노트에 저장되었습니다.");
+  } catch (err) {
+    console.error("Save Wrong Error:", err);
+  }
+}
 </script>
+
 <style scoped>
-@import "@/assets/workly-english.css";
+.we-loading-state, .we-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #64748b;
+  font-weight: 800;
+}
+.we-loading-state i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #2563eb;
+}
 </style>
