@@ -3,7 +3,7 @@ package es.board.infrastructure.es.document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ViewDAO {
+public interface ViewLogDAO {
 
 
 

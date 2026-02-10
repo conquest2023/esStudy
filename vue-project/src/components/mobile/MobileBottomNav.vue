@@ -1,47 +1,84 @@
-<!-- src/components/mobile/MobileBottomNav.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
-defineProps(
-    {
-      navItems: { type: Array, default: () => [] }
-    })
+const props = defineProps({
+  navItems: { type: Array, default: () => [] }
+})
+
+const emit = defineEmits(['nav-click', 'fab'])
 
 const isMobile = ref(false)
+
+const setIsMobile = () => (isMobile.value = window.innerWidth <= 900)
+
 onMounted(() => {
-  const set = () => (isMobile.value = window.innerWidth <= 900)
-  set()
-  window.addEventListener('resize', set)
+  setIsMobile()
+  window.addEventListener('resize', setIsMobile)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', setIsMobile)
 })
 
 const router = useRouter()
+
+const isExternal = (path) => /^https?:\/\//i.test(String(path || '').trim())
+
+function onClickItem(item) {
+  if (!item?.path) return
+
+  const path = String(item.path).trim()
+
+  if (isExternal(path) || item?.isExternal) {
+    window.open(path, '_blank', 'noopener,noreferrer')
+    return
+  }
+
+  emit('nav-click', item)
+}
+
+function onClickChild(child) {
+  if (!child?.path) return
+  const path = String(child.path).trim()
+
+  if (isExternal(path) || child?.isExternal) {
+    window.open(path, '_blank', 'noopener,noreferrer')
+    return
+  }
+
+  emit('nav-click', child)
+}
 </script>
 
 <template>
-  <!-- 모바일일 때만 렌더 -->
   <nav v-if="isMobile" class="mobile-bottom-nav shadow-sm">
     <template v-for="n in navItems" :key="n.label">
-      <RouterLink
+      <!-- ✅ children 없는 경우: RouterLink 유지해도 되지만,
+           외부 링크도 있을 수 있으니 click 핸들링으로 통일 -->
+      <a
           v-if="!n.children || n.children.length === 0"
-          :to="n.path"
+          href="#"
           class="nav-link text-center flex-fill"
+          @click.prevent="onClickItem(n)"
       >
         <i :class="n.icon"></i>
         <span class="small d-block">{{ n.label }}</span>
-      </RouterLink>
+      </a>
 
+      <!-- children 있는 경우 -->
       <div v-else class="dropdown dropup flex-fill text-center">
         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
           <i :class="n.icon"></i>
           <span class="small d-block">{{ n.label }}</span>
         </a>
+
         <ul class="dropdown-menu text-center">
           <li
               v-for="c in n.children"
               :key="c.path"
               class="dropdown-item fw-bold"
-              @click="router.push(c.path)"
+              @click="onClickChild(c)"
           >
             {{ c.label }}
           </li>
@@ -81,6 +118,7 @@ const router = useRouter()
   color: #000;
   border-radius: 6px;
 }
+
 .mobile-bottom-nav .dropdown-menu {
   font-size: 14px;
   min-width: 140px;
@@ -90,7 +128,6 @@ const router = useRouter()
 .mobile-bottom-nav .dropdown-item {
   padding: 10px 14px;
 }
-
 .mobile-bottom-nav .dropdown-item:hover {
   background-color: #f0f0f0;
   color: #000;
@@ -114,8 +151,8 @@ const router = useRouter()
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   z-index: 1600;
 }
+
 body {
   padding-bottom: 64px;
 }
-
 </style>

@@ -5,7 +5,7 @@ import es.board.controller.record.MissingPollPayload;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.es.document.View;
-import es.board.infrastructure.es.document.ViewDAO;
+import es.board.infrastructure.es.document.ViewLogDAO;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.infrastructure.gemini.GeminiService;
 import es.board.infrastructure.poll.PollRepository;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 
@@ -31,7 +30,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
     private final NotificationService notificationService;
 
-    private final ViewDAO viewDAO;
+    private final ViewLogDAO viewDAO;
 
     private final GeminiService geminiService;
 
@@ -42,6 +41,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
     private final PollRepository pollRepository;
 
     private final PollVoteRepository pollVoteRepository;
+    
     @Override
     @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
     public void sendTop3Hourly() {
@@ -60,11 +60,9 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
         Optional<PostEntity> userTopToday = postQueryRepository.findUserTopToday(lastDay);
-        userTopToday.ifPresent(postEntity ->
-                notificationService.sendTop1RankingNotification(postEntity.getUserId(), postEntity));
-
+        userTopToday.ifPresent(postEntity -> notificationService.sendTop1RankingNotification(postEntity.getUserId(), postEntity));
     }
-
+    
     @Override
     @Scheduled(cron = "0 0 0/2 * * *", zone = "Asia/Seoul")
     public void sendPoll() {

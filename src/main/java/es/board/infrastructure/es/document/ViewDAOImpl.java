@@ -2,7 +2,6 @@ package es.board.infrastructure.es.document;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import es.board.ex.IndexException;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class ViewDAOImpl implements ViewDAO{
+public class ViewDAOImpl implements ViewLogDAO {
 
 
     private final ElasticsearchClient client;

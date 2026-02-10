@@ -9,13 +9,13 @@ import { useToast } from '@/composables/useToast'
 const user = useUserStore()
 const router = useRouter()
 const { push, toasts } = useToast()
+
 const notifications = ref([])
-const unreadCount = computed(() =>
-    notifications.value.filter(n => !n.isCheck).length
-)
-const hasUnread = computed(() =>
-    notifications.value.some(n => !n.isCheck)
-)
+const unreadCount = computed(() => notifications.value.filter(n => !n.isCheck).length)
+const hasUnread = computed(() => notifications.value.some(n => !n.isCheck))
+
+// ✅ 외부 링크 판별
+const isExternal = (href) => /^https?:\/\//i.test(String(href || '').trim())
 
 const openDropdownIdx = ref(null)
 const showNoti = ref(false)
@@ -27,12 +27,12 @@ const notiPanel = ref(null)
 
 onMounted(() => {
   const token = localStorage.getItem('token')
-  if (token) {
-    useSSE(token)
-  }
+  if (token) useSSE(token)
+
   fetchNotifications()
   user.fetchMe()
   applySavedTheme()
+
   window.addEventListener('click', handleGlobalClick)
 })
 
@@ -49,40 +49,21 @@ async function fetchNotifications() {
     })
     const fetchedNotifications = data || []
     notifications.value = fetchedNotifications
+
     let unreadNotifications = fetchedNotifications.filter(n => !n.isCheck)
     unreadNotifications.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    // const unreadCount = unreadNotifications.length
-    // const pushCount = Math.ceil(unreadCount / 2)
-    //
-    // if (pushCount > 0) {
-    //   const notificationsToPush = unreadNotifications.slice(0, pushCount)
-    //
-    //   notificationsToPush.forEach((notification) => {
-    //     const { username, message, createdAt, postId } = notification
-    //     const time = new Date(createdAt).toLocaleTimeString('ko-KR', {
-    //       hour: '2-digit', minute: '2-digit'
-    //     })
-    //
-    //     const beautifulMessage = `(${time}) ${username}: ${message}`
-    //     push(
-    //         `🔔 ${beautifulMessage}`,
-    //         `/post/${postId}`
-    //     )
-    //   })
-    // }
   } catch (e) {
     console.error('알림 불러오기 실패', e)
   }
 }
+
 window.addEventListener('storage', e => {
   if (e.key === 'token') user.fetchMe()
 })
 
 watch(
     notifications,
-    n => {
-      localStorage.setItem('notifications', JSON.stringify(n))
-    },
+    n => localStorage.setItem('notifications', JSON.stringify(n)),
     { deep: true }
 )
 
@@ -103,6 +84,7 @@ function applySavedTheme() {
   const saved = localStorage.getItem('theme') || 'light'
   isDarkMode.value = saved === 'dark'
   const root = document.documentElement
+
   if (isDarkMode.value) {
     root.style.setProperty('--c-surface', '#1d1f24')
     root.style.setProperty('--c-text', '#e5e7eb')
@@ -124,9 +106,7 @@ function toggleTheme() {
 
 function formatDate(dateStr) {
   const date = new Date(dateStr)
-  return `${date.getMonth() + 1}.${date.getDate()} ${String(
-      date.getHours()
-  ).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+  return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 async function markAsRead(ids) {
@@ -137,9 +117,7 @@ async function markAsRead(ids) {
       headers: { Authorization: `Bearer ${token}` }
     })
     notifications.value = notifications.value.map(n =>
-        ids.includes(n.notificationId)
-            ? { ...n, read: true, isCheck: true }
-            : n
+        ids.includes(n.notificationId) ? { ...n, read: true, isCheck: true } : n
     )
   } catch (e) {
     console.error('읽음 처리 실패', e)
@@ -153,9 +131,7 @@ async function deleteNotification(ids) {
     await api.post('/notification/delete', ids, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    notifications.value = notifications.value.filter(
-        n => !ids.includes(n.notificationId)
-    )
+    notifications.value = notifications.value.filter(n => !ids.includes(n.notificationId))
   } catch (e) {
     console.error('삭제 실패', e)
   }
@@ -171,7 +147,7 @@ function handleGlobalClick(e) {
     }
   }
 
-
+  // 유저 메뉴 닫기
   if (showUserMenu.value) {
     const userMenuBtn = e.target.closest('.user-menu-trigger')
     const userMenuDropdown = e.target.closest('.user-menu-dropdown')
@@ -180,99 +156,53 @@ function handleGlobalClick(e) {
     }
   }
 
+  // 상단 드롭다운 닫기
   if (openDropdownIdx.value !== null) {
     const navArea = e.target.closest('.top-nav-menu-area')
-    if (!navArea) {
-      openDropdownIdx.value = null
-    }
+    if (!navArea) openDropdownIdx.value = null
   }
 }
 
+// ✅ menus: 책찾기 도서관(외부링크) 포함
 const menus = [
   {
     label: '취업 사이트',
     items: [
-      {
-        href: '/search/view/feed/list/job',
-        icon: 'fas fa-briefcase text-primary',
-        title: 'IT 취업 정보',
-        desc: '실시간 채용 공고 & 커뮤니티 피드'
-      },
-      {
-        href: '/site',
-        icon: 'fas fa-link text-info',
-        title: '취업 사이트',
-        desc: '원스톱 취업 준비를 위한 사이트 모음'
-      }
+      { href: '/search/view/feed/list/job', icon: 'fas fa-briefcase text-primary', title: 'IT 취업 정보', desc: '실시간 채용 공고 & 커뮤니티 피드' },
+      { href: '/site', icon: 'fas fa-link text-info', title: '취업 사이트', desc: '원스톱 취업 준비를 위한 사이트 모음' }
     ]
   },
   {
     label: '일정 관리',
     items: [
-      {
-        href: '/todo',
-        icon: 'fas fa-check text-success',
-        title: '투두 & D-Day 매니저',
-        desc: '자격증/취업 일정 관리 & 리마인더'
-      }
+      { href: '/todo', icon: 'fas fa-check text-success', title: '투두 & D-Day 매니저', desc: '자격증/취업 일정 관리 & 리마인더' }
     ]
   },
   {
     label: '영어',
     items: [
+      { href: '/practice', icon: 'fas fa-file-alt text-primary', title: '영어문제', desc: '기출/모의 문제로 실전 연습!' }
+    ]
+  },
+  {
+    label: '책찾기',
+    items: [
       {
-        href: '/practice',
-        icon: 'fas fa-file-alt text-primary',
-        title: '영어문제',
-        desc: '기출/모의 문제로 실전 연습!'
-      },
-      // {
-      //   href: '/certificate/data',
-      //   icon: 'fas fa-book text-info',
-      //   title: '자격증 자료',
-      //   desc: '시험과목, 기출요약, 공부법 가이드'
-      // },
-      // {
-      //   href: '/certificate/list',
-      //   icon: 'fas fa-chart-bar text-success',
-      //   title: '자격증 분석',
-      //   desc: '합격률/응시율 기반 자격증 추천'
-      // },
-      // {
-      //   href: '/certificate/calendar',
-      //   icon: 'fas fa-calendar-alt text-warning',
-      //   title: '자격증 캘린더',
-      //   desc: 'D-DAY & 원서접수 일정 한눈에!'
-      // }
+        href: 'https://lib.workly.info',
+        external: true,
+        icon: 'fas fa-book-open text-primary',
+        title: '도서관',
+        desc: '지역 도서관 검색 / 소장 도서 확인'
+      }
     ]
   },
   {
     label: '면접',
     items: [
-      {
-        href: '/interview/govinterview',
-        icon: 'fas fa-user-shield text-primary',
-        title: '공무원',
-        desc: '실제 면접 기출 문제로 철저 대비!'
-      },
-      {
-        href: '/certificate/data',
-        icon: 'fas fa-laptop-code text-info',
-        title: 'IT',
-        desc: '기술면접/코테까지 완벽 준비!'
-      },
-      {
-        href: '/interview/priinterview',
-        icon: 'fas fa-building text-success',
-        title: '사기업',
-        desc: '기업별 면접 포인트와 합격 전략'
-      },
-      {
-        href: '/certificate/calendar',
-        icon: 'fas fa-landmark text-warning',
-        title: '공기업',
-        desc: 'NCS부터 인성까지 완벽 분석'
-      }
+      { href: '/interview/govinterview', icon: 'fas fa-user-shield text-primary', title: '공무원', desc: '실제 면접 기출 문제로 철저 대비!' },
+      { href: '/certificate/data', icon: 'fas fa-laptop-code text-info', title: 'IT', desc: '기술면접/코테까지 완벽 준비!' },
+      { href: '/interview/priinterview', icon: 'fas fa-building text-success', title: '사기업', desc: '기업별 면접 포인트와 합격 전략' },
+      { href: '/certificate/calendar', icon: 'fas fa-landmark text-warning', title: '공기업', desc: 'NCS부터 인성까지 완벽 분석' }
     ]
   }
 ]
@@ -287,20 +217,43 @@ const menus = [
         미래를 준비하는 사람들을 위한 사이트
       </span>
 
+      <!-- ✅ PC 상단 드롭다운 메뉴 -->
       <ul class="nav d-none d-md-flex gap-3 top-nav-menu-area">
         <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
           <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
             {{ m.label }}
           </a>
+
           <div class="dropdown-menu rounded shadow-sm small p-2" :class="{ show: openDropdownIdx === idx }">
-            <router-link
-                v-for="item in m.items"
-                :key="item.href"
-                class="dropdown-item d-flex flex-column"
-                :to="item.href">
-              <span class="fw-bold">{{ item.title }}</span>
-              <small class="text-muted">{{ item.desc }}</small>
-            </router-link>
+            <!-- ✅ 여기서 외부/내부 분기 -->
+            <template v-for="item in m.items" :key="item.href">
+              <!-- 외부 링크 -->
+              <a
+                  v-if="item.external || isExternal(item.href)"
+                  class="dropdown-item d-flex flex-column"
+                  :href="item.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click="openDropdownIdx = null"
+              >
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-bold">{{ item.title }}</span>
+                  <i class="fas fa-arrow-up-right-from-square text-muted"></i>
+                </div>
+                <small class="text-muted">{{ item.desc }}</small>
+              </a>
+
+              <!-- 내부 링크 -->
+              <router-link
+                  v-else
+                  class="dropdown-item d-flex flex-column"
+                  :to="item.href"
+                  @click="openDropdownIdx = null"
+              >
+                <span class="fw-bold">{{ item.title }}</span>
+                <small class="text-muted">{{ item.desc }}</small>
+              </router-link>
+            </template>
           </div>
         </li>
       </ul>
@@ -311,18 +264,21 @@ const menus = [
               class="fas fa-bell fa-lg bell-trigger"
               :class="hasUnread ? 'text-primary bell-has-unread' : 'text-secondary'"
               style="cursor:pointer"
-              @click.stop="toggleNoti"/>
+              @click.stop="toggleNoti"
+          />
           <span
               v-if="unreadCount > 0"
               class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle"
-              style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+              style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"
+          >
             {{ unreadCount }}
           </span>
 
           <div
               ref="notiPanel"
               class="notification-dropdown shadow rounded-4 p-0"
-              :class="{ show: showNoti }">
+              :class="{ show: showNoti }"
+          >
             <div class="noti-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
               <div class="d-flex flex-column">
                 <span class="fw-semibold">
@@ -341,13 +297,16 @@ const menus = [
                 모두 읽음
               </button>
             </div>
+
             <ul v-if="notifications.length > 0" class="list-unstyled mb-0 small noti-list">
               <li
                   v-for="n in notifications"
                   :key="n.notificationId"
                   :class="[
                   'noti-item d-flex justify-content-between align-items-start px-3 py-2 border-bottom',
-                  { 'noti-unread': !n.isCheck }]">
+                  { 'noti-unread': !n.isCheck }
+                ]"
+              >
                 <div class="flex-grow-1 me-2">
                   <router-link
                       :to="'/post/' + n.postId"
@@ -357,42 +316,30 @@ const menus = [
                     <div class="d-flex align-items-center mb-1">
                       <span class="noti-dot me-2" v-if="!n.isCheck"></span>
                       <span class="fw-semibold text-dark text-truncate">
-                      <template v-if="n.message.includes('좋아요')">
-                        {{ n.message }}
-                      </template>
-
-                    <template v-else>
-                      {{ n.username }}님이 "{{ n.message }}" 라고 작성하셨습니다
-                    </template>
-                  </span>
+                        <template v-if="n.message.includes('좋아요')">
+                          {{ n.message }}
+                        </template>
+                        <template v-else>
+                          {{ n.username }}님이 "{{ n.message }}" 라고 작성하셨습니다
+                        </template>
+                      </span>
                     </div>
                     <div class="small text-muted">{{ formatDate(n.createdAt) }}</div>
                   </router-link>
                 </div>
 
                 <div class="btn-group btn-group-sm ms-1 flex-shrink-0">
-                  <button
-                      class="btn btn-outline-success btn-sm"
-                      @click="markAsRead([n.notificationId])"
-                      title="읽음 처리"
-                  >
+                  <button class="btn btn-outline-success btn-sm" @click="markAsRead([n.notificationId])" title="읽음 처리">
                     <i class="fas fa-eye" />
                   </button>
-                  <button
-                      class="btn btn-outline-danger btn-sm"
-                      @click="deleteNotification([n.notificationId])"
-                      title="삭제"
-                  >
+                  <button class="btn btn-outline-danger btn-sm" @click="deleteNotification([n.notificationId])" title="삭제">
                     <i class="fas fa-trash" />
                   </button>
                 </div>
               </li>
             </ul>
 
-            <div
-                v-else
-                class="d-flex flex-column align-items-center justify-content-center text-muted py-4 small"
-            >
+            <div v-else class="d-flex flex-column align-items-center justify-content-center text-muted py-4 small">
               <i class="fas fa-inbox mb-2" style="font-size: 1.8rem;"></i>
               <div>최근 7일 이내 알림이 없습니다</div>
             </div>
@@ -413,10 +360,7 @@ const menus = [
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
 
-        <button
-            class="d-none d-md-inline-block btn btn-danger btn-sm"
-            @click="router.push('/search/view/feed/Form')"
-        >
+        <button class="d-none d-md-inline-block btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
           글쓰기
         </button>
 
@@ -438,6 +382,7 @@ const menus = [
             </div>
           </div>
         </template>
+
         <template v-else>
           <button class="btn btn-outline-dark btn-sm" @click="router.push('/login')">
             로그인
@@ -446,19 +391,6 @@ const menus = [
       </div>
     </div>
   </nav>
-
-<!--  <div class="toast-wrapper">-->
-<!--    <div-->
-<!--        v-for="toast in toasts"-->
-<!--        :key="toast.id"-->
-<!--        class="custom-toast"-->
-<!--        :class="{ 'clickable': !!toast.onClick }"-->
-<!--        @click="toast.onClick ? toast.onClick() : null"-->
-<!--    >-->
-<!--      <div class="toast-message">{{ toast.msg }}</div>-->
-<!--      <i v-if="toast.onClick" class="fas fa-external-link-alt toast-icon"></i>-->
-<!--    </div>-->
-<!--  </div>-->
 </template>
 
 <style scoped>
@@ -485,7 +417,7 @@ const menus = [
   opacity: 0.7;
 }
 
-/* 상단 메뉴 */
+
 .okky-navbar .nav-link {
   font-weight: 600;
   color: #444;
@@ -518,7 +450,7 @@ const menus = [
   background: #f1f4ff;
 }
 
-/* 알림 종 아이콘 */
+
 .fa-bell {
   transition: color .25s, transform .25s;
 }
@@ -539,7 +471,7 @@ const menus = [
   border-radius: 18px;
   overflow: hidden;
   position: absolute;
-  right: 0; /* PC: 오른쪽 끝에 붙임 */
+  right: 0;
   top: 48px;
   border: 1px solid #e5e8eb;
   box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -577,7 +509,6 @@ const menus = [
 }
 
 
-/* 작은 빨간 점 */
 .noti-dot {
   width: 8px;
   height: 8px;
@@ -585,7 +516,6 @@ const menus = [
   border-radius: 50%;
 }
 
-/* 유저 메뉴 */
 .dropdown-menu.show {
   display: block;
 }
@@ -594,7 +524,6 @@ const menus = [
   border-radius: 10px !important;
 }
 
-/* 테마 버튼 */
 .btn-outline-dark {
   border-radius: 10px !important;
   padding: 6px 10px;

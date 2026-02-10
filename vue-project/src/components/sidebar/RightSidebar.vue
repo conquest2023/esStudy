@@ -53,7 +53,7 @@
                 class="d-flex justify-content-between align-items-center small py-1"
             >
               <span>{{ rankIcon(idx) }} {{ w.username }}</span>
-              <span class="text-muted">{{ w.totalCount }}점</span>
+<!--              <span class="text-muted">{{ w.totalCount }}점</span>-->
             </div>
           </div>
         </div>
@@ -142,7 +142,6 @@ import { useSidebarStore } from '@/stores/sidebar'
 const collapsed      = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 const currentSection = ref('dashboard')
 const sections = [
-  // ... (기존 sections)
 ]
 
 watch(collapsed, v => localStorage.setItem('sidebarCollapsed', v))
@@ -159,10 +158,8 @@ onMounted(() => {
     loadedOnce = true
   }
 })
-
-
 const statusIcon = s => (s === 'DONE' ? '✅' : s === 'IN_PROGRESS' ? '⏳' : '📝')
-const rankIcon   = i => ['👑','🥇','🥈','🥉'][i] || `${i+1}.`
+const rankIcon   = i =>  ['🏆', '🥇', '🥈', '🥉', '⚡'][i] || `${i + 1}.`
 
 const recentRankIcon = i => {
   const fire = '🔥'

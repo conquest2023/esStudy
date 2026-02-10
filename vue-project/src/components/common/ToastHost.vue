@@ -98,8 +98,10 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
         <div
             v-else-if="t.type === 'analysis'"
             class="toast-card analysis center-modal"
-            @click.stop
-        >
+            @click.stop>
+          <button class="btn-close" @click.stop="emitClose(t)" title="닫기">
+            <i class="fas fa-times"></i>
+          </button>
           <div class="head">
             <span class="emoji">✨</span>
             <strong>{{ t.title || '오늘의 하루 분석 리포트' }}</strong>
@@ -151,9 +153,8 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   flex-direction: column;
   gap: 10px;
 }
-/* 닫기 버튼 스타일 */
 .toast-card {
-  position: relative; /* 버튼 배치를 위해 추가 */
+  position: relative;
 }
 
 
@@ -162,12 +163,12 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   color: #495057;
 }
 
-/* 일반 알림 전용 패딩 (닫기 버튼 공간 확보) */
+
 .generic-toast {
   padding-right: 40px !important;
 }
 
-/* 닫기 버튼 강제 스타일링 */
+
 .btn-close {
   position: absolute !important;
   top: 10px !important;
@@ -176,14 +177,14 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: #f1f3f5; /* 버튼 배경색을 줘서 가시성 확보 */
-  color: #495057 !important; /* 아이콘 색상을 진하게 */
-  display: flex !important; /* grid 대신 flex로 확실히 중앙 정렬 */
+  background: #f1f3f5;
+  color: #495057 !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
-  pointer-events: auto; /* 클릭 가능하게 설정 */
+  pointer-events: auto;
 }
 
 .btn-close i {
@@ -195,7 +196,7 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   color: #000 !important;
 }
 
-/* 제목이 길어질 때 버튼 침범 방지 */
+
 .generic-toast .title {
   display: block;
   max-width: 180px;
@@ -205,7 +206,7 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
 }
 
 .generic-toast .head .title {
-  max-width: 90%; /* 제목이 길어져도 닫기 버튼을 가리지 않게 */
+  max-width: 90%;
 }
 .toast-card {
   pointer-events: auto;
@@ -280,18 +281,18 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   .toast-card { max-width: min(320px, 90vw); }
   .top3 .item, .poll .item { padding: 8px; }
 }
-/* ✨ Analysis 전용 중앙 알림 스타일 */
 .toast-card.analysis.center-modal {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* 화면 정중앙 */
+  transform: translate(-50%, -50%);
   width: min(400px, 90vw);
   max-height: 80vh;
   overflow-y: auto;
   border: 2px solid #e1e8ff;
-  box-shadow: 0 20px 50px rgba(0, 75, 255, 0.15); /* 강조된 그림자 */
-  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 75, 255, 0.15);
+
+  padding: 32px 24px 24px 24px;
 }
 
 .analysis-body {
@@ -317,7 +318,7 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background-color: #ff000010; /* 유튜브 레드 투명도 */
+  background-color: #ff000010;
   color: #ff0000;
   padding: 4px 10px;
   border-radius: 6px;
@@ -335,15 +336,19 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
 }
 
 .analysis-line {
-  align-items: flex-start; /* 아이콘과 텍스트 상단 정렬 */
-  margin-bottom: 15px; /* 항목 간 간격 확보 */
+  align-items: flex-start;
+  margin-bottom: 15px;
 }
 
 :deep(b) {
   color: #1e293b;
   font-size: 1rem;
 }
-
+.btn-close {
+  top: 12px !important;
+  right: 12px !important;
+  background: #f8faff;
+}
 :deep(.reason) {
   display: block;
   color: #64748b;
