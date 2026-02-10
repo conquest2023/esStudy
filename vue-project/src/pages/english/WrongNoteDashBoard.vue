@@ -18,14 +18,12 @@
     </header>
 
     <main class="we-container we-review">
-      <!-- 1. Summary Stats Section -->
       <section class="we-summaryGrid">
         <div class="we-summaryCard is-main">
           <div class="we-summaryLabel">Total Wrong Notes</div>
           <div class="we-summaryValue">
             {{ filteredNotes.length }}<span>건</span>
           </div>
-          <!-- 이건 아직 실제 통계 연결 전이라 임시 -->
           <div class="we-summaryTrend">
             <i class="fa-solid fa-arrow-down"></i> 지난주 대비 12% 감소
           </div>
@@ -46,7 +44,6 @@
         </div>
       </section>
 
-      <!-- 2. Filter Bar -->
       <div class="we-filterRow">
         <div class="we-tabGroup">
           <button
@@ -63,18 +60,16 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <input
               type="text"
-              placeholder="오답 태그, 문장 검색..."
+              placeholder="오답 태그, 문장/단어 검색..."
               v-model="searchQuery"
           />
         </div>
       </div>
 
-      <!-- Loading -->
       <div v-if="loading && normalizedNotes.length === 0" class="we-loading">
         <i class="fa-solid fa-circle-notch fa-spin"></i> 오답노트를 불러오는 중...
       </div>
 
-      <!-- Empty -->
       <div v-else-if="!loading && normalizedNotes.length === 0" class="we-empty">
         <div class="we-emptyTitle">오답노트가 없습니다.</div>
         <div class="we-emptySub">문제를 풀고 틀린 문제를 저장해보세요.</div>
@@ -83,9 +78,12 @@
         </button>
       </div>
 
-      <!-- 3. Wrong Note List -->
       <div v-else class="we-noteList">
-        <div v-for="note in filteredNotes" :key="note.id" class="we-noteCard">
+        <div
+            v-for="note in filteredNotes"
+            :key="note.id"
+            class="we-noteCard"
+        >
           <div class="we-noteCard__head">
             <div class="we-chipRow">
               <span class="we-chip is-category">{{ note.category }}</span>
@@ -129,7 +127,6 @@
               </p>
             </div>
 
-            <!-- Memo (local only for now) -->
             <div class="we-memoPad">
               <div class="we-memoTitle">📌 My Learning Note</div>
               <textarea
@@ -151,7 +148,6 @@
           </div>
         </div>
 
-        <!-- Load more -->
         <div class="we-loadMoreRow">
           <button class="we-btn" @click="fetchWrongNotes(false)" :disabled="loading || !hasMore">
             <i class="fa-solid fa-rotate"></i>
@@ -166,7 +162,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import api from "@/utils/api.js";
+import api from '@/utils/api.js'
 
 const router = useRouter()
 const go = (p) => router.push(p)
@@ -174,19 +170,18 @@ const go = (p) => router.push(p)
 const activeTab = ref('ALL')
 const searchQuery = ref('')
 
-const wrongNotes = ref([]) // 서버 원본 리스트
+const wrongNotes = ref([])
 const loading = ref(false)
 
 const page = ref(0)
 const size = ref(20)
 const hasMore = ref(true)
 
-// ====== (임시) Summary 값들 ======
+// (임시) Summary
 const masteryRate = 68
 const weaknessRate = 42
 const weaknessPartText = 'RC Part 5'
 
-// ====== Auth ======
 function authHeadersOrRedirect() {
   const token = localStorage.getItem('token')
   if (!token) {
@@ -197,7 +192,6 @@ function authHeadersOrRedirect() {
   return { Authorization: `Bearer ${token}` }
 }
 
-// ====== Fetch ======
 async function fetchWrongNotes(reset = false) {
   const headers = authHeadersOrRedirect()
   if (!headers) return
@@ -213,30 +207,30 @@ async function fetchWrongNotes(reset = false) {
 
   try {
     if (activeTab.value === 'ALL') {
-      // ALL은 서버가 path variable이라 RC + VOCA 합쳐서 처리
       const [rcRes, vocaRes] = await Promise.all([
-        api.get(`/wrong-note/RC`, {params: {page: page.value, size: size.value}, headers}),
-        api.get(`/wrong-note/VOCA`, {params: {page: page.value, size: size.value}, headers})
+        api.get(`/wrong-note/RC`, { params: { page: page.value, size: size.value }, headers }),
+        api.get(`/wrong-note/VOCA`, { params: { page: page.value, size: size.value }, headers })
       ])
 
-      const rcList = rcRes.data?.ok ?? []
-      const vocaList = vocaRes.data?.ok ?? []
+      const rcList = Array.isArray(rcRes.data?.ok) ? rcRes.data.ok : []
+      const vocaList = Array.isArray(vocaRes.data?.ok) ? vocaRes.data.ok : []
       const merged = [...rcList, ...vocaList]
 
-      // 최신순 정렬(필요 없으면 삭제 가능)
-      merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      // createdAt null 대응: 없으면 뒤로
+      merged.sort((a, b) => {
+        const ad = a?.createdAt ? new Date(a.createdAt).getTime() : 0
+        const bd = b?.createdAt ? new Date(b.createdAt).getTime() : 0
+        return bd - ad
+      })
 
       wrongNotes.value.push(...merged)
-
-      // ALL은 두 리스트 중 하나라도 꽉 차면 다음 페이지 있을 가능성
       hasMore.value = (rcList.length >= size.value) || (vocaList.length >= size.value)
     } else {
       const res = await api.get(`/wrong-note/${activeTab.value}`, {
         params: {page: page.value, size: size.value},
         headers
       })
-      const list = res.data?.ok ?? []
-      console.log(list)
+      const list = Array.isArray(res.data?.ok) ? res.data.ok : []
       wrongNotes.value.push(...list)
       hasMore.value = list.length >= size.value
     }
@@ -250,44 +244,57 @@ async function fetchWrongNotes(reset = false) {
   }
 }
 
-// ====== Normalize DTO -> UI friendly ======
+
+function inferCategory(n) {
+  if (n?.category) return String(n.category).toUpperCase()
+
+  if (n?.type) {
+    const t = String(n.type).toUpperCase()
+    if (t.includes('VOCA')) return 'VOCA'
+    if (t.includes('RC')) return 'RC'
+  }
+
+  const tags = Array.isArray(n?.tags) ? n.tags.map(x => String(x).toLowerCase()) : []
+  if (tags.some(t => ['voca', 'vocabulary', 'word', 'conversation', 'speaking'].includes(t))) return 'VOCA'
+
+  if (Number(n?.part) === 0) return 'VOCA'
+
+  return 'RC'
+}
+
 const normalizedNotes = computed(() => {
   return (wrongNotes.value || []).map((n) => {
-    const passage = n?.content?.passage ?? '' // ✅ 너 DTO 구조 반영
-    const explanation =
-        n?.content?.questions?.[0]?.explanation ??
-        n?.explanation ??
-        ''
+    const category = inferCategory(n)
+    const passage = n?.content?.passage ?? n?.content?.word ?? ''
+    const q0 = n?.content?.questions?.[0] ?? null
+    const explanation = q0?.explanation ?? n?.explanation ?? ''
+    const correctAnswer = q0?.answer ?? n?.correctAnswer ?? ''
 
-    // correctAnswer가 "A" 같은 인덱스면 그대로 보여주고,
-    // options 텍스트로 바꾸고 싶으면 서버에서 correctIndex 같이 주는 게 깔끔함.
-    const correctAnswer =
-        n?.correctAnswer ??
-        n?.content?.questions?.[0]?.answer ??
-        ''
-
-    const solvedAt = n?.createdAt ? String(n.createdAt).slice(0, 10) : ''
+    const solvedAt = n?.createdAt ? String(n.createdAt).slice(0, 10) : '-'
 
     return {
       ...n,
+      category,
       passage,
       explanation,
       correctAnswer,
       solvedAt,
       tags: Array.isArray(n?.tags) ? n.tags : [],
-      memo: n?.memo ?? '' // 현재는 로컬용(서버 저장 연결 전)
+      memo: n?.memo ?? '',
+      level: n?.level ?? 'BRONZE',
+      part: Number.isFinite(Number(n?.part)) ? Number(n.part) : 0
     }
   })
 })
 
-// ====== Filter (tab + search) ======
 const filteredNotes = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
+
   return normalizedNotes.value.filter((n) => {
     const tabMatch = activeTab.value === 'ALL' || n.category === activeTab.value
     if (!q) return tabMatch
 
-    const passageMatch = (n.passage || '').toLowerCase().includes(q)
+    const passageMatch = String(n.passage || '').toLowerCase().includes(q)
     const tagMatch = (n.tags || []).some((t) => String(t).toLowerCase().includes(q))
 
     return tabMatch && (passageMatch || tagMatch)
@@ -295,19 +302,15 @@ const filteredNotes = computed(() => {
 })
 
 function highlight(text) {
-  return (text || '').replace(/-+/g, `<span class="we-blank">_______</span>`)
+  return String(text || '').replace(/-+/g, `<span class="we-blank">_______</span>`)
 }
 
 function retry(objectId) {
-  // objectId로 다시 풀기 화면 이동
   console.log('Retry problem:', objectId)
-  // 예: router.push(`/practice/rc?objectId=${objectId}`)
 }
 
-// (옵션) 삭제 버튼 — 아직 백엔드 DELETE API 없으니 일단 UI에서만 제거
 async function removeNote(objectId) {
   if (!confirm('오답노트를 삭제하시겠습니까?')) return
-  // TODO: 백엔드 DELETE 생기면 여기서 호출
   wrongNotes.value = wrongNotes.value.filter(n => n.id !== objectId)
 }
 
@@ -327,7 +330,6 @@ watch(activeTab, () => {
   padding-bottom: 100px;
 }
 
-/* Summary Stats */
 .we-summaryGrid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -375,7 +377,6 @@ watch(activeTab, () => {
   color: #3b82f6;
 }
 
-/* Filter Bar */
 .we-filterRow {
   display: flex;
   justify-content: space-between;
@@ -433,7 +434,6 @@ watch(activeTab, () => {
   margin-bottom: 10px;
 }
 
-/* Note Card */
 .we-noteCard {
   background: white;
   border-radius: 32px;
@@ -583,7 +583,6 @@ watch(activeTab, () => {
   line-height: 1.6;
 }
 
-/* Sticky Memo Style */
 .we-memoPad {
   background: #fffbeb;
   border: 1px dashed #f59e0b;

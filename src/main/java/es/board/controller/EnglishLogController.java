@@ -46,7 +46,7 @@ public class EnglishLogController {
                                           @RequestParam int page,
                                           @RequestParam int size) {
         List<?> wrongNoteList = englishService.getWrongNoteList(page, size, category, userId);
-
+        log.info(wrongNoteList.toString());
         return ResponseEntity.ok(Map.of("ok",wrongNoteList));
     }
 }
