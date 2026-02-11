@@ -14,7 +14,6 @@ const notifications = ref([])
 const unreadCount = computed(() => notifications.value.filter(n => !n.isCheck).length)
 const hasUnread = computed(() => notifications.value.some(n => !n.isCheck))
 
-// ✅ 외부 링크 판별
 const isExternal = (href) => /^https?:\/\//i.test(String(href || '').trim())
 
 const openDropdownIdx = ref(null)
