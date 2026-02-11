@@ -1,16 +1,13 @@
-// composables/useSSE.js
 import { onBeforeUnmount } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
-// 🔒 싱글턴
 let esRef = null
 let subscribed = false
 let reconnectTimer = null
 
-// 🔁 단기 중복 방지(같은 이벤트가 재전송될 때 차단)
-const seen = new Map() // key -> expireAt(ms)
+const seen = new Map()
 const SEEN_TTL = 15_000
 
 function dedup(key) {
@@ -24,12 +21,10 @@ function dedup(key) {
     return false
 }
 
-// 안정적 키 생성기(서버가 id 내려주면 그걸 최우선)
 function stableKeyFromParsed(type, parsed, fallback) {
     if (parsed?.id) return String(parsed.id)
     if (fallback) return String(fallback)
 
-    // 포인트 알림은 트랜잭션/유저/금액/생성시각 조합 추천
     if (type === 'point') {
         const tx = parsed.pointTxId || parsed.txId || parsed.eventId || parsed.userId || 'anon'
         const amt = parsed.amount ?? parsed.points ?? '0'
@@ -37,12 +32,10 @@ function stableKeyFromParsed(type, parsed, fallback) {
         return `point:${tx}:${amt}:${at}`
     }
 
-    // 게시글 기반 일반 알림
     if (parsed?.postId) {
         return `${parsed.type || 'notif'}:${parsed.postId}`
     }
 
-    // 마지막 수단
     return `ev:${type}:${Date.now()}`
 }
 
@@ -130,22 +123,31 @@ export function useSSE(token) {
 
     const handleNotification = (e, emoji, typeAlias) => {
         let parsed
-        try { parsed = JSON.parse(e.data) } catch (error) {
+        try {
+            parsed = JSON.parse(e.data)
+        } catch (error) {
             return console.error('[SSE] 알림 JSON 파싱 실패:', e.data, error)
         }
 
-        // ★ 포인트 알림은 강력한 안정키
         const kind = typeAlias === 'point' ? 'point' : (parsed.type || typeAlias || 'generic')
-        const key = stableKeyFromParsed(kind, parsed, e.lastEventId)
-        if (dedup(key)) return
+        const key = stableKeyFromParsed(kind, parsed, e.lastEventId);
+        // if (dedup(key)) return;
 
-        const n = store.addNotification?.(parsed) ?? parsed
-        const msg = `${emoji} ${n.message ?? '새 알림이 도착했습니다'}`
+        const toastId = `${key}_${Date.now()}`;
+
+        const n = store.addNotification?.(parsed) ?? parsed;
+        const msg = `${emoji} ${n.message ?? '새 알림이 도착했습니다'}`;
+
+        const options = {
+            id: toastId, // 유니크한 ID (리스트 쌓기용)
+            msg,
+            duration: 100000
+        };
 
         if (n.postId) {
-            push({ id: key, msg, routePath: `/post/${n.postId}`, duration: 100000 })
+            push({ ...options, routePath: `/post/${n.postId}` });
         } else {
-            push({ id: key, msg, routePath: '/notifications', duration: 100000 })
+            push({ ...options, routePath: '/notifications' });
         }
     }
 

@@ -27,7 +27,7 @@ onMounted(async () => {
     curDescriptionHtml.value = data.ok.post.description ?? "";
 
     title.value = curTitle.value;
-    description.value = htmlToText(curDescriptionHtml.value); // ✅ 텍스트로 변환해서 textarea에
+    description.value = htmlToText(curDescriptionHtml.value);
   } catch (err) {
     console.error(err);
     errorMsg.value = "게시글을 불러오지 못했습니다.";

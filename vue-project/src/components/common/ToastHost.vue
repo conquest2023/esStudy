@@ -1,138 +1,121 @@
 <script setup>
 import { toasts } from '@/composables/useToast'
+import { ref, computed } from 'vue';
+const isExpanded = ref(false);
+
+// 알림 개수 계산
+const toastCount = computed(() => toasts.value.length);
+
 const formatAnalysisLine = (text) => {
   if (!text) return ''
-
   const urlRegex = /(https?:\/\/www\.youtube\.com\/results\?search_query=[^\s]+)/g;
-
   let formattedText = text
       .replace(/(추천 키워드:)/g, '<b>$1</b>')
       .replace(/(이유:)/g, '<br/><small class="reason">$1</small>')
-      .replace(/(링크:)/g, ''); // "링크:" 텍스트는 제거
-
+      .replace(/(링크:)/g, '');
   formattedText = formattedText.replace(urlRegex, (url) => {
     return `<a href="${url}" target="_blank" class="analysis-link-btn">
               <i class="fab fa-youtube"></i> 검색 결과 보기
             </a>`;
   });
-
   return formattedText;
 }
+
 const emitClick = (t) => { t.onClick && t.onClick() }
 const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
+
+// 모든 알림 한꺼번에 닫기
+const clearAll = () => {
+  [...toasts.value].forEach(t => emitClose(t));
+  isExpanded.value = false;
+}
 </script>
 
 <template>
   <div class="toast-host">
-    <TransitionGroup name="toast-list" tag="div" class="toast-stack">
+
+    <div v-if="toastCount >= 2 && !isExpanded" class="toast-card summary-card" @click="isExpanded = true">
+      <div class="head">
+        <span class="emoji">🔔</span>
+        <strong>새 알림 {{ toastCount }}건</strong>
+        <button class="btn-close" @click.stop="clearAll">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="msg text-truncate">
+        {{ toasts[0].msg || toasts[0].message }}
+      </div>
+      <div class="summary-footer">
+        <span>클릭하여 모두 보기</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <TransitionGroup v-else name="toast-list" tag="div" class="toast-stack">
+
+      <div v-if="isExpanded && toastCount > 0" class="expand-header">
+        <button class="btn-minimal" @click="isExpanded = false">접기</button>
+        <button class="btn-minimal danger" @click="clearAll">전체삭제</button>
+      </div>
+
       <div v-for="t in toasts" :key="t.id">
-        <div
-            v-if="t.type === 'top3'"
-            class="toast-card top3 clickable"
-            @click="emitClick(t)"
-        >
+        <div v-if="t.type === 'top3'" class="toast-card top3 clickable" @click="emitClick(t)">
           <div class="head">
             <span class="emoji">💎</span>
             <strong>{{ t.title || '오늘의 베스트 Top 3' }}</strong>
           </div>
-
           <div class="msg">{{ t.message }}</div>
-
           <ol class="list">
-            <li
-                v-for="(p, i) in (t.posts || [])"
-                :key="p.postId"
-                @click.stop="t.onItemClick ? t.onItemClick(p) : (t.onClick && t.onClick())"
-                class="item"
-                :title="p.title"
-            >
+            <li v-for="(p, i) in (t.posts || [])" :key="p.postId" @click.stop="t.onItemClick ? t.onItemClick(p) : (t.onClick && t.onClick())" class="item">
               <span class="rank">{{ i + 1 }}</span>
-              <div class="meta">
-                <div class="title text-truncate">{{ p.title }}</div>
-                <div class="sub text-muted">@{{ p.username }}</div>
-              </div>
+              <div class="meta"><div class="title text-truncate">{{ p.title }}</div><div class="sub text-muted">@{{ p.username }}</div></div>
               <i class="fas fa-chevron-right arrow"></i>
             </li>
           </ol>
-
           <div class="actions">
             <button class="btn" @click.stop="t.onClick && t.onClick()">전체 보기</button>
             <button class="btn ghost" @click.stop="emitClose(t)">나중에</button>
           </div>
         </div>
 
-        <div
-            v-else-if="t.type === 'poll-missing'"
-            class="toast-card poll clickable"
-            @click="emitClick(t)"
-        >
+        <div v-else-if="t.type === 'poll-missing'" class="toast-card poll clickable" @click="emitClick(t)">
           <div class="head">
             <span class="emoji">🗳</span>
             <strong>{{ t.title || '아직 참여하지 않은 투표' }}</strong>
             <span v-if="t.count != null" class="badge">{{ t.count }}</span>
           </div>
-
-          <div class="msg">
-            {{ t.message || `참여하지 않은 투표가 ${t.count ?? (t.posts?.length || 0)}개 있습니다.` }}
-          </div>
-
+          <div class="msg">{{ t.message || `참여하지 않은 투표가 ${t.count ?? (t.posts?.length || 0)}개 있습니다.` }}</div>
           <ul class="list">
-            <li
-                v-for="p in (t.posts || [])"
-                :key="p.postId"
-                class="item"
-                :title="p.title"
-            >
-              <button class="link" @click.stop="t.onItemClick ? t.onItemClick(p) : (t.onClick && t.onClick())">
-                • {{ p.title }}
-              </button>
+            <li v-for="p in (t.posts || [])" :key="p.postId" class="item">
+              <button class="link" @click.stop="t.onItemClick ? t.onItemClick(p) : (t.onClick && t.onClick())">• {{ p.title }}</button>
               <i class="fas fa-chevron-right arrow"></i>
             </li>
           </ul>
-
           <div class="actions">
             <button class="btn" @click.stop="t.onClick && t.onClick()">모두 보기</button>
             <button class="btn ghost" @click.stop="emitClose(t)">나중에</button>
           </div>
         </div>
-        <div
-            v-else-if="t.type === 'analysis'"
-            class="toast-card analysis center-modal"
-            @click.stop>
-          <button class="btn-close" @click.stop="emitClose(t)" title="닫기">
-            <i class="fas fa-times"></i>
-          </button>
-          <div class="head">
-            <span class="emoji">✨</span>
-            <strong>{{ t.title || '오늘의 하루 분석 리포트' }}</strong>
-          </div>
 
+        <div v-else-if="t.type === 'analysis'" class="toast-card analysis center-modal" @click.stop>
+          <button class="btn-close" @click.stop="emitClose(t)"><i class="fas fa-times"></i></button>
+          <div class="head"><span class="emoji">✨</span><strong>{{ t.title || '오늘의 하루 분석 리포트' }}</strong></div>
           <div class="msg">{{ t.message }}</div>
-
           <div class="analysis-body">
             <div v-for="(line, idx) in t.analysis" :key="idx" class="analysis-line">
               <i class="fas fa-check-circle check-icon"></i>
               <span class="text" v-html="formatAnalysisLine(line)"></span>
             </div>
           </div>
-
           <div class="actions center-actions">
             <button class="btn btn-full" @click.stop="emitClick(t)">상세 보러가기</button>
             <button class="btn ghost btn-full" @click.stop="emitClose(t)">닫기</button>
           </div>
         </div>
-        <div
-            v-else
-            class="toast-card clickable generic-toast"
-            @click="emitClick(t)"
-        >
-          <button class="btn-close" @click.stop="emitClose(t)" title="닫기">
-            <i class="fas fa-times"></i>
-          </button>
 
-          <div class="head">
-            <strong class="title text-truncate">{{ t.title || '알림' }}</strong>
-          </div>
+        <div v-else class="toast-card clickable generic-toast" @click="emitClick(t)">
+          <button class="btn-close" @click.stop="emitClose(t)"><i class="fas fa-times"></i></button>
+          <div class="head"><strong class="title text-truncate">{{ t.title || '알림' }}</strong></div>
           <div class="msg">{{ t.msg || t.message }}</div>
         </div>
       </div>
@@ -168,7 +151,9 @@ const emitClose = (t) => { t.onClose ? t.onClose() : (t._close && t._close()) }
   padding-right: 40px !important;
 }
 
-
+.expand-header { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 5px; pointer-events: auto; }
+.btn-minimal { background: rgba(240, 242, 245, 0.8); border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+.btn-minimal.danger { color: #ff4d4f; }
 .btn-close {
   position: absolute !important;
   top: 10px !important;

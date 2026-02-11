@@ -21,7 +21,6 @@ const showNoti = ref(false)
 const showUserMenu = ref(false)
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
 
-// 알림 패널 ref
 const notiPanel = ref(null)
 
 onMounted(() => {
@@ -162,7 +161,6 @@ function handleGlobalClick(e) {
   }
 }
 
-// ✅ menus: 책찾기 도서관(외부링크) 포함
 const menus = [
   {
     label: '취업 사이트',
@@ -199,9 +197,9 @@ const menus = [
     label: '면접',
     items: [
       { href: '/interview/govinterview', icon: 'fas fa-user-shield text-primary', title: '공무원', desc: '실제 면접 기출 문제로 철저 대비!' },
-      { href: '/certificate/data', icon: 'fas fa-laptop-code text-info', title: 'IT', desc: '기술면접/코테까지 완벽 준비!' },
+      // { href: '/certificate/data', icon: 'fas fa-laptop-code text-info', title: 'IT', desc: '기술면접/코테까지 완벽 준비!' },
       { href: '/interview/priinterview', icon: 'fas fa-building text-success', title: '사기업', desc: '기업별 면접 포인트와 합격 전략' },
-      { href: '/certificate/calendar', icon: 'fas fa-landmark text-warning', title: '공기업', desc: 'NCS부터 인성까지 완벽 분석' }
+      // { href: '/certificate/calendar', icon: 'fas fa-landmark text-warning', title: '공기업', desc: 'NCS부터 인성까지 완벽 분석' }
     ]
   }
 ]
@@ -216,7 +214,6 @@ const menus = [
         미래를 준비하는 사람들을 위한 사이트
       </span>
 
-      <!-- ✅ PC 상단 드롭다운 메뉴 -->
       <ul class="nav d-none d-md-flex gap-3 top-nav-menu-area">
         <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
           <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
@@ -224,9 +221,7 @@ const menus = [
           </a>
 
           <div class="dropdown-menu rounded shadow-sm small p-2" :class="{ show: openDropdownIdx === idx }">
-            <!-- ✅ 여기서 외부/내부 분기 -->
             <template v-for="item in m.items" :key="item.href">
-              <!-- 외부 링크 -->
               <a
                   v-if="item.external || isExternal(item.href)"
                   class="dropdown-item d-flex flex-column"
@@ -242,7 +237,6 @@ const menus = [
                 <small class="text-muted">{{ item.desc }}</small>
               </a>
 
-              <!-- 내부 링크 -->
               <router-link
                   v-else
                   class="dropdown-item d-flex flex-column"
