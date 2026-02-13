@@ -1,46 +1,5 @@
 <template>
   <div class="we-page">
-    <!-- Top Nav -->
-<!--    <header class="we-topbar">-->
-<!--      <div class="we-container we-topbar__inner">-->
-<!--        <div class="we-brand" @click="go('/practice')">-->
-<!--          <div class="we-logo">W</div>-->
-<!--          <div>-->
-<!--            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>-->
-<!--            <div class="we-brand__sub">Practice · Review · Improve</div>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <nav class="we-nav">-->
-<!--          <button class="we-nav__btn is-active" @click="go('/practice')">-->
-<!--            <i class="fa-solid fa-house"></i> 대시보드-->
-<!--          </button>-->
-<!--          <button class="we-nav__btn" @click="go('/practice/rc')">-->
-<!--            <i class="fa-solid fa-file-pen"></i> RC-->
-<!--          </button>-->
-<!--          <button class="we-nav__btn" @click="go('/practice/vocab')">-->
-<!--            <i class="fa-solid fa-spell-check"></i> 단어-->
-<!--          </button>-->
-<!--          <button class="we-nav__btn" @click="go('/practice/speaking')">-->
-<!--            <i class="fa-solid fa-microphone-lines"></i> 회화-->
-<!--          </button>-->
-<!--          <button class="we-nav__btn we-nav__btn&#45;&#45;ghost" @click="go('/wrong-notes')">-->
-<!--            <i class="fa-solid fa-book-bookmark"></i> 오답노트-->
-<!--          </button>-->
-<!--        </nav>-->
-
-<!--        <div class="we-topbar__right">-->
-<!--          <div class="we-grade">-->
-<!--            <div class="we-grade__label">My Grade</div>-->
-<!--            <div class="we-grade__value">GOLD MASTER</div>-->
-<!--          </div>-->
-<!--          <button class="we-avatar" title="My">-->
-<!--            <i class="fa-solid fa-user"></i>-->
-<!--          </button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </header>-->
-
     <main class="we-container we-main">
       <section class="we-section we-section--top">
         <div class="we-section__head">

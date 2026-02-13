@@ -1,22 +1,22 @@
 <template>
   <div class="we-page">
-    <header class="we-topbar">
-      <div class="we-container we-topbar__inner">
-        <div class="we-brand" @click="go('/practice')">
-          <div class="we-logo">W</div>
-          <div>
-            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>
-            <div class="we-brand__sub">Practice Session</div>
-          </div>
-        </div>
+<!--    <header class="we-topbar">-->
+<!--      <div class="we-container we-topbar__inner">-->
+<!--        <div class="we-brand" @click="go('/practice')">-->
+<!--          <div class="we-logo">W</div>-->
+<!--          <div>-->
+<!--            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>-->
+<!--            <div class="we-brand__sub">Practice Session</div>-->
+<!--          </div>-->
+<!--        </div>-->
 
-        <div class="we-topbar__right">
-          <button class="we-btn we-btn--small we-btn--outline" @click="go('/wrong-notes')">
-            <i class="fa-solid fa-book-bookmark"></i> 오답노트
-          </button>
-        </div>
-      </div>
-    </header>
+<!--        <div class="we-topbar__right">-->
+<!--          <button class="we-btn we-btn&#45;&#45;small we-btn&#45;&#45;outline" @click="go('/wrong-notes')">-->
+<!--            <i class="fa-solid fa-book-bookmark"></i> 오답노트-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </header>-->
 
     <main class="we-container we-session">
       <div v-if="loading && vocabList.length === 0" class="we-loading-state">
@@ -38,24 +38,27 @@
         </div>
       </div>
 
-      <div v-else-if="vocabList.length > 0">
+      <div v-else-if="vocabList.length > 0" class="we-content-wrapper">
         <div class="we-sessionHead">
-          <div>
+          <div class="we-sessionHead__main">
             <h1 class="we-sessionTitle">단어 학습</h1>
-            <div class="we-sessionSub">뜻/용법 객관식 · 예문 기반</div>
+            <p class="we-sessionSub">뜻/용법 객관식 · 예문 기반</p>
 
-            <div class="we-chipRow" style="margin-top:10px;">
-              <div class="we-chip"><i class="fa-solid fa-layer-group"></i> VOCA</div>
-              <div class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</div>
-              <div class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</div>
+            <div class="we-chipRow">
+              <span class="we-chip"><i class="fa-solid fa-layer-group"></i> VOCA</span>
+              <span class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</span>
+              <span class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</span>
             </div>
           </div>
 
-          <div style="min-width:260px; width: 320px; max-width: 45vw;">
-            <div class="we-progressTop">
-              <div class="we-progressTop__row">
-                <div class="we-progressTop__label">Progress</div>
-                <div class="we-progressTop__value">{{ index + 1 }} / {{ total }}</div>
+          <div class="we-status-card">
+            <div class="we-status-card__top">
+              <div class="we-timer">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>{{ timerText }}</span>
+              </div>
+              <div class="we-progress-text">
+                <strong>{{ index + 1 }}</strong> / {{ total }}
               </div>
               <div class="we-progressTop__bar">
                 <div class="we-progressTop__fill" :style="{ width: progress + '%' }"></div>
@@ -330,7 +333,6 @@ async function saveWrong() {
 </script>
 
 <style scoped>
-/* RC와 동일한 스타일 가이드 사용 */
 .we-loading-state, .we-empty-state {
   display: flex;
   flex-direction: column;
@@ -380,5 +382,34 @@ async function saveWrong() {
 .we-complete-actions {
   display: flex;
   gap: 14px;
+}
+/* 모바일 텍스트 숨김 처리 (좁은 화면) */
+@media (max-width: 380px) {
+  .we-mobile-hide-text span {
+    display: none;
+  }
+  .we-mobile-hide-text {
+    padding: 8px;
+  }
+}
+
+/* 로딩 및 완료 상태 */
+.we-loading-state, .we-complete-state {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.we-complete-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (min-width: 480px) {
+  .we-complete-actions {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>
