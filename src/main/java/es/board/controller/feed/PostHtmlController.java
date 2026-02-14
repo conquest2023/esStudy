@@ -21,14 +21,19 @@ public class PostHtmlController {
                                   Model model) {
 
 
-        boolean isRobot = userAgent != null && userAgent.matches(".*(Kakaotalk-Scr|facebookexternalhit|Twitterbot).*");
+        String ua = userAgent.toLowerCase();
+        boolean isRobot = ua.contains("kakaotalk") ||
+                ua.contains("facebookexternalhit") ||
+                ua.contains("twitterbot") ||
+                ua.contains("googlebot") ||
+                ua.contains("bingbot");
 
-        if (isRobot) {
+//        if (isRobot) {
             PostDetailResponse post = postService.findPostDetail(null, id);
             model.addAttribute("post", post);
             return "robot-meta";
-        }
+//        }
 
-        return "forward:/index.html";
+//        return "forward:/index.html";
     }
 }

@@ -23,7 +23,7 @@ public class WebVisitorInterceptor implements HandlerInterceptor {
         if (bypass.bypass(uri))
             return true;
         String ip = ipResolver.resolve(req);
-        String userId = (String) req.getAttribute("userId"); // JwtUserResolverFilter가 넣어둠
+        String userId = (String) req.getAttribute("userId");
         String ua = req.getHeader("User-Agent");
         if (!"127.0.0.1".equals(ip)) {
             tracker.trackVisit(userId, ip, ua);
