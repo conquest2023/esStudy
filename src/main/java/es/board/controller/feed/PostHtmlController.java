@@ -36,6 +36,6 @@ public class PostHtmlController {
             return "robot-meta";
         }
 
-        return "redirect:/?postId=" + id;
+        return "redirect:/?originPath=/post/" + id;
     }
 }
