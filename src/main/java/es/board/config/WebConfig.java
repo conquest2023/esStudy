@@ -15,13 +15,15 @@ public class WebConfig implements WebMvcConfigurer {
     private  WebVisitorInterceptor webVisitorInterceptor;
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/assets/**")
-                .addResourceLocations("classpath:/static/assets/");
 
         registry.addResourceHandler("/workly-info.jpeg")
                 .addResourceLocations("classpath:/static/");
 
-        registry.addResourceHandler("/**")
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+
+        // 2. 파비콘이나 루트에 있는 jpeg 이미지 처리
+        registry.addResourceHandler("/*.jpeg", "/*.ico")
                 .addResourceLocations("classpath:/static/");
     }
     @Override
