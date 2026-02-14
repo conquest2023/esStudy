@@ -49,9 +49,10 @@
             <div class="we-track__desc">뜻 · 용법 · 예문 객관식</div>
 
             <div class="we-track__meta">
-              <span><i class="fa-solid fa-brain"></i> 20단어</span>
+              <span><i class="fa-solid fa-brain"></i> 10단어</span>
               <span><i class="fa-solid fa-bolt"></i> 데일리</span>
-              <span><i class="fa-solid fa-code"></i> IT 중심</span>
+              <span><i class="fa-solid fa-code"></i> 회화 중심</span>
+              <span><i class="fa-solid fa-star"></i> Bronze~Gold</span>
             </div>
 
             <div class="we-track__cta">
@@ -123,7 +124,7 @@
                 <i class="fa-solid fa-fire we-fire"></i>
                 오늘의 미션
               </h3>
-              <span class="we-pill">12 DAYS STREAK</span>
+              <span class="we-pill">DAYS STREAK</span>
             </div>
 
             <div class="we-mission__list">
@@ -154,23 +155,23 @@
               <div class="we-progress__row">
                 <div class="we-muted">RC</div>
                 <div class="we-bar"><div class="we-bar__fill" style="width: 72%"></div></div>
-                <div class="we-muted">72%</div>
+                <div class="we-muted">0%</div>
               </div>
 
               <div class="we-progress__row">
                 <div class="we-muted">VOCA</div>
                 <div class="we-bar"><div class="we-bar__fill" style="width: 54%"></div></div>
-                <div class="we-muted">54%</div>
+                <div class="we-muted">0%</div>
               </div>
 
               <div class="we-progress__row">
                 <div class="we-muted">SPEAK</div>
                 <div class="we-bar"><div class="we-bar__fill" style="width: 35%"></div></div>
-                <div class="we-muted">35%</div>
+                <div class="we-muted">0%</div>
               </div>
 
               <div class="we-progress__big">
-                <div class="we-progress__num">65%</div>
+                <div class="we-progress__num">0%</div>
                 <div class="we-progress__hint">이번 주 목표 달성률</div>
               </div>
             </div>
@@ -194,8 +195,8 @@ const go = (path) => router.push(path);
 
 const missions = [
   { id: 1, text: "RC Part 5 10문제 풀기", point: 200, completed: true },
-  { id: 2, text: "신규 단어 20개 학습", point: 150, completed: true },
-  { id: 3, text: "쉐도잉 5문장 녹음하기", point: 150, completed: false },
+  { id: 2, text: "신규 단어 25개 학습", point: 150, completed: true },
+  // { id: 3, text: "쉐도잉 5문장 녹음하기", point: 150, completed: false },
 ];
 </script>
 

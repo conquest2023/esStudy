@@ -340,7 +340,6 @@ const editingCommentId = ref(null)
 const editTexts = ref({})
 const editSending = ref(false)
 const postDetailStore = usePostDetailStore()
-const PAGE_SIZE = 10
 const pageParam = computed(() => {
   const q = parseInt(route.query.page ?? '0', 10)
   return Number.isNaN(q) ? 0 : q        // 잘못된 값이면 0
@@ -396,8 +395,6 @@ function convertLinks(txt = '') {
         ></iframe>
       `
     }
-
-    // 일반 링크면 <a> 태그
     return `<a href="${m}" target="_blank">${m}</a>`
   })
 }
@@ -486,7 +483,6 @@ async function delReply(rp) {
 
 function startEditComment(c) {
   editingCommentId.value = c.id
-  // 기존 내용으로 초기화
   editTexts.value[c.id] = c.content
 }
 

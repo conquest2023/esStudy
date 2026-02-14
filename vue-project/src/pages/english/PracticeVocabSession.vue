@@ -53,10 +53,10 @@
 
           <div class="we-status-card">
             <div class="we-status-card__top">
-              <div class="we-timer">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>{{ timerText }}</span>
-              </div>
+<!--              <div class="we-timer">-->
+<!--                <i class="fa-solid fa-clock-rotate-left"></i>-->
+<!--                <span>{{ timerText }}</span>-->
+<!--              </div>-->
               <div class="we-progress-text">
                 <strong>{{ index + 1 }}</strong> / {{ total }}
               </div>

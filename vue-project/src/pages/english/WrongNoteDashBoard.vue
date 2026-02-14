@@ -1,21 +1,21 @@
 <template>
   <div class="we-page">
-    <header class="we-topbar">
-      <div class="we-container we-topbar__inner">
-        <div class="we-brand" @click="go('/practice')">
-          <div class="we-logo">W</div>
-          <div>
-            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>
-            <div class="we-brand__sub">Review Center</div>
-          </div>
-        </div>
-        <div class="we-topbar__right">
-          <button class="we-btn we-btn--small" @click="go('/practice/rc')">
-            <i class="fa-solid fa-play"></i> 학습하러 가기
-          </button>
-        </div>
-      </div>
-    </header>
+<!--    <header class="we-topbar">-->
+<!--      <div class="we-container we-topbar__inner">-->
+<!--        <div class="we-brand" @click="go('/practice')">-->
+<!--          <div class="we-logo">W</div>-->
+<!--          <div>-->
+<!--            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>-->
+<!--            <div class="we-brand__sub">Review Center</div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="we-topbar__right">-->
+<!--          <button class="we-btn we-btn&#45;&#45;small" @click="go('/practice/rc')">-->
+<!--            <i class="fa-solid fa-play"></i> 학습하러 가기-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </header>-->
 
     <main class="we-container we-review">
       <section class="we-summaryGrid">

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${post.title}">커뮤니티 게시글</title>
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" th:content="${post.title}" />
+    <meta property="og:description" th:content="${post.description}" />
+    <meta property="og:image" th:content="${post.imageURL != null ? post.imageURL : '/default-thumbnail.png'}" />
+    <meta property="og:url" th:content="${'https://yourdomain.com/post/' + post.id}" />
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${post.title}">
+    <meta name="twitter:description" th:content="${post.description}">
+    <meta name="twitter:image" th:content="${post.imageURL}">
+</head>
+<body>
+<h1 th:text="${post.title}"></h1>
+<p th:text="${post.description}"></p>
+</body>
+</html>
