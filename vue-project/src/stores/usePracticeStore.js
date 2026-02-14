@@ -23,7 +23,6 @@ export const usePracticeStore = defineStore('practice', {
 
     actions: {
         async fetchQuestions(type, filters) {
-            // TODO: API 붙일 때 여기만 바꾸면 됨
             let list = []
             if (type === 'RC') list = SAMPLE_RC
             else list = SAMPLE_RC // vocab 샘플 없어서 임시

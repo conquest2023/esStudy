@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {useUserStore} from "@/stores/user.js";
 
 const api = axios.create({
     baseURL: '/api',
@@ -13,14 +14,7 @@ api.interceptors.request.use((config) => {
     }
     return config
 })
-// api.interceptors.request.use((config) => {
-//     const token = localStorage.getItem('token')
-//     if (token) {
-//         config.headers = config.headers || {}
-//         config.headers.Authorization = `Bearer ${token}`
-//     }
-//     return config
-// })
+
 api.interceptors.response.use(
     res => res,
     err => {

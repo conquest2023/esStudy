@@ -3,8 +3,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// (선택) 브로틀리/지집 압축 산출물 생성해서 CDN/Nginx가 서빙하도록 하고 싶으면 주석 해제
-// import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
   server: {
@@ -30,9 +28,6 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
-    // (선택) 압축 산출물 생성
-    // viteCompression({ algorithm: 'brotliCompress' }),
-    // viteCompression({ algorithm: 'gzip' })
   ],
 
   resolve: {
@@ -49,7 +44,6 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // 라우트/도메인 기준으로 청크 분할 → 초기 번들 최소화 + 캐시 효율 ↑
         manualChunks(id) {
           if (id.includes('node_modules')) return 'vendor'
 

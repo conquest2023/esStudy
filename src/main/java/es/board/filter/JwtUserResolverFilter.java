@@ -40,7 +40,6 @@ public class JwtUserResolverFilter extends OncePerRequestFilter {
         }
         req.setAttribute("userId", uid);
         try {
-
             chain.doFilter(req, res);
         }finally {
             long ms = (System.nanoTime()-s)/1_000_000;
