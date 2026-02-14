@@ -2,6 +2,7 @@ package es.board.controller.feed;
 
 import es.board.controller.model.dto.PostDetailResponse;
 import es.board.domain.feed.PostService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+@Slf4j
 @Controller
 public class PostHtmlController {
 
@@ -27,13 +29,13 @@ public class PostHtmlController {
                 ua.contains("twitterbot") ||
                 ua.contains("googlebot") ||
                 ua.contains("bingbot");
-
-//        if (isRobot) {
+        log.info("컨트롤러 진입 성공!");
+        if (isRobot) {
             PostDetailResponse post = postService.findPostDetail(null, id);
             model.addAttribute("post", post);
             return "robot-meta";
-//        }
+        }
 
-//        return "forward:/index.html";
+        return "forward:/index.html";
     }
 }
