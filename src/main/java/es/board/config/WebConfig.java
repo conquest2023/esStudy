@@ -39,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(webVisitorInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/assets/**", "/**/*.js", "/**/*.css", "/*.jpeg", "/*.ico", "/error")
-                .excludePathPatterns("/post/**", "/sse/**", "/api/**");
+                .excludePathPatterns("/post/**", "/sse/**");
 
     }
 }
