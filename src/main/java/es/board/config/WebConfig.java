@@ -22,9 +22,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/assets/**")
                 .addResourceLocations("classpath:/static/assets/");
 
-        // 2. 파비콘이나 루트에 있는 jpeg 이미지 처리
-        registry.addResourceHandler("/*.jpeg", "/*.ico")
-                .addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/", "classpath:/static/assets/");
     }
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -39,8 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(webVisitorInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/post/**", "/assets/**", "/**/*.js", "/**/*.css", "/*.jpeg", "/*.ico", "/error")
-                .excludePathPatterns("/sse/**", "/api/notifications/subscribe");
+                .excludePathPatterns("/assets/**", "/**/*.js", "/**/*.css", "/*.jpeg", "/*.ico", "/error")
+                .excludePathPatterns("/post/**", "/sse/**", "/api/**");
 
     }
 }
