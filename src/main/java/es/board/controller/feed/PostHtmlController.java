@@ -20,14 +20,12 @@ public class PostHtmlController {
                                   @RequestHeader(value = "User-Agent", required = false) String userAgent,
                                   Model model) {
 
-        // 1. 로봇인지 확인
+
         boolean isRobot = userAgent != null && userAgent.matches(".*(Kakaotalk-Scr|facebookexternalhit|Twitterbot).*");
 
         if (isRobot) {
-            // 로봇용 데이터 조회 (간단하게 제목/이미지만)
             PostDetailResponse post = postService.findPostDetail(null, id);
             model.addAttribute("post", post);
-
             return "robot-meta";
         }
 
