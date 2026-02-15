@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 public interface AggEnglishRepository extends JpaRepository<EnglishProblemAttempt, Long>  {
 
     @Query("select count(*) from EnglishProblemAttempt e where e.userId=:userId" +
-            " and e.part=:part" +
+            " and e.category=:category" +
             " and e.createdAt>=:now ")
-    Integer countByAttemptVocab(String userId,String part,LocalDateTime now);
+    Integer countByAttemptEnglish(String userId,String category,LocalDateTime now);
 
 
 
-    @Query("select count(*) from EnglishProblemAttempt e where e.userId=:userId " +
-            "and e.part=:part" +
-            " and e.createdAt>=:now ")
-    Integer countByAttemptRc(String userId, String part , LocalDateTime now);
+//    @Query("select count(*) from EnglishProblemAttempt e where e.userId=:userId " +
+//            "and e.part=:part" +
+//            " and e.createdAt>=:now ")
+//    Integer countByAttemptRc(String userId, String part , LocalDateTime now);
 }

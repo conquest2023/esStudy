@@ -1,23 +1,5 @@
 <template>
   <div class="we-page">
-<!--    <header class="we-topbar">-->
-<!--      <div class="we-container we-topbar__inner">-->
-<!--        <div class="we-brand" @click="go('/practice')">-->
-<!--          <div class="we-logo">W</div>-->
-<!--          <div>-->
-<!--            <div class="we-brand__title">WORKLY <span>ENGLISH</span></div>-->
-<!--            <div class="we-brand__sub">Practice Session</div>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <div class="we-topbar__right">-->
-<!--          <button class="we-btn we-btn&#45;&#45;small we-btn&#45;&#45;outline" @click="go('/wrong-notes')">-->
-<!--            <i class="fa-solid fa-book-bookmark"></i> 오답노트-->
-<!--          </button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </header>-->
-
     <main class="we-container we-session">
       <div v-if="loading && questions.length === 0" class="we-loading-state">
         <i class="fa-solid fa-circle-notch fa-spin"></i> 문제를 불러오는 중입니다...
