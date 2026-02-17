@@ -30,6 +30,7 @@ ext {
 
 dependencies {
 //	implementation 'com.h2database:h2'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'com.slack.api:slack-api-client:1.38.0'

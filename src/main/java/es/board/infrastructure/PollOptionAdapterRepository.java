@@ -20,6 +20,7 @@ public class PollOptionAdapterRepository implements PollOptionRepository {
     }
 
 
+
     @Override
     public Optional<List<PollOptionEntity>> isCheckOptionList(long pollId, List<Long> optionIds) {
         return  pollOptionJpaRepository.isCheckOptionList(pollId, optionIds);
