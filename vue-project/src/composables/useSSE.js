@@ -131,10 +131,9 @@ export function useSSE(token) {
 
         const kind = typeAlias === 'point' ? 'point' : (parsed.type || typeAlias || 'generic')
         const key = stableKeyFromParsed(kind, parsed, e.lastEventId);
-        // if (dedup(key)) return;
+
 
         const toastId = `${key}_${Date.now()}`;
-
         const n = store.addNotification?.(parsed) ?? parsed;
         const msg = `${emoji} ${n.message ?? '새 알림이 도착했습니다'}`;
 
@@ -146,7 +145,9 @@ export function useSSE(token) {
 
         if (n.postId) {
             push({ ...options, routePath: `/post/${n.postId}` });
-        } else {
+        }else if (typeAlias === 'english') {
+            push({...options, routePath: '/practice'});
+        }else {
             push({ ...options, routePath: '/notifications' });
         }
     }
@@ -178,6 +179,7 @@ export function useSSE(token) {
             esRef.addEventListener('notice-notification',  e => handleNotification(e, '📢', 'notice'))
             esRef.addEventListener('point-notification',   e => handleNotification(e, '💰', 'point'))
             esRef.addEventListener('like-notification',    e => handleNotification(e, '💗', 'like'))
+            esRef.addEventListener('english-practice-notification', e => handleNotification(e, '📝', 'english'))
 
             esRef.addEventListener('analysis-notification', handleAnalysisNotification)
             esRef.addEventListener('rank-top1-notification', handleRankTop1)

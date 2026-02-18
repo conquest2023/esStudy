@@ -2,8 +2,6 @@ package es.board.filter.interceptor;
 
 import es.board.domain.point.PointService;
 import es.board.service.AuthService;
-import es.board.service.NotificationService;
-import es.board.service.VisitorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

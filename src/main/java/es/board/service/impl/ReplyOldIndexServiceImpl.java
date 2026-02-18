@@ -8,7 +8,7 @@
 //import es.board.repository.entity.PointHistoryEntity;
 //import es.board.repository.entity.repository.NotificationRepository;
 //import es.board.repository.entity.repository.PointHistoryRepository;
-//import es.board.service.NotificationService;
+//import es.board.domain.notification.NotificationService;
 //import es.board.service.ReplyIndexService;
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;

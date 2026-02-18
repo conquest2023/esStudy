@@ -1,7 +1,10 @@
-package es.board.infrastructure.es;
+package es.board.infrastructure.schedule;
 
 import es.board.controller.record.MissingPollItem;
 import es.board.controller.record.MissingPollPayload;
+import es.board.domain.notification.EnglishNotificationService;
+import es.board.domain.notification.feed.BestFeedNotificationService;
+import es.board.domain.notification.feed.PollNotificationService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.es.document.View;
@@ -12,7 +15,6 @@ import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.poll.PollVoteRepository;
 import es.board.infrastructure.jpa.projection.PollAnswerRow;
 import es.board.repository.entity.repository.UserRepository;
-import es.board.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +30,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
-    private final NotificationService notificationService;
+    private final PollNotificationService pollNotificationService;
+
+    private final EnglishNotificationService englishNotificationService;
+
+    private final BestFeedNotificationService bestFeedNotificationService;
 
     private final ViewLogDAO viewDAO;
 
@@ -41,9 +47,16 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
     private final PollRepository pollRepository;
 
     private final PollVoteRepository pollVoteRepository;
-    
+
+
     @Override
+//    @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
     @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
+    public void sendEnglishPractice() {
+        englishNotificationService.sendEnglishPracticeNotification();;
+    }
+    @Override
+    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
     public void sendTop3Hourly() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
@@ -51,28 +64,26 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
         LocalDateTime oneMonthAgo = now.minusMonths(1);
         List<String> userIds = userRepository.findMonthActiveUser(oneMonthAgo);
         for (String userId : userIds) {
-            notificationService.sendTop3RankingNotification(userId, todayTop3);
+            bestFeedNotificationService.sendTop3BestFeedNotification(userId, todayTop3);
         }
     }
     @Override
-    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
     public void sendRank1stEvery4h() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastDay = now.minusDays(1);
         Optional<PostEntity> userTopToday = postQueryRepository.findUserTopToday(lastDay);
-        userTopToday.ifPresent(postEntity -> notificationService.sendTop1RankingNotification(postEntity.getUserId(), postEntity));
+        userTopToday.ifPresent(postEntity -> bestFeedNotificationService.sendTop1UserFeedNotification(postEntity));
     }
     
     @Override
-    @Scheduled(cron = "0 0 0/2 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0/6 * * *", zone = "Asia/Seoul")
     public void sendPoll() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime since3Days = now.minusDays(3);
-
         List<PollEntity> polls = pollRepository.findBy3DaysAgoPoll(since3Days);
         if (polls.isEmpty())
             return;
-
         // pollId 목록 + pollId->postId 맵 + postId 목록
         List<Long> pollIds = new ArrayList<>(polls.size());
         Map<Long, Integer> pollIdToPostId = new HashMap<>(polls.size());
@@ -98,6 +109,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
                         PostEntity::getTitle));
 
         List<String> userIds = userRepository.findMonthActiveUser(now.minusDays(30));
+
         if (userIds == null || userIds.isEmpty())
             return;
 
@@ -137,7 +149,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
             MissingPollPayload payload = new MissingPollPayload(items.size(), items);
 
-            notificationService.sendMissingPollNotification(userId, payload);
+            pollNotificationService.sendMissingPollNotification(userId, payload);
         }
     }
 
@@ -157,7 +169,7 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
             if (entry.getValue().size() >= 3) {
                 try {
                     List<String> analysis = geminiService.getAnalysis(entry.getValue());
-                    notificationService.sendAnalysisNotification(entry.getKey(), analysis);
+                    bestFeedNotificationService.sendAnalysisNotification(entry.getKey(), analysis);
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

@@ -1,13 +1,14 @@
 package es.board.domain.feed.event.like;
 
 import es.board.domain.feed.event.LikeCreatedEvent;
+import es.board.domain.notification.feed.FeedNotificationService;
 import es.board.mapper.LikeMapper;
 import es.board.controller.record.LikeTargetInfo;
 import es.board.domain.*;
 import es.board.domain.enum_type.TargetType;
 import es.board.infrastructure.entity.user.User;
 import es.board.repository.entity.repository.NotificationRepository;
-import es.board.service.NotificationService;
+import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -20,7 +21,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class LikeEventListener {
 
-    private final NotificationService notificationService;
+    private final FeedNotificationService notificationService;
 
     private final PostRepository postRepository;
 

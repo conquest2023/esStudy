@@ -2,8 +2,9 @@ package es.board.domain.feed.event.poll;
 
 import es.board.domain.PostRepository;
 import es.board.domain.feed.event.PollCreatedEvent;
+import es.board.domain.notification.feed.NoticeNotificationService;
 import es.board.infrastructure.entity.feed.PostEntity;
-import es.board.service.NotificationService;
+import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PollEventListener {
 
-    private final NotificationService notificationService;
+    private final NoticeNotificationService notificationService;
     private final PostRepository postRepository;
 
     @EventListener(PollCreatedEvent.class)

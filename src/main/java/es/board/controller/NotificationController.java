@@ -1,9 +1,8 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.ex.TokenValidator;
 import es.board.repository.entity.Notification;
-import es.board.service.NotificationService;
+import es.board.domain.notification.NotificationService;
 import es.board.service.UserNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

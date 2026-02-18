@@ -5,16 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.gemini.GeminiRequest;
 import es.board.controller.model.gemini.GeminiResponse;
 import es.board.controller.model.gemini.RecommendationResponse;
-import es.board.infrastructure.es.ViewEventService;
 import es.board.infrastructure.es.document.View;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +41,7 @@ public class GeminiService {
             sb.append("- 제목: ").append(entry.getKey()).append("\n");
             sb.append("  내용 일부: ").append(entry.getValue().substring(0, Math.min(entry.getValue().length(), 200))).append("\n\n");
         }
-        String prompt = "사용자의 다음 열람 기록을 분석하여, 이 사람이 좋아할 만한 유튜브 '검색 키워드' 5개를 정확히 뽑아줘.\n" +
+        String prompt = "사용자의 다음 열람 기록을 분석하여, 이 사람이 좋아할 만한 유튜브 '검색 키워드' 3개를 정확히 뽑아줘.\n" +
                 "열람 기록: " + sb.toString() + "\n" +
                 "응답 형식은 반드시 다음 JSON 구조로만 출력해줘:\n" +
                 "{ \"recommendations\": [ { \"keyword\": \"키워드\", \"reason\": \"이유\" } ] }";

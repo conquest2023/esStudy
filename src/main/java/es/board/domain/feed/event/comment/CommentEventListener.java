@@ -1,9 +1,10 @@
 package es.board.domain.feed.event.comment;
 
+import es.board.domain.notification.feed.FeedNotificationService;
 import es.board.mapper.CommentDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
 import es.board.domain.PostRepository;
-import es.board.service.NotificationService;
+import es.board.domain.notification.NotificationService;
 import es.board.domain.feed.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommentEventListener {
 
-    private final NotificationService notificationService;
+    private final FeedNotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final PostRepository postRepository;
 

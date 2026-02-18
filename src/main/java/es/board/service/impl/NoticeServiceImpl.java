@@ -5,13 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.board.controller.model.dto.feed.PostDTO;
 import es.board.controller.model.dto.feed.NoticeDTO;
+import es.board.domain.notification.feed.NoticeNotificationService;
 import es.board.mapper.entity.PostDomainMapper;
 import es.board.infrastructure.entity.feed.NoticeEntity;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.repository.entity.repository.NoticeJpaRepository;
 import es.board.repository.entity.repository.UserRepository;
 import es.board.service.NoticeService;
-import es.board.service.NotificationService;
+import es.board.domain.notification.NotificationService;
 import es.board.domain.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +38,8 @@ public class NoticeServiceImpl  implements NoticeService {
     private final ObjectMapper objectMapper;
     private static final String NOTICE_KEY = "notice";
 
-    private  final NotificationService notificationService;
+    private  final NoticeNotificationService notificationService;
 
-    private final UserRepository userRepository;
 
     private final NoticeJpaRepository noticeRepository;
 

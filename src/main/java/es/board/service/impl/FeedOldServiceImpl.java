@@ -14,7 +14,7 @@
 //import es.board.infrastructure.entity.feed.PostEntity;
 //import es.board.repository.entity.repository.*;
 //import es.board.service.FeedService;
-//import es.board.service.NotificationService;
+//import es.board.domain.notification.NotificationService;
 //import jakarta.persistence.EntityManager;
 //import jakarta.persistence.PersistenceContext;
 //import lombok.Builder;
