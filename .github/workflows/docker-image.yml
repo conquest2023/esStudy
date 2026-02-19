@@ -216,7 +216,7 @@ jobs:
           if [ "$BACK_BUILD_RESULT" = "success" ] && [ -n "$BACK_FULL_IMAGE_PATH" ]; then
             yq -i '
               (. | select(.kind=="Deployment" and .metadata.name=="deploy-https")
-                 | .spec.containers[]
+                 | .spec.template.spec.containers[]
                  | select(.name=="container").image
               ) = env(BACK_FULL_IMAGE_PATH)
             ' cd/backend-pod.yaml
