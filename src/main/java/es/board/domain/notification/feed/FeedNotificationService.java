@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 
 @Service
 @Slf4j
@@ -17,17 +19,17 @@ public class FeedNotificationService {
     private final NotificationService notificationService;
 
 
-    public void sendPointNotification(String userId,String message) {
-        notificationService.sendPointEvent(userId,NotificationType.POINT, message);
+    public void sendPointNotification(String userId,Map<String,Object> payload) {
+        notificationService.sendEvent(userId, payload,NotificationType.POINT);
     }
-    public void sendLikeNotification(String userId, int postId, String message) {
-        notificationService.sendFeedEvent(userId, postId, NotificationType.LIKE, "like-notification", message);
+    public void sendLikeNotification(String userId, Map<String, Object> payload) {
+        notificationService.sendEvent(userId, payload, NotificationType.LIKE);
     }
-    public void sendCommentNotification(String userId, int postId, String message) {
-        notificationService.sendFeedEvent(userId,postId, NotificationType.COMMENT, "comment-notification", message);
+    public void sendCommentNotification(String userId, Map<String, Object> payload) {
+        notificationService.sendEvent(userId,payload, NotificationType.COMMENT);
     }
-    public void sendReplyNotification(String userId,int postId, String message) {
-        notificationService.sendFeedEvent(userId,postId, NotificationType.REPLY, "reply-notification", message);
+    public void sendReplyNotification(String userId, Map<String, Object> payload) {
+        notificationService.sendEvent(userId,payload, NotificationType.REPLY);
     }
 
 }

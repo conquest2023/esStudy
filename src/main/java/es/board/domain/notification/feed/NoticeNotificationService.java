@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +23,11 @@ public class NoticeNotificationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastMonth = now.minusMonths(1);
         List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("message",message);
+        payload.put("postId", postId);
         for (String userId : userIds) {
-             notificationService.sendFeedEvent(userId, postId, NotificationType.NOTICE, "notice-notification", message);
+             notificationService.sendEvent(userId, payload, NotificationType.NOTICE);
         }
     }
 }

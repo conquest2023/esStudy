@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -32,10 +34,12 @@ public class VoteEventListener {
         String postOwnerId = entity.get().getUserId();
         String username = user.get().getUsername();
         if (postOwnerId != null && !postOwnerId.equals(event.getRequest().getVoterId())) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("message",entity.get().getId());
+            payload.put("postId", username + "님이 투표를 했습니다:"+entity.get().getTitle());
             notificationService.sendCommentNotification(
                     postOwnerId,
-                    entity.get().getId(),
-                    username + "님이 투표를 했습니다:"+entity.get().getTitle());
+                    payload);
         }
     }
 }

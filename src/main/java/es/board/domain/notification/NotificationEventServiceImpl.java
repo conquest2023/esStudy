@@ -56,167 +56,43 @@ public class  NotificationEventServiceImpl implements NotificationService {
 //        sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
     }
 
-    @Override
-    public void sendEnglishEvent(String userId, NotificationType type, String message) {
-        String redisKey = type.getRedisKey(userId);
-        String eventType = type.getEventName();
-        log.warn("SSE 구독 없음 - Redis에 저장: {}", message);
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("message", message);
-        payload.put("type", eventType);
-        try {
-            String jsonPayload = objectMapper.writeValueAsString(payload);
-            redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-            redisTemplate.opsForList().trim(redisKey, 0, 20);
-            redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
-            SseEmitter emitter = emitters.get(userId);
-            if (emitter == null) {
-                log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
-                return;
-            }
-            emitter.send(SseEmitter.event()
-                    .id(UUID.randomUUID().toString())
-                    .name(eventType)
-                    .data(jsonPayload));
-        } catch (IOException e) {
-            log.error("랭킹 알림 전송 실패", e);
-            emitters.remove(userId);
-        }
-    }
 
 //    @Override
 
+
     @Override
-    public void sendRankingEvent(String userId, String jsonPayload, NotificationType type) {
+    public void sendEvent(String userId, Map<String,Object> payload, NotificationType type) {
         String redisKey = type.getRedisKey(userId);
         String eventType = type.getEventName();
-        redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-        redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
-        log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
-        SseEmitter emitter = emitters.get(userId);
-        if (emitter == null) {
-            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
-            return;
-        }
-        try {
-            emitter.send(SseEmitter.event()
-                    .id(UUID.randomUUID().toString())
-                    .name(eventType)
-                    .data(jsonPayload));
-        } catch (IOException e) {
-            log.error("랭킹 알림 전송 실패", e);
-            emitters.remove(userId);
-        }
-    }
-    @Override
-    public void sendFeedEvent(String userId, int postId, NotificationType type, String eventType, String message) {
-
-        String redisKey = type.getRedisKey(userId);
         log.info("[notify] type={}, targetUserId={}, containsEmitter={}, keys={}",
-                eventType, userId, emitters.containsKey(userId), emitters.keySet());
+                type.getEventName(),userId, emitters.containsKey(userId), emitters.keySet());
         try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("message", message);
-            payload.put("postId", postId);
             String jsonPayload = objectMapper.writeValueAsString(payload);
-
             redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-
-            redisTemplate.opsForList().trim(redisKey, 0, 20);
+            redisTemplate.opsForList().trim(redisKey, 0, 20); // 최근 20개 유지
             redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
-            log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
 
+            log.info("[Notify] type={}, userId={}, payload={}", eventType, userId, jsonPayload);
+
+            // 3. SSE 실시간 전송 로직
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {
-                log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+                log.warn("[Notify] Emitter 없음, Redis에만 저장됨 - userId: {}", userId);
                 return;
             }
+
             emitter.send(SseEmitter.event()
                     .id(UUID.randomUUID().toString())
                     .name(eventType)
                     .data(jsonPayload));
+
         } catch (IOException e) {
-            log.error("알림 전송 실패 - userId: {}", userId, e);
-            emitters.remove(userId);
-        }
-    }
-    @Override
-    public void sendPollEvent(String userId, String jsonPayload, NotificationType type) {
-        String redisKey = type.getRedisKey(userId);
-        String eventType = type.getEventName();
-        redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-        redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
-        log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
-        SseEmitter emitter = emitters.get(userId);
-        if (emitter == null) {
-            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
-            return;
-        }
-        try {
-            emitter.send(SseEmitter.event()
-                    .id(UUID.randomUUID().toString())
-                    .name(eventType)
-                    .data(jsonPayload));
-        } catch (IOException e) {
-            log.error("랭킹 알림 전송 실패", e);
+            log.error("[Notify] 전송 실패 - userId: {}", userId, e);
             emitters.remove(userId);
         }
     }
 
-    @Override
-    public void sendPointEvent(String userId, NotificationType type, String message) {
-        String redisKey = type.getRedisKey(userId);
-        String eventType = type.getEventName();
-        try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("message", message);
-            String jsonPayload = objectMapper.writeValueAsString(payload);
-            if (!emitters.containsKey(userId)) {
-                redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-                redisTemplate.opsForList().trim(redisKey, 0, 20);
-                log.warn("SSE 구독 없음 - Redis에 저장: {}", jsonPayload);
-                return;
-            }
-            SseEmitter emitter = emitters.get(userId);
-            if (emitter == null) {
-                log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
-                return;
-            }
-            emitter.send(SseEmitter.event()
-                    .name(eventType)
-                    .data(jsonPayload));
-        } catch (IOException e) {
-            log.error("알림 전송 실패 - userId: {}", userId, e);
-            emitters.remove(userId);
-        }
 
-    }
-
-    @Override
-    public void sendAnalysisEvent(String userId, Object payload, NotificationType type) {
-        String redisKey = type.getRedisKey(userId);
-        String eventType = type.getEventName();
-
-        try {
-            String jsonPayload = objectMapper.writeValueAsString(payload);
-
-            redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
-            redisTemplate.expire(redisKey, 3, TimeUnit.DAYS);
-            redisTemplate.opsForList().trim(redisKey, 0, 20);
-            SseEmitter emitter = emitters.get(userId);
-            if (emitter != null) {
-                emitter.send(SseEmitter.event()
-                        .id(UUID.randomUUID().toString())
-                        .name(eventType)
-                        .data(jsonPayload));
-            } else {
-                log.warn("사용자 접속 중 아님 (SSE 건너뜀) - userId: {}", userId);
-            }
-        } catch (IOException e) {
-            log.error("알림 전송 실패 - userId: {}", userId, e);
-            emitters.remove(userId);
-        }
-    }
 
     private void sendPendingNotifications(String userId,NotificationType type, SseEmitter emitter) {
         String redisKey = type.getRedisKey(userId);

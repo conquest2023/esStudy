@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,10 +31,13 @@ public class ReplyEventListener {
 
         String commentOwnerId = commentRepository.findByUserId(event.getCommentId());
         if (commentOwnerId != null && !commentOwnerId.equals(event.getUserId())) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("postId",event.getPostId());
+            payload.put("message",  event.getResponse().getUsername() + "님이 답글을 작성하였습니다: " + event.getResponse().getContent());
+
             notificationService.sendReplyNotification(
                     commentOwnerId,
-                    event.getPostId(),
-                    event.getResponse().getUsername() + "님이 답글을 작성하였습니다: " + event.getResponse().getContent()
+                    payload
             );
 
             notificationRepository.save(ReplyDomainMapper.toEntityNotification(commentOwnerId, event.getResponse()));

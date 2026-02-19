@@ -18,7 +18,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,8 +62,9 @@ public class PointServiceImpl implements PointService {
             return;
         }
         String msg = String.format("포인트를 발급받으셨습니다. %s: +%d점", activityType, pointChange);
-        notificationService.sendPointNotification(userId, msg);
-
+        Map<String,Object> payload=new HashMap<>();
+        payload.put("message",msg);
+        notificationService.sendPointNotification(userId, payload);
         createPointHistory(userId, pointChange, activityType);
         log.info("{} 작성 포인트 지급 완료! 현재 작성 횟수: {}", activityType, currentCount);
     }

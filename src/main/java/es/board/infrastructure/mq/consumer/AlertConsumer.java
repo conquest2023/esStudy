@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -30,10 +33,10 @@ public class AlertConsumer {
         }
         if (!event.getPostOwnerId().equals(event.getCommenterId())) {
             log.info("댓글 이벤트 발행됨: {}", event);
-            notificationService.sendCommentNotification(
-                    event.getPostOwnerId(), event.getPostId(),
-                    event.getUsername() + "님이 댓글을 작성하였습니다: " + event.getContent()
-            );
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("message",event.getUsername() + "님이 댓글을 작성하였습니다: " + event.getContent());
+            payload.put("postId", event.getPostId());
+            notificationService.sendCommentNotification(event.getPostOwnerId(),payload);
 //            notificationService.sendPointNotification(event.getCommenterId(),event.getPostId(),"댓글 작성 포인트를 발급 받으셨습니디");
             notificationRepository.save(commentMapper.toCommentEvent(event.getPostOwnerId(), event));
         }

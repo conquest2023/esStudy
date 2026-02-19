@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -53,8 +55,10 @@ public class LikeEventListener {
             case COMMENT -> "%s님이 댓글에 좋아요를 누르셨습니다: %s".formatted(likerName, tail);
             case REPLY -> "%s님이 답글에 좋아요를 누르셨습니다: %s".formatted(likerName, tail);
         };
-
-        notificationService.sendLikeNotification(info.ownerId(), info.postId(), msg);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("message",msg);
+        payload.put("postId", info.postId());
+        notificationService.sendLikeNotification(info.ownerId(),payload);
 
         notificationRepository.save(LikeMapper.toEntity(
                 likerName,

@@ -53,8 +53,7 @@ public class PollNotificationService {
             }).toList();
             payload.put("posts", posts);
             payload.put("message", "아직 투표 안한게" + pollPayload.count() +" 개 있습니다.");
-            String json = objectMapper.writeValueAsString(payload);
-            notificationService.sendPollEvent(userId, json, NotificationType.POLL);
+            notificationService.sendEvent(userId,payload, NotificationType.POLL);
         } catch (Exception e) {
             log.error("미 투표 알림 실패", e);
         }

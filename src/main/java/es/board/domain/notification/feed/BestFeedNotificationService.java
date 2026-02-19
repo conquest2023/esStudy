@@ -22,7 +22,6 @@ import static es.board.domain.notification.NotificationType.RANK_TOP1;
 public class BestFeedNotificationService {
 
 
-    private  final ObjectMapper objectMapper;
 
     private final NotificationService notificationService;
 
@@ -44,8 +43,7 @@ public class BestFeedNotificationService {
             }).toList();
             payload.put("posts", posts);
             payload.put("message", "오늘의 베스트 게시글 Top 3가 업데이트되었습니다!");
-            String json = objectMapper.writeValueAsString(payload);
-            notificationService.sendRankingEvent(userId, json, NotificationType.RANK_TOP3);
+            notificationService.sendEvent(userId, payload, NotificationType.RANK_TOP3);
         } catch (Exception e) {
             log.error("TOP3 랭킹 알림 실패", e);
         }
@@ -58,7 +56,7 @@ public class BestFeedNotificationService {
             payload.put("analysis", message);
             payload.put("message", userId + "님의 하루 분석 결과입니다.");
 
-           notificationService.sendAnalysisEvent(userId, payload, NotificationType.ANALYSIS);
+           notificationService.sendEvent(userId, payload, NotificationType.ANALYSIS);
         } catch (Exception e) {
             log.error("분석 알림 실패", e);
         }
@@ -68,10 +66,11 @@ public class BestFeedNotificationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastMonth = now.minusMonths(1);
         List<String> userIds = userRepository.findMonthActiveUser(lastMonth);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("message","랭킹 1위님이 글을 작성하셨습니다: "+ top1.getTitle());
+        payload.put("postId", top1.getId());
         for (String id : userIds) {
-           notificationService.sendFeedEvent(id, top1.getId(), RANK_TOP1,
-                    "rank-top1-notification",
-                    "랭킹 1위님이 글을 작성하셨습니다: "+ top1.getTitle());
+           notificationService.sendEvent(id, payload, RANK_TOP1);
         }
     }
 }

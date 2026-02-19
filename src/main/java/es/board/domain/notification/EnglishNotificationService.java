@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -47,7 +44,7 @@ public class EnglishNotificationService {
                 ));
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
-
+        Map<String,Object> payload=new HashMap<>();
         userAttempts.forEach((userId, dateSet) -> {
             // 1. 어제 기록이 있는지 확인
             boolean playedYesterday = dateSet.contains(yesterday);
@@ -56,14 +53,12 @@ public class EnglishNotificationService {
 
             if (playedYesterday && !playedToday) {
                 int currentStreak = calculateStreakCount(dateSet);
-
-                // 알림 발송
-                notificationService.sendEnglishEvent(userId, NotificationType.ENGLISH_PRACTICE,
-                        "🔥 연속 " + currentStreak + "일 기록이 깨지기 직전이에요! 오늘 영어 학습을 완료하세요.");
+                payload.put("message","🔥 연속 " + currentStreak + "일 기록이 깨지기 직전이에요! 오늘 영어 학습을 완료하세요.");
+                notificationService.sendEvent(userId,payload , NotificationType.ENGLISH_PRACTICE);
             } else {
-                // [CASE B] 기록이 아예 없는 사람 (이번 달 활동은 있지만 문제는 안 푼 사람)
-                notificationService.sendEnglishEvent(userId, NotificationType.ENGLISH_PRACTICE,
-                        "👋 영어가 망설여지시나요? 오늘 딱 3문제만 가볍게 시작해보세요!");
+                payload.put("message","👋 영어가 망설여지시나요? 오늘 딱 3문제만 가볍게 시작해보세요!");
+                notificationService.sendEvent(userId,
+                        payload,NotificationType.ENGLISH_PRACTICE);
             }
         });
     }
