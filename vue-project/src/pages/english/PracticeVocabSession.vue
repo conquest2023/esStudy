@@ -1,10 +1,10 @@
 <template>
   <div class="we-page">
-
-
     <main class="we-container we-session">
+
       <div v-if="loading && vocabList.length === 0" class="we-loading-state">
-        <i class="fa-solid fa-circle-notch fa-spin"></i> 단어 데이터를 불러오는 중입니다...
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <p>단어 데이터를 불러오는 중입니다...</p>
       </div>
 
       <div v-else-if="isBatchComplete" class="we-complete-state">
@@ -17,7 +17,7 @@
             <i class="fa-solid fa-rotate-right"></i> 10문제 더 풀기
           </button>
           <button @click="go('/wrong-notes')" class="we-btn we-btn--outline">
-            <i class="fa-solid fa-book"></i> 오답노트 확인
+            <i class="fa-solid fa-book-bookmark"></i> 오답노트 확인
           </button>
         </div>
       </div>
@@ -31,16 +31,12 @@
             <div class="we-chipRow">
               <span class="we-chip"><i class="fa-solid fa-layer-group"></i> VOCA</span>
               <span class="we-chip"><i class="fa-solid fa-medal"></i> {{ level }}</span>
-              <span class="we-chip"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</span>
+              <span class="we-chip" v-if="tags.length"><i class="fa-solid fa-hashtag"></i> {{ tags.join(" · ") }}</span>
             </div>
           </div>
 
           <div class="we-status-card">
             <div class="we-status-card__top">
-<!--              <div class="we-timer">-->
-<!--                <i class="fa-solid fa-clock-rotate-left"></i>-->
-<!--                <span>{{ timerText }}</span>-->
-<!--              </div>-->
               <div class="we-progress-text">
                 <strong>{{ index + 1 }}</strong> / {{ total }}
               </div>
@@ -78,16 +74,16 @@
       <div class="we-bottomTabs">
         <div class="we-bottomTabs__inner">
           <button class="we-tabBtn" @click="go('/practice/rc')">
-            <i class="fa-solid fa-file-pen"></i> RC
+            <i class="fa-solid fa-file-pen"></i> <span>RC</span>
           </button>
           <button class="we-tabBtn is-active" @click="go('/practice/vocab')">
-            <i class="fa-solid fa-spell-check"></i> 단어
+            <i class="fa-solid fa-spell-check"></i> <span>단어</span>
           </button>
           <button class="we-tabBtn" @click="go('/practice/speaking')">
-            <i class="fa-solid fa-microphone-lines"></i> 회화
+            <i class="fa-solid fa-microphone-lines"></i> <span>회화</span>
           </button>
           <button class="we-tabBtn" @click="go('/wrong-notes')">
-            <i class="fa-solid fa-book-bookmark"></i> 오답노트
+            <i class="fa-solid fa-book-bookmark"></i> <span>오답노트</span>
           </button>
         </div>
       </div>
@@ -98,22 +94,26 @@
 <script setup>
 import "@/assets/workly-english.css";
 import { computed, onMounted, ref, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import VocabQuestionRenderer from "@/components/practice/renderers/VocabQuestionRenderer.vue";
 
 const router = useRouter();
+const route = useRoute(); // Query 파라미터(level)를 읽기 위해 추가
+
 const go = (p) => {
   if (router.currentRoute.value.path === p) return;
   router.push(p);
 };
+
 const props = defineProps({
   question: {type: Object, required: true},
   selectedIndex: {type: Number, default: null},
-  result: {type: Object, default: null}, // {isCorrect, correctIndex}
+  result: {type: Object, default: null},
   showExplanation: {type: Boolean, default: false},
   timerText: {type: String, default: "00:00"},
   starred: {type: Boolean, default: false},
 });
+
 // 상태 관리
 const vocabList = ref([]);
 const loading = ref(false);
@@ -130,18 +130,29 @@ const timerText = ref("01:24");
 let t = 84;
 let timerInterval = null;
 
-// 정답 문자('A','B'..)를 인덱스(0,1..)로 변환
+// 정답 문자 매핑
 const mapAnswerToIndex = (ans) => {
   if (!ans) return 0;
   return { 'A': 0, 'B': 1, 'C': 2, 'D': 3 }[ans.toUpperCase().trim()] ?? 0;
 };
 
+// 데이터 페칭 (난이도 선택 로직 반영)
 async function fetchVocab(targetId = null) {
   loading.value = true;
   isBatchComplete.value = false;
+
   try {
     const size = 10;
-    const url = `/api/vocab?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
+    const targetLevel = route.query.level; // 이전 페이지에서 넘긴 난이도 (BRONZE, SILVER 등)
+    let url = '';
+
+    // 난이도가 존재하고 'RANDOM'이 아니면 난이도별 API 호출, 아니면 전체 랜덤 호출
+    if (targetLevel && targetLevel !== 'RANDOM') {
+      url = `/api/vocab/${targetLevel}?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
+    } else {
+      url = `/api/vocab?size=${size}${targetId ? `&lastId=${targetId}` : ''}`;
+    }
+
     const response = await fetch(url);
     if (!response.ok) throw new Error("단어 데이터를 불러오지 못했습니다.");
 
@@ -150,7 +161,6 @@ async function fetchVocab(targetId = null) {
 
     if (Array.isArray(list) && list.length > 0) {
       vocabList.value = list.map(v => {
-        // 단어 문제는 content.questions[0] 구조를 유지한다고 가정
         const subQuestions = v.content?.questions || [];
         return {
           ...v,
@@ -215,13 +225,10 @@ function onGrade() {
   const isCorrect = selectedIndex.value === correctIndex;
   result.value = { isCorrect, correctIndex };
 
-  // 로그 저장 (자동)
   saveEnglishLog(isCorrect);
-
   if (!isCorrect) showExplanation.value = true;
 }
 
-// 학습 로그 저장 API 호출
 async function saveEnglishLog(isCorrect) {
   const q = current.value;
   const chosenAnswer = String.fromCharCode(65 + selectedIndex.value);
@@ -231,7 +238,7 @@ async function saveEnglishLog(isCorrect) {
     objectId: q._id || q.id,
     chosenAnswer: chosenAnswer,
     isCorrect: isCorrect,
-    category: q.type, // "VOCA"
+    category: q.type,
     part: q.part || 0,
     level: q.level
   };
@@ -239,15 +246,10 @@ async function saveEnglishLog(isCorrect) {
   try {
     await fetch('/api/english/log', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
     });
-  } catch (err) {
-    console.error("Log Save Error:", err);
-  }
+  } catch (err) { console.error("Log Save Error:", err); }
 }
 
 function onNext() {
@@ -265,41 +267,25 @@ function onNext() {
 }
 
 async function saveWrong() {
-  // 1. props가 아니라 로컬 ref인 result.value 확인
-  if (!result.value) {
-    alert('문제를 먼저 풀어주세요.');
-    return;
-  }
-
-  // 2. 현재 문제 데이터 확인
+  if (!result.value) { alert('문제를 먼저 풀어주세요.'); return; }
   if (!current.value) return;
-
   if (!confirm('오답노트에 저장하시겠습니까?')) return;
 
   const token = localStorage.getItem('token');
-  if (!token) {
-    alert('로그인이 필요합니다.');
-    router.push('/login');
-    return;
-  }
+  if (!token) { alert('로그인이 필요합니다.'); router.push('/login'); return; }
 
-  // 3. 페이로드 구성 (current.value 참조)
   const q = current.value;
   const payload = {
-    objectId: q._id || q.id, // 몽고DB ID 우선 참조
-    category: q.type,       // "VOCA"
+    objectId: q._id || q.id,
+    category: q.type,
     part: q.part || 0,
     level: q.level
   };
 
   try {
-    // 4. api.post 대신 fetch 사용 (또는 axios 임포트 확인)
     const res = await fetch('/api/wrongnote', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
     });
 
@@ -317,6 +303,7 @@ async function saveWrong() {
 </script>
 
 <style scoped>
+/* 공통 스타일 */
 .we-loading-state, .we-empty-state {
   display: flex;
   flex-direction: column;
@@ -324,19 +311,20 @@ async function saveWrong() {
   justify-content: center;
   height: 400px;
   color: #64748b;
-  font-weight: 800;
+  font-weight: 600;
+  gap: 12px;
 }
 .we-loading-state i {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 2.5rem;
   color: #2563eb;
 }
+
 .we-complete-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: 60px 20px;
   text-align: center;
   background: white;
   border-radius: 24px;
@@ -353,47 +341,120 @@ async function saveWrong() {
   50% { transform: translateY(-15px); }
 }
 .we-complete-title {
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 900;
   color: #1e293b;
   margin-bottom: 10px;
 }
 .we-complete-sub {
-  font-size: 16px;
+  font-size: 1rem;
   color: #64748b;
   margin-bottom: 32px;
 }
 .we-complete-actions {
   display: flex;
   gap: 14px;
-}
-/* 모바일 텍스트 숨김 처리 (좁은 화면) */
-@media (max-width: 380px) {
-  .we-mobile-hide-text span {
-    display: none;
-  }
-  .we-mobile-hide-text {
-    padding: 8px;
-  }
-}
-
-/* 로딩 및 완료 상태 */
-.we-loading-state, .we-complete-state {
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.we-complete-actions {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
+  justify-content: center;
 }
 
-@media (min-width: 480px) {
+/* =========================================
+   모바일 UI 최적화 (768px 이하)
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* 1. 전체 컨테이너 여백 축소 (하단 탭 가림 방지) */
+  .we-session {
+    padding: 16px 16px 100px 16px;
+  }
+
+  /* 2. 헤더 섹션 간격 및 폰트 크기 최적화 */
+  .we-sessionHead {
+    flex-direction: column; /* 좌우 배치를 상하 배치로 변경 */
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .we-sessionTitle {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+
+  .we-sessionSub {
+    font-size: 0.85rem;
+  }
+
+  /* 3. 칩(VOCA, LEVEL 등) 가로 스크롤 허용 및 크기 축소 */
+  .we-chipRow {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  }
+  .we-chip {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  /* 4. 진행률(Status) 카드 압축 */
+  .we-status-card {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* 모바일에서는 얕은 그림자 */
+    border: 1px solid #f1f5f9;
+  }
+  .we-progress-text {
+    font-size: 0.85rem;
+  }
+
+  /* 5. 완료 화면 버튼 세로 배치 및 터치 영역 확대 */
+  .we-complete-state {
+    padding: 40px 20px;
+    margin-top: 20px;
+  }
+  .we-complete-title {
+    font-size: 1.5rem;
+  }
+  .we-complete-sub {
+    word-break: keep-all; /* 단어 단위로 끊어지게 처리 */
+  }
   .we-complete-actions {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .we-complete-actions .we-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* 6. 하단 탭(Bottom Tabs) 아이폰 Safe Area 대응 및 아이콘/텍스트 세로 배치 */
+  .we-bottomTabs {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  .we-bottomTabs__inner {
+    padding: 8px 16px;
+  }
+  .we-tabBtn {
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    align-items: center;
+    justify-content: center;
+    gap: 4px; /* 아이콘과 텍스트 사이 간격 */
+    font-size: 0.7rem; /* 텍스트 크기 축소 */
+    padding: 8px 0;
+  }
+  .we-tabBtn i {
+    font-size: 1.3rem; /* 모바일에서 누르기 쉽게 아이콘 크기 약간 확대 */
+    margin-right: 0;
   }
 }
 </style>

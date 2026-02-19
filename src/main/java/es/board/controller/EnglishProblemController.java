@@ -6,10 +6,7 @@ import es.board.infrastructure.english.collcetion.English_RC;
 import es.board.infrastructure.english.collcetion.English_Vocab;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +39,16 @@ public class EnglishProblemController {
             @RequestParam(defaultValue = "10") int size) {
 
         List<English_Vocab> problems = englishService.getRandomVocab(size);
+        return ResponseEntity.ok(
+                Map.of("ok",problems));
+    }
+
+    @GetMapping("/vocab/{level}")
+    public ResponseEntity<?> getVocabLevel(
+            @PathVariable String level,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<English_Vocab> problems = englishService.getVocabLevel(level.toUpperCase(),size);
         return ResponseEntity.ok(
                 Map.of("ok",problems));
     }

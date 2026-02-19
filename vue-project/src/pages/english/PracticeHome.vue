@@ -51,15 +51,17 @@
             <div class="we-track__desc">문법·어휘 빈칸 채우기 (Part 5)</div>
             <div class="we-track__cta">START <i class="fa-solid fa-chevron-right"></i></div>
           </article>
-          <article class="we-card we-track" @click="go('/practice/vocab')">
+
+          <article class="we-card we-track" @click="showVocaModal = true">
             <div class="we-track__top">
               <div class="we-track__icon we-track__icon--green"><i class="fa-solid fa-spell-check"></i></div>
               <span class="we-badge we-badge--green">VOCA</span>
             </div>
             <div class="we-track__name">영어 단어</div>
-            <div class="we-track__desc">뜻 · 용법 · 예문 객관식</div>
+            <div class="we-track__desc">수준별 학습 · 랜덤 테스트</div>
             <div class="we-track__cta">START <i class="fa-solid fa-chevron-right"></i></div>
           </article>
+
           <article class="we-card we-track" @click="go('/practice/speaking')">
             <div class="we-track__top">
               <div class="we-track__icon we-track__icon--rose"><i class="fa-solid fa-microphone-lines"></i></div>
@@ -127,6 +129,36 @@
       </section>
 
       <button class="we-fab" @click="go('/wrong-notes')"><i class="fa-solid fa-book-bookmark"></i></button>
+
+      <div v-if="showVocaModal" class="we-modal-overlay" @click.self="showVocaModal = false">
+        <div class="we-modal">
+          <div class="we-modal__header">
+            <h3>난이도 선택</h3>
+            <button class="we-close-btn" @click="showVocaModal = false"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="we-modal__body">
+            <div class="we-level-grid">
+              <button class="we-level-btn btn-bronze" @click="startVoca('BRONZE')">
+                <span class="we-level-icon">🥉</span>
+                <span class="we-level-text">BRONZE(쉬움)</span>
+              </button>
+              <button class="we-level-btn btn-silver" @click="startVoca('SILVER')">
+                <span class="we-level-icon">🥈</span>
+                <span class="we-level-text">SILVER(중간)</span>
+              </button>
+              <button class="we-level-btn btn-gold" @click="startVoca('GOLD')">
+                <span class="we-level-icon">🥇</span>
+                <span class="we-level-text">GOLD(어려움)</span>
+              </button>
+              <button class="we-level-btn btn-random" @click="startVoca('RANDOM')">
+                <span class="we-level-icon">🎲</span>
+                <span class="we-level-text">랜덤 출제</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </template>
@@ -137,6 +169,19 @@ import { ref, onMounted, computed } from "vue";
 
 const router = useRouter();
 const go = (path) => router.push(path);
+
+// VOCA 모달 상태 관리
+const showVocaModal = ref(false);
+
+const startVoca = (level) => {
+  showVocaModal.value = false; // 모달 닫기
+
+  if (level === 'RANDOM') {
+    router.push('/practice/vocab');
+  } else {
+    router.push({ path: '/practice/vocab', query: { level: level } });
+  }
+};
 
 const isExpanded = ref(false);
 const rcCount = ref(0);
@@ -174,7 +219,7 @@ onMounted(fetchProgress);
 <style scoped>
 @import "@/assets/workly-english.css";
 
-/* ✅ 데스크톱/모바일 기본 노출 제어 */
+/* 데스크톱/모바일 기본 노출 제어 */
 .we-mobile-dashboard { display: none; }
 .we-desktop-dashboard { display: block; }
 
@@ -199,4 +244,114 @@ onMounted(fetchProgress);
 .slide-enter-active, .slide-leave-active { transition: max-height 0.3s ease-out, opacity 0.2s; overflow: hidden; }
 .slide-enter-from, .slide-leave-to { max-height: 0; opacity: 0; }
 .slide-enter-to, .slide-leave-from { max-height: 250px; opacity: 1; }
+
+.we-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.we-modal {
+  background: #ffffff;
+  width: 90%;
+  max-width: 360px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.we-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.we-modal__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.we-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.we-modal__body {
+  padding: 20px;
+}
+
+.we-level-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.we-level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 10px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.we-level-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.we-level-text {
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.we-level-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 각 난이도별 테마 컬러 */
+.btn-bronze { border-color: #cd7f32; background: #fff8f2; }
+.btn-bronze:hover { background: #cd7f32; color: white; }
+.btn-bronze:hover .we-level-text { color: white; }
+
+.btn-silver { border-color: #94a3b8; background: #f8fafc; }
+.btn-silver:hover { background: #94a3b8; color: white; }
+.btn-silver:hover .we-level-text { color: white; }
+
+.btn-gold { border-color: #eab308; background: #fefce8; }
+.btn-gold:hover { background: #eab308; color: white; }
+.btn-gold:hover .we-level-text { color: white; }
+
+.btn-random { border-color: #6366f1; background: #eef2ff; grid-column: 1 / -1; flex-direction: row; gap: 10px; padding: 12px; }
+.btn-random:hover { background: #6366f1; color: white; }
+.btn-random:hover .we-level-text { color: white; }
+.btn-random .we-level-icon { margin-bottom: 0; font-size: 1.4rem; }
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
 </style>

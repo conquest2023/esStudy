@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.SampleOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -79,6 +80,21 @@ public class EnglishService {
         // 4. 파이프라인 실행
         Aggregation aggregation = Aggregation.newAggregation(sampleStage);
 
+        return mongoTemplate.aggregate(aggregation, "problems_vocab", English_Vocab.class).getMappedResults();
+    }
+
+    public List<English_Vocab> getVocabLevel(String level, int size) {
+
+        // 1. Level 필터링 스테이지 추가
+        MatchOperation matchStage = Aggregation.match(Criteria.where("level").is(level));
+
+        // 2. 랜덤 샘플링 스테이지
+        SampleOperation sampleStage = Aggregation.sample(size);
+
+        // 3. 파이프라인 구성 (순서 중요: match -> sample)
+        Aggregation aggregation = Aggregation.newAggregation(matchStage, sampleStage);
+
+        // 4. 실행
         return mongoTemplate.aggregate(aggregation, "problems_vocab", English_Vocab.class).getMappedResults();
     }
 
