@@ -50,8 +50,8 @@ public class ScheduleNotificationImpl implements ScheduleNotificationService {
 
 
     @Override
-//    @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
-    @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "0 0 0/4 * * *", zone = "Asia/Seoul")
     public void sendEnglishPractice() {
         englishNotificationService.sendEnglishPracticeNotification();;
     }

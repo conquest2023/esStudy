@@ -60,19 +60,20 @@ public class  NotificationEventServiceImpl implements NotificationService {
     public void sendEnglishEvent(String userId, NotificationType type, String message) {
         String redisKey = type.getRedisKey(userId);
         String eventType = type.getEventName();
-        redisTemplate.opsForList().leftPush(redisKey, message);
-        redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
         log.warn("SSE 구독 없음 - Redis에 저장: {}", message);
-        SseEmitter emitter = emitters.get(userId);
-        if (emitter == null) {
-            log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
-            return;
-        }
         Map<String, Object> payload = new HashMap<>();
         payload.put("message", message);
         payload.put("type", eventType);
         try {
             String jsonPayload = objectMapper.writeValueAsString(payload);
+            redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
+            redisTemplate.opsForList().trim(redisKey, 0, 20);
+            redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
+            SseEmitter emitter = emitters.get(userId);
+            if (emitter == null) {
+                log.warn("Emitter 없음, 알림 전송 불가 - userId: {}", userId);
+                return;
+            }
             emitter.send(SseEmitter.event()
                     .id(UUID.randomUUID().toString())
                     .name(eventType)

@@ -59,7 +59,7 @@ public class EnglishNotificationService {
 
                 // 알림 발송
                 notificationService.sendEnglishEvent(userId, NotificationType.ENGLISH_PRACTICE,
-                        "🔥 연속 " + currentStreak + "일 기록이 깨지기 직전이에요! 오늘 학습을 완료하세요.");
+                        "🔥 연속 " + currentStreak + "일 기록이 깨지기 직전이에요! 오늘 영어 학습을 완료하세요.");
             } else {
                 // [CASE B] 기록이 아예 없는 사람 (이번 달 활동은 있지만 문제는 안 푼 사람)
                 notificationService.sendEnglishEvent(userId, NotificationType.ENGLISH_PRACTICE,
