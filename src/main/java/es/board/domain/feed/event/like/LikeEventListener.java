@@ -41,7 +41,8 @@ public class LikeEventListener {
         TargetType t = event.getRequest().getTargetType();
 
         LikeTargetInfo info = loadTargetInfo(t, event.getPostId(), event.getRequest().getTargetId());
-        if (info == null) return;
+        if (info == null)
+            return;
 
         if (Objects.equals(info.ownerId(), event.getUserId()))
             return;
@@ -58,13 +59,11 @@ public class LikeEventListener {
         Map<String, Object> payload = new HashMap<>();
         payload.put("message",msg);
         payload.put("postId", info.postId());
-        notificationService.sendLikeNotification(info.ownerId(),payload);
 
         notificationRepository.save(LikeMapper.toEntity(
-                likerName,
-                t,
-                info,
-                msg));
+                likerName, t, info, msg));
+        notificationService.sendLikeNotification(info.ownerId(),payload);
+
     }
 
     private LikeTargetInfo loadTargetInfo(TargetType t, int postId, long targetId) {

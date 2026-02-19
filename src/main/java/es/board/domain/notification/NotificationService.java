@@ -11,7 +11,6 @@ public interface NotificationService {
 
 
 
-    void sendTodoNotification(String userId, String message);
 
 
     void sendEvent(String userId, Map<String,Object> payload,NotificationType type);

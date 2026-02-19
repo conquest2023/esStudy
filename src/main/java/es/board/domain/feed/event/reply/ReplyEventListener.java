@@ -34,14 +34,11 @@ public class ReplyEventListener {
             Map<String, Object> payload = new HashMap<>();
             payload.put("postId",event.getPostId());
             payload.put("message",  event.getResponse().getUsername() + "님이 답글을 작성하였습니다: " + event.getResponse().getContent());
-
+            notificationRepository.save(ReplyDomainMapper.toEntityNotification(commentOwnerId, event.getResponse()));
             notificationService.sendReplyNotification(
                     commentOwnerId,
                     payload
             );
-
-            notificationRepository.save(ReplyDomainMapper.toEntityNotification(commentOwnerId, event.getResponse()));
-
         }
     }
 }

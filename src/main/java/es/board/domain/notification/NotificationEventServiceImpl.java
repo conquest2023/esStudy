@@ -50,29 +50,18 @@ public class  NotificationEventServiceImpl implements NotificationService {
         return emitter;
     }
 
-
-    @Override
-    public void sendTodoNotification(String userId, String message) {
-//        sendNotification(userId, TODO_NOTIFICATION_KEY, "todo-notification", message);
-    }
-
-
-//    @Override
-
-
     @Override
     public void sendEvent(String userId, Map<String,Object> payload, NotificationType type) {
         String redisKey = type.getRedisKey(userId);
         String eventType = type.getEventName();
-        log.info("[notify] type={}, targetUserId={}, containsEmitter={}, keys={}",
-                type.getEventName(),userId, emitters.containsKey(userId), emitters.keySet());
+
         try {
             String jsonPayload = objectMapper.writeValueAsString(payload);
             redisTemplate.opsForList().leftPush(redisKey, jsonPayload);
             redisTemplate.opsForList().trim(redisKey, 0, 20); // 최근 20개 유지
             redisTemplate.expire(redisKey, 7, TimeUnit.DAYS);
-
-            log.info("[Notify] type={}, userId={}, payload={}", eventType, userId, jsonPayload);
+            log.info("[notify] type={}, targetUserId={}, containsEmitter={}, keys={}",
+                    type.getEventName(),userId, emitters.containsKey(userId), emitters.keySet());
 
             // 3. SSE 실시간 전송 로직
             SseEmitter emitter = emitters.get(userId);

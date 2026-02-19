@@ -6,7 +6,6 @@ import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.repository.entity.repository.UserRepository;
-import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

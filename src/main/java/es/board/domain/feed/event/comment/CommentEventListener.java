@@ -31,12 +31,11 @@ public class CommentEventListener {
             Map<String, Object> payload = new HashMap<>();
             payload.put("postId",event.getPostId());
             payload.put("message",  event.getResponse().getUsername() + "님이 댓글을 작성하였습니다: " + event.getResponse().getContent());
+            notificationRepository.save(CommentDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
             notificationService.sendCommentNotification(
                     postOwnerId,
                     payload
             );
-            notificationRepository.save(CommentDomainMapper.toEntityNotification(postOwnerId, event.getResponse()));
-
         }
     }
 }
