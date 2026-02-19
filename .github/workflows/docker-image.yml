@@ -215,7 +215,7 @@ jobs:
           # 백엔드 (Pod: pod-https / container: container)
           if [ "$BACK_BUILD_RESULT" = "success" ] && [ -n "$BACK_FULL_IMAGE_PATH" ]; then
             yq -i '
-              (. | select(.kind=="Pod" and .metadata.name=="pod-https")
+              (. | select(.kind=="Deployment" and .metadata.name=="deploy-https")
                  | .spec.containers[]
                  | select(.name=="container").image
               ) = env(BACK_FULL_IMAGE_PATH)
