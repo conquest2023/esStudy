@@ -42,6 +42,7 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.15.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 	implementation 'org.seleniumhq.selenium:selenium-java:4.26.0'
+	implementation 'software.amazon.awssdk:lambda:2.20.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
 	implementation 'software.amazon.awssdk:s3:2.29.50'

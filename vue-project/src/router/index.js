@@ -65,6 +65,10 @@ const routes = [
                 path: "/practice/vocab",
                 component: () => import("@/pages/english/PracticeVocabSession.vue"),
             },
+            {
+                path: "/practice/speaking",
+                component: () => import("@/pages/english/SpeakingPractice.vue"),
+            },
             // {
             //     path: '/wrong-notes',
             //     component: () => import('@/pages/WrongNotes.vue')
