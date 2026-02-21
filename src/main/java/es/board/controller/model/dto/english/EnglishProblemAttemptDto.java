@@ -1,10 +1,7 @@
 package es.board.controller.model.dto.english;
 
 import es.board.infrastructure.english.entity.EnglishProblemAttempt;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +11,7 @@ public class EnglishProblemAttemptDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @ToString
     public static class Request {
         private String userId;
         private String objectId;
