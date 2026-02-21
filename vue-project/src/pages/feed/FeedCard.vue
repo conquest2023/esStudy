@@ -1,52 +1,42 @@
 <template>
   <div
-      class="feed-row"
-      :class="{
-      'feed-row--notice': notice,
-      'feed-row--vote': isVoteCard
-    }"
+      class="feed-item"
+      :class="{ 'feed-item--notice': notice, 'feed-item--vote': isVoteCard }"
       v-lift
       @click="goToDetail"
   >
     <div class="feed-main">
       <div class="feed-title-line">
         <h6 class="feed-title text-truncate mb-0">
-          <span v-if="notice">📢 공지 | </span>
-          <span v-else-if="isVoteCard">🗳️ 투표 | </span>
+          <span v-if="notice" class="notice-badge">📢 공지</span>
+          <span v-else-if="isVoteCard" class="vote-badge">🗳️ 투표</span>
           {{ post.title }}
         </h6>
-        <span
-            v-if="!notice && isNew"
-            class="feed-badge-new ms-1">
-          N
-        </span>
-        <span
-            v-if="!notice && commentCount"
-            class="feed-badge-comment"
-        >
-          {{ commentCount }}
+        <span v-if="!notice && isNew" class="badge-pill badge-new">New</span>
+        <span v-if="!notice && commentCount" class="badge-pill badge-comment">
+          💬 {{ commentCount }}
         </span>
       </div>
 
       <div class="feed-meta">
-      <span class="feed-meta__item">
-      <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
-      <span v-if="isHotUser(post.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
-      {{ post.username }}
-    </span>
+        <div class="meta-left">
+          <span class="meta-author">
+            <span v-if="userRankIndex !== -1">{{ rankIcon(userRankIndex) }}</span>
+            <span v-if="isHotUser(post.username)" class="hot-fire" aria-label="top recent">🔥</span>
+            {{ post.username }}
+          </span>
+          <span class="meta-dot">·</span>
+          <span class="meta-time">{{ time }}</span>
+        </div>
 
-        <span class="feed-meta__dot">·</span>
-        <span class="feed-meta__item">{{ time }}</span>
-        <template v-if="!notice">
-          <span class="feed-meta__dot">·</span>
-          <span class="feed-meta__item">
-            <i class="bi bi-eye me-1"></i>{{ viewCount }}
+        <div v-if="!notice" class="meta-right">
+          <span class="meta-stat">
+            <i class="fas fa-eye"></i> {{ viewCount }}
           </span>
-          <span class="feed-meta__dot">·</span>
-          <span class="feed-meta__item">
-            <i class="bi bi-heart-fill me-1 text-like"></i>{{ likeCount }}
+          <span class="meta-stat like-stat">
+            <i class="fas fa-heart"></i> {{ likeCount }}
           </span>
-        </template>
+        </div>
       </div>
     </div>
   </div>
@@ -145,110 +135,119 @@ function goToDetail () {
 </script>
 
 <style scoped>
-.feed-row {
-  padding: 0.75rem 0.4rem;
-  border-bottom: 1px solid #f1f3f5;
+.feed-item {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px; /* 더 둥글고 부드러운 모서리 */
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.875rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.04s ease;
-  display: flex;
-  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-.feed-row:last-child {
-  border-bottom: none;
+/* 마이크로 인터랙션: 호버 시 부드럽게 떠오름 */
+.feed-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.05), 0 4px 10px -4px rgba(0, 0, 0, 0.03);
+  transform: translateY(-2px);
 }
 
-.feed-row:hover {
+.feed-item--notice {
   background: #f8fafc;
-}
-
-.feed-row--notice {
-  background: #fff9e7;
-  border-bottom-color: #f6e3b3;
-}
-
-.feed-row--notice:hover {
-  background: #fff4cf;
-}
-
-.feed-row--vote .feed-title {
-  color: #15803d;
-}
-
-.feed-main {
-  flex: 1;
-  min-width: 0;
+  border-left: 4px solid #3b82f6;
 }
 
 .feed-title-line {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 .feed-title {
-  font-size: 1.05rem; /* 살짝 키움 */
-  font-weight: 500;
-  color: #191f28; /* 완전 검은색보다 깊은 회색 */
-  line-height: 1.4;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a; /* 완전한 검은색보다 세련된 딥 네이비/그레이 */
+  letter-spacing: -0.01em;
 }
 
-
-.feed-badge-comment {
-  background: transparent;
-  color: #ef4444; /* 배경 없이 텍스트 컬러로만 포인트 */
-  font-size: 0.85rem;
-  margin-left: 4px;
-}
-.feed-badge-comment::before {
-  content: '[';
-}
-.feed-badge-comment::after {
-  content: ']';
-}
-
-.feed-meta {
-  margin-top: 0.4rem;
-  color: #8b95a1; /* 차분한 회색 */
-  gap: 0.5rem;
-}
-
-.feed-meta__dot {
-  color: #e5e8eb;
-}
-.feed-meta__item {
-  display: inline-flex;
-  align-items: center;
-}
-.feed-meta__item i {
-  font-size: 0.75rem;
-  margin-right: 2px;
-  vertical-align: middle;
-}
-.feed-badge-new {
+/* 뱃지 디자인 개선 (배경색과 텍스트 색상 매칭) */
+.badge-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem; /* 너비 고정 */
-  height: 1.25rem;
-  padding: 0;
-  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #dc2626;
-  box-sizing: border-box;
-  flex-shrink: 0;
+  line-height: 1;
 }
 
-.text-like {
-  color: #ef4444 !important;
+.badge-new {
+  background: #fee2e2;
+  color: #ef4444;
 }
-.hot-fire {
+
+.badge-comment {
+  background: #eff6ff;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.notice-badge, .vote-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.notice-badge { color: #3b82f6; }
+.vote-badge { color: #10b981; }
+
+/* 메타 정보 (작성자, 시간, 조회수 등) */
+.feed-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.meta-left, .meta-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meta-author {
+  font-weight: 500;
+  color: #475569;
+}
+
+.meta-dot {
+  color: #cbd5e1;
+}
+
+.meta-stat {
   display: inline-flex;
   align-items: center;
-  line-height: 1;
-  font-size: 0.95rem;
+  gap: 0.25rem;
 }
 
+.meta-stat i {
+  font-size: 0.8rem;
+}
+
+.like-stat {
+  color: #ef4444;
+}
+
+@media (max-width: 576px) {
+  .feed-item {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  .feed-title { font-size: 1rem; }
+}
 @media (max-width: 576px) {
   .feed-row {
     padding: 0.65rem 0.25rem;

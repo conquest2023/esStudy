@@ -204,182 +204,120 @@ const menus = [
   }
 ]
 </script>
-
 <template>
-  <nav class="okky-navbar navbar fixed-top bg-white shadow-sm px-3">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <router-link to="/" class="navbar-brand text-primary fw-bold">Workly</router-link>
+  <nav class="modern-navbar fixed-top px-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center h-100">
 
-      <span class="tagline d-none d-md-inline text-muted me-4 flex-shrink-1 text-wrap">
-        미래를 준비하는 사람들을 위한 사이트
-      </span>
+      <div class="d-flex align-items-center gap-3">
+        <router-link to="/" class="brand-logo">Workly</router-link>
+        <span class="tagline d-none d-md-inline">미래를 준비하는 사람들을 위한 공간</span>
+      </div>
 
-      <ul class="nav d-none d-md-flex gap-3 top-nav-menu-area">
-        <li class="nav-item dropdown" v-for="(m, idx) in menus" :key="idx">
-          <a class="nav-link fw-semibold dropdown-toggle" href="#" @click.prevent="toggleDropdown(idx)">
+      <ul class="nav d-none d-md-flex gap-1 top-nav-menu-area">
+        <li class="nav-item position-relative" v-for="(m, idx) in menus" :key="idx">
+          <a class="nav-link modern-nav-link" href="#" @click.prevent="toggleDropdown(idx)">
             {{ m.label }}
+            <i class="fas fa-chevron-down ms-1" :class="{ 'rotate-180': openDropdownIdx === idx }"></i>
           </a>
 
-          <div class="dropdown-menu rounded shadow-sm small p-2" :class="{ show: openDropdownIdx === idx }">
-            <template v-for="item in m.items" :key="item.href">
-              <a
-                  v-if="item.external || isExternal(item.href)"
-                  class="dropdown-item d-flex flex-column"
-                  :href="item.href"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  @click="openDropdownIdx = null"
-              >
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="fw-bold">{{ item.title }}</span>
-                  <i class="fas fa-arrow-up-right-from-square text-muted"></i>
-                </div>
-                <small class="text-muted">{{ item.desc }}</small>
-              </a>
+          <Transition name="dropdown-fade">
+            <div v-show="openDropdownIdx === idx" class="modern-dropdown shadow-lg">
+              <template v-for="item in m.items" :key="item.href">
+                <a
+                    v-if="item.external || isExternal(item.href)"
+                    class="dropdown-item flex-column align-items-start"
+                    :href="item.href" target="_blank" rel="noopener noreferrer"
+                    @click="openDropdownIdx = null"
+                >
+                  <div class="d-flex align-items-center justify-content-between w-100">
+                    <span class="item-title"><i :class="item.icon" class="me-2"></i>{{ item.title }}</span>
+                    <i class="fas fa-arrow-up-right-from-square text-muted small"></i>
+                  </div>
+                  <small class="item-desc">{{ item.desc }}</small>
+                </a>
 
-              <router-link
-                  v-else
-                  class="dropdown-item d-flex flex-column"
-                  :to="item.href"
-                  @click="openDropdownIdx = null"
-              >
-                <span class="fw-bold">{{ item.title }}</span>
-                <small class="text-muted">{{ item.desc }}</small>
-              </router-link>
-            </template>
-          </div>
+                <router-link
+                    v-else
+                    class="dropdown-item flex-column align-items-start"
+                    :to="item.href"
+                    @click="openDropdownIdx = null"
+                >
+                  <span class="item-title"><i :class="item.icon" class="me-2"></i>{{ item.title }}</span>
+                  <small class="item-desc">{{ item.desc }}</small>
+                </router-link>
+              </template>
+            </div>
+          </Transition>
         </li>
       </ul>
 
-      <div class="d-flex align-items-center ms-auto gap-3 position-relative">
-        <div class="position-relative me-2">
-          <i
-              class="fas fa-bell fa-lg bell-trigger"
-              :class="hasUnread ? 'text-primary bell-has-unread' : 'text-secondary'"
-              style="cursor:pointer"
-              @click.stop="toggleNoti"
-          />
-          <span
-              v-if="unreadCount > 0"
-              class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle"
-              style="font-size: 0.7rem; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"
-          >
-            {{ unreadCount }}
-          </span>
+      <div class="d-flex align-items-center ms-auto gap-3 position-relative action-area">
 
-          <div
-              ref="notiPanel"
-              class="notification-dropdown shadow rounded-4 p-0"
-              :class="{ show: showNoti }"
-          >
-            <div class="noti-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">
-                  🔔 알림
-                  <span v-if="unreadCount > 0" class="badge bg-danger ms-2">
-                    새로운 {{ unreadCount }}건
-                  </span>
-                </span>
-                <small class="text-muted">최근 7일 이내 알림만 표시됩니다</small>
+        <div class="position-relative">
+          <button class="icon-btn bell-trigger" @click.stop="toggleNoti">
+            <i class="fas fa-bell" :class="hasUnread ? 'text-primary' : 'text-secondary'"></i>
+            <span v-if="unreadCount > 0" class="noti-badge">{{ unreadCount }}</span>
+          </button>
+
+          <Transition name="dropdown-fade">
+            <div v-show="showNoti" ref="notiPanel" class="noti-panel shadow-lg">
+              <div class="noti-header">
+                <div>
+                  <span class="fw-bold fs-6">알림</span>
+                  <span v-if="unreadCount > 0" class="badge-pill bg-danger-soft ms-2">{{ unreadCount }}건</span>
+                </div>
+                <button v-if="unreadCount > 0" class="text-btn" @click="markAsRead(notifications.filter(n => !n.isCheck).map(n => n.notificationId))">모두 읽음</button>
               </div>
-              <button
-                  v-if="unreadCount > 0"
-                  class="btn btn-link btn-sm text-muted text-decoration-none"
-                  @click="markAsRead(notifications.filter(n => !n.isCheck).map(n => n.notificationId))"
-              >
-                모두 읽음
-              </button>
-            </div>
 
-            <ul v-if="notifications.length > 0" class="list-unstyled mb-0 small noti-list">
-              <li
-                  v-for="n in notifications"
-                  :key="n.notificationId"
-                  :class="[
-                  'noti-item d-flex justify-content-between align-items-start px-3 py-2 border-bottom',
-                  { 'noti-unread': !n.isCheck }
-                ]"
-              >
-                <div class="flex-grow-1 me-2">
-                  <router-link
-                      :to="'/post/' + n.postId"
-                      class="text-decoration-none d-block"
-                      @click="markAsRead([n.notificationId])"
-                  >
-                    <div class="d-flex align-items-center mb-1">
-                      <span class="noti-dot me-2" v-if="!n.isCheck"></span>
-                      <span class="fw-semibold text-dark text-truncate">
-                        <template v-if="n.message.includes('좋아요')">
-                          {{ n.message }}
-                        </template>
-                        <template v-else>
-                          {{ n.username }}님이 "{{ n.message }}" 라고 작성하셨습니다
-                        </template>
-                      </span>
+              <ul v-if="notifications.length > 0" class="noti-list">
+                <li v-for="n in notifications" :key="n.notificationId" :class="['noti-item', { 'unread': !n.isCheck }]">
+                  <router-link :to="'/post/' + n.postId" class="noti-link" @click="markAsRead([n.notificationId])">
+                    <div class="noti-content">
+                      <span v-if="!n.isCheck" class="unread-dot"></span>
+                      <p class="mb-1 text-truncate-2">
+                        <template v-if="n.message.includes('좋아요')">{{ n.message }}</template>
+                        <template v-else><b>{{ n.username }}</b>님이 "{{ n.message }}" 라고 작성하셨습니다.</template>
+                      </p>
+                      <span class="noti-time">{{ formatDate(n.createdAt) }}</span>
                     </div>
-                    <div class="small text-muted">{{ formatDate(n.createdAt) }}</div>
                   </router-link>
-                </div>
+                  <button class="delete-btn" @click.stop="deleteNotification([n.notificationId])"><i class="fas fa-times"></i></button>
+                </li>
+              </ul>
+              <div v-else class="empty-noti">최근 알림이 없습니다.</div>
 
-                <div class="btn-group btn-group-sm ms-1 flex-shrink-0">
-                  <button class="btn btn-outline-success btn-sm" @click="markAsRead([n.notificationId])" title="읽음 처리">
-                    <i class="fas fa-eye" />
-                  </button>
-                  <button class="btn btn-outline-danger btn-sm" @click="deleteNotification([n.notificationId])" title="삭제">
-                    <i class="fas fa-trash" />
-                  </button>
-                </div>
-              </li>
-            </ul>
-
-            <div v-else class="d-flex flex-column align-items-center justify-content-center text-muted py-4 small">
-              <i class="fas fa-inbox mb-2" style="font-size: 1.8rem;"></i>
-              <div>최근 7일 이내 알림이 없습니다</div>
+              <div class="noti-footer">
+                <button class="btn-primary-soft w-100" @click="router.push('/notifications')">전체 알림 보기</button>
+              </div>
             </div>
-
-            <div class="text-center px-3 py-2 border-top">
-              <button
-                  class="btn w-100 py-2 fw-semibold shadow-sm border-0 text-white"
-                  style="background:linear-gradient(90deg,#4a90e2,#007aff);border-radius:12px;"
-                  @click="router.push('/notifications')"
-              >
-                전체 알림 보기
-              </button>
-            </div>
-          </div>
+          </Transition>
         </div>
 
-        <button class="btn btn-outline-dark btn-sm" @click="toggleTheme">
+        <button class="icon-btn" @click="toggleTheme">
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
-
-        <button class="d-none d-md-inline-block btn btn-danger btn-sm" @click="router.push('/search/view/feed/Form')">
-          글쓰기
+        <button class="btn-write d-none d-md-inline-flex" @click="router.push('/search/view/feed/Form')">
+          <i class="fas fa-pen me-1"></i> 글쓰기
         </button>
 
         <template v-if="user.isLoggedIn">
           <div class="position-relative user-menu-trigger" @click.stop="showUserMenu = !showUserMenu">
-            <button class="btn btn-outline-secondary btn-sm">
-              <i class="fas fa-user-circle" />
-            </button>
-            <div class="dropdown-menu dropdown-menu-end mt-2 user-menu-dropdown" :class="{ show: showUserMenu }">
-              <span class="dropdown-item-text text-secondary">
-                <b>{{ user.username }}</b>님
-              </span>
-              <router-link class="dropdown-item" to="/mypage">
-                <i class="fas fa-user me-2" /> 마이페이지
-              </router-link>
-              <button class="dropdown-item text-danger" @click="logout">
-                <i class="fas fa-sign-out-alt me-2" /> 로그아웃
-              </button>
-            </div>
+            <div class="profile-avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+
+            <Transition name="dropdown-fade">
+              <div v-show="showUserMenu" class="modern-dropdown user-dropdown shadow-lg">
+                <div class="px-3 py-2 border-bottom mb-2">
+                  <span class="d-block fw-bold text-dark">{{ user.username }}님</span>
+                  <span class="small text-muted">환영합니다!</span>
+                </div>
+                <router-link class="dropdown-item" to="/mypage"><i class="fas fa-user"></i> 마이페이지</router-link>
+                <button class="dropdown-item text-danger" @click="logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
+              </div>
+            </Transition>
           </div>
         </template>
-
         <template v-else>
-          <button class="btn btn-outline-dark btn-sm" @click="router.push('/login')">
-            로그인
-          </button>
+          <button class="btn-login" @click="router.push('/login')">로그인</button>
         </template>
       </div>
     </div>
@@ -387,190 +325,161 @@ const menus = [
 </template>
 
 <style scoped>
-.okky-navbar {
+/* 1. 글래스모피즘 네비게이션 */
+.modern-navbar {
   height: 64px;
-  background: white;
-  border-bottom: 1px solid #e1e4e8;
-  display: flex;
-  align-items: center;
+  background: rgba(255, 255, 255, 0.85); /* 반투명 흰색 */
+  backdrop-filter: blur(12px); /* 배경 블러 처리 */
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   z-index: 2000;
+  transition: background 0.3s;
 }
 
-
-.okky-navbar .navbar-brand {
+/* 로고 및 텍스트 */
+.brand-logo {
   font-size: 1.4rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #2563eb !important;
-}
-
-/* 태그라인 */
-.okky-navbar .tagline {
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-
-.okky-navbar .nav-link {
-  font-weight: 600;
-  color: #444;
-  padding: 0.6rem 0.2rem;
-  position: relative;
-}
-
-.okky-navbar .nav-link:hover {
   color: #2563eb;
+  text-decoration: none;
+  letter-spacing: -0.5px;
 }
-.user-menu-dropdown {
-  right: 0;
-  left: auto;
-  transform: translateX(-5%);
+.tagline {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
 }
-.dropdown-menu {
-  border-radius: 14px !important;
-  padding: 12px !important;
+
+/* 2. 네비게이션 링크 */
+.modern-nav-link {
+  color: #475569;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.modern-nav-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.fa-chevron-down {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+.rotate-180 { transform: rotate(180deg); }
+
+/* 3. 모던 드롭다운 (애플 스타일) */
+.modern-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  padding: 8px;
   min-width: 260px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-  border: 1px solid #f1f3f5;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
+.user-dropdown { left: auto; right: 0; min-width: 200px; }
 
 .dropdown-item {
-  padding: 10px 12px !important;
   border-radius: 10px;
+  padding: 10px 12px;
+  color: #334155;
+  transition: all 0.15s;
 }
-
 .dropdown-item:hover {
-  background: #f1f4ff;
+  background: #f8fafc;
+  color: #2563eb;
 }
+.item-title { font-weight: 600; font-size: 0.95rem; }
+.item-desc { color: #94a3b8; font-size: 0.75rem; margin-top: 2px; }
 
-
-.fa-bell {
-  transition: color .25s, transform .25s;
+/* 4. 아이콘 버튼 & 알림 */
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #64748b;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
+.icon-btn:hover { background: #f1f5f9; color: #0f172a; }
 
-.fa-bell:hover {
-  color: #2563eb !important;
-  transform: scale(1.05);
-}
-
-.badge {
-  font-weight: 600;
-  padding: 4px 6px;
-}
-
-.notification-dropdown {
-  width: 360px;
-  background: white;
-  border-radius: 18px;
-  overflow: hidden;
+.noti-badge {
   position: absolute;
-  right: 0;
-  top: 48px;
-  border: 1px solid #e5e8eb;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  animation: fadeSlide .25s ease-out;
-  display: none;
-  z-index: 1050;
+  top: 0; right: 0;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  border: 2px solid #fff;
 }
 
-.notification-dropdown.show {
-  display: block;
+/* 알림 패널 */
+.noti-panel {
+  position: absolute;
+  top: 48px; right: -10px;
+  width: 340px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
 }
+.noti-header { display: flex; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; }
+.bg-danger-soft { background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }
+.noti-list { max-height: 350px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+.noti-item { position: relative; padding: 12px 16px; border-bottom: 1px solid #f8fafc; display: flex; align-items: flex-start; transition: background 0.2s; }
+.noti-item:hover { background: #f8fafc; }
+.noti-item.unread { background: #eff6ff; }
+.unread-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.noti-link { flex: 1; text-decoration: none; color: #334155; }
+.text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.9rem; }
+.noti-time { font-size: 0.75rem; color: #94a3b8; }
+.delete-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; }
+.delete-btn:hover { color: #ef4444; }
+.empty-noti { padding: 40px; text-align: center; color: #94a3b8; font-size: 0.9rem; }
+.noti-footer { padding: 12px; border-top: 1px solid #f1f5f9; }
+
+/* 유저 아바타 */
+.profile-avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37,99,235,0.2);
+}
+
+/* 액션 버튼들 */
+.btn-write {
+  background: #0f172a; color: white; border: none;
+  padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.btn-write:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15,23,42,0.2); }
+.btn-primary-soft { background: #eff6ff; color: #2563eb; border: none; padding: 8px; border-radius: 10px; font-weight: 600; }
+.btn-primary-soft:hover { background: #dbeafe; }
+.text-btn { background: none; border: none; color: #64748b; font-size: 0.8rem; cursor: pointer; }
+.text-btn:hover { color: #2563eb; text-decoration: underline; }
+
+/* 애니메이션 */
+.dropdown-fade-enter-active, .dropdown-fade-leave-active { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.dropdown-fade-enter-from, .dropdown-fade-leave-to { opacity: 0; transform: translateY(-10px) scale(0.95); }
 
 @keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.noti-header {
-  background: #f9fafb;
-}
-.noti-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-
-.noti-item {
-  border-bottom: 1px solid #f1f3f5;
-  padding: 12px 14px;
-  transition: background .15s ease;
-}
-
-.noti-item:hover {
-  background: #f5f7ff;
-}
-
-
-.noti-dot {
-  width: 8px;
-  height: 8px;
-  background: #ff3b30;
-  border-radius: 50%;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.btn-outline-secondary {
-  border-radius: 10px !important;
-}
-
-.btn-outline-dark {
-  border-radius: 10px !important;
-  padding: 6px 10px;
-}
-
-.btn-danger {
-  padding: 6px 14px;
-  background: linear-gradient(135deg, #ff4b4b, #ff2626);
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-}
-
-.btn-danger:hover {
-  background: linear-gradient(135deg, #ff3b3b, #ff1111);
-}
-
-@media (max-width: 768px) {
-  .tagline {
-    display: none;
-  }
-
-  .okky-navbar {
-    height: 58px;
-  }
-}
-
-
-@media (max-width: 768px) {
-  .notification-dropdown {
-    position: fixed;  /* 핵심: absolute → fixed */
-    top: calc(var(--navbar-h) + 8px + env(safe-area-inset-top, 0px));
-    right: calc(10px + env(safe-area-inset-right, 0px));
-    left: auto;
-    width: min(420px, calc(100vw - 20px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
-    max-height: min(70vh, 520px);
-    overflow: hidden;
-    z-index: 2000;
-    border-radius: 16px;
-    box-shadow: 0 14px 30px rgba(0,0,0,0.18);
-  }
-
-  .noti-list {
-    max-height: calc(70vh - 110px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  @keyframes fadeSlide {
     from { opacity: 0; transform: translateY(-6px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-}
 @media (max-width: 420px) {
   .notification-dropdown {
     right: calc(8px + env(safe-area-inset-right, 0px));

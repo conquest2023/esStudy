@@ -32,7 +32,7 @@ public class ConversationService {
         try {
             Map<String, Object> payloadMap = new HashMap<>();
             payloadMap.put("bucket", bucketName);
-            payloadMap.put("s3_keys", s3Keys); // 리스트 전달
+            payloadMap.put("s3_keys", s3Keys);
             String payload = objectMapper.writeValueAsString(payloadMap);
 
             InvokeRequest request = InvokeRequest.builder()

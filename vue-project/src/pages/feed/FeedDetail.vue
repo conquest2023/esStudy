@@ -2,299 +2,182 @@
   <PrevNextButtons v-if="loaded" :posts="posts" class="mb-3" />
 
   <div v-if="!loaded" class="post-detail-loading text-center pt-5">
-    <i class="bi bi-arrow-repeat fs-2 spin"></i>
+    <div class="modern-spinner"></div>
   </div>
 
   <section v-else class="post-detail-page container pt-navbar my-4">
-    <div v-if="isOwner" class="text-end mb-2">
-      <div class="dropdown d-none d-md-inline-block">
-        <button class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-toggle="dropdown">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <button type="button" class="dropdown-item" @click="goEdit">
-              <i class="fas fa-edit me-2"></i> 수정
-            </button>
-          </li>
-          <li>
-            <button type="button" class="dropdown-item text-danger" @click="onDelete">
-              <i class="fas fa-trash me-2"></i> 삭제
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- 모바일 플로팅 -->
-      <div class="dropup d-md-none position-fixed action-fab">
-        <button
-            class="btn btn-primary rounded-circle shadow dropdown-toggle"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <button class="dropdown-item" @click="goEdit">
-              <i class="fas fa-edit me-2"></i> 수정
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item text-danger" @click="onDelete">
-              <i class="fas fa-trash me-2"></i> 삭제
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 본문 카드 -->
-    <article class="card shadow-sm post-card">
+    <article class="modern-post-card shadow-sm mb-4">
       <div class="card-body">
-        <header class="post-header mb-3">
-          <h1 class="post-title">
-            {{ feed.title }}
-          </h1>
 
-          <div class="post-meta-row small">
-            <RouterLink :to="`/user/profile/${feed.username}`" class="post-author-link text-decoration-none d-inline-flex align-items-center">
+        <header class="post-header mb-4">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h1 class="post-title">{{ feed.title }}</h1>
+
+            <div v-if="isOwner" class="dropdown ms-3 flex-shrink-0">
+              <button class="icon-btn-soft" data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end modern-dropdown shadow-sm border-0">
+                <li>
+                  <button type="button" class="dropdown-item" @click="goEdit">
+                    <i class="fas fa-edit me-2 text-secondary"></i> 수정
+                  </button>
+                </li>
+                <li>
+                  <button type="button" class="dropdown-item text-danger" @click="onDelete">
+                    <i class="fas fa-trash me-2"></i> 삭제
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="post-meta-row">
+            <RouterLink :to="`/user/profile/${feed.username}`" class="author-link">
               <span v-if="userRankIndex !== -1" class="me-1">{{ rankIcon(userRankIndex) }}</span>
               <span v-if="isHotUser(feed.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
-              <span class="fw-semibold">{{ feed.username }}</span>
+              <span class="fw-bold">{{ feed.username }}</span>
             </RouterLink>
-            <span class="dot">·</span>
-            <span v-if="!feed.modifiedAt" class="ms-1">· {{ dateText }}</span>
-            <span class="dot">·</span>
-            <span>조회 {{ feed.viewCount ?? 0 }}</span>
-            <span class="dot">·</span>
-            <span class="d-inline-flex align-items-center">
-            <i
-            :class="[  'bi', isLiked('POST', feed.id) ? 'bi-heart-fill text-like' : 'bi-heart'  ]"
-            class="me-1"></i><span>{{ likeCountOf('POST', feed.id) }}</span></span>
-            <span v-if="feed.modifiedAt" class="dot">·</span>
-            <span v-if="feed.modifiedAt" class="text-muted"> 수정 {{ fmtDate(feed.modifiedAt) }}
-         </span>
+            <span class="meta-dot">·</span>
+            <span v-if="!feed.modifiedAt" class="meta-text">{{ dateText }}</span>
+            <span v-else class="meta-text">수정됨 {{ fmtDate(feed.modifiedAt) }}</span>
+            <span class="meta-dot">·</span>
+            <span class="meta-text"><i class="fas fa-eye me-1"></i>{{ feed.viewCount ?? 0 }}</span>
           </div>
         </header>
 
-
         <section class="post-content" v-html="processedDescription" />
-        <footer class="post-actions d-flex justify-content-between align-items-center mt-4">
-          <div class="text-muted small">
-            <i class="bi bi-chat-dots me-1"></i> 댓글 {{ comments.length }}
+
+        <footer class="post-actions d-flex justify-content-between align-items-center mt-5">
+          <div class="comment-count-badge">
+            <i class="fas fa-comment-dots me-1"></i> 댓글 {{ comments.length }}
           </div>
+
           <button
-              class="btn btn-sm btn-outline-danger like-btn d-inline-flex align-items-center"
+              class="like-btn-modern"
+              :class="{ 'liked': isLiked('POST', feed.id) }"
               @click="() => toggleLike('POST', feed.id)"
           >
-            <i :class="['bi', isLiked('POST', feed.id) ? 'bi-heart-fill text-like' : 'bi-heart']"
-                class="me-1"
-            ></i>
-            <span>{{ likeCountOf('POST', feed.id) }}</span>
+            <i class="fas fa-heart" :class="{ 'heart-beat': isLiked('POST', feed.id) }"></i>
+            <span class="ms-1">{{ likeCountOf('POST', feed.id) }}</span>
           </button>
         </footer>
       </div>
     </article>
 
-    <!-- 댓글 영역 -->
-    <section class="comments-section mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">
-          <i class="bi bi-chat"></i>
-          댓글 <span class="text-muted small">({{ comments.length }})</span>
-        </h5>
+    <section class="comments-section modern-post-card shadow-sm p-4">
+      <h5 class="comments-title mb-4">
+        댓글 <span class="text-primary">{{ comments.length }}</span>
+      </h5>
+
+      <div v-if="comments.length === 0" class="empty-state py-5 text-center">
+        <i class="far fa-comment-dots mb-2 fs-1 text-muted"></i>
+        <p class="text-muted mb-0 small">아직 댓글이 없습니다.<br>첫 번째 댓글을 남겨보세요!</p>
       </div>
 
-      <!-- 댓글 리스트 -->
-      <div v-if="comments.length === 0" class="text-muted py-3 small">
-        아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요.
-      </div>
+      <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item-modern">
+        <div class="comment-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
 
-      <div v-for="c in comments" :key="c.id + '-' + reloadTrigger" class="comment-item d-flex">
-        <div class="comment-body flex-grow-1">
-          <div class="d-flex justify-content-between align-items-start">
             <div class="comment-meta">
-              <RouterLink :to="`/user/profile/${c.username}`" class="comment-author text-decoration-none">
+              <RouterLink :to="`/user/profile/${c.username}`" class="comment-author">
                 <span class="me-1">{{ rankBadge(c.username) }}</span>
                 <span v-if="isHotUser(c.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
-                <span class="fw-semibold">{{ c.username }}</span>
-                <span v-if="c.author" class="badge-author ms-1">글쓴이</span>
-                <span v-if="c.owner" class="badge-author ms-1">작성자</span>
+                <span class="fw-bold">{{ c.username }}</span>
+                <span v-if="c.author" class="badge-pill bg-author ms-2">글쓴이</span>
               </RouterLink>
-
-              <small class="ms-2 text-muted">
-                <template v-if="c.updatedAt">
-                  (수정됨 · {{ fmtDate(c.updatedAt) }})
-                </template>
-                <template v-else>
-                  {{ fmtDate(c.createdAt) }}
-                </template>
-              </small>
+              <span class="meta-dot mx-2">·</span>
+              <span class="meta-text small">
+                {{ c.updatedAt ? `수정됨 ${fmtDate(c.updatedAt)}` : fmtDate(c.createdAt) }}
+              </span>
             </div>
 
-
-            <div class="ms-2 d-flex align-items-center gap-2">
-              <button
-                  v-if="c.owner"
-                  class="btn btn-sm btn-link text-secondary p-0"
-                  @click="startEditComment(c)"
-              >
-                수정
-              </button>
-              <button
-                  v-if="c.owner"
-                  class="btn btn-sm btn-link text-danger p-0"
-                  @click="delComment(c)">삭제
-              </button>
-
-              <button
-                  class="btn btn-sm btn-link text-danger p-0 d-inline-flex align-items-center"
-                  @click="() => toggleLike('COMMENT', c.id)"><i :class="[ 'bi',  isLiked('COMMENT', c.id) ? 'bi-heart-fill text-like' : 'bi-heart' ]"
-                    class="me-1"
-                ></i>
-                <span class="small">{{ likeCountOf('COMMENT', c.id) }}</span>
-              </button>
-
-            </div>
-          </div>
-
-
-            <!-- 내용 -->
-          <div class="mt-1 comment-content" v-html="linkify(c.content)"></div>
-          <div v-if="editingCommentId === c.id" class="mt-2">
-      <textarea
-          v-model="editTexts[c.id]" rows="2"
-          class="form-control mb-2" placeholder="수정할 내용을 입력하세요."/>
-            <div class="d-flex gap-2">
-              <button
-                  class="btn btn-sm btn-primary"
-                  :disabled="editSending" @click="updateComment(c.id)">수정 완료
-              </button>
-              <button class="btn btn-sm btn-outline-secondary" @click="cancelEdit">
-                취소
+            <div class="comment-actions gap-2">
+              <button v-if="c.owner" class="action-btn text-muted" @click="startEditComment(c)">수정</button>
+              <button v-if="c.owner" class="action-btn text-danger" @click="delComment(c)">삭제</button>
+              <button class="action-btn like-action" :class="{ 'text-danger': isLiked('COMMENT', c.id) }" @click="() => toggleLike('COMMENT', c.id)">
+                <i :class="isLiked('COMMENT', c.id) ? 'fas fa-heart' : 'far fa-heart'"></i> {{ likeCountOf('COMMENT', c.id) }}
               </button>
             </div>
           </div>
 
-          <div class="mt-2 reply-list" v-if="replies && replies[c.id]">
-            <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item">
-              <div class="d-flex justify-content-between align-items-start">
+          <div class="comment-content" v-html="linkify(c.content)"></div>
+
+          <div v-if="editingCommentId === c.id" class="edit-form-wrapper mt-3">
+            <textarea v-model="editTexts[c.id]" rows="2" class="modern-input mb-2" placeholder="수정할 내용을 입력하세요."></textarea>
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn-cancel-soft" @click="cancelEdit">취소</button>
+              <button class="btn-submit-soft" :disabled="editSending" @click="updateComment(c.id)">수정 완료</button>
+            </div>
+          </div>
+
+          <div class="reply-list-modern" v-if="replies && replies[c.id]">
+            <div v-for="rp in replies[c.id]" :key="rp.id" class="reply-item-modern">
+              <div class="d-flex justify-content-between align-items-start mb-1">
                 <div class="reply-meta">
-                  <RouterLink :to="`/user/profile/${rp.username}`" class="comment-author text-decoration-none">
+                  <RouterLink :to="`/user/profile/${rp.username}`" class="comment-author">
                     <span class="me-1">{{ rankBadge(rp.username) }}</span>
-                    <span v-if="isHotUser(rp.username)" class="hot-fire me-1" aria-label="top recent">🔥</span>
-                    <span class="fw-semibold">{{ rp.username }}</span>
-                    <span v-if="rp.author" class="badge-author ms-1">글쓴이</span>
-                    <span v-if="rp.owner" class="badge-author ms-1">작성자</span>
+                    <span v-if="isHotUser(rp.username)" class="hot-fire me-1">🔥</span>
+                    <span class="fw-bold">{{ rp.username }}</span>
+                    <span v-if="rp.author" class="badge-pill bg-author ms-2">글쓴이</span>
                   </RouterLink>
-
-
-                  <small class="text-muted ms-2">
-                    <template v-if="rp.updatedAt">
-                      (수정됨 · {{ fmtDate(rp.updatedAt) }})
-                    </template>
-                    <template v-else>
-                      {{ fmtDate(rp.createdAt) }}
-                    </template>
-                  </small>
+                  <span class="meta-dot mx-2">·</span>
+                  <span class="meta-text small">
+                    {{ rp.updatedAt ? `수정됨 ${fmtDate(rp.updatedAt)}` : fmtDate(rp.createdAt) }}
+                  </span>
                 </div>
 
-                <div class="ms-2 d-flex align-items-center gap-2 small">
-                  <button
-                      v-if="rp.owner"
-                      class="btn btn-link btn-sm text-secondary p-0 me-2"
-                      @click="startReplyEdit(rp)"
-                  >
-                    수정
-                  </button>
-                  <button
-                      v-if="rp.owner"
-                      class="btn btn-link btn-sm text-danger p-0"
-                      @click="delReply(rp)"
-                  >
-                    삭제
-                  </button>
-
-                  <button
-                      class="btn btn-link btn-sm text-danger p-0 d-inline-flex align-items-center"
-                      @click="() => toggleLike('REPLY', rp.id)"
-                  >
-                    <i
-                        :class="['bi', isLiked('REPLY', rp.id) ? 'bi-heart-fill  text-like' : 'bi-heart']"
-                        class="me-1"
-                    ></i>
-                    <span class="small">{{ likeCountOf('REPLY', rp.id) }}</span>
+                <div class="comment-actions gap-2">
+                  <button v-if="rp.owner" class="action-btn text-muted" @click="startReplyEdit(rp)">수정</button>
+                  <button v-if="rp.owner" class="action-btn text-danger" @click="delReply(rp)">삭제</button>
+                  <button class="action-btn like-action" :class="{ 'text-danger': isLiked('REPLY', rp.id) }" @click="() => toggleLike('REPLY', rp.id)">
+                    <i :class="isLiked('REPLY', rp.id) ? 'fas fa-heart' : 'far fa-heart'"></i> {{ likeCountOf('REPLY', rp.id) }}
                   </button>
                 </div>
               </div>
 
-
-                <!-- 내용 or 수정 폼 -->
-              <div v-if="replyEditMode[rp.id]" class="mt-2">
-              <textarea v-model="replyEditTexts[rp.id]" rows="2" class="form-control mb-2"/>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-sm btn-primary" @click="updateReply(rp)">
-                    저장
-                  </button>
-                  <button
-                      class="btn btn-sm btn-outline-secondary"
-                      @click="cancelReplyEdit(rp.id)"
-                  >
-                    취소
-                  </button>
+              <div v-if="replyEditMode[rp.id]" class="edit-form-wrapper mt-2">
+                <textarea v-model="replyEditTexts[rp.id]" rows="2" class="modern-input mb-2"></textarea>
+                <div class="d-flex justify-content-end gap-2">
+                  <button class="btn-cancel-soft" @click="cancelReplyEdit(rp.id)">취소</button>
+                  <button class="btn-submit-soft" @click="updateReply(rp)">저장</button>
                 </div>
               </div>
-              <div v-else class="reply-content">
-                {{ rp.content }}
-              </div>
+              <div v-else class="reply-content">{{ rp.content }}</div>
             </div>
           </div>
-          <button
-              class="btn btn-sm btn-outline-primary mt-2"
-              @click="toggleReplyForm(c.id)">
-            답글 달기
+
+          <button class="btn-reply-toggle mt-2" @click="toggleReplyForm(c.id)">
+            <i class="fas fa-reply me-1"></i> 답글 쓰기
           </button>
-          <div v-show="activeReply === c.id" class="mt-2">
-            <textarea
-                v-model="replyTexts[c.id]"
-                rows="2"
-                class="form-control mb-2"
-                placeholder="답글 입력"
-            />
-            <button
-                class="btn btn-sm btn-primary"
-                @click="submitReply(c.id)"
-                :disabled="replySendingMap[c.id]"
-            >
-              답글 작성
-            </button>
+
+          <div v-show="activeReply === c.id" class="reply-form-wrapper mt-2">
+            <textarea v-model="replyTexts[c.id]" rows="2" class="modern-input mb-2" placeholder="답글을 남겨주세요."></textarea>
+            <div class="d-flex justify-content-end">
+              <button class="btn-submit-soft" @click="submitReply(c.id)" :disabled="replySendingMap[c.id]">답글 등록</button>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 댓글 작성 -->
-    <section class="card shadow-sm p-3 mt-4 comment-write-card">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0">
-          <i class="bi bi-pencil-square me-1"></i> 댓글 쓰기
-        </h6>
-        <button v-if="!login" class="btn btn-sm btn-outline-secondary" @click="router.push('/login')">로그인
-        </button>
-      </div>
-      <textarea
-          v-model="commentText"
-          rows="3"
-          class="form-control mb-2"
-          :placeholder="login ? '내용을 입력하세요.' : '로그인 후 이용 가능합니다.'"
-      />
-      <div class="text-end">
-        <button
-            class="btn btn-success px-4"
-            :disabled="!login || sending || !commentText.trim()" @click="submitComment">
-          작성하기
-        </button>
+    <section class="comment-write-card mt-4 mb-5 shadow-sm">
+      <div class="p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0 text-dark">댓글 쓰기</h6>
+          <button v-if="!login" class="btn btn-sm btn-outline-secondary rounded-pill" @click="router.push('/login')">로그인</button>
+        </div>
+        <textarea
+            v-model="commentText"
+            rows="3"
+            class="modern-input mb-3"
+            :placeholder="login ? '상호 존중하는 댓글 문화를 만들어가요.' : '로그인 후 댓글을 작성할 수 있습니다.'"
+        ></textarea>
+        <div class="text-end">
+          <button class="btn-submit-primary" :disabled="!login || sending || !commentText.trim()" @click="submitComment">
+            댓글 등록
+          </button>
+        </div>
       </div>
     </section>
   </section>
@@ -991,222 +874,238 @@ const processedDescription = computed(() => {
 </script>
 
 <style scoped>
-.pt-navbar {
-  padding-top: 60px;
-}
-.badge-author {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 6px;
-  height: 18px;
-  font-size: 0.75rem;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-weight: 600;
+.pt-navbar { padding-top: 60px; }
+.post-detail-page { max-width: 860px; }
+
+/* ===============================
+   모던 카드 & 드롭다운 디자인
+================================= */
+.modern-post-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  padding: 1rem;
 }
 
-/* 전체 페이지 배경 감성 맞추기 */
-.post-detail-page {
-  max-width: 900px;
-}
-
-/* 상단 FAB 버튼 */
-.action-fab {
-  bottom: 80px;
-  right: 24px;
-  z-index: 1051;
-}
-
-.action-fab .btn {
-  width: 56px;
-  height: 56px;
-}
-
-/* 본문 카드 */
-.post-card {
-  border-radius: 14px;
+.icon-btn-soft {
+  background: #f8fafc;
   border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  color: #64748b;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
 }
+.icon-btn-soft:hover { background: #e2e8f0; color: #0f172a; }
 
-.post-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.3rem;
+.modern-dropdown {
+  border-radius: 12px;
+  padding: 8px;
 }
-
-.post-header {
-  border-bottom: 1px solid #f1f3f5;
-  padding-bottom: 0.6rem;
-}
-
-.post-header {
-  border-bottom: 1px solid #f1f3f5;
-  padding-bottom: 0.6rem;
-}
-
-.post-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.35rem;
-}
-
-/* 🔥 한 줄 메타 */
-.post-meta-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;           /* 모바일에서 자연스럽게 줄바꿈 */
-  gap: 0.35rem;
-  color: #6b7280;
-}
-
-.post-author-link {
-  color: #2563eb;
-}
-
-.post-author-link:hover {
-  text-decoration: underline;
-}
-
-.post-meta-row .dot {
-  color: #d1d5db;
-  font-size: 0.8rem;
-}
-
-
-.post-meta-sub .dot {
-  color: #d1d5db;
-}
-
-.hot-fire {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.95rem;      /* 살짝만 작게 */
-  line-height: 1;
-  vertical-align: text-bottom;
-}
-/* 본문 내용 */
-.post-content {
-  margin-top: 1rem;
-  line-height: 1.7;
-  font-size: 0.96rem;
-  color: #111827;
-}
-
-.post-content img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* 본문 하단 액션 */
-.post-actions {
-  border-top: 1px solid #f1f3f5;
-  padding-top: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.like-btn {
-  min-width: 80px;
-}
-
-/* 댓글 영역 */
-.comments-section {
-  margin-top: 1.5rem;
-}
-
-/* 댓글 아이템 */
-.comment-item {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f3f4f6;
-  gap: 10px;
-}
-
-/* 댓글 아바타 */
-.comment-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #374151;
-  margin-right: 8px;
-}
-
-/* 댓글 내용 */
-.comment-body {
-  font-size: 0.9rem;
-}
-
-.comment-author {
-  color: #2563eb;
-}
-
-.comment-author:hover {
-  text-decoration: underline;
-}
-
-.comment-content a {
-  color: #2563eb;
-  text-decoration: underline;
-}
-
-/* 대댓글 리스트 */
-.reply-list {
-  border-left: 2px solid #e5e7eb;
-  padding-left: 0.75rem;
-  margin-top: 0.35rem;
-}
-
-.reply-item {
-  margin-bottom: 0.35rem;
-  font-size: 0.86rem;
-}
-
-.reply-meta {
+.modern-dropdown .dropdown-item {
+  border-radius: 8px;
+  padding: 8px 12px;
   font-weight: 500;
 }
+.modern-dropdown .dropdown-item:hover { background: #f1f5f9; }
 
-.reply-content {
-  margin-top: 2px;
+/* ===============================
+   게시글 헤더 & 메타 정보
+================================= */
+.post-header { border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem; }
+.post-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
 }
 
-/* 댓글 작성 카드 */
-.comment-write-card {
+.post-meta-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+  font-size: 0.9rem;
+}
+.author-link { color: #334155; text-decoration: none; }
+.author-link:hover { color: #2563eb; }
+.meta-dot { color: #cbd5e1; margin: 0 4px; }
+.meta-text { color: #64748b; }
+
+/* ===============================
+   본문 콘텐츠
+================================= */
+.post-content {
+  margin-top: 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #334155;
+  word-break: keep-all;
+}
+/* 본문 내 이미지 반응형 & 둥근 테두리 처리 */
+:deep(.post-content img) {
+  max-width: 100%;
+  height: auto;
   border-radius: 12px;
-}
-.text-like {
-  color: #ef4444 !important;
-}
-/* 로딩 스피너 */
-.post-detail-loading .spin {
-  animation: spin 1s linear infinite;
+  margin: 1rem 0;
 }
 
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
+/* ===============================
+   하단 액션 (좋아요/댓글 수)
+================================= */
+.post-actions {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.5rem;
 }
 
-/* 반응형 조정 */
+.comment-count-badge {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.like-btn-modern {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 999px; /* 알약 형태 */
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex; align-items: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.like-btn-modern:hover { background: #e2e8f0; }
+
+/* 좋아요 활성화 상태 (부드러운 레드) */
+.like-btn-modern.liked {
+  background: #fee2e2;
+  color: #ef4444;
+}
+/* 하트 통통 튀는 애니메이션 */
+.heart-beat { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* ===============================
+   댓글 & 대댓글 섹션
+================================= */
+.comments-title { font-weight: 700; color: #0f172a; }
+
+.comment-item-modern {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.comment-item-modern:last-child { border-bottom: none; }
+
+.comment-author { color: #0f172a; text-decoration: none; }
+.comment-author:hover { color: #2563eb; }
+
+/* 글쓴이 뱃지 */
+.badge-pill.bg-author {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.comment-actions { display: flex; align-items: center; }
+.action-btn {
+  background: none; border: none; font-size: 0.8rem; font-weight: 500;
+  padding: 0; transition: color 0.2s;
+}
+.action-btn:hover { text-decoration: underline; }
+.like-action { color: #94a3b8; }
+
+.comment-content {
+  font-size: 0.95rem; color: #334155; line-height: 1.6;
+  margin-top: 4px;
+}
+:deep(.comment-content a) { color: #2563eb; text-decoration: underline; }
+
+/* 대댓글 (Thread 스타일) */
+.reply-list-modern {
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e2e8f0; /* 계층을 나타내는 부드러운 선 */
+}
+.reply-item-modern { margin-bottom: 1rem; }
+.reply-item-modern:last-child { margin-bottom: 0; }
+.reply-content { font-size: 0.9rem; color: #475569; line-height: 1.5; }
+
+.btn-reply-toggle {
+  background: none; border: none; font-size: 0.8rem; font-weight: 600;
+  color: #64748b; padding: 0; margin-top: 8px; transition: color 0.2s;
+}
+.btn-reply-toggle:hover { color: #2563eb; }
+
+/* ===============================
+   입력 폼 (모던 텍스트 에어리어)
+================================= */
+.comment-write-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.modern-input {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  resize: none;
+  transition: all 0.2s ease;
+}
+.modern-input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #bfdbfe;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.modern-input::placeholder { color: #94a3b8; }
+
+.btn-submit-primary {
+  background: #2563eb; color: #ffffff; border: none;
+  padding: 10px 24px; border-radius: 12px; font-weight: 600; font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.btn-submit-primary:hover:not(:disabled) { background: #1d4ed8; }
+.btn-submit-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+.btn-submit-soft {
+  background: #eff6ff; color: #2563eb; border: none;
+  padding: 6px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+}
+.btn-submit-soft:hover { background: #dbeafe; }
+
+.btn-cancel-soft {
+  background: #f1f5f9; color: #64748b; border: none;
+  padding: 6px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+}
+.btn-cancel-soft:hover { background: #e2e8f0; color: #334155; }
+
+/* ===============================
+   로딩 스피너
+================================= */
+.modern-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid #f3f3f3; border-top: 3px solid #2563eb;
+  border-radius: 50%; animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* 반응형 */
 @media (max-width: 576px) {
-  .post-title {
-    font-size: 1.3rem;
-  }
-
-  .post-content {
-    font-size: 0.94rem;
-  }
-
-  .comment-avatar {
-    display: none;
-  }
+  .post-title { font-size: 1.5rem; }
+  .post-content { font-size: 1rem; }
+  .modern-post-card { padding: 0.5rem; border-radius: 16px; border-left: none; border-right: none; }
 }
 </style>
 

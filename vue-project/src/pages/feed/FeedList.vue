@@ -1,77 +1,28 @@
 <template>
-  <section class="container-fluid px-4 mt-4">
-    <div class="row gx-4">
-      <aside class="col-lg-3 d-none d-lg-block">
-<!--        <div class="card shadow-sm p-3">-->
-<!--&lt;!&ndash;          <h6 class="fw-bold mb-3">🌟 추천 글</h6>&ndash;&gt;-->
-<!--        </div>-->
-<!--        <div class="card shadow-sm p-3 mt-3">-->
-<!--&lt;!&ndash;          <DailyQuestions />&ndash;&gt;-->
-<!--        </div>-->
-      </aside>
+  <section class="container-fluid px-4 mt-4 modern-board">
+    <div class="row gx-4 justify-content-center">
+      <main class="col-lg-7"> <div class="board-wrap">
+        <SearchBar class="mb-4 modern-search" />
+        <RecommendedPosts :items="recommend" class="mb-4" />
 
-      <main class="col-lg-6">
-<!--        <div class="d-block d-lg-none">-->
-<!--          <div class="mb-3">-->
-<!--&lt;!&ndash;            <DailyQuestions />&ndash;&gt;-->
-<!--          </div>-->
-<!--&lt;!&ndash;          <button class="btn btn-primary btn-sm mb-3" @click="showSidebar = true">&ndash;&gt;-->
-<!--&lt;!&ndash;            <i class="fas fa-list me-1"></i> 추천 글 보기&ndash;&gt;-->
-<!--&lt;!&ndash;          </button>&ndash;&gt;-->
-<!--        </div>-->
+        <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-4" />
 
-        <transition name="slide">
-          <div
-              v-if="showSidebar"
-              class="mobile-sidebar-backdrop"
-              @click="showSidebar = false"
-          >
-            <div
-                class="mobile-sidebar bg-white shadow position-fixed top-0 start-0 h-100 p-3"
-                @click.stop
-                style="z-index: 1060; width: 80%; max-width: 300px;"
+        <div v-if="activeTab === 'BEST'" class="category-bar mb-4">
+          <div class="segmented-control">
+            <button
+                v-for="cat in bestCategories"
+                :key="cat"
+                class="seg-btn"
+                :class="{ active: bestSelected === cat }"
+                @click="setBestCat(cat)"
             >
-              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-<!--                <h5 class="fw-bold text-primary">추천 글</h5>-->
-                <button class="btn-close" @click="showSidebar = false"></button>
-              </div>
-              <ul class="list-unstyled small">
-                <li v-for="item in recommendPosts" :key="item.feedUID" class="mb-3 border-bottom pb-2">
-                  <router-link
-                      :to="`/search/view/feed/id/${item.feedUID}`"
-                      class="text-dark text-decoration-none d-block"
-                      @click="showSidebar = false"
-                  >
-                    <div class="fw-semibold text-truncate text-break">{{ item.title }}</div>
-                    <small class="text-muted">{{ item.username }}</small>
-                  </router-link>
-                </li>
-              </ul>
-            </div>
+              {{ cat }}
+            </button>
           </div>
-        </transition>
+        </div>
 
-        <div class="board-wrap">
-          <SearchBar class="mb-4" />
-          <RecommendedPosts :items="recommend" class="mb-4" />
-          <BoardTabs v-model="activeTab" :tabs="TABS" class="mb-3" />
-          <div v-if="activeTab === 'BEST'" class="category-bar">
-            <div class="segmented-tabs">
-              <button
-                  v-for="cat in bestCategories"
-                  :key="cat"
-                  class="seg-btn"
-                  :class="{ active: bestSelected === cat }"
-                  @click="setBestCat(cat)"
-                  type="button"
-              >
-                {{ cat }}
-              </button>
-            </div>
-          </div>
-
-          <div v-if="activeTab === 'DATA'" class="category-bar">
-            <div class="segmented-tabs">
+        <div v-if="activeTab === 'DATA'" class="category-bar mb-4">
+          <div class="segmented-control">
             <button
                 v-for="cat in dataCategories"
                 :key="cat"
@@ -81,44 +32,47 @@
             >
               {{ cat }}
             </button>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-            <h5 class="fw-bold text-dark"></h5>
-            <div class="dropdown">
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
-                <i class="fas fa-sort-amount-down-alt"></i> {{ sortLabel }}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li v-for="s in sorts" :key="s.id">
-                  <a href="#" class="dropdown-item" :class="{ 'active fw-bold': curSort === s.id }" @click.prevent="changeSort(s.id)">{{ s.label }}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="post-list-area">
-            <router-link
-                v-for="n in notices" :key="n.id" :to="`/notice/detail/${n.id}`"
-                class="text-decoration-none text-dark d-block notice-card">
-              <FeedCard :post="n" notice class="mb-3 bg-light-info border-start border-4 border-info" />
-            </router-link>
-            <FeedCard v-for="p in posts"
-                      :key="p.id"
-                      :post="p"
-                      :is-vote="!p.id"
-                      :like-count="likeCounts[p.id]"
-                      :comment-count="counts[p.id]" class="mb-3 post-card"
-                      :page="page"
-                      :posts="posts" />
-          </div>
-          <div class="d-flex justify-content-center mt-5">
-            <Pagination :page="page" :totalPages="totalPage" @change="fetchFeeds" />
-            <Spinner v-if="loading" />
           </div>
         </div>
+
+        <div class="d-flex justify-content-end mb-3">
+          <div class="dropdown modern-dropdown">
+            <button class="btn dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+              <i class="fas fa-sliders-h text-muted"></i>
+              <span class="fw-medium">{{ sortLabel }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+              <li v-for="s in sorts" :key="s.id">
+                <a href="#" class="dropdown-item py-2" :class="{ 'active': curSort === s.id }" @click.prevent="changeSort(s.id)">
+                  {{ s.label }}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="post-list-area">
+          <FeedCard
+              v-for="n in notices" :key="n.id"
+              :post="n" notice
+          />
+          <FeedCard
+              v-for="p in posts" :key="p.id"
+              :post="p"
+              :is-vote="!p.id"
+              :like-count="likeCounts[p.id]"
+              :comment-count="counts[p.id]"
+              :page="page"
+              :posts="posts"
+          />
+        </div>
+
+        <div class="d-flex justify-content-center mt-5 mb-5">
+          <Spinner v-if="loading" />
+          <Pagination v-else :page="page" :totalPages="totalPage" @change="fetchFeeds" />
+        </div>
+      </div>
       </main>
-      <div class="col-lg-3 d-none d-lg-block" />
     </div>
   </section>
 </template>
@@ -546,139 +500,76 @@ async function pingNormal() {
 </script>
 
 <style scoped>
-.container-fluid {
-  max-width: 1300px;
+/* 메인 컨테이너 레이아웃 설정 */
+.modern-board {
+  max-width: 1100px; /* 너무 넓게 퍼지지 않도록 응집도 상승 */
 }
 
-
-.post-list-area {
-  min-height: 500px;
-}
-
-.post-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  transition: all 0.2s ease-in-out;
-  padding: 1rem;
-}
-.post-card:hover {
-  border-color: #0d6efd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
-}
-
-.notice-card .feed-card-body {
-  background-color: #f7f7ff;
-  border-left: 4px solid #0d6efd;
-}
-
-.mobile-sidebar-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1050;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.mobile-sidebar {
-  box-shadow: 4px 0 10px rgba(0,0,0,0.15) !important; /* 사이드바 그림자 강조 */
-  z-index: 1060 !important;
-}
-
-
-.nav-pills .nav-item {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.nav-pills .nav-link {
-  border-radius: 20px;
-  font-size: 0.85rem;
-}
-.nav-pills .nav-link.active {
-  font-weight: 600;
-}
-
-
-.search-bar input {
-  border: none;
-  background: transparent;
-}
-
-
-.segmented-tabs {
+/* iOS/macOS 스타일 Segmented Control */
+.segmented-control {
   display: inline-flex;
   align-items: center;
-  gap: 0;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  background: #f1f5f9; /* 연한 회색 배경 */
   border-radius: 12px;
   padding: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.04);
 }
 
 .seg-btn {
   appearance: none;
   border: 0;
-  margin: 0;
   background: transparent;
-  padding: 8px 14px;
-  font-size: 14px;
-  line-height: 1;
-  color: #374151;
-  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background .15s ease, color .15s ease, box-shadow .15s ease, transform .05s ease;
-}
-
-.seg-btn:not(:first-child) {
-  position: relative;
-}
-.seg-btn:not(:first-child)::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  background: rgba(0,0,0,.06);
+  transition: all 0.2s ease;
 }
 
 .seg-btn:hover {
-  background: #eef2f7;          /* 살짝 진한 회색 */
+  color: #0f172a;
 }
 
 .seg-btn.active {
-  background: #0d6efd;          /* 브랜드 블루 */
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(13,110,253,.25);
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); /* 입체감 */
 }
 
-.seg-btn:active {
-  transform: translateY(1px);
+/* 모던 정렬 드롭다운 */
+.modern-dropdown .btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  color: #334155;
+  transition: all 0.2s;
 }
 
-/* 다크모드 대응 (선택) */
-:root.dark .segmented-tabs {
-  border-color: #2f3337;
-  background: #1f2327;
-  box-shadow: none;
-}
-:root.dark .seg-btn { color: #d1d5db; }
-:root.dark .seg-btn:hover { background: #2a2e33; }
-:root.dark .seg-btn:not(:first-child)::before { background: rgba(255,255,255,.06); }
-:root.dark .seg-btn.active {
-  background: #2563eb;
-  box-shadow: 0 2px 6px rgba(37,99,235,.35);
+.modern-dropdown .btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
-.category-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.modern-dropdown .dropdown-menu {
+  border-radius: 12px;
+  padding: 0.5rem;
 }
+
+.modern-dropdown .dropdown-item {
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.modern-dropdown .dropdown-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
 
 @media (max-width: 992px) {
   .post-card {
