@@ -34,8 +34,8 @@ public class VoteEventListener {
         String username = user.get().getUsername();
         if (postOwnerId != null && !postOwnerId.equals(event.getRequest().getVoterId())) {
             Map<String, Object> payload = new HashMap<>();
-            payload.put("message",entity.get().getId());
-            payload.put("postId", username + "님이 투표를 했습니다:"+entity.get().getTitle());
+            payload.put("message",username + "님이 투표를 했습니다:"+entity.get().getTitle());
+            payload.put("postId",entity.get().getId());
             notificationService.sendCommentNotification(
                     postOwnerId,
                     payload);

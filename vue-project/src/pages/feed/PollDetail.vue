@@ -493,7 +493,7 @@ async function submitVote() {
     }
     alert('투표 완료!')
     hasVoted.value = true
-    window.location.href = '/post/'+postIdParam
+    window.location.href = '/poll/'+postIdParam
   } catch (e) {
     console.error(e)
     alert('투표 중 오류 발생')

@@ -4,7 +4,6 @@ import es.board.domain.PostRepository;
 import es.board.domain.feed.event.PollCreatedEvent;
 import es.board.domain.notification.feed.NoticeNotificationService;
 import es.board.infrastructure.entity.feed.PostEntity;
-import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
