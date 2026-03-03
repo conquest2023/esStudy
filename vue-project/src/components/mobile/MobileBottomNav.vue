@@ -260,6 +260,7 @@ function closeSheet() {
 
 .sheet-title {
 
+
   font-size: 1.1rem;
   font-weight: 700;
   color: #0f172a;

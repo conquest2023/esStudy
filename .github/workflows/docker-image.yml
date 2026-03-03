@@ -10,7 +10,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  # 1) 변경 감지
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -43,10 +42,10 @@ jobs:
               - 'gradle/**'
               - 'settings.gradle*'
 
-  # 2) 프론트엔드 빌드 및 이미지 푸시
+  # 2) 프론트엔드 빌드 및 파일 업로드
   frontend:
     needs: changes
-    # 백엔드만 바뀌었더라도 프론트엔드 index.html 공유를 위해 실행하는 것이 안전함
+    # 백엔드만 바뀌었어도 프론트 해시값이 담긴 index.html이 필요하므로 조건 수정
     if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -70,14 +69,14 @@ jobs:
         working-directory: vue-project
         run: npm run build
 
-      # [핵심] 빌드된 index.html을 Artifact로 업로드하여 백엔드와 공유
+      # [추가] 빌드된 최신 index.html을 백엔드로 넘기기 위해 저장
       - name: Upload index.html for Backend
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist
+          name: frontend-index
           path: vue-project/dist/index.html
 
-      - name: Pick primary tag
+      - name: Pick primary tag (safe)
         id: pick
         run: echo "tag=${IMAGE_REPO}:main-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
@@ -95,10 +94,12 @@ jobs:
           file: ./vue-project/Dockerfile
           push: true
           tags: ${{ steps.pick.outputs.tag }}
+          cache-from: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache,mode=max
 
-  # 3) 백엔드 빌드 (프론트 결과물 포함) 및 이미지 푸시
+  # 3) 백엔드 빌드 (프론트 파일 수신 및 JAR 포함)
   backend:
-    needs: [changes, frontend]
+    needs: [changes, frontend] # 프론트엔드가 끝나야 파일을 받을 수 있음
     if: ${{ needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -108,20 +109,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # [핵심] 프론트엔드에서 빌드한 최신 index.html 다운로드
-      - name: Download Frontend Artifact
+      # [추가] 프론트엔드에서 올린 최신 index.html 다운로드
+      - name: Download Frontend index.html
         uses: actions/download-artifact@v4
         with:
-          name: frontend-dist
+          name: frontend-index
           path: temp-dist
 
-      # [핵심] 백엔드 템플릿 경로로 복사 (해시값 동기화)
-      - name: Sync HTML to Backend Templates
+      # [추가] 다운로드한 파일을 백엔드 템플릿 폴더로 강제 복사 (해시값 동기화)
+      - name: Sync Frontend HTML to Backend
         run: |
           mkdir -p src/main/resources/templates
           cp temp-dist/index.html src/main/resources/templates/index.html
           cp temp-dist/index.html src/main/resources/templates/robot-meta.html
-          echo "최신 해시가 포함된 HTML 동기화 완료"
+          echo "Sync Done: Backend will now serve the latest JS/CSS hashes."
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -133,7 +134,7 @@ jobs:
       - name: Gradle Test & Build (jar)
         run: ./gradlew clean test bootJar --no-daemon
 
-      - name: Pick primary tag
+      - name: Pick primary tag (safe)
         id: pick
         run: echo "tag=${IMAGE_REPO}:main-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
@@ -151,8 +152,10 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ steps.pick.outputs.tag }}
+          cache-from: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_REPO }}:buildcache,mode=max
 
-  # 4) CD 레포 업데이트
+  # 4) 매니페스트 업데이트 (기존 로직 유지)
   bump-manifest:
     needs: [frontend, backend]
     if: ${{ always() && (needs.frontend.result == 'success' || needs.backend.result == 'success') }}
@@ -163,13 +166,26 @@ jobs:
         with:
           repository: conquest2023/worklyCD
           path: worklyCD
+          ref: main
           token: ${{ secrets.CD_REPO_TOKEN }}
+
+      - name: Install yq v4
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
 
       - name: Update images in manifests
         working-directory: worklyCD
+        env:
+          FRONT_IMAGE: ${{ needs.frontend.outputs.image_tag }}
+          BACK_IMAGE:  ${{ needs.backend.outputs.image_tag }}
         run: |
-          # (기존 yq 업데이트 로직 유지)
-          # ... 생략 (이미지 태그 업데이트 부분) ...
+          if [ -n "$FRONT_IMAGE" ]; then
+            yq -i '(. | select(.kind=="Deployment" and .metadata.name=="vue-frontend") | .spec.template.spec.containers[] | select(.name=="vue").image) = env(FRONT_IMAGE)' cd/front-pod.yaml
+          fi
+          if [ -n "$BACK_IMAGE" ]; then
+            yq -i '(. | select(.kind=="Deployment" and .metadata.name=="deploy-https") | .spec.template.spec.containers[] | select(.name=="container").image) = env(BACK_IMAGE)' cd/backend-pod.yaml
+          fi
 
       - name: Commit & Push to CD repo
         working-directory: worklyCD
@@ -177,6 +193,6 @@ jobs:
           git config user.name  "gha-bot"
           git config user.email "gha-bot@users.noreply.github.com"
           git add cd/*.yaml
-          git commit -m "chore: bump image tag to latest build" || exit 0
+          git commit -m "chore: sync frontend hashes and bump images" || exit 0
           git remote set-url origin "https://x-access-token:${{ secrets.CD_REPO_TOKEN }}@github.com/conquest2023/worklyCD.git"
           git push origin HEAD:main
