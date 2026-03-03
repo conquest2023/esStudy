@@ -41,6 +41,7 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return  repository.findIds(pageable);
     }
+
     @Override
     public Page<PostEntity> findPopularPostsInLast7Week(int page,int size, LocalDateTime lastSevenDays) {
         Pageable pageable = PageRequest.of(page, size);
