@@ -5,7 +5,10 @@ WORKDIR /app
 COPY . .
 
 WORKDIR /app/vue-project
+
 RUN npm install && npm run build
+
+RUN ls -la /app/vue-project/dist
 
 FROM nginx:alpine
 # 빌드 결과물이 /app/vue-project/dist에 생성되므로 해당 경로에서 복사합니다.
