@@ -48,9 +48,9 @@ public class PostController {
 
 
         List<PostDTO.Response> recommendPost = postService.getRecommendPost(List.of(
+                60289,
                 60103,
-                60117,
-                60102
+                60117
         ));
         return ResponseEntity.ok(Map.of(
                "post", recommendPost
