@@ -18,6 +18,7 @@ export default defineConfig({
         changeOrigin: true,
         selfHandleResponse: false,
       },
+
       '/info': {
         target: 'http://localhost:8080',
         changeOrigin: true
