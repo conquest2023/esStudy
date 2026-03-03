@@ -1090,9 +1090,6 @@ const processedDescription = computed(() => {
 }
 .btn-cancel-soft:hover { background: #e2e8f0; color: #334155; }
 
-/* ===============================
-   로딩 스피너
-================================= */
 .modern-spinner {
   width: 40px; height: 40px;
   border: 3px solid #f3f3f3; border-top: 3px solid #2563eb;
@@ -1101,7 +1098,6 @@ const processedDescription = computed(() => {
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* 반응형 */
 @media (max-width: 576px) {
   .post-title { font-size: 1.5rem; }
   .post-content { font-size: 1rem; }
