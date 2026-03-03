@@ -47,6 +47,7 @@ public class PostQueryAdapterRepository implements PostQueryRepository {
         return repository.findPopularPostsInLast7Week(pageable,lastSevenDays);
     }
 
+
     @Override
     public List<Integer> findPostIds(int offset,int size) {
         return repository.findPostIds(offset,size);
