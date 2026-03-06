@@ -39,12 +39,12 @@ export default defineConfig({
         theme_color: '#82b1ff',
         icons: [
           {
-            src: 'pwa-192x192.png', // 제가 만든 192 파일
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png', // 제가 만든 512 파일
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }
