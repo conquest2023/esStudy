@@ -46,12 +46,26 @@ export default defineConfig({
           {
             src: '/pwa-512x512.png',
             sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable' // 모바일 아이콘 깎임 방지를 위해 추가 권장
+          }
+        ],
+        screenshots: [
+          {
+            src: '/mobile-screenshot.png',
+            sizes: '750x1334',
             type: 'image/png'
+          },
+          {
+            src: '/desktop-screenshot.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide'
           }
         ]
       },
       devOptions: {
-        enabled: true // 개발 모드에서도 PWA 동작 확인 가능하게 설정
+        enabled: true
       }
     })
   ],
