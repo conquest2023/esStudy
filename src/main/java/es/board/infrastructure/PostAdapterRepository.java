@@ -1,6 +1,6 @@
 package es.board.infrastructure;
 
-import es.board.domain.PostRepository;
+import es.board.domain.feed.domain.PostRepository;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.jpa.PostJpaRepository;
 import lombok.extern.slf4j.Slf4j;

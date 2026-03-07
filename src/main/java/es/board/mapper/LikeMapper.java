@@ -4,7 +4,7 @@ import es.board.controller.model.dto.feed.LikeDto;
 import es.board.controller.record.LikeTargetInfo;
 import es.board.domain.enum_type.TargetType;
 import es.board.infrastructure.entity.feed.LikeEntity;
-import es.board.domain.Like;
+import es.board.domain.feed.domain.Like;
 import es.board.repository.entity.Notification;
 
 import java.time.LocalDateTime;

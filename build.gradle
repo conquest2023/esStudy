@@ -29,7 +29,8 @@ ext {
 }
 
 dependencies {
-//	implementation 'com.h2database:h2'
+	implementation 'nl.martijndwars:web-push:5.1.1'
+	implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	runtimeOnly 'com.mysql:mysql-connector-j'

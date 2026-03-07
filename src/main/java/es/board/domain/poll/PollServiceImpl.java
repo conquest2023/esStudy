@@ -15,7 +15,7 @@ import es.board.repository.entity.repository.PostRepository;
 import es.board.infrastructure.poll.PollOptionRepository;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.poll.PollVoteRepository;
-import es.board.domain.Post;
+import es.board.domain.feed.domain.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;

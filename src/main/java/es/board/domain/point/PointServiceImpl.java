@@ -1,12 +1,11 @@
 package es.board.domain.point;
 
 import es.board.controller.model.dto.feed.TopWriter;
-import es.board.domain.notification.feed.FeedNotificationService;
+import es.board.domain.notification.service.FeedNotificationService;
 import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.repository.entity.PointHistoryEntity;
 import es.board.repository.entity.repository.PointHistoryRepository;
 import es.board.infrastructure.jpa.projection.UserPointProjection;
-import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

@@ -5,7 +5,7 @@
 //import es.board.controller.model.dto.feed.PostDTO;
 //import es.board.controller.model.dto.feed.TopWriter;
 //import es.board.repository.entity.feed.PostImage;
-//import es.board.service.AuthService;
+//import es.board.domain.user.service.AuthService;
 //import es.board.service.FeedService;
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;

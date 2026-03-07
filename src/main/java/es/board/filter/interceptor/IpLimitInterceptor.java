@@ -1,12 +1,9 @@
 package es.board.filter.interceptor;
 
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import es.board.config.jwt.JwtTokenProvider;
-import es.board.config.redis.RedisConfig;
 import es.board.domain.point.PointService;
-import es.board.service.AuthService;
+import es.board.domain.user.service.AuthService;
 import es.board.service.VisitorService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,10 +15,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j

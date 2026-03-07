@@ -9,7 +9,7 @@ import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.jpa.projection.MyCommentProjection;
 import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
-import es.board.service.AuthService;
+import es.board.domain.user.service.AuthService;
 import es.board.service.MyPageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

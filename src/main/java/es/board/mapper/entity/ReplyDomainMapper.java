@@ -2,7 +2,7 @@ package es.board.mapper.entity;
 
 import es.board.controller.model.dto.feed.ReplyDTO;
 import es.board.repository.entity.Notification;
-import es.board.domain.Reply;
+import es.board.domain.feed.domain.Reply;
 
 import java.time.LocalDateTime;
 import java.util.List;

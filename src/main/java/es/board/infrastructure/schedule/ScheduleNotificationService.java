@@ -2,9 +2,9 @@ package es.board.infrastructure.schedule;
 
 import es.board.controller.record.MissingPollItem;
 import es.board.controller.record.MissingPollPayload;
-import es.board.domain.notification.EnglishNotificationService;
-import es.board.domain.notification.feed.BestFeedNotificationService;
-import es.board.domain.notification.feed.PollNotificationService;
+import es.board.domain.notification.service.EnglishNotificationService;
+import es.board.domain.notification.service.BestFeedNotificationService;
+import es.board.domain.notification.service.PollNotificationService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;
 import es.board.infrastructure.es.document.View;

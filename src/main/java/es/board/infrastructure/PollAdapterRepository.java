@@ -1,6 +1,5 @@
 package es.board.infrastructure;
 
-import es.board.domain.Post;
 import es.board.infrastructure.poll.PollRepository;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.poll.PollEntity;

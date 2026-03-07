@@ -2,9 +2,8 @@ package es.board.service.impl;
 import es.board.controller.model.dto.UserPoint;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
-import es.board.infrastructure.jpa.projection.LikeCountPostProjection;
 import es.board.repository.entity.repository.PointHistoryRepository;
-import es.board.domain.CommentRepository;
+import es.board.domain.feed.domain.CommentRepository;
 import es.board.infrastructure.feed.PostQueryRepository;
 import es.board.infrastructure.jpa.projection.MyCommentProjection;
 import es.board.infrastructure.jpa.projection.PostsAndCommentsProjection;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j

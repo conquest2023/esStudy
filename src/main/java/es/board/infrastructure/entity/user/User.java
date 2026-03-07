@@ -30,6 +30,7 @@ public class User {
     private  int id;
 
 
+    @Column(name = "userId")
     private  String userId;
 
     private String username;

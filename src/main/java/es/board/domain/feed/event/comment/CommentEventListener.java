@@ -1,10 +1,9 @@
 package es.board.domain.feed.event.comment;
 
-import es.board.domain.notification.feed.FeedNotificationService;
+import es.board.domain.notification.service.FeedNotificationService;
 import es.board.mapper.CommentDomainMapper;
 import es.board.repository.entity.repository.NotificationRepository;
-import es.board.domain.PostRepository;
-import es.board.domain.notification.NotificationService;
+import es.board.domain.feed.domain.PostRepository;
 import es.board.domain.feed.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

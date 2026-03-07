@@ -1,11 +1,10 @@
 package es.board.infrastructure.mq.consumer;
 
 import es.board.config.rabbitmq.RabbitMQQueue;
-import es.board.domain.notification.feed.FeedNotificationService;
+import es.board.domain.notification.service.FeedNotificationService;
 import es.board.mapper.CommentMapper;
 import es.board.infrastructure.mq.old.FeedEvent;
 import es.board.repository.entity.repository.NotificationRepository;
-import es.board.domain.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

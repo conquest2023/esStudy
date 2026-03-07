@@ -3,7 +3,7 @@ package es.board.infrastructure;
 import es.board.infrastructure.feed.ReplyAggView;
 import es.board.infrastructure.jpa.ReplyJpaRepository;
 import es.board.infrastructure.entity.feed.ReplyEntity;
-import es.board.domain.ReplyRepository;
+import es.board.domain.feed.domain.ReplyRepository;
 import es.board.infrastructure.jpa.projection.PostWithReplyCount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

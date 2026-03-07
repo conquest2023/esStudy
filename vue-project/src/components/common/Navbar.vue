@@ -135,6 +135,66 @@ async function deleteNotification(ids) {
   }
 }
 
+const VAPID_PUBLIC_KEY = 'BLEdK3pijslF-CbNId8bodRO_5EfDzE6iAK6dl8mME8ETWQVOzzWHGKvAWJ7F7af_ecN-YAO_yPikAZaurt9-b0';
+
+const urlB64ToUint8Array = (base64String) => {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
+const subscribeToWebPush = async () => {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('이 브라우저는 푸시 알림을 지원하지 않습니다.');
+    return;
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      alert('알림 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.');
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    console.log('생성된 구독 정보:', subscription);
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('로그인이 필요한 서비스입니다.');
+      return;
+    }
+
+    const response = await fetch('/api/web-push/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(subscription)
+    });
+
+    if (response.ok) {
+      alert('성공적으로 알림이 설정되었습니다! 이제 앱을 꺼도 상단 바에 알림이 옵니다.');
+    } else {
+      throw new Error('서버에 구독 정보를 저장하지 못했습니다.');
+    }
+
+  } catch (error) {
+    console.error('푸시 구독 중 에러:', error);
+    alert('알림 설정 중 오류가 발생했습니다.');
+  }
+};
 function handleGlobalClick(e) {
   // 알림창 닫기
   if (showNoti.value) {
@@ -287,6 +347,9 @@ const menus = [
               <div v-else class="empty-noti">최근 알림이 없습니다.</div>
 
               <div class="noti-footer">
+                <button class="btn-primary-soft w-100" @click="subscribeToWebPush" style="background: #eff6ff; color: #2563eb;">
+                  <i class="fas fa-bell me-1"></i> 알림 켜기
+                </button>
                 <button class="btn-primary-soft w-100" @click="router.push('/notifications')">전체 알림 보기</button>
               </div>
             </div>

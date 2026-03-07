@@ -2,7 +2,7 @@ package es.board.infrastructure;
 
 import es.board.infrastructure.feed.CommentAggView;
 import es.board.infrastructure.entity.feed.CommentEntity;
-import es.board.domain.CommentRepository;
+import es.board.domain.feed.domain.CommentRepository;
 import es.board.infrastructure.jpa.CommentJpaRepository;
 import es.board.infrastructure.jpa.projection.MyCommentProjection;
 import es.board.infrastructure.jpa.projection.PostWithCommentCount;

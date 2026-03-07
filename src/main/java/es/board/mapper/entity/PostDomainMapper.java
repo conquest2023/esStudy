@@ -1,7 +1,7 @@
 package es.board.mapper.entity;
 
 import es.board.controller.model.dto.feed.PostDTO;
-import es.board.domain.Post;
+import es.board.domain.feed.domain.Post;
 import es.board.infrastructure.entity.feed.PostEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

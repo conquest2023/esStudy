@@ -1,6 +1,9 @@
 package es.board.domain.notification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.board.domain.notification.service.PushNotificationService;
+import es.board.infrastructure.entity.NotificationSubscription;
+import es.board.infrastructure.jpa.NotificationSubscriptionRepository;
 import es.board.repository.entity.Notification;
 import es.board.repository.entity.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +26,16 @@ import java.util.concurrent.TimeUnit;
 public class  NotificationEventServiceImpl implements NotificationService {
 
 
+    private final PushNotificationService pushNotificationService;
+
     private final RedisTemplate<String, String> redisTemplate;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     private  final ObjectMapper objectMapper;
 
     private  final NotificationRepository notificationRepository;
+
+    private final NotificationSubscriptionRepository subscriptionRepository;
 
 
     @Override
@@ -67,6 +74,12 @@ public class  NotificationEventServiceImpl implements NotificationService {
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {
                 log.warn("[Notify] Emitter 없음, Redis에만 저장됨 - userId: {}", userId);
+                List<NotificationSubscription> devices = subscriptionRepository.findAllByUserId(Long.valueOf(userId));
+
+                for (NotificationSubscription device : devices) {
+                    pushNotificationService.sendPush(device, "Workly 새 알림", (String) payload.get("message"));
+                }
+
                 return;
             }
 

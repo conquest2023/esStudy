@@ -2,7 +2,7 @@ package es.board.mapper;
 
 import es.board.controller.model.dto.feed.CommentDTO;
 import es.board.repository.entity.Notification;
-import es.board.domain.Comment;
+import es.board.domain.feed.domain.Comment;
 
 import java.time.LocalDateTime;
 import java.util.List;

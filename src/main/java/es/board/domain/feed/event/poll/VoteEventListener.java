@@ -1,7 +1,7 @@
 package es.board.domain.feed.event.poll;
 
 import es.board.domain.feed.event.VoteCreatedEvent;
-import es.board.domain.notification.feed.FeedNotificationService;
+import es.board.domain.notification.service.FeedNotificationService;
 import es.board.infrastructure.entity.feed.PostEntity;
 import es.board.infrastructure.entity.user.User;
 import es.board.infrastructure.poll.PollRepository;
