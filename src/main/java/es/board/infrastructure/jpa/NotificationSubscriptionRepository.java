@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface NotificationSubscriptionRepository extends JpaRepository<NotificationSubscription, Long> {
 
-    List<NotificationSubscription> findAllByUserId(Long userId);
+    List<NotificationSubscription> findAllByUserId(String userId);
 
     Optional<NotificationSubscription> findByEndpoint(String endpoint);
 }

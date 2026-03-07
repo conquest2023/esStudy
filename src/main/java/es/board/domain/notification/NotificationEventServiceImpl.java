@@ -74,7 +74,7 @@ public class  NotificationEventServiceImpl implements NotificationService {
             SseEmitter emitter = emitters.get(userId);
             if (emitter == null) {
                 log.warn("[Notify] Emitter 없음, Redis에만 저장됨 - userId: {}", userId);
-                List<NotificationSubscription> devices = subscriptionRepository.findAllByUserId(Long.valueOf(userId));
+                List<NotificationSubscription> devices = subscriptionRepository.findAllByUserId(userId);
 
                 for (NotificationSubscription device : devices) {
                     pushNotificationService.sendPush(device, "Workly 새 알림", (String) payload.get("message"));

@@ -30,7 +30,7 @@ public class User {
     private  int id;
 
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private  String userId;
 
     private String username;
