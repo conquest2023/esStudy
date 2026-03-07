@@ -2,9 +2,12 @@ package es.board.infrastructure.jpa;
 
 import es.board.infrastructure.entity.NotificationSubscription;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface NotificationSubscriptionRepository extends JpaRepository<NotificationSubscription, Long> {
 
     List<NotificationSubscription> findAllByUserId(String userId);

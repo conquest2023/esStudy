@@ -1,6 +1,5 @@
 package es.board.infrastructure.entity;
 
-import es.board.infrastructure.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,15 +25,14 @@ public class NotificationSubscription {
     @Column(nullable = false)
     private String auth;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "userId") // DB의 userId 컬럼을 바라보게 설정
-    private User user;
-
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", referencedColumnName = "userId") // DB의 userId 컬럼을 바라보게 설정
+    private String userId;
     @Builder
-    public NotificationSubscription(String endpoint, String p256dh, String auth, User user) {
+    public NotificationSubscription(String endpoint, String p256dh, String auth, String user) {
         this.endpoint = endpoint;
         this.p256dh = p256dh;
         this.auth = auth;
-        this.user = user;
+        this.userId = user;
     }
 }

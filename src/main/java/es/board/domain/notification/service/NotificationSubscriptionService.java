@@ -26,7 +26,7 @@ public class NotificationSubscriptionService {
                     .endpoint(dto.getEndpoint())
                     .p256dh(dto.getKeys().getP256dh())
                     .auth(dto.getKeys().getAuth())
-                    .user(user)
+                    .user(user.getUserId())
                     .build();
 
             subscriptionRepository.save(subscription);
