@@ -157,7 +157,7 @@ const subscribeToWebPush = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      alert('알림 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.');
+      alert('알림 권한이 거부되었습니다.');
       return;
     }
 
@@ -169,25 +169,12 @@ const subscribeToWebPush = async () => {
 
     console.log('생성된 구독 정보:', subscription);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('로그인이 필요한 서비스입니다.');
-      return;
-    }
+    const response = await api.post('/web-push/subscribe', subscription);
 
-    const response = await fetch('/api/web-push/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(subscription)
-    });
-
-    if (response.ok) {
-      alert('성공적으로 알림이 설정되었습니다! 이제 앱을 꺼도 상단 바에 알림이 옵니다.');
+    if (response.status === 200) { // axios는 response.ok 대신 status 확인
+      alert('성공적으로 알림이 설정되었습니다!');
     } else {
-      throw new Error('서버에 구독 정보를 저장하지 못했습니다.');
+      throw new Error('서버 저장 실패');
     }
 
   } catch (error) {
