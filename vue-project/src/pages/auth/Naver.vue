@@ -90,6 +90,7 @@ onMounted(async () => {
       try {
         data = JSON.parse(text)
       } catch (e) {
+
         console.error('JSON 파싱 실패:', e)
         console.log('서버에서 받은 실제 텍스트:', text) // 원인 확인을 위해 로그 추가
         return

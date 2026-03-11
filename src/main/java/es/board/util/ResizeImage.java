@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element;
 
 public  class ResizeImage {
 
+
     public static String pickSrc(Element img) {
         String src = img.attr("src");
         if (src == null || src.isBlank()) src = img.attr("data-src");
