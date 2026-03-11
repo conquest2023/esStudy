@@ -82,6 +82,7 @@ onMounted(async () => {
       // [수정 포인트] fetch 옵션에 credentials: 'include'를 추가합니다.
       const res = await fetch(`/api/naver/callback/json?code=${code}&state=${state}`, {
         credentials: 'include'
+
       })
 
       const text = await res.text()

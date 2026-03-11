@@ -13,6 +13,7 @@ public  class ResizeImage {
             src = parts[parts.length - 1].trim().split(" ")[0];
         }
         return src;
+
     }
 
     public static boolean isAcceptable(String url) {
