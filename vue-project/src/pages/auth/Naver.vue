@@ -79,7 +79,11 @@ onMounted(async () => {
 
   if (code && state) {
     try {
-      const res = await fetch(`/api/naver/callback/json?code=${code}&state=${state}`)
+      // [수정 포인트] fetch 옵션에 credentials: 'include'를 추가합니다.
+      const res = await fetch(`/api/naver/callback/json?code=${code}&state=${state}`, {
+        credentials: 'include'
+      })
+
       const text = await res.text()
       let data
 
@@ -87,6 +91,7 @@ onMounted(async () => {
         data = JSON.parse(text)
       } catch (e) {
         console.error('JSON 파싱 실패:', e)
+        console.log('서버에서 받은 실제 텍스트:', text) // 원인 확인을 위해 로그 추가
         return
       }
 
