@@ -1,4 +1,4 @@
-<template>
+@F<template>
   <div class="container-xl py-5 write-container">
     <form @submit.prevent="submitForm" class="mx-auto modern-write-card shadow-sm">
 
@@ -50,10 +50,29 @@
           <button type="button" class="toolbar-btn" @click="applyFormat('code')" title="코드 블럭">
             <i class="bi bi-code-slash" />
           </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" @click="$refs.imageInput.click()" :disabled="pendingFiles.length >= MAX_IMAGES" title="이미지 삽입">
+            <i class="bi bi-image" />
+          </button>
+          <span v-if="pendingFiles.length > 0" class="img-count-badge">{{ pendingFiles.length }}/{{ MAX_IMAGES }}</span>
+          <input
+              ref="imageInput"
+              type="file"
+              accept="image/*"
+              multiple
+              class="d-none"
+              @change="handleFiles"
+          />
         </div>
 
-        <div class="editor-content-area position-relative">
-          <p v-if="showPlaceholder" class="editor-placeholder">이곳에 자유롭게 내용을 작성해보세요...</p>
+        <div
+            class="editor-content-area position-relative"
+            @dragover.prevent="onEditorDragOver"
+            @dragleave="onEditorDragLeave"
+            @drop.prevent="onEditorDrop"
+            :class="{ 'drag-over': isDragOver }"
+        >
+          <p v-if="showPlaceholder" class="editor-placeholder">이곳에 자유롭게 내용을 작성해보세요...<br><span class="placeholder-img-hint"><i class="bi bi-image me-1"></i>이미지를 여기에 드래그하거나 위 버튼을 눌러 삽입하세요</span></p>
           <div
               ref="editor"
               class="content-editor"
@@ -65,44 +84,6 @@
         </div>
       </div>
 
-      <Transition name="fade">
-        <div class="thumb-tray mb-3" v-if="pendingFiles.length">
-          <div class="tray-head">
-            <span class="fw-bold text-dark"><i class="far fa-images me-1"></i> 첨부된 이미지</span>
-            <span class="badge-pill bg-secondary-soft">{{ pendingFiles.length }} / {{ MAX_IMAGES }}장</span>
-          </div>
-          <div class="thumbs mt-2">
-            <div class="thumb-card shadow-sm" v-for="p in pendingFiles" :key="p.id">
-              <img :src="p.url" :alt="p.file?.name || 'preview'" />
-              <div class="thumb-actions">
-                <button type="button" class="btn-thumb insert" @click.stop="insertFromTray(p)">본문 삽입</button>
-                <button type="button" class="btn-thumb delete" @click="removePending(p.id)"><i class="fas fa-times"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-      <div
-          class="upload-dropzone mb-5"
-          @dragover.prevent
-          @drop.prevent="filesDropped($event.dataTransfer.files)"
-          @click="$refs.imageInput.click()"
-      >
-        <input
-            ref="imageInput"
-            type="file"
-            accept="image/*"
-            multiple
-            class="d-none"
-            @change="handleFiles"
-        />
-        <div class="dropzone-content">
-          <div class="upload-icon mb-2"><i class="bi bi-cloud-arrow-up"></i></div>
-          <p class="m-0 fw-semibold text-dark">클릭하거나 이미지를 드래그하여 업로드하세요</p>
-          <span class="small text-muted mt-1 d-block">최대 {{ MAX_IMAGES }}장까지 첨부할 수 있습니다</span>
-        </div>
-      </div>
 
       <button class="btn-submit-glow w-100" :disabled="isSubmitting">
         <span v-if="isSubmitting">
@@ -135,6 +116,15 @@ const categories       = ['자유', '자격증', '문제', '기술', '취업', '
 const showPlaceholder  = ref(true)
 const editor           = ref(null)
 const isSubmitting     = ref(false)
+const isDragOver       = ref(false)
+
+const onEditorDragOver = () => { isDragOver.value = true }
+const onEditorDragLeave = () => { isDragOver.value = false }
+const onEditorDrop = (e) => {
+  isDragOver.value = false
+  const files = e.dataTransfer?.files
+  if (files?.length) handleFiles(files)
+}
 
 const applyFormat = type => {
   if (type === 'link') {
@@ -164,17 +154,17 @@ async function handleFiles (e) {
     const img = new Image()
     await new Promise(r => { img.onload = r; img.src = url })
 
-    pendingFiles.value.push({
+    const p = {
       id, file, url,
-      width: 480, // 초기 임시 폭
-      height: Math.round(480 * (img.naturalHeight / img.naturalWidth)), // 초기 임시 높이
+      width: 480,
+      height: Math.round(480 * (img.naturalHeight / img.naturalWidth)),
       ratio: img.naturalWidth / img.naturalHeight
-    })
+    }
+    pendingFiles.value.push(p)
+    await nextTick()
+    insertFromTray(p)
   }
   resetChooser()
-}
-function imgDecode(img){
-  return img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
 }
 
 function insertAtCaret(node) {
@@ -207,9 +197,6 @@ function removePending(id){
   }
 }
 
-function filesDropped (files) {
-  handleFiles(files)
-}
 function getEditorWidth () {
   const el = editor.value
   if (!el) return 720
@@ -263,8 +250,10 @@ function insertFromTray(p) {
   const initH = Math.round(initW / (p.ratio || 1))
 
   Object.assign(wrap.style, {
+    display: 'block',
     position: 'relative',
     maxWidth: '100%',
+    margin: '1rem auto',
     resize: 'both',
     overflow: 'auto',
     width: initW + 'px',
@@ -367,6 +356,7 @@ function enableResizable(wrap, img, p) {
   const ro = new ResizeObserver(() => {
     const containerW = getEditorWidth()
     const wantedW    = wrap.clientWidth
+    if (wantedW < 10) return  // 아직 레이아웃 계산 전
 
     const w = Math.max(240, Math.min(wantedW, containerW))
     const h = Math.round(w / (p.ratio || 1))
@@ -597,47 +587,23 @@ onMounted(async () => {
 }
 
 /* ===============================
-   이미지 썸네일 트레이
+   툴바 이미지 카운트 뱃지
 ================================= */
-.thumb-tray {
-  background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px;
+.img-count-badge {
+  font-size: 0.78rem; font-weight: 600; color: #2563eb;
+  background: #eff6ff; border-radius: 8px; padding: 2px 8px;
 }
-.tray-head {
-  display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: #475569;
-}
-.bg-secondary-soft { background: #e2e8f0; color: #475569; padding: 2px 10px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; }
+.toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.thumbs { display: flex; gap: 12px; flex-wrap: wrap; }
-.thumb-card {
-  position: relative; width: 120px; height: 120px; border-radius: 12px; overflow: hidden;
-  border: 1px solid #e2e8f0; background: #ffffff;
+/* 에디터 드래그 오버 상태 */
+.editor-content-area.drag-over {
+  background: #eff6ff;
+  outline: 2px dashed #93c5fd;
+  outline-offset: -4px;
 }
-.thumb-card img { width: 100%; height: 100%; object-fit: cover; }
-.thumb-actions {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 8px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-  display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;
+.placeholder-img-hint {
+  display: block; font-size: 0.85rem; color: #b0bec5; margin-top: 6px;
 }
-.thumb-card:hover .thumb-actions { opacity: 1; }
-
-.btn-thumb {
-  border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 600; padding: 4px 0; flex: 1; cursor: pointer;
-}
-.btn-thumb.insert { background: #2563eb; color: #fff; }
-.btn-thumb.delete { background: #ef4444; color: #fff; flex: 0.4; }
-
-/* ===============================
-   드롭존 (업로드)
-================================= */
-.upload-dropzone {
-  border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px;
-  background: #f8fafc; text-align: center; cursor: pointer; transition: all 0.2s ease;
-}
-.upload-dropzone:hover {
-  background: #eff6ff; border-color: #93c5fd;
-}
-.upload-icon i { font-size: 2.5rem; color: #94a3b8; transition: color 0.2s; }
-.upload-dropzone:hover .upload-icon i { color: #3b82f6; }
 
 /* ===============================
    본문 내 삽입된 이미지 리사이즈 UI
@@ -681,9 +647,6 @@ onMounted(async () => {
 .btn-submit-glow:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(37, 99, 235, 0.4); }
 .btn-submit-glow:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; }
 
-/* 애니메이션 */
-.fade-slide-enter-active, .fade-slide-leave-active { transition: all 0.3s ease; }
-.fade-slide-enter-from, .fade-slide-leave-to { opacity: 0; transform: translateX(-10px); }
 
 @media (max-width: 576px) {
   .modern-write-card { padding: 20px; border-radius: 16px; }
