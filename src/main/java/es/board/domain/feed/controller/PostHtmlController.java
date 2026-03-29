@@ -24,7 +24,7 @@ public class PostHtmlController {
 
 
         String ua = userAgent.toLowerCase();
-        boolean isRobot = ua.contains("kakaotalk") ||
+        boolean isRobot = ua.contains("kakaotalk-scrap") ||
                 ua.contains("facebookexternalhit") ||
                 ua.contains("twitterbot") ||
                 ua.contains("googlebot") ||
