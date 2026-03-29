@@ -65,6 +65,10 @@
               :page="page"
               :posts="posts"
           />
+          <div v-if="!loading && !posts.length && !notices.length" class="empty-state">
+            <div class="empty-icon">🗂️</div>
+            <p class="empty-text">게시글이 없습니다</p>
+          </div>
         </div>
 
         <div class="d-flex justify-content-center mt-5 mb-5">
@@ -571,10 +575,18 @@ async function pingNormal() {
 }
 
 
+.post-list-area { display: flex; flex-direction: column; }
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #9ca3af;
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-text { font-size: 0.95rem; font-weight: 500; margin: 0; }
+
 @media (max-width: 992px) {
-  .post-card {
-    padding: 0.75rem;
-  }
+  .post-card { padding: 0.75rem; }
 }
 .board-wrap { max-width: 100%; margin: 0; }
 .interview-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; cursor: pointer; }
