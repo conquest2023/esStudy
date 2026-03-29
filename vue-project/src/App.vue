@@ -28,6 +28,16 @@ const store = useUserStore()
   --c-text-muted-dark: rgba(255, 255, 255, 0.85);
   --c-meta-stats-dark: rgba(255, 255, 255, 0.8);
 }
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+img, video, iframe {
+  max-width: 100%;
+}
 #toastContainer .toast {
   pointer-events: auto;
   opacity: 0.95;

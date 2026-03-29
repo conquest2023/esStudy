@@ -476,13 +476,15 @@ const menus = [
 
 /* 알림 패널 */
 .noti-panel {
-  position: absolute;
-  top: 48px; right: -10px;
-  width: 340px;
+  position: fixed;
+  top: 64px;
+  right: 8px;
+  width: min(340px, calc(100vw - 16px));
   background: #fff;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
+  z-index: 2100;
 }
 .noti-header { display: flex; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; }
 .bg-danger-soft { background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; }

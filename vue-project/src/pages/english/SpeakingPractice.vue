@@ -803,4 +803,43 @@ const playAudio = () => {
     transform: scale(1);
   }
 }
+
+@media (max-width: 640px) {
+  .we-speaking-card {
+    padding: 16px;
+    min-height: unset;
+  }
+
+  .we-sentence-en {
+    font-size: 1.3rem;
+  }
+
+  .we-sentence-ko {
+    font-size: 1rem;
+  }
+
+  .we-dictation-box {
+    flex-direction: column;
+  }
+
+  .we-btn--check {
+    width: 100%;
+    padding: 12px;
+    justify-content: center;
+  }
+
+  .we-section__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .we-audio-controls {
+    gap: 16px;
+  }
+
+  .we-sentence-area {
+    margin-bottom: 16px;
+  }
+}
 </style>

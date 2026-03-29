@@ -636,17 +636,21 @@ watch(activeTab, () => {
 }
 
 @media (max-width: 768px) {
-  .we-summaryGrid {
-    grid-template-columns: 1fr;
-  }
+  .we-summaryGrid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+  .we-summaryCard { padding: 20px; }
+  .we-summaryValue { font-size: 30px; }
 
-  .we-answerCompare {
-    grid-template-columns: 1fr;
-  }
+  .we-answerCompare { grid-template-columns: 1fr; gap: 10px; }
 
-  .we-filterRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .we-filterRow { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 20px; }
+  .we-searchBox { width: 100%; }
+
+  .we-noteCard__head { padding: 14px 16px; }
+  .we-noteCard__body { padding: 16px; }
+  .we-noteCard__footer { padding: 14px 16px; }
+
+  .we-passageSnippet { font-size: 16px; margin-bottom: 16px; }
+  .we-ansBox { padding: 14px; }
+  .we-ansValue { font-size: 15px; }
 }
 </style>

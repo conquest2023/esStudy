@@ -510,35 +510,43 @@ async function pingNormal() {
 }
 
 /* iOS/macOS 스타일 Segmented Control */
+.category-bar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.category-bar::-webkit-scrollbar { display: none; }
+
 .segmented-control {
   display: inline-flex;
   align-items: center;
-  background: #f1f5f9; /* 연한 회색 배경 */
+  background: #f1f5f9;
   border-radius: 12px;
   padding: 4px;
+  white-space: nowrap;
+  min-width: max-content;
 }
 
 .seg-btn {
   appearance: none;
   border: 0;
   background: transparent;
-  padding: 8px 18px;
-  font-size: 0.9rem;
+  padding: 7px 14px;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #64748b;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.seg-btn:hover {
-  color: #0f172a;
-}
+.seg-btn:hover { color: #0f172a; }
 
 .seg-btn.active {
   background: #ffffff;
   color: #0f172a;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); /* 입체감 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
 }
 
 /* 모던 정렬 드롭다운 */

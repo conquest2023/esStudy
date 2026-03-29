@@ -345,5 +345,12 @@ async function onSaveWrong() {
 .we-complete-actions {
   display: flex;
   gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+@media (max-width: 480px) {
+  .we-complete-actions { flex-direction: column; width: 100%; }
+  .we-complete-actions .we-btn { width: 100%; justify-content: center; }
+  .we-complete-title { font-size: 22px; }
 }
 </style>

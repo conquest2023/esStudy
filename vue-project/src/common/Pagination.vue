@@ -39,7 +39,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['change'])
 
-const MAX = 10
+const MAX = window.innerWidth < 576 ? 5 : 10
 const startPage = computed(() => Math.floor(props.page / MAX) * MAX)
 const endPage = computed(() => Math.min(props.totalPages - 1, startPage.value + MAX - 1))
 const visiblePages = computed(() => Array.from({length: endPage.value - startPage.value + 1}, (_, i) => startPage.value + i))
@@ -55,11 +55,14 @@ function emitPage(p) {
 /* 모던 독립형 페이지네이션 */
 .modern-pagination {
   display: flex;
-  gap: 6px; /* 버튼 사이 여백 */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
   list-style: none;
   padding: 0;
   margin: 0;
   align-items: center;
+  max-width: 100%;
 }
 
 .page-item {
