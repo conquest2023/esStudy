@@ -45,7 +45,8 @@ const navItems = [
     label: '취업',
     children: [
       {path: '/search/view/feed/list/job', label: 'IT 정보'},
-      {path: '/site', label: '취업 사이트'}
+      {path: '/site', label: '취업 사이트'},
+      {path: '/saju?ref=workly', label: '커리어 사주', reload: true}
     ]
   },
   {

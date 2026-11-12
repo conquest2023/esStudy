@@ -46,6 +46,10 @@ function onClickItem(item) {
     window.open(path, '_blank', 'noopener,noreferrer')
     return
   }
+  if (item?.reload) {
+    window.location.href = path
+    return
+  }
   emit('nav-click', item)
 }
 
@@ -58,6 +62,10 @@ function onClickChild(child) {
 
   if (isExternal(path) || child?.isExternal) {
     window.open(path, '_blank', 'noopener,noreferrer')
+    return
+  }
+  if (child?.reload) {
+    window.location.href = path
     return
   }
   emit('nav-click', child)

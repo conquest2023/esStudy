@@ -248,6 +248,13 @@ const menus = [
       { href: '/interview/priinterview', icon: 'fas fa-building text-success', title: '사기업', desc: '기업별 면접 포인트와 합격 전략' },
       // { href: '/certificate/calendar', icon: 'fas fa-landmark text-warning', title: '공기업', desc: 'NCS부터 인성까지 완벽 분석' }
     ]
+  },
+  {
+    label: '커리어 사주',
+    items: [
+      // /saju 는 별도 앱(saju-web)이라 router-link 가 아닌 같은 탭 전체 이동(reload)으로 연다
+      { href: '/saju?ref=workly', reload: true, icon: 'fas fa-star text-primary', title: '커리어 사주', desc: '시험·면접 날에 맞춘 오늘의 운' }
+    ]
   }
 ]
 </script>
@@ -280,6 +287,16 @@ const menus = [
                     <span class="item-title"><i :class="item.icon" class="me-2"></i>{{ item.title }}</span>
                     <i class="fas fa-arrow-up-right-from-square text-muted small"></i>
                   </div>
+                  <small class="item-desc">{{ item.desc }}</small>
+                </a>
+
+                <a
+                    v-else-if="item.reload"
+                    class="dropdown-item flex-column align-items-start"
+                    :href="item.href"
+                    @click="openDropdownIdx = null"
+                >
+                  <span class="item-title"><i :class="item.icon" class="me-2"></i>{{ item.title }}</span>
                   <small class="item-desc">{{ item.desc }}</small>
                 </a>
 
