@@ -1,11 +1,14 @@
 package es.board.controller;
 
 import es.board.config.jwt.JwtTokenProvider;
+import es.board.controller.model.dto.todo.D_DayDTO;
 import es.board.controller.model.dto.todo.TodoDTO;
 import es.board.ex.TokenValidator;
+import es.board.service.DDayService;
 import es.board.service.ToDoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +25,42 @@ public class ToDoController {
     private  final TokenValidator tokenValidator;
 
     private final ToDoService toDoService;
+
+    private final DDayService dDayService;
+
+    // ── D-Day ── (프론트: 사이드바·캘린더 GET /api/day, DDayModal POST /api/day/save)
+    // JwtUserResolverFilter 가 비로그인이면 userId 를 "" 로 넣는다
+    @GetMapping("/day")
+    public ResponseEntity<?> getDDays(@RequestAttribute(value = "userId", required = false) String userId) {
+        if (userId == null || userId.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("D_Day", java.util.List.of()));
+        }
+        return ResponseEntity.ok(Map.of("D_Day", dDayService.getUpcoming(userId)));
+    }
+
+    @PostMapping("/day/save")
+    public ResponseEntity<?> saveDDay(@RequestAttribute(value = "userId", required = false) String userId,
+                                      @RequestBody D_DayDTO request) {
+        if (userId == null || userId.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
+        }
+        try {
+            return ResponseEntity.ok(Map.of("message", "D-DAY가 성공적으로 저장되었습니다.",
+                    "D_Day", dDayService.save(userId, request)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/day/delete")
+    public ResponseEntity<?> deleteDDay(@RequestAttribute(value = "userId", required = false) String userId,
+                                        @RequestParam Long id) {
+        if (userId == null || userId.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
+        }
+        dDayService.delete(userId, id);
+        return ResponseEntity.ok(Map.of("message", "삭제되었습니다."));
+    }
 
 //    @GetMapping("/elastic/schedule")
 //    @ResponseBody
@@ -81,7 +120,8 @@ public class ToDoController {
     @GetMapping("/search/today/todo")
     public ResponseEntity<?> getTodoByToday(@RequestHeader(value = "Authorization", required = false) String token) {
         ResponseEntity<?> tokenCheckResponse = tokenValidator.validateTokenOrRespond(token);
-        if (tokenCheckResponse == null) {
+        // validateTokenOrRespond 는 정상이면 200, 아니면 401 을 돌려준다 (null 을 돌려주지 않음)
+        if (!tokenCheckResponse.getStatusCode().is2xxSuccessful()) {
             return tokenCheckResponse;
         }
         token=token.substring(7);
