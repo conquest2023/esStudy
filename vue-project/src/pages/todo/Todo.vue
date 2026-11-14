@@ -37,7 +37,7 @@
       </header>
 
       <!-- 컨트롤 바 -->
-      <section class="controls">
+      <section v-if="!needLogin" class="controls">
         <div class="search">
           <i class="fas fa-search" />
           <input
@@ -79,8 +79,15 @@
         </div>
       </section>
 
+      <!-- 비로그인: 에러 대신 로그인 안내 -->
+      <section v-if="needLogin" class="empty">
+        <h3>로그인하면 할 일과 D-Day를 관리할 수 있어요</h3>
+        <p>오늘 할 일, 시험·면접 날짜를 등록하고 진행률을 확인하세요.</p>
+        <router-link to="/login" class="btn btn-primary mt-2">로그인하기</router-link>
+      </section>
+
       <!-- 로딩/에러 배너 -->
-      <section v-if="loading || errorMsg" class="banner">
+      <section v-else-if="loading || errorMsg" class="banner">
         <div v-if="loading" class="banner-card">불러오는 중…</div>
         <div v-else class="banner-card danger">
           {{ errorMsg }}
@@ -89,7 +96,7 @@
       </section>
 
       <!-- 빈 상태 -->
-      <section v-if="!loading && !filteredTodos.length" class="empty">
+      <section v-if="!needLogin && !loading && !filteredTodos.length" class="empty">
         <div class="empty-card">
           <div class="empty-emoji">🪄</div>
           <h3>아직 Todo가 없어요</h3>
@@ -101,7 +108,7 @@
       </section>
 
       <!-- 그리드(보드) -->
-      <section v-else-if="viewMode === 'grid'" class="board">
+      <section v-else-if="!needLogin && viewMode === 'grid'" class="board">
         <article
             v-for="todo in filteredTodos"
             :key="todo.todo_id"
@@ -161,7 +168,7 @@
       </section>
 
       <!-- 리스트 -->
-      <section v-else class="list">
+      <section v-else-if="!needLogin" class="list">
         <div
             v-for="todo in filteredTodos"
             :key="todo.todo_id"
@@ -250,11 +257,19 @@ const categoryOptions = computed(() => {
   return Array.from(set)
 })
 
+const needLogin = ref(false)
+
 async function fetchTodos () {
+  const token = localStorage.getItem('token')
+  // 비로그인이면 서버를 부르지 않고 로그인 안내를 보여 준다 (예전엔 Internal Server Error 가 그대로 노출됨)
+  if (!token) {
+    needLogin.value = true
+    loading.value = false
+    return
+  }
   loading.value = true
   errorMsg.value = ''
   try {
-    const token = localStorage.getItem('token')
     const { data } = await api.get('/todos', {
       headers: { Authorization: 'Bearer ' + token }
     })

@@ -1,6 +1,7 @@
 <template>
+  <!-- 좁은 화면: 버튼을 눌러야 열리는 시트 / 넓은 화면(1200px+): 본문 옆 고정 사이드바 -->
   <button
-      v-if="collapsed"
+      v-if="!isWide && collapsed"
       class="insight-fab shadow-lg"
       @click="collapsed = false"
       aria-label="인사이트 열기"
@@ -8,23 +9,23 @@
     <i class="fas fa-chart-pie"></i>
   </button>
 
-  <Teleport to="body">
+  <Teleport to="body" :disabled="isWide">
     <Transition name="fade">
-      <div v-if="!collapsed" class="sheet-backdrop" @click="collapsed = true"></div>
+      <div v-if="!isWide && !collapsed" class="sheet-backdrop" @click="collapsed = true"></div>
     </Transition>
 
-    <Transition name="slide-up-drawer">
-      <aside v-if="!collapsed" class="insight-drawer shadow-lg">
+    <Transition :name="isWide ? '' : 'slide-up-drawer'">
+      <aside v-if="isWide || !collapsed" :class="isWide ? 'insight-column' : 'insight-drawer shadow-lg'">
 
-        <div class="sheet-handle-wrap" @click="collapsed = true">
+        <div v-if="!isWide" class="sheet-handle-wrap" @click="collapsed = true">
           <div class="sheet-handle"></div>
         </div>
 
-        <header class="drawer-header d-flex justify-content-between align-items-center mb-4">
-          <h4 class="fw-bold mb-0 text-dark">
+        <header class="drawer-header d-flex justify-content-between align-items-center" :class="isWide ? 'mb-3' : 'mb-4'">
+          <h4 class="fw-bold mb-0 text-dark" :style="isWide ? 'font-size: 1rem' : ''">
             <i class="fas fa-layer-group text-primary me-2"></i> Workly Insights
           </h4>
-          <button class="btn-close-soft" @click="collapsed = true">
+          <button v-if="!isWide" class="btn-close-soft" @click="collapsed = true">
             <i class="fas fa-times"></i>
           </button>
         </header>
@@ -141,12 +142,20 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, watch} from 'vue'
+import {ref, computed, onMounted, onBeforeUnmount, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {storeToRefs} from 'pinia'
 import {useSidebarStore} from '@/stores/sidebar'
 
-const collapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+// 처음 온 사람에게 시트가 자동으로 열리지 않도록 기본은 닫힘 (사용자가 직접 연 경우만 'false' 로 저장됨)
+const collapsed = ref(localStorage.getItem('sidebarCollapsed') !== 'false')
+
+// 1200px 이상이면 시트 대신 본문 옆 고정 사이드바로 보여 준다
+const wideQuery = window.matchMedia('(min-width: 1200px)')
+const isWide = ref(wideQuery.matches)
+const onWideChange = (e) => { isWide.value = e.matches }
+wideQuery.addEventListener('change', onWideChange)
+onBeforeUnmount(() => wideQuery.removeEventListener('change', onWideChange))
 const currentSection = ref('dashboard')
 
 // 누락되었던 탭 데이터 복구
@@ -191,6 +200,22 @@ const recentRankIcon = i => `${i + 1}. 🔥`
 /* ===============================
    1. 플로팅 액션 버튼 (FAB)
 ================================= */
+/* 넓은 화면: 본문 옆 고정 사이드바 (시트·흐림 없이) */
+.insight-column {
+  position: sticky;
+  top: 76px;
+  align-self: flex-start;
+  flex: 0 0 300px;
+  width: 300px;
+  margin-top: 70px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
+  padding: 16px;
+}
+
 .insight-fab {
   position: fixed;
   bottom: 100px; /* 기존 550px에서 모바일에 적합한 하단으로 변경 */
