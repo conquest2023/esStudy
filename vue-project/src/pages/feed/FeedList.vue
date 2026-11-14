@@ -1,7 +1,7 @@
 <template>
   <section class="container-fluid px-4 mt-4 modern-board">
     <div class="row gx-4 justify-content-center">
-      <main class="col-lg-7"> <div class="board-wrap">
+      <main class="col-12"> <div class="board-wrap">
         <SearchBar class="mb-4 modern-search" />
         <RecommendedPosts :items="recommend" class="mb-4" />
 
@@ -596,7 +596,8 @@ async function pingNormal() {
 @media (max-width: 992px) {
   .post-card { padding: 0.75rem; }
 }
-.board-wrap { max-width: 100%; margin: 0; }
+/* 데스크톱에서 본문이 490px 정도로 좁던 것을 넓힌다 (워클리 본문 폭 기준) */
+.board-wrap { max-width: 720px; margin: 0 auto; }
 .interview-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; cursor: pointer; }
 .search-bar input { font-size: 0.95rem; }
 .btn-group .btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }

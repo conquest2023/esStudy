@@ -208,6 +208,9 @@ function handleGlobalClick(e) {
   }
 }
 
+// RightSidebar 가 이 이벤트를 받아 Insights 시트를 연다
+const openInsights = () => window.dispatchEvent(new CustomEvent('workly:open-insights'))
+
 const menus = [
   {
     label: '취업 사이트',
@@ -263,8 +266,7 @@ const menus = [
     <div class="container-fluid d-flex justify-content-between align-items-center h-100">
 
       <div class="d-flex align-items-center gap-3">
-        <router-link to="/" class="brand-logo">Workly</router-link>
-        <span class="tagline d-none d-md-inline">미래를 준비하는 사람들을 위한 공간</span>
+        <router-link to="/" class="brand-logo" title="미래를 준비하는 사람들을 위한 공간">Workly</router-link>
       </div>
 
       <ul class="nav d-none d-md-flex gap-1 top-nav-menu-area">
@@ -367,6 +369,11 @@ const menus = [
             </div>
           </Transition>
         </div>
+
+        <!-- 좁은 화면에서 Insights(방문자·D-Day·할 일) 열기. 넓은 화면은 사이드바가 늘 보인다 -->
+        <button class="icon-btn d-xl-none" aria-label="인사이트 열기" @click="openInsights">
+          <i class="fas fa-chart-pie text-secondary"></i>
+        </button>
 
         <button class="icon-btn" @click="toggleTheme">
           <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
@@ -544,6 +551,13 @@ const menus = [
   transition: transform 0.1s, box-shadow 0.2s;
 }
 .btn-write:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15,23,42,0.2); }
+/* 로그인: 글쓰기 버튼과 같은 알약 모양, 테두리형 */
+.btn-login {
+  background: #fff; color: #0f172a; border: 1px solid #cbd5e1;
+  padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-login:hover { border-color: #2563eb; color: #2563eb; }
 .btn-primary-soft { background: #eff6ff; color: #2563eb; border: none; padding: 8px; border-radius: 10px; font-weight: 600; }
 .btn-primary-soft:hover { background: #dbeafe; }
 .text-btn { background: none; border: none; color: #64748b; font-size: 0.8rem; cursor: pointer; }

@@ -1,14 +1,6 @@
 <template>
-  <!-- 좁은 화면: 버튼을 눌러야 열리는 시트 / 넓은 화면(1200px+): 본문 옆 고정 사이드바 -->
-  <button
-      v-if="!isWide && collapsed"
-      class="insight-fab shadow-lg"
-      @click="collapsed = false"
-      aria-label="인사이트 열기"
-  >
-    <i class="fas fa-chart-pie"></i>
-  </button>
-
+  <!-- 좁은 화면: 상단 바의 차트 버튼(Navbar)으로 여는 시트 / 넓은 화면(1200px+): 본문 옆 고정 사이드바.
+       예전 오른쪽 아래 떠 있는 버튼은 모바일 글쓰기 버튼과 겹쳐 보여 없앴다. -->
   <Teleport to="body" :disabled="isWide">
     <Transition name="fade">
       <div v-if="!isWide && !collapsed" class="sheet-backdrop" @click="collapsed = true"></div>
@@ -155,7 +147,12 @@ const wideQuery = window.matchMedia('(min-width: 1200px)')
 const isWide = ref(wideQuery.matches)
 const onWideChange = (e) => { isWide.value = e.matches }
 wideQuery.addEventListener('change', onWideChange)
-onBeforeUnmount(() => wideQuery.removeEventListener('change', onWideChange))
+const onOpenRequest = () => { collapsed.value = false }
+window.addEventListener('workly:open-insights', onOpenRequest)
+onBeforeUnmount(() => {
+  wideQuery.removeEventListener('change', onWideChange)
+  window.removeEventListener('workly:open-insights', onOpenRequest)
+})
 const currentSection = ref('dashboard')
 
 // 누락되었던 탭 데이터 복구
