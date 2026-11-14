@@ -86,9 +86,17 @@
             <div class="modern-insight-card mb-3">
               <h6 class="card-title-soft"><i class="fas fa-flag-checkered text-danger me-2"></i> 다가오는 D-Day</h6>
               <ul class="task-list mt-2">
-                <li v-for="d in dDayList" :key="d.id" class="task-item">
-                  <span class="fw-medium text-dark">{{ d.examName }}</span>
-                  <span class="badge-dday">D-{{ d.dday }}</span>
+                <li v-for="d in dDayList" :key="d.id" class="task-item" style="flex-direction: column; align-items: stretch; gap: 4px">
+                  <span class="d-flex justify-content-between align-items-center">
+                    <span class="fw-medium text-dark">{{ d.examName }}</span>
+                    <span class="badge-dday">{{ d.dday === 0 ? 'D-Day' : 'D-' + d.dday }}</span>
+                  </span>
+                  <!-- D-Day 분류에 맞는 준비 바로가기 -->
+                  <span class="small d-flex gap-2">
+                    <router-link :to="ddayPrep(d.category).to" class="text-primary text-decoration-none">{{ ddayPrep(d.category).label }}</router-link>
+                    <span class="text-muted">·</span>
+                    <a href="/saju/me/dday?ref=workly" class="text-primary text-decoration-none">그날의 운</a>
+                  </span>
                 </li>
                 <li v-if="!dDayList.length" class="empty-state mt-2">등록된 D-Day가 없습니다</li>
               </ul>
@@ -152,6 +160,15 @@ watch(collapsed, v => localStorage.setItem('sidebarCollapsed', String(v)))
 
 const sb = useSidebarStore()
 const {dDayList, todoList, todoProgress, visitorStats, topWriters, topRecentWriters} = storeToRefs(sb)
+
+// D-Day 분류(DDayModal 의 영어·기사·컴활·공무원·기타) → 워클리 안의 준비 화면
+const DDAY_PREP = {
+  '영어': { to: '/practice', label: '영어 문제 풀기' },
+  '기사': { to: '/search/view/question', label: '기출 문제 풀기' },
+  '컴활': { to: '/search/view/question', label: '기출 문제 풀기' },
+  '공무원': { to: '/interview/govinterview', label: '면접 질문 보기' },
+}
+const ddayPrep = (category) => DDAY_PREP[category] ?? { to: '/interview/priinterview', label: '면접 질문 보기' }
 
 const activeUsers = computed(() => visitorStats.value.active)
 const todayUsers = computed(() => visitorStats.value.today)

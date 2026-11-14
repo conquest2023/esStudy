@@ -269,12 +269,20 @@ const menus = [
 
       <ul class="nav d-none d-md-flex gap-1 top-nav-menu-area">
         <li class="nav-item position-relative" v-for="(m, idx) in menus" :key="idx">
-          <a class="nav-link modern-nav-link" href="#" @click.prevent="toggleDropdown(idx)">
+          <!-- 하위 항목이 하나뿐인 메뉴는 드롭다운 없이 바로 이동 -->
+          <template v-if="m.items.length === 1">
+            <a v-if="m.items[0].external || isExternal(m.items[0].href)"
+               class="nav-link modern-nav-link" :href="m.items[0].href" target="_blank" rel="noopener noreferrer">{{ m.label }}</a>
+            <a v-else-if="m.items[0].reload" class="nav-link modern-nav-link" :href="m.items[0].href">{{ m.label }}</a>
+            <router-link v-else class="nav-link modern-nav-link" :to="m.items[0].href">{{ m.label }}</router-link>
+          </template>
+
+          <a v-else class="nav-link modern-nav-link" href="#" @click.prevent="toggleDropdown(idx)">
             {{ m.label }}
             <i class="fas fa-chevron-down ms-1" :class="{ 'rotate-180': openDropdownIdx === idx }"></i>
           </a>
 
-          <Transition name="dropdown-fade">
+          <Transition v-if="m.items.length > 1" name="dropdown-fade">
             <div v-show="openDropdownIdx === idx" class="modern-dropdown shadow-lg">
               <template v-for="item in m.items" :key="item.href">
                 <a

@@ -30,7 +30,12 @@ const isExternal = (path) => /^https?:\/\//i.test(String(path || '').trim())
 
 // 메뉴 클릭 핸들러
 function onClickItem(item) {
-  // 1. 하위 메뉴(children)가 있으면 바텀 시트를 엽니다.
+  // 0. 하위 메뉴가 하나뿐이면 시트 없이 바로 이동합니다.
+  if (item.children && item.children.length === 1) {
+    onClickChild(item.children[0])
+    return
+  }
+  // 1. 하위 메뉴(children)가 여러 개면 바텀 시트를 엽니다.
   if (item.children && item.children.length > 0) {
     currentChildren.value = item.children
     sheetTitle.value = item.label
